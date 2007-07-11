@@ -1,20 +1,21 @@
-/**
- * xrdp: A Remote Desktop Protocol server.
- *
- * Copyright (C) Jay Sorg 2004-2013
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+   xrdp: A Remote Desktop Protocol server.
+   Copyright (C) Jay Sorg 2005-2007
+*/
 
 /**
  *
@@ -24,74 +25,130 @@
  *
  */
 
-#if defined(HAVE_CONFIG_H)
-#include <config_ac.h>
-#endif
-
-#include "arch.h"
-#include "sig.h"
-
-#include "sesman_config.h"
-#include "log.h"
-#include "os_calls.h"
 #include "sesman.h"
-#include "session_list.h"
-#include "string_calls.h"
+
+#include "signal.h"
+
+extern int g_sck;
+extern int g_pid;
+extern struct config_sesman g_cfg;
 
 /******************************************************************************/
-void
-sig_sesman_reload_cfg(void)
+void DEFAULT_CC
+sig_sesman_shutdown(int sig)
 {
-    int error;
-    struct config_sesman *cfg;
+  log_message(LOG_LEVEL_INFO, "shutting down sesman %d", 1);
 
-    LOG(LOG_LEVEL_INFO, "receiving SIGHUP");
+  if (g_getpid() != g_pid)
+  {
+    LOG_DBG("g_getpid() [%d] differs from g_pid [%d]", (g_getpid()), g_pid);
+    return;
+  }
 
-    if ((cfg = config_read(g_cfg->sesman_ini)) == NULL)
-    {
-        LOG(LOG_LEVEL_ERROR, "error reading config - keeping old cfg");
-        return;
-    }
+  LOG_DBG(" - getting signal %d pid %d", sig, g_getpid());
 
-    /* Deal with significant config changes */
-    if (g_strcmp(g_cfg->listen_port, cfg->listen_port) != 0)
-    {
-        LOG(LOG_LEVEL_INFO, "sesman listen port changed to %s",
-            cfg->listen_port);
+  g_tcp_close(g_sck);
 
-        /* We have to delete the old port before listening to the new one
-         * in case they overlap in scope */
-        sesman_delete_listening_transport();
-        if (sesman_create_listening_transport(cfg) == 0)
-        {
-            LOG(LOG_LEVEL_INFO, "Sesman now listening on %s",
-                g_cfg->listen_port);
-        }
-    }
+  session_sigkill_all();
 
-    /* free old config data */
-    config_free(g_cfg);
-
-    /* replace old config with newly read one */
-    g_cfg = cfg;
-
-    /* Restart logging subsystem */
-    error = log_start(g_cfg->sesman_ini, "xrdp-sesman", LOG_START_RESTART);
-
-    if (error != LOG_STARTUP_OK)
-    {
-        char buf[256];
-
-        switch (error)
-        {
-            case LOG_ERROR_MALLOC:
-                g_printf("error on malloc. cannot restart logging. log stops here, sorry.\n");
-                break;
-            case LOG_ERROR_FILE_OPEN:
-                g_printf("error reopening log file [%s]. log stops here, sorry.\n", getLogFile(buf, 255));
-                break;
-        }
-    }
-
-    LOG(LOG_LEVEL_INFO, "configuration reloaded, log subsystem restarted");
+  g_file_delete(SESMAN_PID_FILE);
 }
+
+/******************************************************************************/
+void DEFAULT_CC
+sig_sesman_reload_cfg(int sig)
+{
+  struct config_sesman cfg;
+
+  log_message(LOG_LEVEL_WARNING, "receiving SIGHUP %d", 1);
+
+  if (g_getpid() != g_pid)
+  {
+    LOG_DBG("g_getpid() [%d] differs from g_pid [%d]", g_getpid(), g_pid);
+    return;
+  }
+
+  if (config_read(&cfg) != 0)
+  {
+    log_message(LOG_LEVEL_ERROR, "error reading config - keeping old cfg");
+    return;
+  }
+  g_cfg = cfg;
+
+  log_message(LOG_LEVEL_INFO, "configuration reloaded");
+}
+
+/******************************************************************************/
+void DEFAULT_CC
+sig_sesman_session_end(int sig)
+{
+  int pid;
+
+  if (g_getpid() != g_pid)
+  {
+    return;
+  }
+  pid = g_waitchild();
+  if (pid > 0)
+  {
+    session_kill(pid);
+  }
+}
+
+/******************************************************************************/
+void* DEFAULT_CC
+sig_handler_thread(void* arg)
+{
+  int recv_signal;
+  sigset_t sigmask;
+  sigset_t oldmask;
+  sigset_t waitmask;
+
+  /* mask signals to be able to wait for them... */
+  sigfillset(&sigmask);
+  /* it is a good idea not to block SIGILL SIGSEGV */
+  /* SIGFPE -- see sigaction(2) NOTES              */
+  pthread_sigmask(SIG_BLOCK, &sigmask, &oldmask);
+
+  /* building the signal wait mask... */
+  sigemptyset(&waitmask);
+  sigaddset(&waitmask, SIGHUP);
+  sigaddset(&waitmask, SIGCHLD);
+  sigaddset(&waitmask, SIGTERM);
+//  sigaddset(&waitmask, SIGFPE);
+//  sigaddset(&waitmask, SIGILL);
+//  sigaddset(&waitmask, SIGSEGV);
+
+  do
+  {
+    LOG_DBG("calling sigwait()",0);
+    sigwait(&waitmask, &recv_signal);
+
+    switch (recv_signal)
+    {
+      case SIGHUP:
+        //reload cfg
+        LOG_DBG("sesman received SIGHUP",0);
+        //return 0;
+        break;
+      case SIGCHLD:
+        /* a session died */
+        LOG_DBG("sesman received SIGCHLD",0);
+        sig_sesman_session_end(SIGCHLD);
+        break;
+      /*case SIGKILL;
+        / * we die * /
+        LOG_DBG("sesman received SIGKILL",0);
+        sig_sesman_shutdown(recv_signal);
+        break;*/
+      case SIGTERM:
+        /* we die */
+        LOG_DBG("sesman received SIGTERM",0);
+        sig_sesman_shutdown(recv_signal);
+        break;
+    }
+  } while (1);
+
+  return 0;
+}
+

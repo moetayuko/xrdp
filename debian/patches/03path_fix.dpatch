@@ -1,0 +1,111 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 02path_fix.dpatch by  <bernat@neo.luffy.cx>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Change relative paths to absolute paths to avoid putting everything in 
+## DP: /usr/lib/xrdp
+
+@DPATCH@
+
+--- xrdp-0.4.0.orig/sesman/sesman.ini
++++ xrdp-0.4.0/sesman/sesman.ini
+@@ -2,8 +2,8 @@
+ ListenAddress=127.0.0.1
+ ListenPort=3350
+ EnableUserWindowManager=1
+-UserWindowManager=startwm.sh
+-DefaultWindowManager=startwm.sh
++UserWindowManager=/etc/xrdp/startwm.sh
++DefaultWindowManager=/etc/xrdp/startwm.sh
+ 
+ [Security]
+ AllowRootLogin=1
+@@ -18,7 +18,7 @@
+ DisconnectedTimeLimit=0
+ 
+ [Logging]
+-LogFile=./sesman.log
++LogFile=/var/log/sesman.log
+ LogLevel=DEBUG
+ EnableSyslog=0
+ SyslogLevel=DEBUG
+--- xrdp-0.4.0.orig/xrdp/xrdp_font.c
++++ xrdp-0.4.0/xrdp/xrdp_font.c
+@@ -79,7 +79,7 @@
+   self->wm = wm;
+   make_stream(s);
+   init_stream(s, 8192 * 2);
+-  fd = g_file_open("sans-10.fv1");
++  fd = g_file_open(XRDP_RESOURCESDIR "/sans-10.fv1");
+   if (fd != -1)
+   {
+     b = g_file_read(fd, s->data, 8192 * 2);
+--- xrdp-0.4.0.orig/xrdp/xrdp_wm.c
++++ xrdp-0.4.0/xrdp/xrdp_wm.c
+@@ -328,11 +328,11 @@
+   struct xrdp_pointer_item pointer_item;
+ 
+   DEBUG(("sending cursor"));
+-  xrdp_wm_load_pointer(self, "cursor1.cur", pointer_item.data,
++  xrdp_wm_load_pointer(self, XRDP_RESOURCESDIR "/cursor1.cur", pointer_item.data,
+                        pointer_item.mask, &pointer_item.x, &pointer_item.y);
+   xrdp_cache_add_pointer_static(self->cache, &pointer_item, 1);
+   DEBUG(("sending cursor"));
+-  xrdp_wm_load_pointer(self, "cursor0.cur", pointer_item.data,
++  xrdp_wm_load_pointer(self, XRDP_RESOURCESDIR "/cursor0.cur", pointer_item.data,
+                        pointer_item.mask, &pointer_item.x, &pointer_item.y);
+   xrdp_cache_add_pointer_static(self->cache, &pointer_item, 0);
+   return 0;
+--- xrdp-0.4.0.orig/xrdp/Makefile
++++ xrdp-0.4.0/xrdp/Makefile
+@@ -11,10 +11,12 @@
+ PIDDIR = /var/run
+ MANDIR = /usr/local/man
+ DOCDIR = /usr/doc/xrdp
++RESOURCESDIR = /usr/lib/xrdp
+ 
+ DEFINES = -DXRDP_CFG_FILE=\"$(CFGDIR)/xrdp.ini\" \
+-          -DXRDP_PID_FILE=\"$(PIDDIR)/xrdp.pid\"
++          -DXRDP_PID_FILE=\"$(PIDDIR)/xrdp.pid\" \
++          -DXRDP_RESOURCESDIR=\"$(RESOURCESDIR)\"
+ 
+ CFLAGS = -Wall -O2 -I../common -I../libxrdp $(DEFINES)
+ #CFLAGS += -DXRDP_DEBUG
+ C_OS_FLAGS = $(CFLAGS) -c
+@@ -41,11 +43,11 @@
+ 	install xrdp $(DESTDIR)/xrdp
+ 
+ installdeb:
+-	install ad256.bmp $(DESTDIRDEB)/usr/lib/xrdp/ad256.bmp
+-	install xrdp256.bmp $(DESTDIRDEB)/usr/lib/xrdp/xrdp256.bmp
+-	install cursor0.cur $(DESTDIRDEB)/usr/lib/xrdp/cursor0.cur
+-	install cursor1.cur $(DESTDIRDEB)/usr/lib/xrdp/cursor1.cur
+-	install sans-10.fv1 $(DESTDIRDEB)/usr/lib/xrdp/sans-10.fv1
++	install ad256.bmp $(DESTDIRDEB)/usr/share/xrdp/ad256.bmp
++	install xrdp256.bmp $(DESTDIRDEB)/usr/share/xrdp/xrdp256.bmp
++	install cursor0.cur $(DESTDIRDEB)/usr/share/xrdp/cursor0.cur
++	install cursor1.cur $(DESTDIRDEB)/usr/share/xrdp/cursor1.cur
++	install sans-10.fv1 $(DESTDIRDEB)/usr/share/xrdp/sans-10.fv1
+ 	install xrdp.ini $(DESTDIRDEB)/etc/xrdp/xrdp.ini
+ 	install rsakeys.ini $(DESTDIRDEB)/etc/xrdp/rsakeys.ini
+ 	install xrdp $(DESTDIRDEB)/usr/lib/xrdp/xrdp
+--- xrdp-0.4.0.orig/xrdp/xrdp_login_wnd.c
++++ xrdp-0.4.0/xrdp/xrdp_login_wnd.c
+@@ -461,7 +461,7 @@
+ 
+   /* image */
+   but = xrdp_bitmap_create(4, 4, self->screen->bpp, WND_TYPE_IMAGE, self);
+-  xrdp_bitmap_load(but, "xrdp256.bmp", self->palette);
++  xrdp_bitmap_load(but, XRDP_RESOURCESDIR "/xrdp256.bmp", self->palette);
+   but->parent = self->screen;
+   but->owner = self->screen;
+   but->left = self->screen->width - but->width;
+@@ -470,7 +470,7 @@
+ 
+   /* image */
+   but = xrdp_bitmap_create(4, 4, self->screen->bpp, WND_TYPE_IMAGE, self);
+-  xrdp_bitmap_load(but, "ad256.bmp", self->palette);
++  xrdp_bitmap_load(but, XRDP_RESOURCESDIR "/ad256.bmp", self->palette);
+   but->parent = self->login_window;
+   but->owner = self->login_window;
+   but->left = 10;

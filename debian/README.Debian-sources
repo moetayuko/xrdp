@@ -1,0 +1,10 @@
+Debian xrdp package.
+=========================
+
+xrdp 0.4.0 was shipped with a copy of Tahoma font from
+Microsoft. Since this fond disallows distribution, it was removed from
+upstream tarball. debian/patches/05sans-font.dpatch provides a drop
+down replacement that will be used in next upstream release.
+
+Filed removed from upstream tarball: xrdp/Tahoma-10.fv1
+Directory removed from upstream tarball: debian

@@ -1,0 +1,2 @@
+# Do we need to start sesman ?
+SESMAN_START=yes
