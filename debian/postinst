@@ -1,0 +1,63 @@
+#!/bin/sh -e
+
+if ! ([ "$1" = "configure" ] || [ "$1" = "reconfigure" ]); then
+  exit 0
+fi
+
+
+# set some useful variables
+XRDP="xrdp"
+CHOWN="/bin/chown"
+ADDUSER="/usr/sbin/adduser"
+USERDEL="/usr/sbin/userdel"
+USERADD="/usr/sbin/useradd"
+GROUPDEL="/usr/sbin/groupdel"
+GROUPMOD="/usr/sbin/groupmod"
+ID="/usr/bin/id"
+
+
+###
+# 1. get current xrdp uid and gid if user exists.
+set -e
+if $ID $XRDP > /dev/null 2>&1; then
+   IUID=`$ID --user $XRDP`
+   IGID=`$ID --group $XRDP`
+else
+   IUID="NONE"
+   IGID="NONE"
+fi
+
+
+###
+# 2. Ensure that no standard account or group will remain before adding the
+#    new user
+if [ "$IUID" = "NONE" ] || [ $IUID -ge 1000 ]; then # we must do sth :)
+  if ! [ "$IUID" = "NONE" ] && [ $IUID -ge 1000 ]; then
+      # xrdp user exists but isn't a system user... delete it.
+      $USERDEL $XRDP
+      $GROUPDEL $XRDP
+  fi
+
+###
+# 3. Add the system account.
+#    Issue a debconf warning if it fails.
+  if $GROUPMOD $XRDP > /dev/null 2>&1; then
+    # xrdp group already exists, use --ingroup
+    if ! $ADDUSER --system --disabled-password --disabled-login --home /usr/share/xrdp --no-create-home --ingroup $XRDP $XRDP; then
+      echo "The adduser command failed."
+    fi
+  else
+    if ! $ADDUSER --system --disabled-password --disabled-login --home /usr/share/xrdp --no-create-home --group $XRDP; then
+      echo "The adduser command failed."
+    fi
+  fi
+fi
+
+###
+# 5. change ownership of directory
+$CHOWN -R $XRDP:$XRDP /etc/xrdp
+touch /var/log/sesman.log
+$CHOWN -R $XRDP:$XRDP /var/log/sesman.log
+$CHOWN -R $XRDP:$XRDP /var/run/xrdp
+
+#DEBHELPER#

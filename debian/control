@@ -7,9 +7,9 @@ Standards-Version: 3.7.2
 
 Package: xrdp
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, adduser
 Recommends: vnc4server | tightvncserver | vnc-server
-Description: open source Remote Desktop Protocol (RDP) server
+Description: Remote Desktop Protocol (RDP) server
  Based on research work by the rdesktop project, xrdp uses the Remote
  Desktop Protocol to present a graphical login to a remote client.
  xrdp can connect to a VNC server or another RDP server.

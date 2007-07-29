@@ -31,7 +31,10 @@ build-stamp: configure-stamp
 
 	# Decode sans-10
 	uudecode -o $(CURDIR)/xrdp/sans-10.fv1 $(CURDIR)/xrdp/sans-10.fv1.uue
+	# Change le PIDDIR
+	find -name Makefile | while read i; do sed -e 's#/var/run#/var/run/xrdp#g' -i "$$i"; done
 	$(MAKE) DESTDIR=/usr/lib/xrdp RESOURCESDIR=/usr/share/xrdp
+	$(MAKE) -C $(CURDIR)/keygen keygen
 
 	touch build-stamp
 
@@ -43,6 +46,10 @@ clean-patched:
 	-rm $(CURDIR)/xrdp/sans-10.fv1
 
 	$(MAKE) clean
+	[ ! -d $(CURDIR)/keygen ] || $(MAKE) -C $(CURDIR)/keygen clean
+        
+	# Restore orinal PIDIR
+	find -name Makefile | while read i; do sed -e 's#/var/run/xrdp#/var/run#g' -i "$$i"; done
 
 	dh_clean
 
@@ -63,6 +70,8 @@ install: build
 	rm $(CURDIR)/debian/xrdp/etc/init.d/xrdp_control.sh
 	rm $(CURDIR)/debian/xrdp/usr/lib/xrdp/startwm.sh
 	install -m 755 $(CURDIR)/debian/startwm.sh $(CURDIR)/debian/xrdp/etc/xrdp
+	mv $(CURDIR)/debian/xrdp/etc/xrdp/rsakeys.ini $(CURDIR)/debian/xrdp/usr/share/doc/xrdp/
+	install -m 755 $(CURDIR)/keygen/keygen $(CURDIR)/debian/xrdp/usr/bin/xrdp-keygen
 
 
 # Build architecture-independent files here.
@@ -79,7 +88,7 @@ binary-arch: build install
 	dh_install
 	dh_installpam
 	dh_installinit
-	dh_installman
+	dh_installman debian/xrdp-keygen.8
 	dh_link
 	dh_strip
 	dh_compress

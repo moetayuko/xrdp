@@ -13,6 +13,9 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/xrdp
+PIDDIR=/var/run/xrdp
+USERID=xrdp
+RSAKEYS=/etc/xrdp/rsakeys.ini
 NAME=xrdp
 DESC=xrdp
 
@@ -22,28 +25,42 @@ if [ -r /etc/default/$NAME ]; then
    . /etc/default/$NAME
 fi
 
+# Check for pid dir
+if [ ! -d $PIDDIR ] ; then
+        mkdir $PIDDIR
+        chown $USERID:$USERID $PIDDIR
+fi
+
+# Check for rsa key 
+if [ ! -f $RSAKEYS ] || cmp $RSAKEYS /usr/share/doc/xrdp/rsakeys.ini > /dev/null; then
+        echo "Generating xrdp RSA keys..."
+        (umask 077 ; xrdp-keygen xrdp)
+        chown $USERID:$USERID $RSAKEYS
+fi
+
+
 set -e
 
 case "$1" in
   start)
 	echo -n "Starting $DESC: "
-        start-stop-daemon --start --quiet --oknodo --pidfile /var/run/$NAME.pid \
-	    --exec $DAEMON
+        start-stop-daemon --start --quiet --oknodo  --pidfile $PIDDIR/$NAME.pid \
+	    --chuid $USERID:$USERID --exec $DAEMON
 	echo -n "$NAME"
 	[ "$SESMAN_START" = "yes" ] && { \
-            start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sesman.pid \
-	       --exec /usr/bin/sesman
+            start-stop-daemon --start --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
+	       --chuid $USERID:$USERID --exec /usr/bin/sesman
 	    echo -n " sesman"
 	}
 	echo "."
 	;;
   stop)
 	echo -n "Stopping $DESC: "
-        start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sesman.pid \
-	    --exec /usr/bin/sesman
+        start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
+	    --chuid $USERID:$USERID --exec /usr/bin/sesman
 	echo -n "sesman "
-	start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/$NAME.pid \
-		--exec $DAEMON
+	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/$NAME.pid \
+	    --chuid $USERID:$USERID --exec $DAEMON
 	echo "$NAME."
 	;;
   restart)

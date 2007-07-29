@@ -1,0 +1,20 @@
+#! /bin/sh
+# postrm script for xrdp
+#
+# see: dh_installdeb(1)
+
+set -e
+
+case "$1" in
+    purge)
+        rm -rf /etc/xrdp /var/run/xrdp
+    ;;
+    *)
+    ;;
+esac
+
+
+#DEBHELPER#
+
+exit 0
+

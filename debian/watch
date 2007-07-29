@@ -1,0 +1,2 @@
+version=3
+opts=dversionmangle=s/~dfsg$// http://sf.net/xrdp/xrdp-([\d\.]+.*)\.tar\.gz
