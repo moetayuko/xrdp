@@ -63,9 +63,16 @@ install: build
 	mv $(CURDIR)/debian/xrdp/usr/lib/xrdp/xrdp $(CURDIR)/debian/xrdp/usr/bin
 	mv $(CURDIR)/debian/xrdp/usr/lib/xrdp/sesman $(CURDIR)/debian/xrdp/usr/bin
 	mv $(CURDIR)/debian/xrdp/usr/man $(CURDIR)/debian/xrdp/usr/share
+	sed -i -e 's+\$${\(XRDP\|SESMAN\)_BIN_DIR}+/usr/bin+g' \
+	       -e 's+\$${\(XRDP\|SESMAN\)_CFG_DIR}+/etc/xrdp+g' \
+	       -e 's+\$${\(XRDP\|SESMAN\)_LOG_DIR}+/var/log+g' \
+	       -e 's+\$${\(XRDP\|SESMAN\)_PID_DIR}+/var/run/xrdp+g' \
+	   $(CURDIR)/debian/xrdp/usr/share/man/man*/*
+
+
 	chmod -x $(CURDIR)/debian/xrdp/usr/share/xrdp/*
 	chmod -x $(CURDIR)/debian/xrdp/etc/xrdp/*
-	chmod -x $(CURDIR)/debian/xrdp/etc/pam.d/sesman
+	rm $(CURDIR)/debian/xrdp/etc/pam.d/sesman
 	rm $(CURDIR)/debian/xrdp/usr/share/man/man8/sesrun.8
 	rm $(CURDIR)/debian/xrdp/etc/init.d/xrdp_control.sh
 	rm $(CURDIR)/debian/xrdp/usr/lib/xrdp/startwm.sh
@@ -86,7 +93,7 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 	dh_install
-	dh_installpam
+	dh_installpam --name=sesman
 	dh_installinit
 	dh_installman debian/xrdp-keygen.8
 	dh_link

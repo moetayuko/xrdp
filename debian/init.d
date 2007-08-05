@@ -49,7 +49,7 @@ case "$1" in
 	echo -n "$NAME"
 	[ "$SESMAN_START" = "yes" ] && { \
             start-stop-daemon --start --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
-	       --chuid $USERID:$USERID --exec /usr/bin/sesman
+	       --exec /usr/bin/sesman
 	    echo -n " sesman"
 	}
 	echo "."
@@ -60,7 +60,7 @@ case "$1" in
 	    --chuid $USERID:$USERID --exec /usr/bin/sesman
 	echo -n "sesman "
 	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/$NAME.pid \
-	    --chuid $USERID:$USERID --exec $DAEMON
+	    --exec $DAEMON
 	echo "$NAME."
 	;;
   restart)
