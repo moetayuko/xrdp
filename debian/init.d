@@ -55,17 +55,21 @@ case "$1" in
 	echo "."
 	;;
   stop)
+	[ -n "$XRDP_UPGRADE" -a "$RESTART_ON_UPGRADE" = "no" ] && {
+	    echo "Upgrade in progress, no restart of xrdp."
+	    exit 0
+	}
 	echo -n "Stopping $DESC: "
         start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
 	    --chuid $USERID:$USERID --exec /usr/bin/sesman
 	echo -n "sesman "
 	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/$NAME.pid \
 	    --exec $DAEMON
+	sleep 1
 	echo "$NAME."
 	;;
   restart)
 	$0 stop
-	sleep 1
 	$0 start
 	;;
   *)
