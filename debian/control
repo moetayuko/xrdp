@@ -1,11 +1,12 @@
 Source: xrdp
 Section: net
 Priority: optional
-Maintainer: Vincent Bernat <bernat@luffy.cx>
+Maintainer: Vincent Bernat <bernat@debian.org>
 Build-Depends: debhelper (>= 5.0.0), libssl-dev, libpam0g-dev, dpatch, sharutils
 Standards-Version: 3.7.3
 Homepage: http://xrdp.sourceforge.net
-DM-Upload-Allowed: yes
+Vcs-Browser: http://git.debian.org/?p=collab-maint/xrdp.git
+Vcs-Git: git://git.debian.org/git/collab-maint/xrdp.git
 
 Package: xrdp
 Architecture: any
