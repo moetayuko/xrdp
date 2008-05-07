@@ -1,0 +1,20 @@
+Source: xrdp
+Section: net
+Priority: optional
+Maintainer: Vincent Bernat <bernat@luffy.cx>
+Build-Depends: debhelper (>= 5.0.0), libssl-dev, libpam0g-dev, dpatch, sharutils
+Standards-Version: 3.7.3
+Homepage: http://xrdp.sourceforge.net
+DM-Upload-Allowed: yes
+
+Package: xrdp
+Architecture: any
+Depends: ${shlibs:Depends}, adduser
+Recommends: vnc4server | tightvncserver | vnc-server
+Description: Remote Desktop Protocol (RDP) server
+ Based on research work by the rdesktop project, xrdp uses the Remote
+ Desktop Protocol to present a graphical login to a remote client.
+ xrdp can connect to a VNC server or another RDP server.
+ .
+ Microsoft Windows users can connect to a system running xrdp without
+ installing additional software.

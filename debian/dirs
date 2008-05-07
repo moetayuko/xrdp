@@ -1,0 +1,6 @@
+usr/lib/xrdp
+usr/share/xrdp
+usr/share/doc/xrdp
+usr/bin
+etc/xrdp
+var/run/xrdp

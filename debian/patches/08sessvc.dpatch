@@ -1,0 +1,39 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 08sessvc.dpatch by  <bernat@neo.luffy.cx>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Install sessvc as well
+
+@DPATCH@
+
+--- xrdp-0.4.0~dfsg/sesman/Makefile~	2008-03-06 21:49:55.000000000 +0100
++++ xrdp-0.4.0~dfsg/sesman/Makefile	2008-03-06 21:56:12.000000000 +0100
+@@ -14,7 +14,7 @@
+ 
+ DEFINES = -DSESMAN_CFG_FILE=\"$(CFGDIR)/sesman.ini\" \
+ 	  -DSESMAN_PID_FILE=\"$(PIDDIR)/sesman.pid\" \
+-	  -DSESMAN_SESSVC_FILE=\"sessvc\"
++	  -DSESMAN_SESSVC_FILE=\"/usr/lib/xrdp/sessvc\"
+ 
+ 
+ CFLAGS = -Wall -O2 -I../common -I/usr/include/nptl -I./libscp $(DEFINES)
+@@ -64,6 +64,7 @@
+ 
+ installdeb:
+ 	install sesman $(DESTDIRDEB)/usr/lib/xrdp/sesman
++	install sessvc $(DESTDIRDEB)/usr/lib/xrdp/sessvc
+ 	install startwm.sh $(DESTDIRDEB)/usr/lib/xrdp/startwm.sh
+ 	install sesman.ini $(DESTDIRDEB)/etc/xrdp/sesman.ini
+ 	make -C libscp installdeb DESTDIRDEB=$(DESTDIRDEB)
+--- xrdp-0.4.0~dfsg/sesman/session.c~	2007-05-28 01:13:23.000000000 +0200
++++ xrdp-0.4.0~dfsg/sesman/session.c	2008-03-06 21:55:06.000000000 +0100
+@@ -130,8 +130,7 @@
+   sessvc_params->auto_free = 1;
+ 
+   /* building parameters */
+-  g_get_current_dir(cur_dir, 255);
+-  g_snprintf(exe_path, 255, "%s/%s", cur_dir, SESMAN_SESSVC_FILE);
++  g_snprintf(exe_path, 255, "%s", SESMAN_SESSVC_FILE);
+   list_add_item(sessvc_params, (long)g_strdup(exe_path));
+   list_add_item(sessvc_params, (long)g_strdup(xpid_str));
+   list_add_item(sessvc_params, (long)g_strdup(wmpid_str));

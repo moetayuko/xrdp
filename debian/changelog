@@ -1,0 +1,45 @@
+xrdp (0.4.0~dfsg-5) unstable; urgency=low
+
+  * Package sessvc which was left out (Closes: #465210).
+  * Sleep a bit after stopping so that xrdp can be restarted on upgrade.
+  * Add an option in /etc/default/xrdp to avoid to restart xrdp on
+    upgrade, thanks to a suggestion from Ola Lundqvist (Closes: #472186).
+
+ -- Vincent Bernat <bernat@luffy.cx>  Wed, 26 Mar 2008 20:45:12 +0100
+
+xrdp (0.4.0~dfsg-4) unstable; urgency=low
+
+  * Add a patch to fix missing keys in fr and de layout. Layout
+    enhancements are welcome! (Closes: #440912)
+  * Bump Standards-Version to 3.7.3
+  * Add XS-DM-Upload field to debian/control
+
+ -- Vincent Bernat <bernat@luffy.cx>  Sat, 02 Feb 2008 00:53:59 +0100
+
+xrdp (0.4.0~dfsg-3) unstable; urgency=low
+
+  * Delete user and group on purge.
+  * Do not delete xrdp user on postinst if it exists, thanks to Trent
+    W. Buck (Closes: #435671).
+  * Provide a more generic PAM configuration file.
+  * Run sesman as root to allow him to use PAM properly (Closes: #435667).
+  * Fix file paths in man pages.
+
+ -- Vincent Bernat <bernat@luffy.cx>  Sun, 05 Aug 2007 20:33:55 +0200
+
+xrdp (0.4.0~dfsg-2) unstable; urgency=low
+
+  * Includes a keygen utility from CVS to generate a fresh keypair on
+    first start and ensure that permissions are correct. (Closes: #435076).
+  * Removes redundant "open source" mention in description, thanks to Josh
+    Triplett (Closes: #435061).
+  * Add a watch file
+  * Now running the daemon as xrdp user
+
+ -- Vincent Bernat <bernat@luffy.cx>  Sun, 29 Jul 2007 13:05:46 +0200
+
+xrdp (0.4.0~dfsg-1) unstable; urgency=low
+
+  * Initial release (Closes: #391103)
+
+ -- Vincent Bernat <bernat@luffy.cx>  Wed, 11 Jul 2007 09:13:08 +0200

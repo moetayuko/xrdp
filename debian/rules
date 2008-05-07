@@ -1,0 +1,111 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+include /usr/share/dpatch/dpatch.make
+
+CFLAGS = -Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+
+	touch configure-stamp
+
+
+build: patch build-stamp
+
+build-stamp: configure-stamp
+	dh_testdir
+
+	# Decode sans-10
+	uudecode -o $(CURDIR)/xrdp/sans-10.fv1 $(CURDIR)/xrdp/sans-10.fv1.uue
+	# Change le PIDDIR
+	find -name Makefile | while read i; do sed -e 's#/var/run#/var/run/xrdp#g' -i "$$i"; done
+	$(MAKE) DESTDIR=/usr/lib/xrdp RESOURCESDIR=/usr/share/xrdp
+	$(MAKE) -C $(CURDIR)/keygen keygen
+
+	touch build-stamp
+
+clean: clean-patched unpatch
+clean-patched:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	-rm $(CURDIR)/xrdp/sans-10.fv1
+
+	$(MAKE) clean
+	[ ! -d $(CURDIR)/keygen ] || $(MAKE) -C $(CURDIR)/keygen clean
+        
+	# Restore orinal PIDIR
+	find -name Makefile | while read i; do sed -e 's#/var/run/xrdp#/var/run#g' -i "$$i"; done
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	$(MAKE) installdeb DESTDIRDEB=$(CURDIR)/debian/xrdp
+	mv $(CURDIR)/debian/xrdp/usr/lib/xrdp/xrdp $(CURDIR)/debian/xrdp/usr/bin
+	mv $(CURDIR)/debian/xrdp/usr/lib/xrdp/sesman $(CURDIR)/debian/xrdp/usr/bin
+	mv $(CURDIR)/debian/xrdp/usr/man $(CURDIR)/debian/xrdp/usr/share
+	sed -i -e 's+\$${\(XRDP\|SESMAN\)_BIN_DIR}+/usr/bin+g' \
+	       -e 's+\$${\(XRDP\|SESMAN\)_CFG_DIR}+/etc/xrdp+g' \
+	       -e 's+\$${\(XRDP\|SESMAN\)_LOG_DIR}+/var/log+g' \
+	       -e 's+\$${\(XRDP\|SESMAN\)_PID_DIR}+/var/run/xrdp+g' \
+	   $(CURDIR)/debian/xrdp/usr/share/man/man*/*
+
+
+	chmod -x $(CURDIR)/debian/xrdp/usr/share/xrdp/*
+	chmod -x $(CURDIR)/debian/xrdp/etc/xrdp/*
+	rm $(CURDIR)/debian/xrdp/etc/pam.d/sesman
+	rm $(CURDIR)/debian/xrdp/usr/share/man/man8/sesrun.8
+	rm $(CURDIR)/debian/xrdp/etc/init.d/xrdp_control.sh
+	rm $(CURDIR)/debian/xrdp/usr/lib/xrdp/startwm.sh
+	install -m 755 $(CURDIR)/debian/startwm.sh $(CURDIR)/debian/xrdp/etc/xrdp
+	mv $(CURDIR)/debian/xrdp/etc/xrdp/rsakeys.ini $(CURDIR)/debian/xrdp/usr/share/doc/xrdp/
+	install -m 755 $(CURDIR)/keygen/keygen $(CURDIR)/debian/xrdp/usr/bin/xrdp-keygen
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+	dh_install
+	dh_installpam --name=sesman
+	dh_installinit
+	dh_installman debian/xrdp-keygen.8
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
