@@ -1,6 +1,7 @@
 xrdp (0.4.0~dfsg-6) unstable; urgency=low
 
   * Add Vcs-* fields to debian/control
+  * Convert debian/copyright to machine-readable format (Closes: #469074)
 
  -- Vincent Bernat <bernat@debian.org>  Wed, 07 May 2008 22:52:37 +0200
 
