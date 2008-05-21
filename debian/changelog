@@ -1,3 +1,11 @@
+xrdp (0.4.0~dfsg-7) unstable; urgency=medium
+
+  * Due to OpenSSL weak random number generator, rsakeys.ini contains weak
+    keys. We remove them on upgrade without any warning since they are not
+    checked by any client.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 21 May 2008 06:49:20 +0200
+
 xrdp (0.4.0~dfsg-6) unstable; urgency=low
 
   * Add Vcs-* fields to debian/control

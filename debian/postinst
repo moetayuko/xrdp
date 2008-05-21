@@ -17,4 +17,12 @@ touch /var/log/sesman.log
 $CHOWN -R $XRDP:$XRDP /var/log/sesman.log
 $CHOWN -R $XRDP:$XRDP /var/run/xrdp
 
+if [ "$1" = "configure" ]; then
+    if dpkg --compare-versions "$2" lt '0.4.0~dfsg-7'; then
+        # We remove old keys
+	[ -f /etc/xrdp/rsakeys.ini ] && rm /etc/xrdp/rsakeys.ini
+    fi
+fi
+
+
 #DEBHELPER#
