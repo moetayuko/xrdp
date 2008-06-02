@@ -1,3 +1,9 @@
+xrdp (0.4.0~dfsg-8) unstable; urgency=low
+
+  * Add a patch to fix monochrome cursor issue
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 03 Jun 2008 00:17:16 +0200
+
 xrdp (0.4.0~dfsg-7) unstable; urgency=medium
 
   * Due to OpenSSL weak random number generator, rsakeys.ini contains weak
