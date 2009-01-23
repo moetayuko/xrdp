@@ -6,6 +6,7 @@ xrdp (0.4.0~dfsg-9) unstable; urgency=high
     CVE-2008-5903 by checking boundary before calling add_char_at(). This
     closes: #511641.
   * Also updates Standards-Version and add ${misc:Depends} macro.
+  * Don't use Pa macro in xrdp-keygen manual page.
 
  -- Vincent Bernat <bernat@debian.org>  Fri, 23 Jan 2009 21:29:14 +0100
 
