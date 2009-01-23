@@ -1,3 +1,10 @@
+xrdp (0.4.0~dfsg-9) unstable; urgency=high
+
+  * Really add patch to fix monochrome cursor issue.
+  * Fix CVE-2008-5902 with a patch proposed by Ondrej Kolacek.
+
+ -- Vincent Bernat <bernat@debian.org>  Fri, 23 Jan 2009 21:29:14 +0100
+
 xrdp (0.4.0~dfsg-8) unstable; urgency=low
 
   * Add a patch to fix monochrome cursor issue
