@@ -5,6 +5,7 @@ xrdp (0.4.0~dfsg-9) unstable; urgency=high
     by Ondrej Kolacek. The patch fixing CVE-2008-5902 also happens to fix
     CVE-2008-5903 by checking boundary before calling add_char_at(). This
     closes: #511641.
+  * Also updates Standards-Version and add ${misc:Depends} macro.
 
  -- Vincent Bernat <bernat@debian.org>  Fri, 23 Jan 2009 21:29:14 +0100
 
