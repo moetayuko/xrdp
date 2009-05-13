@@ -1,3 +1,10 @@
+xrdp (0.4.0~dfsg-10) UNRELEASED; urgency=low
+
+  * Export locale settings from /etc/default/locale, thanks to a
+    suggestion from Alessandro Vietta. Closes: #528032.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 13 May 2009 20:38:51 +0200
+
 xrdp (0.4.0~dfsg-9) unstable; urgency=high
 
   * Fix CVE-2008-5902 and CVE-2008-5904 with the help of patches proposed
