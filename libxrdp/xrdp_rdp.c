@@ -408,7 +408,7 @@ xrdp_rdp_send_demand_active(struct xrdp_rdp* self)
   out_uint32_le(s, self->share_id);
 
   out_uint16_le(s, 4); /* 4 chars for RDP\0 */
-  out_uint16_le(s, 0x0104); /* size after num caps */
+  out_uint16_le(s, 0x0106); /* size after num caps */
   out_uint8a(s, "RDP", 4);
   out_uint32_le(s, 8); /* num caps 8 */
 
@@ -513,6 +513,7 @@ xrdp_rdp_send_demand_active(struct xrdp_rdp* self)
   out_uint16_le(s, RDP_CAPSET_POINTER);
   out_uint16_le(s, RDP_CAPLEN_POINTER);
   out_uint16_le(s, 1); /* Colour pointer */
+  out_uint16_le(s, 0x19); /* Cache size */
   out_uint16_le(s, 0x19); /* Cache size */
 
   /* Output ? */
