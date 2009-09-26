@@ -1,4 +1,4 @@
-xrdp (0.4.1~dfsg-1) UNRELEASED; urgency=low
+xrdp (0.4.1~dfsg-1) unstable; urgency=low
 
   * Package xrdp 0.4.1. Remove 09vista_mstc.dpatch and
     10mono_cursor.dpatch since they were included upstream. This new
@@ -10,7 +10,7 @@ xrdp (0.4.1~dfsg-1) UNRELEASED; urgency=low
   * Update Standards-Version to 3.8.3. No changes required.
   * Don't ship /var/run/xrdp since it is created in init.d.
 
- -- Vincent Bernat <bernat@debian.org>  Wed, 13 May 2009 20:38:51 +0200
+ -- Vincent Bernat <bernat@debian.org>  Sat, 26 Sep 2009 17:37:20 +0200
 
 xrdp (0.4.0~dfsg-9) unstable; urgency=high
 
