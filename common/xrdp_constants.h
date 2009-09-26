@@ -212,7 +212,8 @@
 #define RDP_CAPLEN_ACTIVATE            0x0C
 
 #define RDP_CAPSET_POINTER             8
-#define RDP_CAPLEN_POINTER             0x08
+#define RDP_CAPLEN_POINTER             0x0a
+#define RDP_CAPLEN_POINTER_MONO        0x08
 
 #define RDP_CAPSET_SHARE               9
 #define RDP_CAPLEN_SHARE               0x08
