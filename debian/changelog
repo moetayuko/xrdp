@@ -1,5 +1,8 @@
-xrdp (0.4.0~dfsg-10) UNRELEASED; urgency=low
+xrdp (0.4.1~dfsg-1) UNRELEASED; urgency=low
 
+  * Package xrdp 0.4.1. Remove 09vista_mstc.dpatch and
+    10mono_cursor.dpatch since they were included upstream. This new
+    version happens to fix LDAP login.  Closes: #547999, #548002.
   * Export locale settings from /etc/default/locale, thanks to a
     suggestion from Alessandro Vietta. Closes: #528032.
 
