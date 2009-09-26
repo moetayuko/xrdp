@@ -7,6 +7,7 @@ xrdp (0.4.1~dfsg-1) UNRELEASED; urgency=low
     suggestion from Alessandro Vietta. Closes: #528032.
   * Fix a bus error on ARM, thanks to a patch from Sven-Ola
     Tuecke. Closes: #544384.
+  * Update Standards-Version to 3.8.3. No changes required.
 
  -- Vincent Bernat <bernat@debian.org>  Wed, 13 May 2009 20:38:51 +0200
 
