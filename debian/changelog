@@ -5,6 +5,8 @@ xrdp (0.4.1~dfsg-1) UNRELEASED; urgency=low
     version happens to fix LDAP login.  Closes: #547999, #548002.
   * Export locale settings from /etc/default/locale, thanks to a
     suggestion from Alessandro Vietta. Closes: #528032.
+  * Fix a bus error on ARM, thanks to a patch from Sven-Ola
+    Tuecke. Closes: #544384.
 
  -- Vincent Bernat <bernat@debian.org>  Wed, 13 May 2009 20:38:51 +0200
 
