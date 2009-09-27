@@ -1,3 +1,10 @@
+xrdp (0.4.1~dfsg-2) unstable; urgency=low
+
+  * Don't chown /var/run/xrdp in postinst since it is done in init.d but
+    create it to not rely on adduser doing it.
+
+ -- Vincent Bernat <bernat@debian.org>  Sun, 27 Sep 2009 09:20:56 +0200
+
 xrdp (0.4.1~dfsg-1) unstable; urgency=low
 
   * Package xrdp 0.4.1. Remove 09vista_mstc.dpatch and
