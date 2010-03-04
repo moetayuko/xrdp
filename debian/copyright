@@ -1,12 +1,11 @@
-This package was downloaded from http://xrdp.sourceforge.net/. It has
-been repacked. See debian/README.Debian-sources.
+This package was downloaded from http://xrdp.sourceforge.net/.
 
 Files: *
-Copyright: © 2003-2007 Jay Sorg
+Copyright: © 2003-2010 Jay Sorg
 License: GPL-2+ | other
  xrdp may be redistributed under the terms of the GNU GPL, Version 2 or
  later, found on Debian systems in the file
- /usr/share/common-licenses/GPL-2, with a few exception allowing the use
+ `/usr/share/common-licenses/GPL-2`, with a few exception allowing the use
  of OpenSSL and allowing to link with proprietary modules. Those
  exceptions are reproduced below:
 
@@ -44,13 +43,9 @@ Files: debian/*
 Copyright: © 2007, 2008 Vincent Bernat <bernat@debian.org>
 License: GPL-2+
 
-Files: debian/patches/05sans_font.dpatch
-Copyright: © 2003-2007 Jay Sorg
-           © 2003 Bitstream, Inc.
+Files: xrdp/sans-10.fv1
+Copyright: © 2003 Bitstream, Inc.
 License: other
- This patch contains uuencoded version of free Bitstream Vera Sans
-
-	Copyright (C) 2003 Bitstream, Inc.
 	All Rights Reserved. Bitstream Vera is a trademark of Bitstream, Inc.
 
 	Permission is hereby granted, free of charge, to any person obtaining a
@@ -115,7 +110,7 @@ License: PD
  for humouring me on.
 
 Files: common/os_calls.* arch.h file.* list.* thread_calls.* parse.h
-Copyright: © 2004-2007 Jay Sorg
+Copyright: © 2004-2010 Jay Sorg
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
@@ -136,4 +131,4 @@ License: MIT
  DEALINGS IN THE SOFTWARE.
 
 On Debian systems, the complete text of the GPL can be found in
-`/usr/share/common-licenses/GPL`.
+`/usr/share/common-licenses/GPL-2`.
