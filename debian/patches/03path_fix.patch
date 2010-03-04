@@ -1,0 +1,15 @@
+Fix startwm.sh path.
+
+--- xrdp-0.4.0.orig/sesman/sesman.ini
++++ xrdp-0.4.0/sesman/sesman.ini
+@@ -2,8 +2,8 @@
+ ListenAddress=127.0.0.1
+ ListenPort=3350
+ EnableUserWindowManager=1
+-UserWindowManager=startwm.sh
+-DefaultWindowManager=startwm.sh
++UserWindowManager=/etc/xrdp/startwm.sh
++DefaultWindowManager=/etc/xrdp/startwm.sh
+ 
+ [Security]
+ AllowRootLogin=1

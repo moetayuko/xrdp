@@ -1,10 +1,4 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 03quiet_start.dpatch by  <bernat@neo.luffy.cx>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: Avoid displaying a lot of information when starting xrdp and sesman
-
-@DPATCH@
+Avoid displaying a lot of information when starting xrdp and sesman
 
 --- xrdp-0.4.0.orig/sesman/config.c
 +++ xrdp-0.4.0/sesman/config.c
