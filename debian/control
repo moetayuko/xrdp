@@ -2,7 +2,7 @@ Source: xrdp
 Section: net
 Priority: optional
 Maintainer: Vincent Bernat <bernat@debian.org>
-Build-Depends: debhelper (>= 5.0.0), libssl-dev, libpam0g-dev, dpatch, sharutils
+Build-Depends: debhelper (>= 5.0.0), libssl-dev, libpam0g-dev, sharutils
 Standards-Version: 3.8.4
 Homepage: http://xrdp.sourceforge.net
 Vcs-Browser: http://git.debian.org/?p=collab-maint/xrdp.git
