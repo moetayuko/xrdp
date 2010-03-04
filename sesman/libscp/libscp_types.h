@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2009
 */
 
 /**
@@ -31,7 +31,7 @@
 #include "os_calls.h"
 #include "parse.h"
 #include "arch.h"
-//#include "log.h"
+#include "log.h"
 
 #define SCP_SID      tui32
 #define SCP_DISPLAY  tui16
@@ -39,11 +39,16 @@
 #define SCP_RESOURCE_SHARING_REQUEST_YES 0x01
 #define SCP_RESOURCE_SHARING_REQUEST_NO  0x00
 
-#define SCP_SESSION_TYPE_XVNC 0x00
-#define SCP_SESSION_TYPE_XRDP 0x01
+#define SCP_SESSION_TYPE_XVNC    0x00
+#define SCP_SESSION_TYPE_XRDP    0x01
+#define SCP_SESSION_TYPE_MANAGE  0x02
 
 #define SCP_ADDRESS_TYPE_IPV4 0x00
 #define SCP_ADDRESS_TYPE_IPV6 0x01
+
+/* used in scp_session_set_addr() */
+#define SCP_ADDRESS_TYPE_IPV4_BIN 0x80
+#define SCP_ADDRESS_TYPE_IPV6_BIN 0x81
 
 #define SCP_COMMAND_SET_DEFAULT 0x0000
 #define SCP_COMMAND_SET_MANAGE  0x0001
@@ -51,7 +56,7 @@
 
 #define SCP_SERVER_MAX_LIST_SIZE 100
 
-#define free_session(s) {g_free((s)->username); g_free((s)->password); g_free((s)->hostname); g_free(s);}
+#include "libscp_types_mng.h"
 
 struct SCP_CONNECTION
 {
@@ -62,33 +67,46 @@ struct SCP_CONNECTION
 
 struct SCP_SESSION
 {
-  tui8 type;
+  tui8  type;
   tui32 version;
   tui16 height;
   tui16 width;
-  tui8 bpp;
-  tui8 rsr;
-  char locale[18];
+  tui8  bpp;
+  tui8  rsr;
+  char  locale[18];
   char* username;
   char* password;
   char* hostname;
-  tui8 addr_type;
-  tui32 ipv4addr; //htons
-  tui32 ipv6addr; //should be 128bit
-  tui16 display;
+  tui8  addr_type;
+  tui32 ipv4addr;
+  tui8  ipv6addr[16];
+  SCP_DISPLAY display;
   char* errstr;
+  struct SCP_MNG_DATA* mng;
+  char* domain;
+  char* program;
+  char* directory;
 };
 
 struct SCP_DISCONNECTED_SESSION
 {
   tui32 SID;
   tui8  type;
+  tui8  status;
   tui16 height;
   tui16 width;
   tui8  bpp;
   tui8  idle_days;
   tui8  idle_hours;
   tui8  idle_minutes;
+  tui16 conn_year;
+  tui8  conn_month;
+  tui8  conn_day;
+  tui8  conn_hour;
+  tui8  conn_minute;
+  tui8  addr_type;
+  tui32 ipv4addr;
+  tui8  ipv6addr[16];
 };
 
 enum SCP_CLIENT_STATES_E
@@ -121,6 +139,8 @@ enum SCP_SERVER_STATES_E
   SCP_SERVER_STATE_SELECTION_CANCEL,
   /*SCP_SERVER_STATE_FORCE_NEW,*/
   SCP_SERVER_STATE_START_MANAGE,
+  SCP_SERVER_STATE_MNG_LISTREQ,
+  SCP_SERVER_STATE_MNG_ACTION,
   SCP_SERVER_STATE_END
 };
 

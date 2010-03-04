@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2007
+   Copyright (C) Jay Sorg 2004-2009
 
    libxrdp header
 
@@ -23,6 +23,9 @@
 #if !defined(LIBXRDP_H)
 #define LIBXRDP_H
 
+#if defined(HAVE_CONFIG_H)
+#include "config_ac.h"
+#endif
 #include "arch.h"
 #include "parse.h"
 #include "xrdp_constants.h"
@@ -32,6 +35,7 @@
 #include "list.h"
 #include "file.h"
 #include "libxrdpinc.h"
+#include "file_loc.h"
 
 /* tcp */
 struct xrdp_tcp
@@ -54,7 +58,6 @@ struct mcs_channel_item
   char name[16];
   int flags;
   int chanid;
-  struct stream* in_s;
 };
 
 /* mcs */
@@ -379,6 +382,9 @@ int APP_CC
 xrdp_orders_send_bitmap2(struct xrdp_orders* self,
                          int width, int height, int bpp, char* data,
                          int cache_id, int cache_idx);
+int APP_CC
+xrdp_orders_send_brush(struct xrdp_orders* self, int width, int height,
+                       int bpp, int type, int size, char* data, int cache_id);
 
 /* xrdp_bitmap_compress.c */
 int APP_CC
@@ -395,7 +401,8 @@ xrdp_channel_delete(struct xrdp_channel* self);
 int APP_CC
 xrdp_channel_init(struct xrdp_channel* self, struct stream* s);
 int APP_CC
-xrdp_channel_send(struct xrdp_channel* self, struct stream* s, int channel_id);
+xrdp_channel_send(struct xrdp_channel* self, struct stream* s, int channel_id,
+                  int total_data_len, int flags);
 int APP_CC
 xrdp_channel_process(struct xrdp_channel* self, struct stream* s,
                      int chanid);

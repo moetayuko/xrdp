@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -31,16 +31,6 @@
 #include "arch.h"
 #include "list.h"
 #include "log.h"
-
-/**
- *
- * @def SESMAN_CFG_FILE
- * @brief Configuration file path
- *
- */
-#ifndef SESMAN_CFG_FILE
-#define SESMAN_CFG_FILE              "./sesman.ini"
-#endif
 
 #define SESMAN_CFG_GLOBALS           "Globals"
 #define SESMAN_CFG_DEFWM             "DefaultWindowManager"
@@ -180,12 +170,12 @@ struct config_sesman
    * @var vnc_params
    * @brief Xvnc additional parameter list
    */
-struct list* vnc_params;
+  struct list* vnc_params;
   /**
    * @var rdp_params
    * @brief X11rdp additional parameter list
    */
-struct list* rdp_params;
+  struct list* rdp_params;
   /**
    * @var log
    * @brief Log configuration struct

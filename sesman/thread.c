@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -31,11 +31,13 @@
 #include <signal.h>
 #include <pthread.h>
 
-static pthread_t thread_sighandler;
-//static pthread_t thread_updater;
+extern struct config_sesman* g_cfg; /* in sesman.c */
+
+static pthread_t g_thread_sighandler;
+//static pthread_t g_thread_updater;
 
 /* a variable to pass the socket of s connection to a thread */
-int thread_sck;
+int g_thread_sck;
 
 /******************************************************************************/
 int DEFAULT_CC
@@ -60,14 +62,14 @@ thread_sighandler_start(void)
   sigaddset(&waitmask, SIGFPE);
   pthread_sigmask(SIG_UNBLOCK, &waitmask, NULL);
 
-  log_message(LOG_LEVEL_INFO,"starting signal handling thread...");
+  log_message(&(g_cfg->log), LOG_LEVEL_INFO,"starting signal handling thread...");
 
-  ret = pthread_create(&thread_sighandler, NULL, sig_handler_thread, "");
-  pthread_detach(thread_sighandler);
+  ret = pthread_create(&g_thread_sighandler, NULL, sig_handler_thread, "");
+  pthread_detach(g_thread_sighandler);
 
   if (ret == 0)
   {
-    log_message(LOG_LEVEL_INFO, "signal handler thread started successfully");
+    log_message(&(g_cfg->log), LOG_LEVEL_INFO, "signal handler thread started successfully");
     return 0;
   }
 
@@ -75,16 +77,16 @@ thread_sighandler_start(void)
   switch (ret)
   {
     case EINVAL:
-      log_message(LOG_LEVEL_ERROR, "invalid attributes for signal handling thread (creation returned  EINVAL)");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "invalid attributes for signal handling thread (creation returned  EINVAL)");
       break;
     case EAGAIN:
-      log_message(LOG_LEVEL_ERROR, "not enough resources to start signal handling thread (creation returned EAGAIN)");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "not enough resources to start signal handling thread (creation returned EAGAIN)");
       break;
     case EPERM:
-      log_message(LOG_LEVEL_ERROR, "invalid permissions for signal handling thread (creation returned EPERM)");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "invalid permissions for signal handling thread (creation returned EPERM)");
       break;
     default:
-      log_message(LOG_LEVEL_ERROR, "unknown error starting signal handling thread");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "unknown error starting signal handling thread");
   }
 
   return 1;
@@ -101,12 +103,12 @@ thread_session_update_start(void)
   
 #warning this thread should always request lock_fork before read or write 
 #warning (so we can Fork() In Peace)
-  ret = pthread_create(&thread_updater, NULL, , "");
-  pthread_detach(thread_updater);
+  ret = pthread_create(&g_thread_updater, NULL, , "");
+  pthread_detach(g_thread_updater);
 
   if (ret==0) 
   {
-    log_message(LOG_LEVEL_INFO, "session update thread started successfully");
+    log_message(&(g_cfg->log), LOG_LEVEL_INFO, "session update thread started successfully");
     return 0;
   }
 
@@ -114,16 +116,16 @@ thread_session_update_start(void)
   switch (ret)
   {
     case EINVAL:
-      log_message(LOG_LEVEL_ERROR, "invalid attributes for session update thread (creation returned  EINVAL)");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "invalid attributes for session update thread (creation returned  EINVAL)");
       break;
     case EAGAIN:
-      log_message(LOG_LEVEL_ERROR, "not enough resources to start session update thread (creation returned EAGAIN)");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "not enough resources to start session update thread (creation returned EAGAIN)");
       break;
     case EPERM:
-      log_message(LOG_LEVEL_ERROR, "invalid permissions for session update thread (creation returned EPERM)");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "invalid permissions for session update thread (creation returned EPERM)");
       break;
     default:
-      log_message(LOG_LEVEL_ERROR, "unknown error starting session update thread");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "unknown error starting session update thread");
   }
 
   return 1;
@@ -139,16 +141,16 @@ thread_scp_start(int skt)
 
   /* blocking the use of thread_skt */
   lock_socket_acquire();
-  thread_sck=skt;
+  g_thread_sck = skt;
 
   /* start a thread that processes a connection */
   ret = pthread_create(&th, NULL, scp_process_start, "");
-  //ret = pthread_create(&th, NULL, scp_process_start, (void*) (&thread_sck));
+  //ret = pthread_create(&th, NULL, scp_process_start, (void*) (&g_thread_sck));
   pthread_detach(th);
 
   if (ret == 0) 
   {
-    log_message(LOG_LEVEL_INFO, "scp thread on sck %d started successfully", skt);
+    log_message(&(g_cfg->log), LOG_LEVEL_INFO, "scp thread on sck %d started successfully", skt);
     return 0;
   }
 
@@ -156,16 +158,16 @@ thread_scp_start(int skt)
   switch (ret)
   {
     case EINVAL:
-      log_message(LOG_LEVEL_ERROR, "invalid attributes for scp thread on sck %d (creation returned  EINVAL)", skt);
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "invalid attributes for scp thread on sck %d (creation returned  EINVAL)", skt);
       break;
     case EAGAIN:
-      log_message(LOG_LEVEL_ERROR, "not enough resources to start scp thread on sck %d (creation returned EAGAIN)", skt);
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "not enough resources to start scp thread on sck %d (creation returned EAGAIN)", skt);
       break;
     case EPERM:
-      log_message(LOG_LEVEL_ERROR, "invalid permissions for scp thread on sck %d (creation returned EPERM)", skt);
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "invalid permissions for scp thread on sck %d (creation returned EPERM)", skt);
       break;
     default:
-      log_message(LOG_LEVEL_ERROR, "unknown error starting scp thread on sck %d");
+      log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "unknown error starting scp thread on sck %d");
   }
 
   return 1;

@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2007
+   Copyright (C) Jay Sorg 2004-2009
 
    libvnc
 
@@ -25,6 +25,9 @@
 #include "parse.h"
 #include "os_calls.h"
 #include "d3des.h"
+#include "defines.h"
+
+#define CURRENT_MOD_VER 1
 
 struct vnc
 {
@@ -38,7 +41,11 @@ struct vnc
   int (*mod_signal)(struct vnc* v);
   int (*mod_end)(struct vnc* v);
   int (*mod_set_param)(struct vnc* v, char* name, char* value);
-  long mod_dumby[100 - 6]; /* align, 100 minus the number of mod
+  int (*mod_session_change)(struct vnc* v, int, int);
+  int (*mod_get_wait_objs)(struct vnc* v, tbus* read_objs, int* rcount,
+                           tbus* write_objs, int* wcount, int* timeout);
+  int (*mod_check_wait_objs)(struct vnc* v);
+  long mod_dumby[100 - 9]; /* align, 100 minus the number of mod
                               functions above */
   /* server functions */
   int (*server_begin_update)(struct vnc* v);
@@ -78,7 +85,8 @@ struct vnc
                               int* channel_flags);
   int (*server_get_channel_id)(struct vnc* v, char* name);
   int (*server_send_to_channel)(struct vnc* v, int channel_id,
-                                char* data, int data_len);
+                                char* data, int data_len,
+                                int total_data_len, int flags);
   long server_dumby[100 - 24]; /* align, 100 minus the number of server
                                   functions above */
   /* common */
@@ -107,4 +115,5 @@ struct vnc
   int clip_chanid;
   char* clip_data;
   int clip_data_size;
+  tbus sck_obj;
 };

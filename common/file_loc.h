@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2007
+   Copyright (C) Jay Sorg 2004-2009
 
    default file locations for log, config, etc
 
@@ -23,16 +23,20 @@
 #if !defined(FILE_LOC_H)
 #define FILE_LOC_H
 
-#if !defined(XRDP_CFG_FILE)
-#define XRDP_CFG_FILE "xrdp.ini"
+#if !defined(XRDP_CFG_PATH)
+#define XRDP_CFG_PATH "/etc/xrdp"
 #endif
 
-#if !defined(XRDP_KEY_FILE)
-#define XRDP_KEY_FILE "rsakeys.ini"
+#if !defined(XRDP_PID_PATH)
+#define XRDP_PID_PATH "/var/run"
 #endif
 
-#if !defined(XRDP_PID_FILE)
-#define XRDP_PID_FILE "xrdp.pid"
+#if !defined(XRDP_SBIN_PATH)
+#define XRDP_SBIN_PATH "/usr/local/sbin"
+#endif
+
+#if !defined(XRDP_SHARE_PATH)
+#define XRDP_SHARE_PATH "/usr/local/share/xrdp"
 #endif
 
 #endif
