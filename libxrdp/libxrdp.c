@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2007
+   Copyright (C) Jay Sorg 2004-2009
 
    this is the interface to libxrdp
 
@@ -173,7 +173,6 @@ int EXPORT_CC
 libxrdp_send_bitmap(struct xrdp_session* session, int width, int height,
                     int bpp, char* data, int x, int y, int cx, int cy)
 {
-  int data_size;
   int line_size;
   int i;
   int j;
@@ -291,8 +290,6 @@ libxrdp_send_bitmap(struct xrdp_session* session, int width, int height,
   }
   else
   {
-    lines_sending = 0;
-    data_size = width * height * Bpp;
     total_lines = height;
     i = 0;
     p = data;
@@ -687,7 +684,8 @@ libxrdp_get_channel_id(struct xrdp_session* session, char* name)
 /*****************************************************************************/
 int EXPORT_CC
 libxrdp_send_to_channel(struct xrdp_session* session, int channel_id,
-                        char* data, int data_len)
+                        char* data, int data_len,
+                        int total_data_len, int flags)
 {
   struct xrdp_rdp* rdp;
   struct xrdp_sec* sec;
@@ -704,15 +702,25 @@ libxrdp_send_to_channel(struct xrdp_session* session, int channel_id,
     free_stream(s);
     return 1;
   }
-  /* here we make a copy of the data, xrdp_channel_send is
-     going to alter it if its bigger that 8192 or something */
+  /* here we make a copy of the data */
   out_uint8a(s, data, data_len);
   s_mark_end(s);
-  if (xrdp_channel_send(chan, s, channel_id) != 0)
+  if (xrdp_channel_send(chan, s, channel_id, total_data_len, flags) != 0)
   {
     free_stream(s);
     return 1;
   }
   free_stream(s);
   return 0;
+}
+
+/*****************************************************************************/
+int EXPORT_CC
+libxrdp_orders_send_brush(struct xrdp_session* session,
+                          int width, int height, int bpp, int type,
+                          int size, char* data, int cache_id)
+{
+  return xrdp_orders_send_brush((struct xrdp_orders*)session->orders,
+                                width, height, bpp, type, size, data,
+                                cache_id);
 }

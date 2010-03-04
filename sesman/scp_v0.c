@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -22,24 +22,26 @@
  * @file scp_v0.c
  * @brief scp version 0 implementation
  * @author Jay Sorg, Simone Fedele
- * 
+ *
  */
 
 #include "sesman.h"
 
+extern struct config_sesman* g_cfg; /* in sesman.c */
+
 /******************************************************************************/
-void DEFAULT_CC 
+void DEFAULT_CC
 scp_v0_process(struct SCP_CONNECTION* c, struct SCP_SESSION* s)
 {
   int display = 0;
-  long data;
+  tbus data;
   struct session_item* s_item;
 
   data = auth_userpass(s->username, s->password);
 
   if (data)
   {
-    s_item = session_get_bydata(s->username, s->width, s->height, s->bpp);
+    s_item = session_get_bydata(s->username, s->width, s->height, s->bpp, s->type);
     if (s_item != 0)
     {
       display = s_item->display;
@@ -48,21 +50,23 @@ scp_v0_process(struct SCP_CONNECTION* c, struct SCP_SESSION* s)
     }
     else
     {
-      g_printf("pre auth");
+      LOG_DBG(&(g_cfg->log), "pre auth");
       if (1 == access_login_allowed(s->username))
       {
-        log_message(LOG_LEVEL_INFO, "granted TS access to user %s", s->username);
+        log_message(&(g_cfg->log), LOG_LEVEL_INFO, "granted TS access to user %s", s->username);
         if (SCP_SESSION_TYPE_XVNC == s->type)
         {
-          log_message(LOG_LEVEL_INFO, "starting Xvnc session...");
-          display = session_start(s->width, s->height, s->bpp, s->username, s->password,
-                                  data, SESMAN_SESSION_TYPE_XVNC);
+          log_message(&(g_cfg->log), LOG_LEVEL_INFO, "starting Xvnc session...");
+          display = session_start(s->width, s->height, s->bpp, s->username,
+                                  s->password, data, SESMAN_SESSION_TYPE_XVNC,
+                                  s->domain, s->program, s->directory);
         }
         else
         {
-          log_message(LOG_LEVEL_INFO, "starting Xrdp session...");
-          display = session_start(s->width, s->height, s->bpp, s->username, s->password,
-                                  data, SESMAN_SESSION_TYPE_XRDP);
+          log_message(&(g_cfg->log), LOG_LEVEL_INFO, "starting X11rdp session...");
+          display = session_start(s->width, s->height, s->bpp, s->username,
+                                  s->password, data, SESMAN_SESSION_TYPE_XRDP,
+                                  s->domain, s->program, s->directory);
         }
       }
       else
@@ -73,7 +77,6 @@ scp_v0_process(struct SCP_CONNECTION* c, struct SCP_SESSION* s)
     if (display == 0)
     {
       auth_end(data);
-      data = 0;
       scp_v0s_deny_connection(c);
     }
     else

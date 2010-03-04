@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2007
+   Copyright (C) Jay Sorg 2004-2009
 
    bitmap, drawable
    this is a object that can be drawn on with a painter
@@ -265,14 +265,14 @@ xrdp_bitmap_set_focus(struct xrdp_bitmap* self, int focused)
     /* active title bar */
     painter->fg_color = self->wm->blue;
     xrdp_painter_fill_rect(painter, self, 3, 3, self->width - 5, 18);
-    painter->font->color = self->wm->white;
+    painter->fg_color = self->wm->white;
   }
   else
   {
     /* inactive title bar */
     painter->fg_color = self->wm->dark_grey;
     xrdp_painter_fill_rect(painter, self, 3, 3, self->width - 5, 18);
-    painter->font->color = self->wm->black;
+    painter->fg_color = self->wm->black;
   }
   xrdp_painter_draw_text(painter, self, 4, 4, self->caption1);
   xrdp_painter_end_update(painter);
@@ -298,14 +298,19 @@ xrdp_bitmap_get_index(struct xrdp_bitmap* self, int* palette, int color)
 }
 
 /*****************************************************************************/
+/* returns error */
 int APP_CC
 xrdp_bitmap_resize(struct xrdp_bitmap* self, int width, int height)
 {
   int Bpp;
 
-  if (width == self->width && height == self->height)
+  if ((width == self->width) && (height == self->height))
   {
     return 0;
+  }
+  if (self->do_not_free_data)
+  {
+    return 1;
   }
   self->width = width;
   self->height = height;
@@ -316,11 +321,8 @@ xrdp_bitmap_resize(struct xrdp_bitmap* self, int width, int height)
     case 15: Bpp = 2; break;
     case 16: Bpp = 2; break;
   }
-  if (self->data != 0)
-  {
-    g_free(self->data);
-    self->data = (char*)g_malloc(width * height * Bpp, 1);
-  }
+  g_free(self->data);
+  self->data = (char*)g_malloc(width * height * Bpp, 0);
   self->line_size = width * Bpp;
   return 0;
 }
@@ -339,11 +341,16 @@ xrdp_bitmap_load(struct xrdp_bitmap* self, const char* filename, int* palette)
   int color;
   int size;
   int palette1[256];
-  char type1[3];
-  char* data;
+  char type1[4];
   struct xrdp_bmp_header header;
   struct stream* s;
 
+  if (!g_file_exist(filename))
+  {
+    g_writeln("xrdp_bitmap_load: error bitmap file [%s] does not exist",
+              filename);
+    return 1;
+  }
   s = 0;
   fd = g_file_open(filename);
   if (fd != -1)
@@ -351,20 +358,25 @@ xrdp_bitmap_load(struct xrdp_bitmap* self, const char* filename, int* palette)
     /* read file type */
     if (g_file_read(fd, type1, 2) != 2)
     {
+      g_writeln("xrdp_bitmap_load: error bitmap file [%s] read error",
+                filename);
       g_file_close(fd);
       return 1;
     }
-    if (type1[0] != 'B' || type1[1] != 'M')
+    if ((type1[0] != 'B') || (type1[1] != 'M'))
     {
+      g_writeln("xrdp_bitmap_load: error bitmap file [%s] not BMP file",
+                filename);
       g_file_close(fd);
       return 1;
     }
     /* read file size */
-    size = 0;
-    g_file_read(fd, (char*)&size, 4);
+    make_stream(s);
+    init_stream(s, 8192);
+    g_file_read(fd, s->data, 4);
+    in_uint32_le(s, size);
     /* read bmp header */
     g_file_seek(fd, 14);
-    make_stream(s);
     init_stream(s, 8192);
     g_file_read(fd, s->data, 40); /* size better be 40 */
     in_uint32_le(s, header.size);
@@ -378,8 +390,11 @@ xrdp_bitmap_load(struct xrdp_bitmap* self, const char* filename, int* palette)
     in_uint32_le(s, header.y_pels_per_meter);
     in_uint32_le(s, header.clr_used);
     in_uint32_le(s, header.clr_important);
-    if (header.bit_count != 8 && header.bit_count != 24)
+    if ((header.bit_count != 4) && (header.bit_count != 8) &&
+        (header.bit_count != 24))
     {
+      g_writeln("xrdp_bitmap_load: error bitmap file [%s] bad bpp %d",
+                filename, header.bit_count);
       free_stream(s);
       g_file_close(fd);
       return 1;
@@ -387,29 +402,79 @@ xrdp_bitmap_load(struct xrdp_bitmap* self, const char* filename, int* palette)
     if (header.bit_count == 24) /* 24 bit bitmap */
     {
       g_file_seek(fd, 14 + header.size);
-    }
-    if (header.bit_count == 8) /* 8 bit bitmap */
-    {
-      /* read palette */
-      g_file_seek(fd, 14 + header.size);
-      init_stream(s, 8192);
-      g_file_read(fd, s->data, 256 * sizeof(int));
-      for (i = 0; i < 256; i++)
-      {
-        in_uint32_le(s, palette1[i]);
-      }
-      /* read data */
       xrdp_bitmap_resize(self, header.image_width, header.image_height);
-      data = (char*)g_malloc(header.image_width * header.image_height, 1);
+      size = header.image_width * header.image_height * 3;
+      init_stream(s, size);
+      /* read data */
       for (i = header.image_height - 1; i >= 0; i--)
       {
-        g_file_read(fd, data + i * header.image_width, header.image_width);
+        size = header.image_width * 3;
+        k = g_file_read(fd, s->data + i * size, size);
+        if (k != size)
+        {
+          g_writeln("xrdp_bitmap_load: error bitmap file [%s] read",
+                    filename);
+        }
       }
       for (i = 0; i < self->height; i++)
       {
         for (j = 0; j < self->width; j++)
         {
-          k = (unsigned char)data[i * header.image_width + j];
+          in_uint8(s, k);
+          color = k;
+          in_uint8(s, k);
+          color |= k << 8;
+          in_uint8(s, k);
+          color |= k << 16;
+          if (self->bpp == 8)
+          {
+            color = xrdp_bitmap_get_index(self, palette, color);
+          }
+          else if (self->bpp == 15)
+          {
+            color = COLOR15((color & 0xff0000) >> 16,
+                            (color & 0x00ff00) >> 8,
+                            (color & 0x0000ff) >> 0);
+          }
+          else if (self->bpp == 16)
+          {
+            color = COLOR16((color & 0xff0000) >> 16,
+                            (color & 0x00ff00) >> 8,
+                            (color & 0x0000ff) >> 0);
+          }
+          xrdp_bitmap_set_pixel(self, j, i, color);
+        }
+      }
+    }
+    else if (header.bit_count == 8) /* 8 bit bitmap */
+    {
+      /* read palette */
+      g_file_seek(fd, 14 + header.size);
+      init_stream(s, 8192);
+      g_file_read(fd, s->data, header.clr_used * sizeof(int));
+      for (i = 0; i < header.clr_used; i++)
+      {
+        in_uint32_le(s, palette1[i]);
+      }
+      xrdp_bitmap_resize(self, header.image_width, header.image_height);
+      size = header.image_width * header.image_height;
+      init_stream(s, size);
+      /* read data */
+      for (i = header.image_height - 1; i >= 0; i--)
+      {
+        size = header.image_width;
+        k = g_file_read(fd, s->data + i * size, size);
+        if (k != size)
+        {
+          g_writeln("xrdp_bitmap_load: error bitmap file [%s] read",
+                    filename);
+        }
+      }
+      for (i = 0; i < self->height; i++)
+      {
+        for (j = 0; j < self->width; j++)
+        {
+          in_uint8(s, k);
           color = palette1[k];
           if (self->bpp == 8)
           {
@@ -427,20 +492,77 @@ xrdp_bitmap_load(struct xrdp_bitmap* self, const char* filename, int* palette)
                             (color & 0x00ff00) >> 8,
                             (color & 0x0000ff) >> 0);
           }
-          else if (self->bpp == 24)
+          xrdp_bitmap_set_pixel(self, j, i, color);
+        }
+      }
+    }
+    else if (header.bit_count == 4) /* 4 bit bitmap */
+    {
+      /* read palette */
+      g_file_seek(fd, 14 + header.size);
+      init_stream(s, 8192);
+      g_file_read(fd, s->data, header.clr_used * sizeof(int));
+      for (i = 0; i < header.clr_used; i++)
+      {
+        in_uint32_le(s, palette1[i]);
+      }
+      xrdp_bitmap_resize(self, header.image_width, header.image_height);
+      size = (header.image_width * header.image_height) / 2;
+      init_stream(s, size);
+      /* read data */
+      for (i = header.image_height - 1; i >= 0; i--)
+      {
+        size = header.image_width / 2;
+        k = g_file_read(fd, s->data + i * size, size);
+        if (k != size)
+        {
+          g_writeln("xrdp_bitmap_load: error bitmap file [%s] read",
+                    filename);
+        }
+      }
+      for (i = 0; i < self->height; i++)
+      {
+        for (j = 0; j < self->width; j++)
+        {
+          if ((j & 1) == 0)
           {
-            //color = COLOR24((color & 0xff0000) >> 16,
-            //                (color & 0x00ff00) >> 8,
-            //                (color & 0x0000ff) >> 0);
+            in_uint8(s, k);
+            color = (k >> 4) & 0xf;
+          }
+          else
+          {
+            color = k & 0xf;
+          }
+          color = palette1[color];
+          if (self->bpp == 8)
+          {
+            color = xrdp_bitmap_get_index(self, palette, color);
+          }
+          else if (self->bpp == 15)
+          {
+            color = COLOR15((color & 0xff0000) >> 16,
+                            (color & 0x00ff00) >> 8,
+                            (color & 0x0000ff) >> 0);
+          }
+          else if (self->bpp == 16)
+          {
+            color = COLOR16((color & 0xff0000) >> 16,
+                            (color & 0x00ff00) >> 8,
+                            (color & 0x0000ff) >> 0);
           }
           xrdp_bitmap_set_pixel(self, j, i, color);
         }
       }
-      g_free(data);
     }
     g_file_close(fd);
+    free_stream(s);
   }
-  free_stream(s);
+  else
+  {
+    g_writeln("xrdp_bitmap_load: error loading bitmap from file [%s]",
+              filename);
+    return 1;
+  }
   return 0;
 }
 
@@ -639,7 +761,6 @@ xrdp_bitmap_copy_box_with_crc(struct xrdp_bitmap* self,
   {
     return 1;
   }
-  crc = dest->crc;
   CRC_START(crc);
   if (self->bpp == 24)
   {
@@ -888,6 +1009,7 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
   struct xrdp_rect r1;
   struct xrdp_rect r2;
   struct xrdp_painter* painter;
+  twchar wtext[256];
   char text[256];
   char* p;
 
@@ -949,14 +1071,14 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
       /* active title bar */
       painter->fg_color = self->wm->blue;
       xrdp_painter_fill_rect(painter, self, 3, 3, self->width - 5, 18);
-      painter->font->color = self->wm->white;
+      painter->fg_color = self->wm->white;
     }
     else
     {
       /* inactive title bar */
       painter->fg_color = self->wm->dark_grey;
       xrdp_painter_fill_rect(painter, self, 3, 3, self->width - 5, 18);
-      painter->font->color = self->wm->black;
+      painter->fg_color = self->wm->black;
     }
     xrdp_painter_draw_text(painter, self, 4, 4, self->caption1);
   }
@@ -1005,14 +1127,20 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
                               self->width, self->height, 0);
       w = xrdp_painter_text_width(painter, self->caption1);
       h = xrdp_painter_text_height(painter, self->caption1);
-      painter->font->color = self->wm->black;
+      painter->fg_color = self->wm->black;
       xrdp_painter_draw_text(painter, self, self->width / 2 - w / 2,
                              self->height / 2 - h / 2, self->caption1);
       if (self->parent != 0)
+      {
         if (self->wm->focused_window == self->parent)
+        {
           if (self->parent->focused_control == self)
+          {
             xrdp_bitmap_draw_focus_box(self, painter, 4, 4, self->width - 8,
                                        self->height - 8);
+          }
+        }
+      }
     }
     else if (self->state == BUTTON_STATE_DOWN) /* 1 */
     {
@@ -1020,7 +1148,7 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
                               self->width, self->height, 1);
       w = xrdp_painter_text_width(painter, self->caption1);
       h = xrdp_painter_text_height(painter, self->caption1);
-      painter->font->color = self->wm->black;
+      painter->fg_color = self->wm->black;
       xrdp_painter_draw_text(painter, self, (self->width / 2 - w / 2) + 1,
                              (self->height / 2 - h / 2) + 1, self->caption1);
       if (self->parent != 0)
@@ -1066,13 +1194,15 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
     painter->fg_color = self->wm->black;
     if (self->password_char != 0)
     {
-      i = g_strlen(self->caption1);
+      i = g_mbstowcs(0, self->caption1, 0);
       g_memset(text, self->password_char, i);
       text[i] = 0;
       xrdp_painter_draw_text(painter, self, 4, 2, text);
     }
     else
+    {
       xrdp_painter_draw_text(painter, self, 4, 2, self->caption1);
+    }
     /* draw xor box(cursor) */
     if (self->parent != 0)
     {
@@ -1080,11 +1210,16 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
       {
         if (self->password_char != 0)
         {
-          g_memset(text, self->password_char, self->edit_pos);
-          text[self->edit_pos] = 0;
+          wchar_repeat(wtext, 255, self->password_char, self->edit_pos);
+          wtext[self->edit_pos] = 0;
+          g_wcstombs(text, wtext, 255);
         }
         else
-          g_strncpy(text, self->caption1, self->edit_pos);
+        {
+          g_mbstowcs(wtext, self->caption1, 255);
+          wtext[self->edit_pos] = 0;
+          g_wcstombs(text, wtext, 255);
+        }
         w = xrdp_painter_text_width(painter, text);
         painter->fg_color = self->wm->white;
         painter->rop = 0x5a;
@@ -1096,7 +1231,7 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
   }
   else if (self->type == WND_TYPE_LABEL) /* 6 */
   {
-    painter->font->color = self->wm->black;
+    painter->fg_color = self->wm->black;
     xrdp_painter_draw_text(painter, self, 0, 0, self->caption1);
   }
   else if (self->type == WND_TYPE_COMBO) /* 7 combo box */
@@ -1134,9 +1269,13 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
     xrdp_painter_fill_rect(painter, self, 1, 1, self->width - 2, 1);
     /* draw text */
     if (self->parent->focused_control == self)
-      painter->font->color = self->wm->white;
+    {
+      painter->fg_color = self->wm->white;
+    }
     else
-      painter->font->color = self->wm->black;
+    {
+      painter->fg_color = self->wm->black;
+    }
     xrdp_painter_draw_text(painter, self, 4, 2,
             (char*)list_get_item(self->string_list, self->item_index));
     /* draw button on right */
@@ -1145,9 +1284,13 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
     w = (self->width - x) - 2;
     h = self->height - 4;
     if (self->state == BUTTON_STATE_UP) /* 0 */
+    {
       xrdp_bitmap_draw_button(self, painter, x, y, w, h, 0);
+    }
     else
+    {
       xrdp_bitmap_draw_button(self, painter, x, y, w, h, 1);
+    }
   }
   else if (self->type == WND_TYPE_SPECIAL) /* 8 special */
   {
@@ -1166,10 +1309,12 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
         {
           painter->fg_color = self->wm->blue;
           xrdp_painter_fill_rect(painter, self, 0, y, self->width, h);
-          painter->font->color = self->wm->white;
+          painter->fg_color = self->wm->white;
         }
         else
-          painter->font->color = self->wm->black;
+        {
+          painter->fg_color = self->wm->black;
+        }
         xrdp_painter_draw_text(painter, self, 2, y, p);
         y = y + h;
       }
@@ -1177,13 +1322,17 @@ xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect)
   }
   /* notify */
   if (self->notify != 0)
+  {
     self->notify(self, self, WM_PAINT, (long)painter, 0); /* 3 */
+  }
   /* draw any child windows in the area */
   for (i = 0; i < self->child_list->count; i++)
   {
     b = (struct xrdp_bitmap*)list_get_item(self->child_list, i);
     if (rect == 0)
+    {
       xrdp_bitmap_invalidate(b, 0);
+    }
     else
     {
       MAKERECT(r1, b->left, b->top, b->width, b->height);
@@ -1205,12 +1354,14 @@ int APP_CC
 xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
                      int param1, int param2)
 {
-  char c;
+  twchar c;
   int n;
   int i;
   int shift;
   int ext;
   int scan_code;
+  int num_bytes;
+  int num_chars;
   struct xrdp_bitmap* b;
   struct xrdp_bitmap* focus_out_control;
 
@@ -1334,7 +1485,7 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
       else if ((scan_code == 77 || scan_code == 80) &&
                (ext || self->wm->num_lock == 0))
       {
-        if (self->edit_pos < g_strlen(self->caption1))
+        if (self->edit_pos < g_mbstowcs(0, self->caption1, 0))
         {
           self->edit_pos++;
           xrdp_bitmap_invalidate(self, 0);
@@ -1343,13 +1494,13 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
       /* backspace */
       else if (scan_code == 14)
       {
-        n = g_strlen(self->caption1);
+        n = g_mbstowcs(0, self->caption1, 0);
         if (n > 0)
         {
           if (self->edit_pos > 0)
           {
             self->edit_pos--;
-            remove_char_at(self->caption1, self->edit_pos);
+            remove_char_at(self->caption1, 255, self->edit_pos);
             xrdp_bitmap_invalidate(self, 0);
           }
         }
@@ -1358,12 +1509,12 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
       else if (scan_code == 83  &&
               (ext || self->wm->num_lock == 0))
       {
-        n = g_strlen(self->caption1);
+        n = g_mbstowcs(0, self->caption1, 0);
         if (n > 0)
         {
           if (self->edit_pos < n)
           {
-            remove_char_at(self->caption1, self->edit_pos);
+            remove_char_at(self->caption1, 255, self->edit_pos);
             xrdp_bitmap_invalidate(self, 0);
           }
         }
@@ -1372,7 +1523,7 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
       else if (scan_code == 79  &&
               (ext || self->wm->num_lock == 0))
       {
-        n = g_strlen(self->caption1);
+        n = g_mbstowcs(0, self->caption1, 0);
         if (self->edit_pos < n)
         {
           self->edit_pos = n;
@@ -1380,8 +1531,8 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
         }
       }
       /* home */
-      else if (scan_code == 71  &&
-              (ext || self->wm->num_lock == 0))
+      else if ((scan_code == 71)  &&
+              (ext || (self->wm->num_lock == 0)))
       {
         if (self->edit_pos > 0)
         {
@@ -1391,14 +1542,15 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
       }
       else
       {
-        c = get_char_from_scan_code(param2, scan_code, self->wm->keys,
-                                    self->wm->caps_lock,
-                                    self->wm->num_lock,
-                                    self->wm->scroll_lock,
-                                    self->wm->session->client_info->keylayout);
-        if ((unsigned char)c >= 32)
+        c = get_char_from_scan_code
+            (param2, scan_code, self->wm->keys, self->wm->caps_lock,
+             self->wm->num_lock, self->wm->scroll_lock,
+             &(self->wm->keymap));
+        num_chars = g_mbstowcs(0, self->caption1, 0);
+        num_bytes = g_strlen(self->caption1);
+        if ((c >= 32) && (num_chars < 127) && (num_bytes < 250))
         {
-          add_char_at(self->caption1, c, self->edit_pos);
+          add_char_at(self->caption1, 255, c, self->edit_pos);
           self->edit_pos++;
           xrdp_bitmap_invalidate(self, 0);
         }
@@ -1412,8 +1564,8 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap* self, int msg,
       scan_code = param1 % 128;
       ext = param2 & 0x0100;
       /* left or up arrow */
-      if ((scan_code == 75 || scan_code == 72) &&
-          (ext || self->wm->num_lock == 0))
+      if (((scan_code == 75) || (scan_code == 72)) &&
+          (ext || (self->wm->num_lock == 0)))
       {
         if (self->item_index > 0)
         {

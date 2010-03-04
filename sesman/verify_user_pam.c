@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -85,9 +85,9 @@ static void DEFAULT_CC
 get_service_name(char* service_name)
 {
   service_name[0] = 0;
-  if (g_file_exist("/etc/pam.d/sesman"))
+  if (g_file_exist("/etc/pam.d/xrdp-sesman"))
   {
-    g_strncpy(service_name, "sesman", 255);
+    g_strncpy(service_name, "xrdp-sesman", 255);
   }
   else
   {
