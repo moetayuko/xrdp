@@ -7,6 +7,7 @@ xrdp (0.5.0~20100303cvs-1) unstable; urgency=low
      + Windows 7 RDP client can now connect. Closes: #572764.
      + Session selection is now available. Closes: #523281.
      + Mapping problems seems to be fixed. Closes: #483365.
+     + No more unneeded awakening. Closes: #447377.
   * Bump Standards-Version to 3.8.4.
   * Switch to 3.0 (quilt) format.
   * Switch to debhelper 7.
