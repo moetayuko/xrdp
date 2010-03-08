@@ -34,7 +34,7 @@ fi
 # Check for rsa key 
 if [ ! -f $RSAKEYS ] || cmp $RSAKEYS /usr/share/doc/xrdp/rsakeys.ini > /dev/null; then
         echo "Generating xrdp RSA keys..."
-        (umask 077 ; xrdp-keygen xrdp)
+        (umask 077 ; xrdp-keygen xrdp $RSAKEYS)
         chown $USERID:$USERID $RSAKEYS
 fi
 
