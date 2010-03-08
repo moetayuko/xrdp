@@ -1,4 +1,4 @@
-xrdp (0.5.0~20100303cvs-1) experimental; urgency=low
+xrdp (0.5.0~20100303cvs-1) unstable; urgency=low
 
   * New upstream release (0.5.0) from CVS repository.
      + Upstream now provide a free font, therefore, we use pristine
@@ -9,7 +9,7 @@ xrdp (0.5.0~20100303cvs-1) experimental; urgency=low
   * Switch to debhelper 7.
   * Fix path to xrdp and xrdp-sesman in init.d script.
 
- -- Vincent Bernat <bernat@debian.org>  Thu, 04 Mar 2010 08:27:22 +0100
+ -- Vincent Bernat <bernat@debian.org>  Mon, 08 Mar 2010 21:06:44 +0100
 
 xrdp (0.4.1~dfsg-2) unstable; urgency=low
 
