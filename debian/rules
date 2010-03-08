@@ -17,10 +17,11 @@ override_dh_installpam:
 	dh_installpam --name=sesman
 	rm debian/xrdp/etc/pam.d/xrdp-sesman
 
-install:
-	dh install
+override_dh_installdocs:
+	dh_installdocs -a
 	# Clean up some files
 	rm debian/xrdp/etc/xrdp/xrdp.sh
 	rm debian/xrdp/usr/lib/xrdp/*a
 	rm debian/xrdp/usr/bin/xrdp-sestest
+	# Move rsakeys to documentation
 	mv debian/xrdp/etc/xrdp/rsakeys.ini debian/xrdp/usr/share/doc/xrdp
