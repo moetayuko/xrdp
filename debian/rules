@@ -22,4 +22,5 @@ install:
 	# Clean up some files
 	rm debian/xrdp/etc/xrdp/xrdp.sh
 	rm debian/xrdp/usr/lib/xrdp/*a
+	rm debian/xrdp/usr/bin/xrdp-sestest
 	mv debian/xrdp/etc/xrdp/rsakeys.ini debian/xrdp/usr/share/doc/xrdp
