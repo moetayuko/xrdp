@@ -8,6 +8,9 @@ override_dh_auto_configure:
 	./bootstrap
 	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
 
+override_dh_makeshlibs:
+	dh_makeshlibs -a -n
+
 install:
 	dh install
 	# Clean up some files
