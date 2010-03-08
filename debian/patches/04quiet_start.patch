@@ -114,3 +114,16 @@ Avoid displaying a lot of information when starting xrdp and sesman
        /* exit, this is the main process */
        g_exit(0);
      }
+diff --git a/sesman/libscp/libscp_init.c b/sesman/libscp/libscp_init.c
+index c040a79..dbe6f70 100644
+--- a/sesman/libscp/libscp_init.c
++++ b/sesman/libscp/libscp_init.c
+@@ -42,8 +42,6 @@ scp_init(struct log_config* log)
+ 
+   scp_lock_init();
+ 
+-  log_message(s_log, LOG_LEVEL_WARNING, "[init:%d] libscp initialized", __LINE__);
+-
+   return 0;
+ }
+ 
