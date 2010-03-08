@@ -12,7 +12,7 @@
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/bin/xrdp
+DAEMON=/usr/sbin/xrdp
 PIDDIR=/var/run/xrdp
 USERID=xrdp
 RSAKEYS=/etc/xrdp/rsakeys.ini
@@ -48,8 +48,8 @@ case "$1" in
 	    --chuid $USERID:$USERID --exec $DAEMON
 	echo -n "$NAME"
 	[ "$SESMAN_START" = "yes" ] && { \
-            start-stop-daemon --start --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
-	       --exec /usr/bin/sesman
+            start-stop-daemon --start --quiet --oknodo --pidfile $PIDDIR/xrdp-sesman.pid \
+	       --exec /usr/sbin/xrdp-sesman
 	    echo -n " sesman"
 	}
 	echo "."
@@ -60,8 +60,8 @@ case "$1" in
 	    exit 0
 	}
 	echo -n "Stopping $DESC: "
-        start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
-	    --chuid $USERID:$USERID --exec /usr/bin/sesman
+        start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/xrdp-sesman.pid \
+	    --chuid $USERID:$USERID --exec /usr/sbin/xrdp-sesman
 	echo -n "sesman "
 	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/$NAME.pid \
 	    --exec $DAEMON
