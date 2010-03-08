@@ -13,6 +13,7 @@ xrdp (0.5.0~20100303cvs-1) unstable; urgency=low
   * Switch to debhelper 7.
   * Fix path to xrdp and xrdp-sesman in init.d script.
   * Drop debian/watch, we use a CVS version.
+  * Build-Depends on libx*-dev since it is now requested by configure.
 
  -- Vincent Bernat <bernat@debian.org>  Mon, 08 Mar 2010 21:27:35 +0100
 
