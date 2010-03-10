@@ -1,3 +1,10 @@
+xrdp (0.5.0~20100303cvs-2) unstable; urgency=low
+
+  * Allow to reuse an existing session, thanks to a patch from Daniel
+    Baumann. Closes: #573258.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 10 Mar 2010 22:08:30 +0100
+
 xrdp (0.5.0~20100303cvs-1) unstable; urgency=low
 
   * New upstream release (0.5.0) from CVS repository.
