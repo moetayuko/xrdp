@@ -28,8 +28,8 @@ fi
 # Check for pid dir
 if [ ! -d $PIDDIR ] ; then
         mkdir $PIDDIR
-        chown $USERID:$USERID $PIDDIR
 fi
+chown $USERID:$USERID $PIDDIR
 
 # Check for rsa key 
 if [ ! -f $RSAKEYS ] || cmp $RSAKEYS /usr/share/doc/xrdp/rsakeys.ini > /dev/null; then
