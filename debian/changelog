@@ -1,3 +1,10 @@
+xrdp (0.5.0~20100303cvs-4) unstable; urgency=low
+
+  * Add a patch to fall back to US keymap if the correct keymap is not
+    found in /etc/xrdp. Closes: #575477.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 01 May 2010 20:09:05 +0200
+
 xrdp (0.5.0~20100303cvs-3) unstable; urgency=low
 
   * Ensure that /var/run/xrdp is owned by xrdp:xrdp. Closes: #575438.
