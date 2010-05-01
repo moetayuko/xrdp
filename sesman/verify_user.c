@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -38,7 +38,7 @@
 #define SECS_PER_DAY (24L*3600L)
 #endif
 
-extern struct config_sesman g_cfg;
+extern struct config_sesman* g_cfg; /* in sesman.c */
 
 static int DEFAULT_CC
 auth_crypt_pwd(char* pwd, char* pln, char* crp);
@@ -73,7 +73,7 @@ auth_userpass(char* user, char* pass)
     }
     if (1==auth_account_disabled(stp))
     {
-      log_message(LOG_LEVEL_INFO, "account %s is disabled", user);
+      log_message(&(g_cfg->log), LOG_LEVEL_INFO, "account %s is disabled", user);
       return 0;
     }
     g_strncpy(hash, stp->sp_pwdp, 34);
@@ -164,6 +164,10 @@ auth_check_pwd_chg(char* user)
   now=g_time1();
   today=now/SECS_PER_DAY;
 
+  if (stp->sp_expire == -1)
+  {
+    return AUTH_PWD_CHG_OK;
+  }
   if (today >= (stp->sp_lstchg + stp->sp_max - stp->sp_warn))
   {
     return AUTH_PWD_CHG_CHANGE;
@@ -306,13 +310,13 @@ auth_account_disabled(struct spwd* stp)
 
   today=g_time1()/SECS_PER_DAY;
 
-  LOG_DBG("last   %d",stp->sp_lstchg);
-  LOG_DBG("min    %d",stp->sp_min);
-  LOG_DBG("max    %d",stp->sp_max);
-  LOG_DBG("inact  %d",stp->sp_inact);
-  LOG_DBG("warn   %d",stp->sp_warn);
-  LOG_DBG("expire %d",stp->sp_expire);
-  LOG_DBG("today  %d",today);
+  LOG_DBG(&(g_cfg->log), "last   %d",stp->sp_lstchg);
+  LOG_DBG(&(g_cfg->log), "min    %d",stp->sp_min);
+  LOG_DBG(&(g_cfg->log), "max    %d",stp->sp_max);
+  LOG_DBG(&(g_cfg->log), "inact  %d",stp->sp_inact);
+  LOG_DBG(&(g_cfg->log), "warn   %d",stp->sp_warn);
+  LOG_DBG(&(g_cfg->log), "expire %d",stp->sp_expire);
+  LOG_DBG(&(g_cfg->log), "today  %d",today);
 
   if ((stp->sp_expire != -1) && (today >= stp->sp_expire))
   {
@@ -326,4 +330,3 @@ auth_account_disabled(struct spwd* stp)
 
   return 0;
 }
-

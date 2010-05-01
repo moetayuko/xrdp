@@ -1,3 +1,97 @@
+xrdp (0.5.0~20100303cvs-4) unstable; urgency=low
+
+  * Add a patch to fall back to US keymap if the correct keymap is not
+    found in /etc/xrdp. Closes: #575477.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 01 May 2010 20:09:05 +0200
+
+xrdp (0.5.0~20100303cvs-3) unstable; urgency=low
+
+  * Ensure that /var/run/xrdp is owned by xrdp:xrdp. Closes: #575438.
+
+ -- Vincent Bernat <bernat@debian.org>  Thu, 25 Mar 2010 21:25:52 +0100
+
+xrdp (0.5.0~20100303cvs-2) unstable; urgency=low
+
+  * Allow to reuse an existing session, thanks to a patch from Daniel
+    Baumann. Closes: #573258.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 10 Mar 2010 22:08:30 +0100
+
+xrdp (0.5.0~20100303cvs-1) unstable; urgency=low
+
+  * New upstream release (0.5.0) from CVS repository.
+     + Upstream now provide a free font, therefore, we use pristine
+       sources and we can drop 01sans_font.dpatch.
+     + Drop most of the other patchs since they have been merged upstream.
+     + Windows 7 RDP client can now connect. Closes: #572764.
+     + Session selection is now available. Closes: #523281.
+     + Mapping problems seems to be fixed. Closes: #483365.
+     + No more unneeded awakening. Closes: #447377.
+  * Bump Standards-Version to 3.8.4.
+  * Switch to 3.0 (quilt) format.
+  * Switch to debhelper 7.
+  * Fix path to xrdp and xrdp-sesman in init.d script.
+  * Drop debian/watch, we use a CVS version.
+  * Build-Depends on libx*-dev since it is now requested by configure.
+
+ -- Vincent Bernat <bernat@debian.org>  Mon, 08 Mar 2010 21:27:35 +0100
+
+xrdp (0.4.1~dfsg-2) unstable; urgency=low
+
+  * Don't chown /var/run/xrdp in postinst since it is done in init.d but
+    create it to not rely on adduser doing it.
+
+ -- Vincent Bernat <bernat@debian.org>  Sun, 27 Sep 2009 09:20:56 +0200
+
+xrdp (0.4.1~dfsg-1) unstable; urgency=low
+
+  * Package xrdp 0.4.1. Remove 09vista_mstc.dpatch and
+    10mono_cursor.dpatch since they were included upstream. This new
+    version happens to fix LDAP login.  Closes: #547999, #548002. LP: #429637.
+  * Export locale settings from /etc/default/locale, thanks to a
+    suggestion from Alessandro Vietta. Closes: #528032.
+  * Fix a bus error on ARM, thanks to a patch from Sven-Ola
+    Tuecke. Closes: #544384.
+  * Update Standards-Version to 3.8.3. No changes required.
+  * Don't ship /var/run/xrdp since it is created in init.d.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 26 Sep 2009 17:37:20 +0200
+
+xrdp (0.4.0~dfsg-9) unstable; urgency=high
+
+  * Fix CVE-2008-5902 and CVE-2008-5904 with the help of patches proposed
+    by Ondrej Kolacek. The patch fixing CVE-2008-5902 also happens to fix
+    CVE-2008-5903 by checking boundary before calling add_char_at(). This
+    closes: #511641.
+  * Really add patch to fix monochrome cursor issue.
+  * Also updates Standards-Version and add ${misc:Depends} macro.
+  * Don't use Pa macro in xrdp-keygen manual page.
+
+ -- Vincent Bernat <bernat@debian.org>  Fri, 23 Jan 2009 21:29:14 +0100
+
+xrdp (0.4.0~dfsg-8) unstable; urgency=low
+
+  * Add a patch to fix monochrome cursor issue
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 03 Jun 2008 00:17:16 +0200
+
+xrdp (0.4.0~dfsg-7) unstable; urgency=medium
+
+  * Due to OpenSSL weak random number generator, rsakeys.ini contains weak
+    keys. We remove them on upgrade without any warning since they are not
+    checked by any client.
+
+ -- Vincent Bernat <bernat@debian.org>  Wed, 21 May 2008 06:49:20 +0200
+
+xrdp (0.4.0~dfsg-6) unstable; urgency=low
+
+  * Add Vcs-* fields to debian/control
+  * Convert debian/copyright to machine-readable format (Closes: #469074)
+  * Add a patch to support Visa SP1 mstc application, thanks to Jay Sorg
+
+ -- Vincent Bernat <bernat@debian.org>  Thu, 08 May 2008 22:31:41 +0200
+
 xrdp (0.4.0~dfsg-5) unstable; urgency=low
 
   * Package sessvc which was left out (Closes: #465210).

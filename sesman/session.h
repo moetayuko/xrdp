@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -34,16 +34,28 @@
 #define SESMAN_SESSION_TYPE_XRDP  1
 #define SESMAN_SESSION_TYPE_XVNC  2
 
-#define SESMAN_SESSION_STATUS_ACTIVE        1
-#define SESMAN_SESSION_STATUS_IDLE          2
-#define SESMAN_SESSION_STATUS_DISCONNECTED  3
+#define SESMAN_SESSION_STATUS_ACTIVE        0x01
+#define SESMAN_SESSION_STATUS_IDLE          0x02
+#define SESMAN_SESSION_STATUS_DISCONNECTED  0x04
 /* future expansion
-#define SESMAN_SESSION_STATUS_REMCONTROL    4
+#define SESMAN_SESSION_STATUS_REMCONTROL    0x08
 */
+#define SESMAN_SESSION_STATUS_ALL           0xFF
 
 #define SESMAN_SESSION_KILL_OK        0
 #define SESMAN_SESSION_KILL_NULLITEM  1
 #define SESMAN_SESSION_KILL_NOTFOUND  2
+
+struct session_date
+{
+  tui16 year;
+  tui8  month;
+  tui8  day;
+  tui8  hour;
+  tui8  minute;
+};
+
+#define zero_time(s) { (s)->year=0; (s)->month=0; (s)->day=0; (s)->hour=0; (s)->minute=0; }
 
 struct session_item
 {
@@ -60,9 +72,9 @@ struct session_item
   unsigned char type;
 
   /* time data  */
-  int connect_time;
-  int disconnect_time;
-  int idle_time;
+  struct session_date connect_time;
+  struct session_date disconnect_time;
+  struct session_date idle_time;
 };
 
 struct session_chain
@@ -78,9 +90,9 @@ struct session_chain
  *
  */
 struct session_item* DEFAULT_CC
-session_get_bydata(char* name, int width, int height, int bpp);
+session_get_bydata(char* name, int width, int height, int bpp, int type);
 #ifndef session_find_item
-  #define session_find_item(a, b, c, d) session_get_bydata(a, b, c, d);
+  #define session_find_item(a, b, c, d, e) session_get_bydata(a, b, c, d, e);
 #endif
 
 /**
@@ -91,7 +103,17 @@ session_get_bydata(char* name, int width, int height, int bpp);
  */
 int DEFAULT_CC
 session_start(int width, int height, int bpp, char* username, char* password,
-              long data, unsigned char type);
+              long data, tui8 type, char* domain, char* program,
+              char* directory);
+
+/**
+ *
+ * @brief starts a session
+ * @return error
+ *
+ */
+int APP_CC
+session_sync_start(void);
 
 /**
  *
@@ -130,7 +152,7 @@ session_get_bypid(int pid);
  *
  */
 struct SCP_DISCONNECTED_SESSION*
-session_get_byuser(char* user, int* cnt);
+session_get_byuser(char* user, int* cnt, unsigned char flags);
 
 #endif
 

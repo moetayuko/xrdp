@@ -4,15 +4,15 @@
 
 ### BEGIN INIT INFO
 # Provides:          xrdp
-# Required-Start:    $network
-# Required-Stop:     $network
+# Required-Start:    $network $remote_fs
+# Required-Stop:     $network $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: start xrdp daemon
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/bin/xrdp
+DAEMON=/usr/sbin/xrdp
 PIDDIR=/var/run/xrdp
 USERID=xrdp
 RSAKEYS=/etc/xrdp/rsakeys.ini
@@ -28,13 +28,13 @@ fi
 # Check for pid dir
 if [ ! -d $PIDDIR ] ; then
         mkdir $PIDDIR
-        chown $USERID:$USERID $PIDDIR
 fi
+chown $USERID:$USERID $PIDDIR
 
 # Check for rsa key 
 if [ ! -f $RSAKEYS ] || cmp $RSAKEYS /usr/share/doc/xrdp/rsakeys.ini > /dev/null; then
         echo "Generating xrdp RSA keys..."
-        (umask 077 ; xrdp-keygen xrdp)
+        (umask 077 ; xrdp-keygen xrdp $RSAKEYS)
         chown $USERID:$USERID $RSAKEYS
 fi
 
@@ -48,8 +48,8 @@ case "$1" in
 	    --chuid $USERID:$USERID --exec $DAEMON
 	echo -n "$NAME"
 	[ "$SESMAN_START" = "yes" ] && { \
-            start-stop-daemon --start --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
-	       --exec /usr/bin/sesman
+            start-stop-daemon --start --quiet --oknodo --pidfile $PIDDIR/xrdp-sesman.pid \
+	       --exec /usr/sbin/xrdp-sesman
 	    echo -n " sesman"
 	}
 	echo "."
@@ -60,8 +60,8 @@ case "$1" in
 	    exit 0
 	}
 	echo -n "Stopping $DESC: "
-        start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/sesman.pid \
-	    --chuid $USERID:$USERID --exec /usr/bin/sesman
+        start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/xrdp-sesman.pid \
+	    --chuid $USERID:$USERID --exec /usr/sbin/xrdp-sesman
 	echo -n "sesman "
 	start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/$NAME.pid \
 	    --exec $DAEMON
