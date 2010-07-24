@@ -1,3 +1,5 @@
+Ensure that the default keymap is US english if there is a problem locating one.
+
 diff --git a/xrdp/lang.c b/xrdp/lang.c
 index 751d2ba..7ae351f 100644
 --- a/xrdp/lang.c
