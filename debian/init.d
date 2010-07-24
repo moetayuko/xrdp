@@ -33,34 +33,6 @@ check_root()  {
     fi
 }
 
-running_pid() {
-# Check if a given process pid's cmdline matches a given name
-    pid=$1
-    name=$2
-    [ -z "$pid" ] && return 1 
-    [ ! -d /proc/$pid ] &&  return 1
-    cmd=`cat /proc/$pid/cmdline | tr "\000" "\n"|head -n 1 |cut -d : -f 1`
-    # Is this the expected child?
-    [ "$cmd" != "$name" ] &&  return 1
-    return 0
-}
-
-running_proc() {
-# Check if the process is running looking at /proc
-# (works for all users)
-    pidfile=$1
-    binname=$2
-
-    # No pidfile, probably no daemon present
-    [ ! -r "$pidfile" ] && return 1
-    pid=`cat $pidfile`
-
-    running_pid $pid $binname || return 1
-
-    return 0
-}
-
-
 if [ -r /etc/default/$NAME ]; then
    . /etc/default/$NAME
 fi
@@ -92,7 +64,7 @@ case "$1" in
         check_root
         exitval=0
         log_daemon_msg "Starting $DESC " 
-        if running_proc  $PIDDIR/$NAME.pid $DAEMON; then
+        if pidofproc -p $PIDDIR/$NAME.pid $DAEMON > /dev/null; then
             log_progress_msg "$NAME apparently already running"
             log_end_msg 0
             exit 0
@@ -124,7 +96,7 @@ case "$1" in
         exitval=0
         log_daemon_msg "Stopping RDP Session manager " 
         log_progress_msg "sesman"
-        if running_proc  $PIDDIR/xrdp-sesman.pid /usr/sbin/xrdp-sesman; then
+        if pidofproc -p  $PIDDIR/xrdp-sesman.pid /usr/sbin/xrdp-sesman  > /dev/null; then
             start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/xrdp-sesman.pid \
                 --chuid $USERID:$USERID --exec /usr/sbin/xrdp-sesman
             exitval=$?
@@ -132,7 +104,7 @@ case "$1" in
             log_progress_msg "apparently not running"
         fi
         log_progress_msg $NAME
-        if running_proc  $PIDDIR/$NAME.pid $DAEMON; then
+        if pidofproc -p  $PIDDIR/$NAME.pid $DAEMON  > /dev/null; then
             start-stop-daemon --stop --quiet --oknodo --pidfile $PIDDIR/$NAME.pid \
 	    --exec $DAEMON
             value=$?
@@ -156,7 +128,7 @@ case "$1" in
   status)
         exitval=0
         log_daemon_msg "Checking status of $DESC" "$NAME"
-        if running_proc  $PIDDIR/$NAME.pid $DAEMON; then
+        if pidofproc -p  $PIDDIR/$NAME.pid $DAEMON  > /dev/null; then
             log_progress_msg "running"
             log_end_msg 0
         else
@@ -166,7 +138,7 @@ case "$1" in
         fi
 	if [ "$SESMAN_START" = "yes" ] ; then
             log_daemon_msg "Checking status of RDP Session Manager" "sesman"
-            if running_proc  $PIDDIR/xrdp-sesman.pid /usr/sbin/xrdp-sesman; then
+            if pidofproc -p  $PIDDIR/xrdp-sesman.pid /usr/sbin/xrdp-sesman  > /dev/null; then
                 log_progress_msg "running"
                 log_end_msg 0
             else
