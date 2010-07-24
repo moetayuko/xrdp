@@ -1,3 +1,10 @@
+xrdp (0.5.0~20100303cvs-5) unstable; urgency=low
+
+  * Rewrite of init.d by Javier Fernández-Sanguino Peña to be LSB
+    compliant. Closes: #589757.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 24 Jul 2010 16:40:34 +0200
+
 xrdp (0.5.0~20100303cvs-4) unstable; urgency=low
 
   * Add a patch to fall back to US keymap if the correct keymap is not
