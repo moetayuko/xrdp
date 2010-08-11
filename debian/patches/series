@@ -2,3 +2,4 @@
 04quiet_start.patch
 05-default-keymap.patch
 06-xrdp_pidfile_early.patch
+alt-gr-fix.patch
