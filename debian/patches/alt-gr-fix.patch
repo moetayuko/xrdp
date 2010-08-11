@@ -1,0 +1,35 @@
+Fix for bug#584666. From:
+ http://xrdp.cvs.sourceforge.net/viewvc/xrdp/xrdp/vnc/vnc.c?r1=1.43&r2=1.44&view=patch
+
+--- a/vnc/vnc.c	2009/08/15 02:49:13	1.43
++++ b/vnc/vnc.c	2010/03/17 18:35:26	1.44
+@@ -255,12 +255,29 @@
+     key = param2;
+     if (key > 0)
+     {
++      if (key == 65027) /* altgr */
++      {
++        if (v->shift_state)
++        {
++          /* fix for mstsc sending left control down with altgr */
++          init_stream(s, 8192);
++          out_uint8(s, 4);
++          out_uint8(s, 0); /* down flag */
++          out_uint8s(s, 2);
++          out_uint32_be(s, 65507); /* left control */
++          lib_send(v, s->data, 8);
++        }
++      }
+       init_stream(s, 8192);
+       out_uint8(s, 4);
+       out_uint8(s, msg == 15); /* down flag */
+       out_uint8s(s, 2);
+       out_uint32_be(s, key);
+       error = lib_send(v, s->data, 8);
++      if (key == 65507) /* left control */
++      {
++        v->shift_state = msg == 15;
++      }
+     }
+   }
+   else if (msg >= 100 && msg <= 110) /* mouse events */
