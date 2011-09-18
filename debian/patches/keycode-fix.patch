@@ -1,0 +1,35 @@
+Support for some non-US keyboards whose keycodes may be greater than
+128 with a patch from Sasajima. Closes: #610961.
+
+See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=610961
+
+--- xrdp-0.5.0~20100303cvs.orig/xrdp/xrdp_types.h
++++ xrdp-0.5.0~20100303cvs/xrdp/xrdp_types.h
+@@ -200,11 +200,11 @@ struct xrdp_key_info
+ 
+ struct xrdp_keymap
+ {
+-  struct xrdp_key_info keys_noshift[128];
+-  struct xrdp_key_info keys_shift[128];
+-  struct xrdp_key_info keys_altgr[128];
+-  struct xrdp_key_info keys_capslock[128];
+-  struct xrdp_key_info keys_shiftcapslock[128];
++  struct xrdp_key_info keys_noshift[256];
++  struct xrdp_key_info keys_shift[256];
++  struct xrdp_key_info keys_altgr[256];
++  struct xrdp_key_info keys_capslock[256];
++  struct xrdp_key_info keys_shiftcapslock[256];
+ };
+ 
+ /* the window manager */
+--- xrdp-0.5.0~20100303cvs.orig/xrdp/lang.c
++++ xrdp-0.5.0~20100303cvs/xrdp/lang.c
+@@ -181,7 +181,7 @@ km_read_section(int fd, const char* sect
+         {
+           code = g_atoi(name);
+         }
+-        if ((code >= 0) && (code < 128))
++        if ((code >= 0) && (code < 256))
+         {
+           pos1 = g_pos(value, ":");
+           if (pos1 >= 0)

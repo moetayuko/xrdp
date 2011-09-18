@@ -2,6 +2,8 @@ xrdp (0.5.0-1) unstable; urgency=low
 
   * New upstream version.
      + This version also happens to fix linking problems. Closes: #615803.
+  * Support for some non-US keyboards whose keycodes may be greater than
+    128 with a patch from Sasajima. Closes: #610961.
 
  -- Vincent Bernat <bernat@debian.org>  Sun, 18 Sep 2011 20:38:04 +0200
 
