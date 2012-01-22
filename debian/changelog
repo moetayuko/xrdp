@@ -1,3 +1,11 @@
+xrdp (0.5.0-2) unstable; urgency=low
+
+  * Remove sesman logs on purge. Closes: #656212.
+  * Don't create /var/log/sesman.log in postinst. sesman is now able to
+    create it.
+
+ -- Vincent Bernat <bernat@debian.org>  Sun, 22 Jan 2012 13:02:50 +0100
+
 xrdp (0.5.0-1) unstable; urgency=low
 
   * New upstream version.

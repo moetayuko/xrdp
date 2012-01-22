@@ -13,7 +13,7 @@ case "$1" in
 	deluser --system xrdp || true
 	delgroup --system xrdp || true
 
-        rm -rf /etc/xrdp /var/run/xrdp
+        rm -rf /etc/xrdp /var/run/xrdp /var/log/sesman.log /var/log/xrdp-sesman.log
     ;;
     *)
     ;;
