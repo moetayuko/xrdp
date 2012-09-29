@@ -1,6 +1,6 @@
 xrdp (0.6.0-1) unstable; urgency=low
 
-  * New upstream version.
+  * New upstream version. Closes: #687039.
   * Drop 07-unix-socks-in-var-run.patch: upstream now creates a dedicated
     directory for Unix sockets in /tmp (with mkdtemp).
   * Drop the following patches, applied upstream:
