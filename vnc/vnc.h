@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    libvnc
 
@@ -27,7 +27,7 @@
 #include "d3des.h"
 #include "defines.h"
 
-#define CURRENT_MOD_VER 1
+#define CURRENT_MOD_VER 2
 
 struct vnc
 {
@@ -87,7 +87,8 @@ struct vnc
   int (*server_send_to_channel)(struct vnc* v, int channel_id,
                                 char* data, int data_len,
                                 int total_data_len, int flags);
-  long server_dumby[100 - 24]; /* align, 100 minus the number of server
+  int (*server_bell_trigger)(struct vnc* v);
+  long server_dumby[100 - 25]; /* align, 100 minus the number of server
                                   functions above */
   /* common */
   long handle; /* pointer to self as long */

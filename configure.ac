@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.59)
-AC_INIT([xrdp], [0.5.0], [xrdp-devel@lists.sourceforge.net])
+AC_INIT([xrdp], [0.6.0], [xrdp-devel@lists.sourceforge.net])
 AM_CONFIG_HEADER(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
 AC_PROG_CC
@@ -19,6 +19,18 @@ AC_ARG_ENABLE(pamuserpass, AS_HELP_STRING([--enable-pamuserpass],
               [Build pam userpass support (default: no)]),
               [pamuserpass=true], [pamuserpass=false])
 AM_CONDITIONAL(SESMAN_PAMUSERPASS, [test x$pamuserpass = xtrue])
+AC_ARG_ENABLE(xrdpdebug, AS_HELP_STRING([--enable-xrdpdebug],
+              [Build debug (default: no)]),
+              [xrdpdebug=true], [xrdpdebug=false])
+AM_CONDITIONAL(XRDP_DEBUG, [test x$xrdpdebug = xtrue])
+AC_ARG_ENABLE(freerdp, AS_HELP_STRING([--enable-freerdp],
+              [Build freerdp module (default: no)]),
+              [freerdp=true], [freerdp=false])
+AM_CONDITIONAL(XRDP_FREERDP, [test x$freerdp = xtrue])
+AC_ARG_ENABLE(freerdp1, AS_HELP_STRING([--enable-freerdp1],
+              [Build freerdp1 module (default: no)]),
+              [freerdp1=true], [freerdp1=false])
+AM_CONDITIONAL(XRDP_FREERDP1, [test x$freerdp1 = xtrue])
 
 # checking for openssl
 AC_CHECK_HEADER([openssl/rc4.h], [],
@@ -35,11 +47,14 @@ then
   fi
 fi
 
+AS_IF( [test "x$enable_freerdp" = "xyes"] , [PKG_CHECK_MODULES(FREERDP, freerdp >= 0.8.1)] )
+AS_IF( [test "x$enable_freerdp1" = "xyes"] , [PKG_CHECK_MODULES(FREERDP, freerdp >= 1.0.0)] )
+
 # checking for Xlib, Xfixes
 AC_CHECK_HEADER([X11/Xlib.h], [],
-  [AC_MSG_ERROR([please install libx11-dev])])
+  [AC_MSG_ERROR([please install libx11-dev or libX11-devel])])
 AC_CHECK_HEADER([X11/extensions/Xfixes.h], [],
-  [AC_MSG_ERROR([please install libx11-dev and libxfixes-dev])],
+  [AC_MSG_ERROR([please install libx11-dev and libxfixes-dev or libXfixes-devel])],
   [#include <X11/Xlib.h>])
 
 libdir="${libdir}/xrdp";
@@ -54,6 +69,8 @@ AC_CONFIG_FILES([Makefile
                  libxrdp/Makefile
                  xup/Makefile
                  mc/Makefile
+                 freerdp/Makefile
+                 freerdp1/Makefile
                  xrdp/Makefile
                  sesman/Makefile
                  sesman/libscp/Makefile

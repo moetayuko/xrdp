@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2004-2009 Jay Sorg
+   Copyright (c) 2004-2012 Jay Sorg
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -25,10 +25,18 @@
 #if !defined(OS_CALLS_H)
 #define OS_CALLS_H
 
+#ifndef NULL
+#define NULL 0
+#endif
+
 #include "arch.h"
 
+int APP_CC
+g_rm_temp_dir(void);
+int APP_CC
+g_mk_temp_dir(const char* app_name);
 void APP_CC
-g_init(void);
+g_init(const char* app_name);
 void APP_CC
 g_deinit(void);
 void* APP_CC
@@ -76,6 +84,8 @@ g_tcp_bind(int sck, char* port);
 int APP_CC
 g_tcp_local_bind(int sck, char* port);
 int APP_CC
+g_tcp_bind_address(int sck, char* port, const char* address);
+int APP_CC
 g_tcp_listen(int sck);
 int APP_CC
 g_tcp_accept(int sck);
@@ -93,6 +103,8 @@ int APP_CC
 g_tcp_can_recv(int sck, int millis);
 int APP_CC
 g_tcp_select(int sck1, int sck2);
+void APP_CC
+g_write_ip_address(int rcv_sck, char* ip_address);
 void APP_CC
 g_sleep(int msecs);
 tbus APP_CC
@@ -133,6 +145,8 @@ g_file_lock(int fd, int start, int len);
 int APP_CC
 g_chmod_hex(const char* filename, int flags);
 int APP_CC
+g_chown(const char* name, int uid, int gid);
+int APP_CC
 g_mkdir(const char* dirname);
 char* APP_CC
 g_get_current_dir(char* dirname, int maxlen);
@@ -169,7 +183,7 @@ g_strcasecmp(const char* c1, const char* c2);
 int APP_CC
 g_strncasecmp(const char* c1, const char* c2, int len);
 int APP_CC
-g_atoi(char* str);
+g_atoi(const char* str);
 int APP_CC
 g_htoi(char* str);
 int APP_CC
@@ -208,6 +222,8 @@ void APP_CC
 g_signal_terminate(void (*func)(int));
 void APP_CC
 g_signal_pipe(void (*func)(int));
+void APP_CC
+g_signal_usr1(void (*func)(int));
 int APP_CC
 g_fork(void);
 int APP_CC

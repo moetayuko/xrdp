@@ -14,13 +14,15 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    ssl calls
 
 */
 
 #include <stdlib.h> /* needed for openssl headers */
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #include <openssl/rc4.h>
 #include <openssl/md5.h>
 #include <openssl/sha.h>
@@ -36,6 +38,22 @@
 #else
 #define OLD_RSA_GEN1
 #endif
+
+/*****************************************************************************/
+int
+ssl_init(void)
+{
+  SSL_load_error_strings();
+  SSL_library_init();
+  return 0;
+}
+
+/*****************************************************************************/
+int
+ssl_finish(void)
+{
+  return 0;
+}
 
 /* rc4 stuff */
 

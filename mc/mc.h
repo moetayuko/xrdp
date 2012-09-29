@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2007-2009
+   Copyright (C) Jay Sorg 2007-2010
 
    media center
 
@@ -26,7 +26,7 @@
 #include "os_calls.h"
 #include "defines.h"
 
-#define CURRENT_MOD_VER 1
+#define CURRENT_MOD_VER 2
 
 struct mod
 {
@@ -40,7 +40,11 @@ struct mod
   int (*mod_signal)(struct mod* v);
   int (*mod_end)(struct mod* v);
   int (*mod_set_param)(struct mod* v, char* name, char* value);
-  long mod_dumby[100 - 6]; /* align, 100 minus the number of mod
+  int (*mod_session_change)(struct mod* v, int, int);
+  int (*mod_get_wait_objs)(struct mod* v, tbus* read_objs, int* rcount,
+                           tbus* write_objs, int* wcount, int* timeout);
+  int (*mod_check_wait_objs)(struct mod* v);
+  long mod_dumby[100 - 9]; /* align, 100 minus the number of mod
                               functions above */
   /* server functions */
   int (*server_begin_update)(struct mod* v);
@@ -82,7 +86,8 @@ struct mod
   int (*server_send_to_channel)(struct mod* v, int channel_id,
                                 char* data, int data_len,
                                 int total_data_len, int flags);
-  long server_dumby[100 - 24]; /* align, 100 minus the number of server
+  int (*server_bell_trigger)(struct mod* v);
+  long server_dumby[100 - 25]; /* align, 100 minus the number of server
                                   functions above */
   /* common */
   long handle; /* pointer to self as long */

@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    bitmap compressor
 
@@ -950,7 +950,7 @@ xrdp_bitmap_compress(char* in_data, int width, int height,
   }
   else if ((bpp == 15) || (bpp == 16))
   {
-    mix = 0xffff;
+    mix = (bpp == 15) ? 0xba1f : 0xffff;
     out_count = end * 2;
     line = in_data + width * start_line * 2;
     while (start_line >= 0 && out_count < 32768)

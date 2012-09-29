@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2009
+   Copyright (C) Jay Sorg 2005-2010
 */
 
 /**
@@ -263,6 +263,17 @@ scp_v0s_accept(struct SCP_CONNECTION* c, struct SCP_SESSION** s, int skipVchk)
         in_uint8a(c->in_s, buf, sz);
         buf[sz] = '\0';
         scp_session_set_directory(session, buf);
+      }
+    }
+    if (s_check_rem(c->in_s, 2))
+    {
+      /* reading client IP address */
+      in_uint16_be(c->in_s, sz);
+      if (sz > 0)
+      {
+        in_uint8a(c->in_s, buf, sz);
+        buf[sz] = '\0';
+        scp_session_set_client_ip(session, buf);
       }
     }
   }

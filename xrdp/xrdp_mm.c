@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    module manager
 
@@ -110,15 +110,18 @@ xrdp_mm_send_login(struct xrdp_mm* self)
   int rv;
   int index;
   int count;
+  int xserverbpp;
   char* username;
   char* password;
   char* name;
   char* value;
 
-  xrdp_wm_log_msg(self->wm, "sending login info to sesman");
+  xrdp_wm_log_msg(self->wm, "sending login info to session manager, "
+                            "please wait...");
   username = 0;
   password = 0;
   self->code = 0;
+  xserverbpp = 0;
   count = self->login_names->count;
   for (index = 0; index < count; index++)
   {
@@ -140,12 +143,17 @@ xrdp_mm_send_login(struct xrdp_mm* self)
         self->code = 10;
       }
     }
+    else if (g_strcasecmp(name, "xserverbpp") == 0)
+    {
+      xserverbpp = g_atoi(value);
+    }
   }
   if ((username == 0) || (password == 0))
   {
-    xrdp_wm_log_msg(self->wm, "error finding username and password");
+    xrdp_wm_log_msg(self->wm, "Error finding username and password");
     return 1;
   }
+
   s = trans_get_out_s(self->sesman_trans, 8192);
   s_push_layer(s, channel_hdr, 8);
   /* this code is either 0 for Xvnc or 10 for X11rdp */
@@ -154,33 +162,54 @@ xrdp_mm_send_login(struct xrdp_mm* self)
   out_uint16_be(s, index);
   out_uint8a(s, username, index);
   index = g_strlen(password);
+
   out_uint16_be(s, index);
   out_uint8a(s, password, index);
   out_uint16_be(s, self->wm->screen->width);
   out_uint16_be(s, self->wm->screen->height);
-  out_uint16_be(s, self->wm->screen->bpp);
+
+  if (xserverbpp > 0)
+  {
+    out_uint16_be(s, xserverbpp);
+  }
+  else
+  {
+    out_uint16_be(s, self->wm->screen->bpp);
+  }
+
   /* send domain */
   index = g_strlen(self->wm->client_info->domain);
   out_uint16_be(s, index);
   out_uint8a(s, self->wm->client_info->domain, index);
+
   /* send program / shell */
   index = g_strlen(self->wm->client_info->program);
   out_uint16_be(s, index);
   out_uint8a(s, self->wm->client_info->program, index);
+
   /* send directory */
   index = g_strlen(self->wm->client_info->directory);
   out_uint16_be(s, index);
   out_uint8a(s, self->wm->client_info->directory, index);
+
+  /* send client ip */
+  index = g_strlen(self->wm->client_info->client_ip);
+  out_uint16_be(s, index);
+  out_uint8a(s, self->wm->client_info->client_ip, index);
+
   s_mark_end(s);
+
   s_pop_layer(s, channel_hdr);
   out_uint32_be(s, 0); /* version */
   index = (int)(s->end - s->data);
   out_uint32_be(s, index); /* size */
+
   rv = trans_force_write(self->sesman_trans);
-  if (rv != 0)
-  {
-    xrdp_wm_log_msg(self->wm, "xrdp_mm_send_login: xrdp_mm_send failed");
+
+  if (rv != 0) {
+    xrdp_wm_log_msg(self->wm, "xrdp_mm_send_login: xrdp_mm_send_login failed");
   }
+
   return rv;
 }
 
@@ -216,6 +245,7 @@ xrdp_mm_get_value(struct xrdp_mm* self, char* aname, char* dest, int dest_len)
       rv = 0;
     }
   }
+
   return rv;
 }
 
@@ -235,15 +265,17 @@ xrdp_mm_setup_mod1(struct xrdp_mm* self)
   if (xrdp_mm_get_value(self, "lib", lib, 255) != 0)
   {
     g_snprintf(text, 255, "no library name specified in xrdp.ini, please add "
-               "lib=libxrdp-vnc.so or similar");
+                          "lib=libxrdp-vnc.so or similar");
     xrdp_wm_log_msg(self->wm, text);
+
     return 1;
   }
   if (lib[0] == 0)
   {
     g_snprintf(text, 255, "empty library name specified in xrdp.ini, please "
-               "add lib=libxrdp-vnc.so or similar");
+                          "add lib=libxrdp-vnc.so or similar");
     xrdp_wm_log_msg(self->wm, text);
+
     return 1;
   }
   if (self->mod_handle == 0)
@@ -259,7 +291,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm* self)
       if (func == 0)
       {
         g_snprintf(text, 255, "error finding proc mod_init in %s, not a valid "
-                   "xrdp backend", lib);
+                              "xrdp backend", lib);
         xrdp_wm_log_msg(self->wm, text);
       }
       self->mod_init = (struct xrdp_mod* (*)(void))func;
@@ -271,7 +303,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm* self)
       if (func == 0)
       {
         g_snprintf(text, 255, "error finding proc mod_exit in %s, not a valid "
-                   "xrdp backend", lib);
+                              "xrdp backend", lib);
         xrdp_wm_log_msg(self->wm, text);
       }
       self->mod_exit = (int (*)(struct xrdp_mod*))func;
@@ -280,7 +312,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm* self)
         self->mod = self->mod_init();
         if (self->mod != 0)
         {
-          g_writeln("loaded modual '%s' ok, interface size %d, version %d", lib,
+          g_writeln("loaded module '%s' ok, interface size %d, version %d", lib,
                     self->mod->size, self->mod->version);
         }
       }
@@ -288,7 +320,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm* self)
     else
     {
       g_snprintf(text, 255, "error loading %s specified in xrdp.ini, please "
-                 "add a valid entry like lib=libxrdp-vnc.so or similar", lib);
+                            "add a valid entry like lib=libxrdp-vnc.so or similar", lib);
       xrdp_wm_log_msg(self->wm, text);
     }
     if (self->mod != 0)
@@ -296,6 +328,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm* self)
       self->mod->wm = (long)(self->wm);
       self->mod->server_begin_update = server_begin_update;
       self->mod->server_end_update = server_end_update;
+      self->mod->server_bell_trigger = server_bell_trigger;
       self->mod->server_fill_rect = server_fill_rect;
       self->mod->server_screen_blt = server_screen_blt;
       self->mod->server_paint_rect = server_paint_rect;
@@ -341,6 +374,7 @@ xrdp_mm_setup_mod2(struct xrdp_mm* self)
   int key_flags;
   int device_flags;
 
+  g_memset(text,0,sizeof(char) * 256);
   rv = 1;
   text[0] = 0;
   if (!g_is_wait_obj_set(self->wm->pro_layer->self_term_event))
@@ -438,6 +472,8 @@ xrdp_mm_trans_send_channel_setup(struct xrdp_mm* self, struct trans* trans)
   int size;
   struct stream* s;
   char chan_name[256];
+
+  g_memset(chan_name,0,sizeof(char) * 256);
 
   s = trans_get_out_s(trans, 8192);
   if (s == 0)
@@ -636,10 +672,15 @@ xrdp_mm_process_login_response(struct xrdp_mm* self, struct stream* s)
   int display;
   int rv;
   int index;
+  int uid;
+  int gid;
   char text[256];
   char ip[256];
   char port[256];
 
+  g_memset(text,0,sizeof(char) * 256);
+  g_memset(ip,0,sizeof(char) * 256);
+  g_memset(port,0,sizeof(char) * 256);
   rv = 0;
   in_uint16_be(s, ok);
   in_uint16_be(s, display);
@@ -647,7 +688,7 @@ xrdp_mm_process_login_response(struct xrdp_mm* self, struct stream* s)
   {
     self->display = display;
     g_snprintf(text, 255, "xrdp_mm_process_login_response: login successful "
-               "for display %d", display);
+                          "for display %d", display);
     xrdp_wm_log_msg(self->wm, text);
     if (xrdp_mm_setup_mod1(self) == 0)
     {
@@ -660,13 +701,13 @@ xrdp_mm_process_login_response(struct xrdp_mm* self, struct stream* s)
         if (strcmp(ip, "127.0.0.1") == 0)
         {
           /* unix socket */
-          self->chan_trans = trans_create(2, 8192, 8192);
-          g_snprintf(port, 255, "/tmp/xrdp_chansrv_socket_%d", 7200 + display);
+          self->chan_trans = trans_create(TRANS_MODE_UNIX, 8192, 8192);
+          g_snprintf(port, 255, "/tmp/.xrdp/xrdp_chansrv_socket_%d", 7200 + display);
         }
         else
         {
           /* tcp */
-          self->chan_trans = trans_create(1, 8192, 8192);
+          self->chan_trans = trans_create(TRANS_MODE_TCP, 8192, 8192);
           g_snprintf(port, 255, "%d", 7200 + display);
         }
         self->chan_trans->trans_data_in = xrdp_mm_chan_data_in;
@@ -702,7 +743,8 @@ xrdp_mm_process_login_response(struct xrdp_mm* self, struct stream* s)
   }
   else
   {
-    xrdp_wm_log_msg(self->wm, "xrdp_mm_process_login_response: login failed");
+    xrdp_wm_log_msg(self->wm, "xrdp_mm_process_login_response: "
+                              "login failed");
   }
   self->delete_sesman_trans = 1;
   self->connected_state = 0;
@@ -711,6 +753,7 @@ xrdp_mm_process_login_response(struct xrdp_mm* self, struct stream* s)
     xrdp_wm_set_login_mode(self->wm, 11);
     xrdp_mm_module_cleanup(self);
   }
+
   return rv;
 }
 
@@ -726,6 +769,7 @@ xrdp_mm_get_sesman_port(char* port, int port_bytes)
   struct list* names;
   struct list* values;
 
+  g_memset(cfg_file,0,sizeof(char) * 256);
   /* default to port 3350 */
   g_strncpy(port, "3350", port_bytes - 1);
   /* see if port is in xrdp.ini file */
@@ -761,6 +805,7 @@ xrdp_mm_get_sesman_port(char* port, int port_bytes)
     list_delete(values);
     g_file_close(fd);
   }
+
   return 0;
 }
 
@@ -792,7 +837,7 @@ xrdp_mm_process_channel_data(struct xrdp_mm* self, tbus param1, tbus param2,
       total_length = param4;
       if (total_length < length)
       {
-        g_writeln("warning in xrdp_mm_process_channel_data total_len < length");
+        g_writeln("WARNING in xrdp_mm_process_channel_data(): total_len < length");
         total_length = length;
       }
       out_uint32_le(s, 0); /* version */
@@ -808,6 +853,7 @@ xrdp_mm_process_channel_data(struct xrdp_mm* self, tbus param1, tbus param2,
       rv = trans_force_write(self->chan_trans);
     }
   }
+
   return rv;
 }
 
@@ -848,6 +894,7 @@ xrdp_mm_sesman_data_in(struct trans* trans)
         break;
     }
   }
+
   return error;
 }
 
@@ -860,7 +907,6 @@ xrdp_mm_connect(struct xrdp_mm* self)
   int index;
   int count;
   int use_sesman;
-  int error;
   int ok;
   int rv;
   char* name;
@@ -870,6 +916,10 @@ xrdp_mm_connect(struct xrdp_mm* self)
   char text[256];
   char port[8];
 
+  g_memset(ip,0,sizeof(char) * 256);
+  g_memset(errstr,0,sizeof(char) * 256);
+  g_memset(text,0,sizeof(char) * 256);
+  g_memset(port,0,sizeof(char) * 8);
   rv = 0;
   use_sesman = 0;
   names = self->login_names;
@@ -896,7 +946,7 @@ xrdp_mm_connect(struct xrdp_mm* self)
     ok = 0;
     errstr[0] = 0;
     trans_delete(self->sesman_trans);
-    self->sesman_trans = trans_create(1, 8192, 8192);
+    self->sesman_trans = trans_create(TRANS_MODE_TCP, 8192, 8192);
     xrdp_mm_get_sesman_port(port, sizeof(port));
     g_snprintf(text, 255, "connecting to sesman ip %s port %s", ip, port);
     xrdp_wm_log_msg(self->wm, text);
@@ -949,6 +999,7 @@ xrdp_mm_connect(struct xrdp_mm* self)
     }
   }
   self->sesman_controlled = use_sesman;
+
   return rv;
 }
 
@@ -958,7 +1009,7 @@ xrdp_mm_get_wait_objs(struct xrdp_mm* self,
                       tbus* read_objs, int* rcount,
                       tbus* write_objs, int* wcount, int* timeout)
 {
-  int rv;
+  int rv = 0;
 
   if (self == 0)
   {
@@ -981,6 +1032,7 @@ xrdp_mm_get_wait_objs(struct xrdp_mm* self,
                                         write_objs, wcount, timeout);
     }
   }
+
   return rv;
 }
 
@@ -1030,8 +1082,28 @@ xrdp_mm_check_wait_objs(struct xrdp_mm* self)
     self->chan_trans_up = 0;
     self->delete_chan_trans = 0;
   }
+
   return rv;
 }
+
+#if 0
+/*****************************************************************************/
+struct xrdp_painter* APP_CC
+get_painter(struct xrdp_mod* mod)
+{
+  struct xrdp_wm* wm;
+  struct xrdp_painter* p;
+
+  p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    wm = (struct xrdp_wm*)(mod->wm);
+    p = xrdp_painter_create(wm, wm->session);
+    mod->painter = (tintptr)p;
+  }
+  return p;
+}
+#endif
 
 /*****************************************************************************/
 int DEFAULT_CC
@@ -1054,11 +1126,28 @@ server_end_update(struct xrdp_mod* mod)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   xrdp_painter_end_update(p);
   xrdp_painter_delete(p);
   mod->painter = 0;
   return 0;
 }
+
+/*****************************************************************************/
+/* got bell signal... try to send to client */
+int DEFAULT_CC
+server_bell_trigger(struct xrdp_mod* mod)
+{
+  struct xrdp_wm* wm;
+
+  wm = (struct xrdp_wm*)(mod->wm);
+  xrdp_wm_send_bell(wm);
+  return 0;
+}
+
 
 /*****************************************************************************/
 int DEFAULT_CC
@@ -1067,8 +1156,12 @@ server_fill_rect(struct xrdp_mod* mod, int x, int y, int cx, int cy)
   struct xrdp_wm* wm;
   struct xrdp_painter* p;
 
-  wm = (struct xrdp_wm*)(mod->wm);
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
+  wm = (struct xrdp_wm*)(mod->wm);
   xrdp_painter_fill_rect(p, wm->screen, x, y, cx, cy);
   return 0;
 }
@@ -1081,8 +1174,12 @@ server_screen_blt(struct xrdp_mod* mod, int x, int y, int cx, int cy,
   struct xrdp_wm* wm;
   struct xrdp_painter* p;
 
-  wm = (struct xrdp_wm*)(mod->wm);
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
+  wm = (struct xrdp_wm*)(mod->wm);
   p->rop = 0xcc;
   xrdp_painter_copy(p, wm->screen, wm->screen, x, y, cx, cy, srcx, srcy);
   return 0;
@@ -1097,8 +1194,12 @@ server_paint_rect(struct xrdp_mod* mod, int x, int y, int cx, int cy,
   struct xrdp_bitmap* b;
   struct xrdp_painter* p;
 
-  wm = (struct xrdp_wm*)(mod->wm);
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
+  wm = (struct xrdp_wm*)(mod->wm);
   b = xrdp_bitmap_create_with_data(width, height, wm->screen->bpp, data, wm);
   xrdp_painter_copy(p, b, wm->screen, x, y, cx, cy, srcx, srcy);
   xrdp_bitmap_delete(b);
@@ -1161,6 +1262,10 @@ server_set_clip(struct xrdp_mod* mod, int x, int y, int cx, int cy)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   return xrdp_painter_set_clip(p, x, y, cx, cy);
 }
 
@@ -1171,6 +1276,10 @@ server_reset_clip(struct xrdp_mod* mod)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   return xrdp_painter_clr_clip(p);
 }
 
@@ -1181,6 +1290,10 @@ server_set_fgcolor(struct xrdp_mod* mod, int fgcolor)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   p->fg_color = fgcolor;
   p->pen.color = p->fg_color;
   return 0;
@@ -1193,6 +1306,10 @@ server_set_bgcolor(struct xrdp_mod* mod, int bgcolor)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   p->bg_color = bgcolor;
   return 0;
 }
@@ -1204,6 +1321,10 @@ server_set_opcode(struct xrdp_mod* mod, int opcode)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   p->rop = opcode;
   return 0;
 }
@@ -1215,6 +1336,10 @@ server_set_mixmode(struct xrdp_mod* mod, int mixmode)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   p->mix_mode = mixmode;
   return 0;
 }
@@ -1227,6 +1352,10 @@ server_set_brush(struct xrdp_mod* mod, int x_orgin, int y_orgin,
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   p->brush.x_orgin = x_orgin;
   p->brush.y_orgin = y_orgin;
   p->brush.style = style;
@@ -1241,6 +1370,10 @@ server_set_pen(struct xrdp_mod* mod, int style, int width)
   struct xrdp_painter* p;
 
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
   p->pen.style = style;
   p->pen.width = width;
   return 0;
@@ -1253,8 +1386,12 @@ server_draw_line(struct xrdp_mod* mod, int x1, int y1, int x2, int y2)
   struct xrdp_wm* wm;
   struct xrdp_painter* p;
 
-  wm = (struct xrdp_wm*)(mod->wm);
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
+  wm = (struct xrdp_wm*)(mod->wm);
   return xrdp_painter_line(p, wm->screen, x1, y1, x2, y2);
 }
 
@@ -1288,8 +1425,12 @@ server_draw_text(struct xrdp_mod* mod, int font,
   struct xrdp_wm* wm;
   struct xrdp_painter* p;
 
-  wm = (struct xrdp_wm*)(mod->wm);
   p = (struct xrdp_painter*)(mod->painter);
+  if (p == 0)
+  {
+    return 0;
+  }
+  wm = (struct xrdp_wm*)(mod->wm);
   return xrdp_painter_draw_text2(p, wm->screen, font, flags,
                                  mixmode, clip_left, clip_top,
                                  clip_right, clip_bottom,

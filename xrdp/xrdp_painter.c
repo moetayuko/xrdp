@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    painter, gc
 
@@ -51,6 +51,10 @@ xrdp_painter_delete(struct xrdp_painter* self)
 int APP_CC
 xrdp_painter_begin_update(struct xrdp_painter* self)
 {
+  if (self == 0)
+  {
+    return 0;
+  }
   libxrdp_orders_init(self->session);
   return 0;
 }
@@ -59,6 +63,10 @@ xrdp_painter_begin_update(struct xrdp_painter* self)
 int APP_CC
 xrdp_painter_end_update(struct xrdp_painter* self)
 {
+  if (self == 0)
+  {
+    return 0;
+  }
   libxrdp_orders_send(self->session);
   return 0;
 }

@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2006-2009
+   Copyright (C) Jay Sorg 2006-2010
 
    keylayout
    maximum unicode 19996(0x4e00)
@@ -181,7 +181,7 @@ km_read_section(int fd, const char* section_name, struct xrdp_key_info* keymap)
         {
           code = g_atoi(name);
         }
-        if ((code >= 0) && (code < 128))
+        if ((code >= 0) && (code < 256))
         {
           pos1 = g_pos(value, ":");
           if (pos1 >= 0)
@@ -209,6 +209,11 @@ get_keymaps(int keylayout, struct xrdp_keymap* keymap)
   filename = (char*)g_malloc(256, 0);
   /* check if there is a keymap file */
   g_snprintf(filename, 255, "%s/km-%4.4x.ini", XRDP_CFG_PATH, keylayout);
+  /* if the file does not exist, try again with 'en-us' as fallback */
+  if (!g_file_exist(filename))
+  {
+    g_snprintf(filename, 255, "%s/km-0409.ini", XRDP_CFG_PATH);
+  }
   if (g_file_exist(filename))
   {
     fd = g_file_open(filename);
