@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2009
+   Copyright (C) Jay Sorg 2005-2010
 
    libxup main header file
 
@@ -26,7 +26,7 @@
 #include "os_calls.h"
 #include "defines.h"
 
-#define CURRENT_MOD_VER 1
+#define CURRENT_MOD_VER 2
 
 struct mod
 {
@@ -86,7 +86,8 @@ struct mod
   int (*server_send_to_channel)(struct mod* v, int channel_id,
                                 char* data, int data_len,
                                 int total_data_len, int flags);
-  tbus server_dumby[100 - 24]; /* align, 100 minus the number of server
+  int (*server_bell_trigger)(struct mod* v);
+  tbus server_dumby[100 - 25]; /* align, 100 minus the number of server
                                   functions above */
   /* common */
   tbus handle; /* pointer to self as long */
@@ -103,4 +104,5 @@ struct mod
   char ip[256];
   char port[256];
   tbus sck_obj;
+  int shift_state;
 };

@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    types
 
@@ -79,7 +79,8 @@ struct xrdp_mod
   int (*server_send_to_channel)(struct xrdp_mod* v, int channel_id,
                                 char* data, int data_len,
                                 int total_data_len, int flags);
-  long server_dumby[100 - 24]; /* align, 100 minus the number of server 
+  int (*server_bell_trigger)(struct xrdp_mod* v);
+  long server_dumby[100 - 25]; /* align, 100 minus the number of server
                                   functions above */
   /* common */
   long handle; /* pointer to self as int */
@@ -200,11 +201,11 @@ struct xrdp_key_info
 
 struct xrdp_keymap
 {
-  struct xrdp_key_info keys_noshift[128];
-  struct xrdp_key_info keys_shift[128];
-  struct xrdp_key_info keys_altgr[128];
-  struct xrdp_key_info keys_capslock[128];
-  struct xrdp_key_info keys_shiftcapslock[128];
+  struct xrdp_key_info keys_noshift[256];
+  struct xrdp_key_info keys_shift[256];
+  struct xrdp_key_info keys_altgr[256];
+  struct xrdp_key_info keys_capslock[256];
+  struct xrdp_key_info keys_shiftcapslock[256];
 };
 
 /* the window manager */
@@ -226,6 +227,7 @@ struct xrdp_wm
   int white;
   int red;
   int green;
+  int background;
   /* dragging info */
   int dragging;
   int draggingx;
@@ -269,13 +271,13 @@ struct xrdp_wm
 struct xrdp_process
 {
   int status;
-  int sck;
+  struct trans* server_trans; /* in tcp server mode */
   tbus self_term_event;
   struct xrdp_listen* lis_layer; /* owner */
   struct xrdp_session* session;
   /* create these when up and running */
   struct xrdp_wm* wm;
-  int app_sck;
+  //int app_sck;
   tbus done_event;
   int session_id;
 };
@@ -284,7 +286,7 @@ struct xrdp_process
 struct xrdp_listen
 {
   int status;
-  int sck;
+  struct trans* listen_trans; /* in tcp listen mode */
   struct list* process_list;
   tbus pro_done_event;
 };
@@ -369,6 +371,21 @@ struct xrdp_bitmap
 #define NUM_FONTS 0x4e00
 #define DEFAULT_FONT_NAME "sans-10.fv1"
 
+#define DEFAULT_ELEMENT_TOP   35
+#define DEFAULT_BUTTON_W      60
+#define DEFAULT_BUTTON_H      23
+#define DEFAULT_COMBO_W       140
+#define DEFAULT_COMBO_H       21
+#define DEFAULT_EDIT_W        140
+#define DEFAULT_EDIT_H        21
+#define DEFAULT_WND_LOGIN_W   400
+#define DEFAULT_WND_LOGIN_H   200
+#define DEFAULT_WND_HELP_W    340
+#define DEFAULT_WND_HELP_H    300
+#define DEFAULT_WND_LOG_W     400
+#define DEFAULT_WND_LOG_H     400
+#define DEFAULT_WND_SPECIAL_H 100
+
 /* font */
 struct xrdp_font
 {
@@ -384,4 +401,13 @@ struct xrdp_mod_data
 {
   struct list* names;
   struct list* values;
+};
+
+struct xrdp_startup_params
+{
+  char port[128];
+  int kill;
+  int no_daemon;
+  int help;
+  int version;
 };

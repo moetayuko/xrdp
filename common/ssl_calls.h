@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
 */
 
@@ -23,6 +23,10 @@
 
 #include "arch.h"
 
+int
+ssl_init(void);
+int
+ssl_finish(void);
 void* APP_CC
 ssl_rc4_info_create(void);
 void APP_CC

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2004-2010 Jay Sorg
+   Copyright (c) 2004-2012 Jay Sorg
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -79,9 +79,76 @@ extern char** environ;
 #define INADDR_NONE ((unsigned long)-1)
 #endif
 
+static char g_temp_base[128] = "";
+static char g_temp_base_org[128] = "";
+
+/*****************************************************************************/
+int APP_CC
+g_rm_temp_dir(void)
+{
+  if (g_temp_base[0] != 0)
+  {
+    if (!g_remove_dir(g_temp_base))
+    {
+      printf("g_rm_temp_dir: removing temp directory [%s] failed\n", g_temp_base);
+    }
+    g_temp_base[0] = 0;
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+int APP_CC
+g_mk_temp_dir(const char* app_name)
+{
+  if (app_name != 0)
+  {
+    if (app_name[0] != 0)
+    {
+      if (!g_directory_exist("/tmp/.xrdp"))
+      {
+        if (!g_create_dir("/tmp/.xrdp"))
+        {
+          printf("g_mk_temp_dir: g_create_dir failed\n");
+          return 1;
+        }
+        g_chmod_hex("/tmp/.xrdp", 0x1777);
+      }
+      snprintf(g_temp_base, sizeof(g_temp_base),
+               "/tmp/.xrdp/%s-XXXXXX", app_name);
+      snprintf(g_temp_base_org, sizeof(g_temp_base_org),
+               "/tmp/.xrdp/%s-XXXXXX", app_name);
+      if (mkdtemp(g_temp_base) == 0)
+      {
+        printf("g_mk_temp_dir: mkdtemp failed [%s]\n", g_temp_base);
+        return 1;
+      }
+    }
+    else
+    {
+      printf("g_mk_temp_dir: bad app name\n");
+      return 1;
+    }
+  }
+  else
+  {
+    if (g_temp_base_org[0] == 0)
+    {
+      printf("g_mk_temp_dir: g_temp_base_org not set\n");
+      return 1;
+    }
+    g_strncpy(g_temp_base, g_temp_base_org, 127);
+    if (mkdtemp(g_temp_base) == 0)
+    {
+      printf("g_mk_temp_dir: mkdtemp failed [%s]\n", g_temp_base);
+    }
+  }
+  return 0;
+}
+
 /*****************************************************************************/
 void APP_CC
-g_init(void)
+g_init(const char* app_name)
 {
 #if defined(_WIN32)
   WSADATA wsadata;
@@ -89,6 +156,7 @@ g_init(void)
   WSAStartup(2, &wsadata);
 #endif
   setlocale(LC_CTYPE, "");
+  g_mk_temp_dir(app_name);
 }
 
 /*****************************************************************************/
@@ -98,6 +166,7 @@ g_deinit(void)
 #if defined(_WIN32)
   WSACleanup();
 #endif
+  g_rm_temp_dir();
 }
 
 /*****************************************************************************/
@@ -453,6 +522,24 @@ g_tcp_local_bind(int sck, char* port)
 /*****************************************************************************/
 /* returns error, zero is good */
 int APP_CC
+g_tcp_bind_address(int sck, char* port, const char* address)
+{
+  struct sockaddr_in s;
+
+  memset(&s, 0, sizeof(struct sockaddr_in));
+  s.sin_family = AF_INET;
+  s.sin_port = htons((tui16)atoi(port));
+  s.sin_addr.s_addr = INADDR_ANY;
+  if (inet_aton(address, &s.sin_addr) < 0)
+  {
+    return -1; /* bad address */
+  }
+  return bind(sck, (struct sockaddr*)&s, sizeof(struct sockaddr_in));
+}
+
+/*****************************************************************************/
+/* returns error, zero is good */
+int APP_CC
 g_tcp_listen(int sck)
 {
   return listen(sck, 2);
@@ -472,6 +559,35 @@ g_tcp_accept(int sck)
   i = sizeof(struct sockaddr_in);
   memset(&s, 0, i);
   return accept(sck, (struct sockaddr*)&s, &i);
+}
+
+/*****************************************************************************/
+void APP_CC
+g_write_ip_address(int rcv_sck, char* ip_address)
+{
+  struct sockaddr_in s;
+  struct in_addr in;
+  int len;
+  int ip_port;
+
+  memset(&s,0,sizeof(&s));
+  len = sizeof(s);
+  getpeername(rcv_sck,(struct sockaddr*)&s, &len);
+
+  memset(&in,0,sizeof(in));
+  in.s_addr = s.sin_addr.s_addr;
+
+  ip_port = ntohs(s.sin_port);
+  
+  if (ip_port != 0)
+  {
+    sprintf(ip_address, "%s:%d - socket: %d", inet_ntoa(in), ip_port, rcv_sck);
+  }
+  else
+  {
+    sprintf(ip_address, "NULL:NULL - socket: %d", rcv_sck);
+  }
+
 }
 
 /*****************************************************************************/
@@ -598,8 +714,11 @@ g_tcp_select(int sck1, int sck2)
 {
   fd_set rfds;
   struct timeval time;
-  int max;
-  int rv;
+  int max = 0;
+  int rv = 0;
+
+  g_memset(&rfds,0,sizeof(fd_set));
+  g_memset(&time,0,sizeof(struct timeval));
 
   time.tv_sec = 0;
   time.tv_usec = 0;
@@ -650,37 +769,61 @@ g_create_wait_obj(char* name)
 #else
   tbus obj;
   struct sockaddr_un sa;
-  int len;
-  int sck;
+  size_t len;
+  tbus sck;
   int i;
+  int safety;
+  int unnamed;
 
+  if (g_temp_base[0] == 0)
+  {
+    return 0;
+  }
   sck = socket(PF_UNIX, SOCK_DGRAM, 0);
   if (sck < 0)
   {
     return 0;
   }
-  memset(&sa, 0, sizeof(sa));
+  safety = 0;
+  g_memset(&sa, 0, sizeof(sa));
   sa.sun_family = AF_UNIX;
-  if ((name == 0) || (strlen(name) == 0))
+  unnamed = 1;
+  if (name != 0)
   {
-    g_random((char*)&i, sizeof(i));
-    sprintf(sa.sun_path, "/tmp/auto%8.8x", i);
-    while (g_file_exist(sa.sun_path))
+    if (name[0] != 0)
     {
-      g_random((char*)&i, sizeof(i));
-      sprintf(sa.sun_path, "/tmp/auto%8.8x", i);
+      unnamed = 0;
     }
+  }
+  if (unnamed)
+  {
+    do
+    {
+      if (safety > 100)
+      {
+        break;
+      }
+      safety++;
+      g_random((char*)&i, sizeof(i));
+      len = sizeof(sa.sun_path);
+      g_snprintf(sa.sun_path, len, "%s/auto_%8.8x", g_temp_base, i);
+      len = sizeof(sa);
+    } while (bind(sck, (struct sockaddr*)&sa, len) < 0);
   }
   else
   {
-    sprintf(sa.sun_path, "/tmp/%s", name);
-  }
-  unlink(sa.sun_path);
-  len = sizeof(sa);
-  if (bind(sck, (struct sockaddr*)&sa, len) < 0)
-  {
-    close(sck);
-    return 0;
+    do
+    {
+      if (safety > 100)
+      {
+        break;
+      }
+      safety++;
+      g_random((char*)&i, sizeof(i));
+      len = sizeof(sa.sun_path);
+      g_snprintf(sa.sun_path, len, "%s/%s_%8.8x", g_temp_base, name, i);
+      len = sizeof(sa);
+    } while (bind(sck, (struct sockaddr*)&sa, len) < 0);
   }
   obj = (tbus)sck;
   return obj;
@@ -695,7 +838,9 @@ g_create_wait_obj_from_socket(tbus socket, int write)
 #ifdef _WIN32
   /* Create and return corresponding event handle for WaitForMultipleObjets */
   WSAEVENT event;
-  long lnetevent;
+  long lnetevent = 0;
+
+  g_memset(&event,0,sizeof(WSAEVENT));
 
   event = WSACreateEvent();
   lnetevent = (write ? FD_WRITE : FD_READ) | FD_CLOSE;
@@ -888,15 +1033,20 @@ g_obj_wait(tbus* read_objs, int rcount, tbus* write_objs, int wcount,
   fd_set rfds;
   fd_set wfds;
   struct timeval time;
-  struct timeval* ptime;
-  int i;
-  int max;
-  int sck;
+  struct timeval* ptime = (struct timeval *)NULL;
+  int i = 0;
+  int res = 0;
+  int max = 0;
+  int sck = 0;
+
+  g_memset(&rfds,0,sizeof(fd_set));
+  g_memset(&wfds,0,sizeof(fd_set));
+  g_memset(&time,0,sizeof(struct timeval));
 
   max = 0;
   if (mstimeout < 1)
   {
-    ptime = 0;
+    ptime = (struct timeval *)NULL;
   }
   else
   {
@@ -909,23 +1059,27 @@ g_obj_wait(tbus* read_objs, int rcount, tbus* write_objs, int wcount,
   for (i = 0; i < rcount; i++)
   {
     sck = (int)(read_objs[i]);
-    FD_SET(sck, &rfds);
-    if (sck > max)
-    {
-      max = sck;
+    if (sck > 0) {
+      FD_SET(sck, &rfds);
+      if (sck > max)
+      {
+        max = sck;
+      }
     }
   }
   for (i = 0; i < wcount; i++)
   {
     sck = (int)(write_objs[i]);
-    FD_SET(sck, &wfds);
-    if (sck > max)
-    {
-      max = sck;
+    if (sck > 0) {
+      FD_SET(sck, &wfds);
+      if (sck > max)
+      {
+        max = sck;
+      }
     }
   }
-  i = select(max + 1, &rfds, &wfds, 0, ptime);
-  if (i < 0)
+  res = select(max + 1, &rfds, &wfds, 0, ptime);
+  if (res < 0)
   {
     /* these are not really errors */
     if ((errno == EAGAIN) ||
@@ -1133,6 +1287,14 @@ g_chmod_hex(const char* filename, int flags)
 }
 
 /*****************************************************************************/
+/* returns error, zero is ok */
+int APP_CC
+g_chown(const char* name, int uid, int gid)
+{
+  return chown(name, uid, gid);
+}
+
+/*****************************************************************************/
 /* returns error, always zero */
 int APP_CC
 g_mkdir(const char* dirname)
@@ -1278,7 +1440,7 @@ g_file_get_size(const char* filename)
 int APP_CC
 g_strlen(const char* text)
 {
-  if (text == 0)
+  if (text == NULL)
   {
     return 0;
   }
@@ -1349,7 +1511,9 @@ g_strdup(const char* in)
   }
   len = g_strlen(in);
   p = (char*)g_malloc(len + 1, 0);
-  g_strcpy(p, in);
+  if (p != NULL) {
+    g_strcpy(p, in);
+  }
   return p;
 }
 
@@ -1391,7 +1555,7 @@ g_strncasecmp(const char* c1, const char* c2, int len)
 
 /*****************************************************************************/
 int APP_CC
-g_atoi(char* str)
+g_atoi(const char* str)
 {
   if (str == 0)
   {
@@ -1720,7 +1884,12 @@ g_execvp(const char* p1, char* args[])
 #if defined(_WIN32)
   return 0;
 #else
-  return execvp(p1, args);
+  int rv;
+
+  g_rm_temp_dir();
+  rv = execvp(p1, args);
+  g_mk_temp_dir(0);
+  return rv;
 #endif
 }
 
@@ -1732,7 +1901,12 @@ g_execlp3(const char* a1, const char* a2, const char* a3)
 #if defined(_WIN32)
   return 0;
 #else
-  return execlp(a1, a2, a3, (void*)0);
+  int rv;
+
+  g_rm_temp_dir();
+  rv = execlp(a1, a2, a3, (void*)0);
+  g_mk_temp_dir(0);
+  return rv;
 #endif
 }
 
@@ -1804,13 +1978,31 @@ g_signal_pipe(void (*func)(int))
 
 /*****************************************************************************/
 /* does not work in win32 */
+void APP_CC
+g_signal_usr1(void (*func)(int))
+{
+#if defined(_WIN32)
+#else
+  signal(SIGUSR1, func);
+#endif
+}
+
+/*****************************************************************************/
+/* does not work in win32 */
 int APP_CC
 g_fork(void)
 {
 #if defined(_WIN32)
   return 0;
 #else
-  return fork();
+  int rv;
+
+  rv = fork();
+  if (rv == 0) /* child */
+  {
+    g_mk_temp_dir(0);
+  }
+  return rv;
 #endif
 }
 
@@ -1898,14 +2090,18 @@ g_waitpid(int pid)
 #if defined(_WIN32)
   return 0;
 #else
-  int rv;
-
-  rv = waitpid(pid, 0, 0);
-  if (rv == -1)
-  {
-    if (errno == EINTR) /* signal occurred */
+  int rv = 0;
+  if (pid < 0) {
+    rv = -1;
+  }
+  else {
+    rv = waitpid(pid, 0, 0);
+    if (rv == -1)
     {
-      rv = 0;
+      if (errno == EINTR) /* signal occurred */
+      {
+        rv = 0;
+      }
     }
   }
   return rv;
@@ -2101,8 +2297,8 @@ g_time2(void)
   return (int)GetTickCount();
 #else
   struct tms tm;
-  clock_t num_ticks;
-
+  clock_t num_ticks = 0;
+  g_memset(&tm,0,sizeof(struct tms));
   num_ticks = times(&tm);
   return (int)(num_ticks * 10);
 #endif

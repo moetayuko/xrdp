@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    this is the interface to libxrdp
 
@@ -24,13 +24,13 @@
 
 /******************************************************************************/
 struct xrdp_session* EXPORT_CC
-libxrdp_init(long id, int sck)
+libxrdp_init(tbus id, struct trans* trans)
 {
   struct xrdp_session* session;
 
   session = (struct xrdp_session*)g_malloc(sizeof(struct xrdp_session), 1);
   session->id = id;
-  session->rdp = xrdp_rdp_create(session, sck);
+  session->rdp = xrdp_rdp_create(session, trans);
   session->orders = xrdp_orders_create(session, (struct xrdp_rdp*)session->rdp);
   session->client_info = &(((struct xrdp_rdp*)session->rdp)->client_info);
   make_stream(session->s);
@@ -133,9 +133,9 @@ libxrdp_process_data(struct xrdp_session* session)
 int EXPORT_CC
 libxrdp_send_palette(struct xrdp_session* session, int* palette)
 {
-  int i;
-  int color;
-  struct stream* s;
+  int i = 0;
+  int color = 0;
+  struct stream* s = (struct stream *)NULL;
 
   if (session->client_info->bpp > 8)
   {
@@ -168,26 +168,56 @@ libxrdp_send_palette(struct xrdp_session* session, int* palette)
   return 0;
 }
 
+/******************************************************************************/
+int EXPORT_CC
+libxrdp_send_bell(struct xrdp_session* session)
+{
+  struct stream* s = (struct stream *)NULL;
+
+  DEBUG(("libxrdp_send_bell sending bell signal"));
+  /* see MS documentation: Server play sound PDU, TS_PLAY_SOUND_PDU_DATA */
+
+  make_stream(s);
+  init_stream(s, 8192);
+
+  if (xrdp_rdp_init_data((struct xrdp_rdp*)session->rdp, s) != 0)
+  {
+    free_stream(s);
+    return 1;
+  }
+  out_uint32_le(s, 440); /* frequency */
+  out_uint32_le(s, 100); /* duration (ms) */
+  s_mark_end(s);
+  if (xrdp_rdp_send_data((struct xrdp_rdp*)session->rdp, s, RDP_DATA_PDU_PLAY_SOUND) != 0)
+  {
+    free_stream(s);
+    return 1;
+  }
+  free_stream(s);
+  return 0;
+}
+
+
 /*****************************************************************************/
 int EXPORT_CC
 libxrdp_send_bitmap(struct xrdp_session* session, int width, int height,
                     int bpp, char* data, int x, int y, int cx, int cy)
 {
-  int line_size;
-  int i;
-  int j;
-  int total_lines;
-  int lines_sending;
-  int Bpp;
-  int e;
-  int bufsize;
-  int total_bufsize;
-  int num_updates;
-  char* p_num_updates;
-  char* p;
-  char* q;
-  struct stream* s;
-  struct stream* temp_s;
+  int line_size = 0;
+  int i = 0;
+  int j = 0;
+  int total_lines = 0;
+  int lines_sending = 0;
+  int Bpp = 0;
+  int e = 0;
+  int bufsize = 0;
+  int total_bufsize = 0;
+  int num_updates = 0;
+  char* p_num_updates = (char *)NULL;
+  char* p = (char *)NULL;
+  char* q = (char *)NULL;
+  struct stream* s = (struct stream *)NULL;
+  struct stream* temp_s = (struct stream *)NULL;
 
   DEBUG(("libxrdp_send_bitmap sending bitmap"));
   Bpp = (bpp + 7) / 8;
@@ -319,7 +349,7 @@ libxrdp_send_bitmap(struct xrdp_session* session, int width, int height,
         for (j = 0; j < lines_sending; j++)
         {
           q = q - line_size;
-          out_uint8a(s, q, line_size) /* B_ENDIAN doesn't work here, todo */
+          out_uint8a(s, q, line_size); /* B_ENDIAN doesn't work here, todo */
           out_uint8s(s, e * Bpp);
         }
         s_mark_end(s);
@@ -621,10 +651,10 @@ int EXPORT_CC
 libxrdp_query_channel(struct xrdp_session* session, int index,
                       char* channel_name, int* channel_flags)
 {
-  int count;
-  struct xrdp_rdp* rdp;
-  struct xrdp_mcs* mcs;
-  struct mcs_channel_item* channel_item;
+  int count = 0;
+  struct xrdp_rdp* rdp = (struct xrdp_rdp *)NULL;
+  struct xrdp_mcs* mcs = (struct xrdp_mcs *)NULL;
+  struct mcs_channel_item* channel_item = (struct mcs_channel_item *)NULL;
 
   rdp = (struct xrdp_rdp*)session->rdp;
   mcs = rdp->sec_layer->mcs_layer;
@@ -657,11 +687,11 @@ libxrdp_query_channel(struct xrdp_session* session, int index,
 int EXPORT_CC
 libxrdp_get_channel_id(struct xrdp_session* session, char* name)
 {
-  int index;
-  int count;
-  struct xrdp_rdp* rdp;
-  struct xrdp_mcs* mcs;
-  struct mcs_channel_item* channel_item;
+  int index = 0;
+  int count = 0;
+  struct xrdp_rdp* rdp = NULL;
+  struct xrdp_mcs* mcs = NULL;
+  struct mcs_channel_item* channel_item = NULL;
 
   rdp = (struct xrdp_rdp*)session->rdp;
   mcs = rdp->sec_layer->mcs_layer;
@@ -687,10 +717,10 @@ libxrdp_send_to_channel(struct xrdp_session* session, int channel_id,
                         char* data, int data_len,
                         int total_data_len, int flags)
 {
-  struct xrdp_rdp* rdp;
-  struct xrdp_sec* sec;
-  struct xrdp_channel* chan;
-  struct stream* s;
+  struct xrdp_rdp* rdp = NULL;
+  struct xrdp_sec* sec = NULL;
+  struct xrdp_channel* chan = NULL;
+  struct stream* s = NULL;
 
   rdp = (struct xrdp_rdp*)session->rdp;
   sec = rdp->sec_layer;

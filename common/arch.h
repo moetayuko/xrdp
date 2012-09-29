@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2004-2010 Jay Sorg
+   Copyright (c) 2004-2012 Jay Sorg
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -91,9 +91,13 @@ typedef tbus tintptr;
 #if defined(_WIN32)
 typedef unsigned short twchar;
 typedef unsigned int tsock;
+typedef unsigned __int64 tui64;
+typedef signed __int64 tsi64;
 #else
 typedef int twchar;
 typedef int tsock;
+typedef unsigned long long tui64;
+typedef signed long long tsi64;
 #endif
 
 #endif

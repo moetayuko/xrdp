@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    main include file
 
@@ -26,6 +26,7 @@
 #endif
 #include "arch.h"
 #include "parse.h"
+#include "trans.h"
 #include "libxrdpinc.h"
 #include "xrdp_types.h"
 #include "xrdp_constants.h"
@@ -36,7 +37,6 @@
 #include "list.h"
 #include "file.h"
 #include "file_loc.h"
-#include "trans.h"
 
 /* xrdp.c */
 long APP_CC
@@ -88,6 +88,8 @@ void APP_CC
 xrdp_wm_delete(struct xrdp_wm* self);
 int APP_CC
 xrdp_wm_send_palette(struct xrdp_wm* self);
+int APP_CC
+xrdp_wm_send_bell(struct xrdp_wm* self);
 int APP_CC
 xrdp_wm_load_static_colors(struct xrdp_wm* self);
 int APP_CC
@@ -148,7 +150,8 @@ xrdp_listen_create(void);
 void APP_CC
 xrdp_listen_delete(struct xrdp_listen* self);
 int APP_CC
-xrdp_listen_main_loop(struct xrdp_listen* self);
+xrdp_listen_main_loop(struct xrdp_listen* self,
+                      struct xrdp_startup_params* startup_param);
 
 /* xrdp_region.c */
 struct xrdp_region* APP_CC
@@ -351,6 +354,8 @@ int DEFAULT_CC
 server_begin_update(struct xrdp_mod* mod);
 int DEFAULT_CC
 server_end_update(struct xrdp_mod* mod);
+int DEFAULT_CC
+server_bell_trigger(struct xrdp_mod* mod);
 int DEFAULT_CC
 server_fill_rect(struct xrdp_mod* mod, int x, int y, int cx, int cy);
 int DEFAULT_CC

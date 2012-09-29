@@ -87,7 +87,7 @@ sesman_main_loop(void)
           g_reset_wait_obj(g_sync_event);
           session_sync_start();
         }
-        if (g_is_wait_obj_set(sck_obj)) /* incomming connection */
+        if (g_is_wait_obj_set(sck_obj)) /* incoming connection */
         {
           in_sck = g_tcp_accept(g_sck);
           if ((in_sck == -1) && g_tcp_last_error_would_block(g_sck))
@@ -138,6 +138,7 @@ main(int argc, char** argv)
   char text[256];
   char pid_file[256];
 
+  g_init("xrdp-sesman");
   g_snprintf(pid_file, 255, "%s/xrdp-sesman.pid", XRDP_PID_PATH);
   if (1 == argc)
   {
@@ -146,6 +147,7 @@ main(int argc, char** argv)
     daemon = 1;
   }
   else if ((2 == argc) && ((0 == g_strcasecmp(argv[1], "--nodaemon")) ||
+                           (0 == g_strcasecmp(argv[1], "-nodaemon")) ||
                            (0 == g_strcasecmp(argv[1], "-n")) ||
                            (0 == g_strcasecmp(argv[1], "-ns"))))
   {
@@ -154,6 +156,7 @@ main(int argc, char** argv)
     daemon = 0;
   }
   else if ((2 == argc) && ((0 == g_strcasecmp(argv[1], "--help")) ||
+                           (0 == g_strcasecmp(argv[1], "-help")) ||
                            (0 == g_strcasecmp(argv[1], "-h"))))
   {
     /* help screen */
@@ -164,9 +167,11 @@ main(int argc, char** argv)
     g_printf("-k, --kill           kills running sesman\n");
     g_printf("-h, --help           shows this help\n");
     g_printf("if no command is specified, sesman is started in background");
+    g_deinit();
     g_exit(0);
   }
   else if ((2 == argc) && ((0 == g_strcasecmp(argv[1], "--kill")) ||
+                           (0 == g_strcasecmp(argv[1], "-kill")) ||
                            (0 == g_strcasecmp(argv[1], "-k"))))
   {
     /* killing running sesman */
@@ -174,6 +179,7 @@ main(int argc, char** argv)
     if (!g_file_exist(pid_file))
     {
       g_printf("sesman is not running (pid file not found - %s)\n", pid_file);
+      g_deinit();
       g_exit(1);
     }
 
@@ -190,6 +196,7 @@ main(int argc, char** argv)
     {
       g_printf("error reading pid file: %s\n", g_get_strerror());
       g_file_close(fd);
+      g_deinit();
       g_exit(error);
     }
     g_file_close(fd);
@@ -204,7 +211,7 @@ main(int argc, char** argv)
     {
       g_file_delete(pid_file);
     }
-
+    g_deinit();
     g_exit(error);
   }
   else
@@ -213,6 +220,7 @@ main(int argc, char** argv)
     g_printf("sesman - xrdp session manager\n\n");
     g_printf("error: invalid command line\n");
     g_printf("usage: sesman [ --nodaemon | --kill | --help ]\n");
+    g_deinit();
     g_exit(1);
   }
 
@@ -222,6 +230,7 @@ main(int argc, char** argv)
     g_printf("if it's not running, try removing ");
     g_printf(pid_file);
     g_printf("\n");
+    g_deinit();
     g_exit(1);
   }
 
@@ -230,12 +239,14 @@ main(int argc, char** argv)
   if (0 == g_cfg)
   {
     g_printf("error creating config: quitting.\n");
+    g_deinit();
     g_exit(1);
   }
   g_cfg->log.fd = -1; /* don't use logging before reading its config */
   if (0 != config_read(g_cfg))
   {
     g_printf("error reading config: %s\nquitting.\n", g_get_strerror());
+    g_deinit();
     g_exit(1);
   }
 
@@ -253,6 +264,7 @@ main(int argc, char** argv)
         g_printf("error opening log file [%s]. quitting.\n", g_cfg->log.log_file);
         break;
     }
+    g_deinit();
     g_exit(1);
   }
 
@@ -266,6 +278,7 @@ main(int argc, char** argv)
 
     if (0 != g_pid)
     {
+      g_deinit();
       g_exit(0);
     }
 
@@ -308,6 +321,7 @@ main(int argc, char** argv)
                   "error opening pid file[%s]: %s",
                   pid_file, g_get_strerror());
       log_end(&(g_cfg->log));
+      g_deinit();
       g_exit(1);
     }
     g_sprintf(pid_s, "%d", g_pid);
@@ -347,6 +361,7 @@ main(int argc, char** argv)
     log_end(&(g_cfg->log));
   }
 
+  g_deinit();
   return 0;
 }
 

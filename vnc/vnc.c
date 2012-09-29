@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    libvnc
 
@@ -255,12 +255,29 @@ lib_mod_event(struct vnc* v, int msg, long param1, long param2,
     key = param2;
     if (key > 0)
     {
+      if (key == 65027) /* altgr */
+      {
+        if (v->shift_state)
+        {
+          /* fix for mstsc sending left control down with altgr */
+          init_stream(s, 8192);
+          out_uint8(s, 4);
+          out_uint8(s, 0); /* down flag */
+          out_uint8s(s, 2);
+          out_uint32_be(s, 65507); /* left control */
+          lib_send(v, s->data, 8);
+        }
+      }
       init_stream(s, 8192);
       out_uint8(s, 4);
       out_uint8(s, msg == 15); /* down flag */
       out_uint8s(s, 2);
       out_uint32_be(s, key);
       error = lib_send(v, s->data, 8);
+      if (key == 65507) /* left control */
+      {
+        v->shift_state = msg == 15;
+      }
     }
   }
   else if (msg >= 100 && msg <= 110) /* mouse events */
@@ -310,8 +327,8 @@ lib_mod_event(struct vnc* v, int msg, long param1, long param2,
 int DEFAULT_CC
 get_pixel_safe(char* data, int x, int y, int width, int height, int bpp)
 {
-  int start;
-  int shift;
+  int start = 0;
+  int shift = 0;
 
   if (x < 0)
   {
@@ -374,8 +391,8 @@ void DEFAULT_CC
 set_pixel_safe(char* data, int x, int y, int width, int height, int bpp,
                int pixel)
 {
-  int start;
-  int shift;
+  int start = 0;
+  int shift = 0;
 
   if (x < 0)
   {
@@ -604,6 +621,12 @@ lib_framebuffer_update(struct vnc* v)
           error = v->server_set_cursor(v, x, y, cursor_data, cursor_mask);
         }
       }
+      else if (encoding == 0xffffff21) /* desktop size */
+      {
+        v->mod_width = cx;
+        v->mod_height = cy;
+        error = v->server_reset(v, cx, cy, v->mod_bpp);
+      }
       else
       {
         g_sprintf(text, "error in lib_framebuffer_update encoding = %8.8x",
@@ -733,6 +756,17 @@ lib_palette_update(struct vnc* v)
 
 /******************************************************************************/
 int DEFAULT_CC
+lib_bell_trigger(struct vnc* v)
+{
+  struct stream* s;
+  int error;
+
+  error = v->server_bell_trigger(v);
+  return error;
+}
+
+/******************************************************************************/
+int DEFAULT_CC
 lib_mod_signal(struct vnc* v)
 {
   char type;
@@ -749,6 +783,10 @@ lib_mod_signal(struct vnc* v)
     else if (type == 1) /* palette */
     {
       error = lib_palette_update(v);
+    }
+	else if (type == 2) /* bell */
+    {
+      error = lib_bell_trigger(v);
     }
     else if (type == 3) /* clipboard */
     {
@@ -1028,12 +1066,13 @@ connections", 0);
     init_stream(s, 8192);
     out_uint8(s, 2);
     out_uint8(s, 0);
-    out_uint16_be(s, 3);
+    out_uint16_be(s, 4);
     out_uint32_be(s, 0); /* raw */
     out_uint32_be(s, 1); /* copy rect */
     out_uint32_be(s, 0xffffff11); /* cursor */
+    out_uint32_be(s, 0xffffff21); /* desktop size */
     v->server_msg(v, "sending encodings", 0);
-    error = lib_send(v, s->data, 4 + 3 * 4);
+    error = lib_send(v, s->data, 4 + 4 * 4);
   }
   if (error == 0)
   {
@@ -1056,7 +1095,7 @@ connections", 0);
   {
     if (v->server_bpp != v->mod_bpp)
     {
-      v->server_msg(v, "error - server and client bpp don't match", 0);
+      v->server_msg(v, "error - server bpp and client bpp do not match", 0);
       error = 1;
     }
   }

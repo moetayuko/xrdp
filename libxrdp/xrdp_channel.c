@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2006-2009
+   Copyright (C) Jay Sorg 2006-2010
 
    channel layer
 
@@ -170,6 +170,7 @@ xrdp_channel_process(struct xrdp_channel* self, struct stream* s,
     g_writeln("xrdp_channel_process, channel not found");
     return 1;
   }
+  rv = 0;
   in_uint32_le(s, length);
   in_uint32_le(s, flags);
   rv = xrdp_channel_call_callback(self, s, channel_id, length, flags);

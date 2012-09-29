@@ -14,13 +14,13 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    header file for use with libxrdp.so / xrdp.dll
 
 */
 
-#if !defined(LIBXRDPINC_H)
+#ifndef LIBXRDPINC_H
 #define LIBXRDPINC_H
 
 struct xrdp_client_info
@@ -63,6 +63,8 @@ struct xrdp_client_info
   int rdp5_performanceflags;
   int brush_cache_code; /* 0 = no cache 1 = 8x8 standard cache
                            2 = arbitrary dimensions */
+  char client_ip[256];
+  int max_bpp;
 };
 
 struct xrdp_brush
@@ -101,7 +103,7 @@ struct xrdp_rect
 struct xrdp_session
 {
   long id;
-  int sck;
+  struct trans* trans;
   int (*callback)(long id, int msg, long param1, long param2, long param3,
                   long param4);
   void* rdp;
@@ -113,7 +115,7 @@ struct xrdp_session
 };
 
 struct xrdp_session* DEFAULT_CC
-libxrdp_init(long id, int sck);
+libxrdp_init(tbus id, struct trans* trans);
 int DEFAULT_CC
 libxrdp_exit(struct xrdp_session* session);
 int DEFAULT_CC
@@ -124,6 +126,8 @@ int DEFAULT_CC
 libxrdp_process_data(struct xrdp_session* session);
 int DEFAULT_CC
 libxrdp_send_palette(struct xrdp_session* session, int* palette);
+int DEFAULT_CC
+libxrdp_send_bell(struct xrdp_session* session);
 int DEFAULT_CC
 libxrdp_send_bitmap(struct xrdp_session* session, int width, int height,
                     int bpp, char* data, int x, int y, int cx, int cy);

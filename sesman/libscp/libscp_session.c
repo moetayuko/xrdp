@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2009
+   Copyright (C) Jay Sorg 2005-2010
 */
 
 /**
@@ -270,6 +270,28 @@ scp_session_set_directory(struct SCP_SESSION* s, char* str)
 
 /*******************************************************************/
 int
+scp_session_set_client_ip(struct SCP_SESSION* s, char* str)
+{
+  if (0 == str)
+  {
+    log_message(s_log, LOG_LEVEL_WARNING, "[session:%d] set_client_ip: null ip", __LINE__);
+    return 1;
+  }
+  if (0 != s->client_ip)
+  {
+    g_free(s->client_ip);
+  }
+  s->client_ip = g_strdup(str);
+  if (0 == s->client_ip)
+  {
+    log_message(s_log, LOG_LEVEL_WARNING, "[session:%d] set_client_ip: strdup error", __LINE__);
+    return 1;
+  }
+  return 0;
+}
+
+/*******************************************************************/
+int
 scp_session_set_hostname(struct SCP_SESSION* s, char* str)
 {
   if (0 == str)
@@ -335,7 +357,7 @@ scp_session_set_addr(struct SCP_SESSION* s, int type, void* addr)
     case SCP_ADDRESS_TYPE_IPV4:
       /* convert from char to 32bit*/
       ret = inet_pton(AF_INET, addr, &ip4);
-      if (0 == ret)
+      if (ret == 0)
       {
         log_message(s_log, LOG_LEVEL_WARNING, "[session:%d] set_addr: invalid address", __LINE__);
         inet_pton(AF_INET, "127.0.0.1", &ip4);
@@ -351,7 +373,7 @@ scp_session_set_addr(struct SCP_SESSION* s, int type, void* addr)
     case SCP_ADDRESS_TYPE_IPV6:
       /* convert from char to 128bit*/
       ret = inet_pton(AF_INET6, addr, &ip6);
-      if (0 == ret)
+      if (ret == 0)
       {
         log_message(s_log, LOG_LEVEL_WARNING, "[session:%d] set_addr: invalid address", __LINE__);
         inet_pton(AF_INET, "::1", &ip6);
@@ -380,6 +402,7 @@ scp_session_destroy(struct SCP_SESSION* s)
   g_free(s->domain);
   g_free(s->program);
   g_free(s->directory);
+  g_free(s->client_ip);
   g_free(s->errstr);
   g_free(s->mng);
   g_free(s);

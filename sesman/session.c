@@ -45,6 +45,7 @@ static char* g_sync_password;
 static char* g_sync_domain;
 static char* g_sync_program;
 static char* g_sync_directory;
+static char* g_sync_client_ip;
 static tbus g_sync_data;
 static tui8 g_sync_type;
 static int g_sync_result;
@@ -60,8 +61,34 @@ session_get_bydata(char* name, int width, int height, int bpp, int type)
 
   tmp = g_sessions;
 
+  /* convert from SCP_SESSION_TYPE namespace to SESMAN_SESSION_TYPE namespace */
+  switch (type)
+  {
+    case SCP_SESSION_TYPE_XVNC: /* 0 */
+      type = SESMAN_SESSION_TYPE_XVNC; /* 2 */
+      break;
+    case SCP_SESSION_TYPE_XRDP: /* 1 */
+      type = SESMAN_SESSION_TYPE_XRDP; /* 1 */
+      break;
+    default:
+      lock_chain_release();
+      return 0;
+  }
+
   while (tmp != 0)
   {
+    if (type == SESMAN_SESSION_TYPE_XRDP)
+    {
+      /* only name and bpp need to match for X11rdp, it can resize */
+      if (g_strncmp(name, tmp->item->name, 255) == 0 &&
+          tmp->item->bpp == bpp &&
+          tmp->item->type == type)
+      {
+        /*THREAD-FIX release chain lock */
+        lock_chain_release();
+        return tmp->item;
+      }
+    }
     if (g_strncmp(name, tmp->item->name, 255) == 0 &&
         tmp->item->width == width &&
         tmp->item->height == height &&
@@ -155,11 +182,16 @@ x_server_running(int display)
 static void DEFAULT_CC
 session_start_sessvc(int xpid, int wmpid, long data)
 {
-  struct list* sessvc_params;
+  struct list * sessvc_params = (struct list *)NULL;
   char wmpid_str[25];
   char xpid_str[25];
   char exe_path[262];
-  int i;
+  int i = 0;
+
+  /* initialize (zero out) local variables: */
+  g_memset(wmpid_str,0,sizeof(char) * 25);
+  g_memset(xpid_str,0,sizeof(char) * 25);
+  g_memset(exe_path,0,sizeof(char) * 262);
 
   /* new style waiting for clients */
   g_sprintf(wmpid_str, "%d", wmpid);
@@ -238,9 +270,9 @@ session_get_aval_display_from_chain(void)
 {
   int display;
 
-  display = 10;
+  display = g_cfg->sess.x11_display_offset;
   lock_chain_acquire();
-  while ((display - 10) <= g_cfg->sess.max_sessions)
+  while ((display - g_cfg->sess.x11_display_offset) <= g_cfg->sess.max_sessions)
   {
     if (!session_is_display_in_chain(display))
     {
@@ -253,6 +285,7 @@ session_get_aval_display_from_chain(void)
     display++;
   }
   lock_chain_release();
+  log_message(&(g_cfg->log), LOG_LEVEL_ERROR, "X server -- no display in range is available");
   return 0;
 }
 
@@ -285,23 +318,32 @@ wait_for_xserver(int display)
 static int APP_CC
 session_start_fork(int width, int height, int bpp, char* username,
                    char* password, tbus data, tui8 type, char* domain,
-                   char* program, char* directory)
+                   char* program, char* directory, char* client_ip)
 {
-  int display;
-  int pid;
-  int wmpid;
-  int xpid;
-  int i;
+  int display = 0;
+  int pid = 0;
+  int wmpid = 0;
+  int xpid = 0;
+  int i = 0;
   char geometry[32];
   char depth[32];
   char screen[32];
   char text[256];
   char passwd_file[256];
-  char** pp1;
-  struct session_chain* temp;
-  struct list* xserver_params=0;
+  char ** pp1 = (char **)NULL;
+  struct session_chain * temp = (struct session_chain *)NULL;
+  struct list * xserver_params = (struct list *)NULL;
   time_t ltime;
   struct tm stime;
+
+  /* initialize (zero out) local variables: */
+  g_memset(&ltime,0,sizeof(time_t));
+  g_memset(&stime,0,sizeof(struct tm));
+  g_memset(geometry,0,sizeof(char) * 32);
+  g_memset(depth,0,sizeof(char) * 32);
+  g_memset(screen,0,sizeof(char) * 32);
+  g_memset(text,0,sizeof(char) * 256);
+  g_memset(passwd_file,0,sizeof(char) * 256);
 
   /* check to limit concurrent sessions */
   if (g_session_count >= g_cfg->sess.max_sessions)
@@ -474,7 +516,7 @@ session_start_fork(int width, int height, int bpp, char* username,
           /* additional parameters from sesman.ini file */
           //config_read_xserver_params(SESMAN_SESSION_TYPE_XRDP,
           //                           xserver_params);
-	  list_append_list_strdup(g_cfg->rdp_params, xserver_params, 0);
+          list_append_list_strdup(g_cfg->rdp_params, xserver_params, 0);
 
           /* make sure it ends with a zero */
           list_add_item(xserver_params, 0);
@@ -526,6 +568,7 @@ session_start_fork(int width, int height, int bpp, char* username,
     temp->item->height = height;
     temp->item->bpp = bpp;
     temp->item->data = data;
+    g_strncpy(temp->item->client_ip, client_ip, 255);	/* store client ip data */
     g_strncpy(temp->item->name, username, 255);
 
     ltime = g_time1();
@@ -554,7 +597,7 @@ session_start_fork(int width, int height, int bpp, char* username,
 int DEFAULT_CC
 session_start(int width, int height, int bpp, char* username, char* password,
               long data, tui8 type, char* domain, char* program,
-              char* directory)
+              char* directory, char* client_ip)
 {
   int display;
 
@@ -569,6 +612,7 @@ session_start(int width, int height, int bpp, char* username, char* password,
   g_sync_domain = domain;
   g_sync_program = program;
   g_sync_directory = directory;
+  g_sync_client_ip = client_ip;
   g_sync_data = data;
   g_sync_type = type;
   /* set event for main thread to see */
@@ -590,7 +634,7 @@ session_sync_start(void)
   g_sync_result = session_start_fork(g_sync_width, g_sync_height, g_sync_bpp,
                                      g_sync_username, g_sync_password,
                                      g_sync_data, g_sync_type, g_sync_domain,
-                                     g_sync_program, g_sync_directory);
+                                     g_sync_program, g_sync_directory, g_sync_client_ip);
   lock_sync_sem_release();
   return 0;
 }
@@ -632,8 +676,7 @@ session_kill(int pid)
     if (tmp->item->pid == pid)
     {
       /* deleting the session */
-      log_message(&(g_cfg->log), LOG_LEVEL_INFO, "session %d - user %s - "
-                  "terminated", tmp->item->pid, tmp->item->name);
+      log_message(&(g_cfg->log), LOG_LEVEL_INFO, "++ terminated session:  username %s, display :%d.0, session_pid %d, ip %s", tmp->item->name, tmp->item->display, tmp->item->pid, tmp->item->client_ip);
       g_free(tmp->item);
       if (prev == 0)
       {

@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2008
+   Copyright (C) Jay Sorg 2005-2010
 */
 
 /**
@@ -74,6 +74,7 @@ env_set_user(char* username, char* passwd_file, int display)
                          pw_gecos);
   if (error == 0)
   {
+    g_rm_temp_dir();
     error = g_setgid(pw_gid);
     if (error == 0)
     {
@@ -84,6 +85,7 @@ env_set_user(char* username, char* passwd_file, int display)
       uid = pw_uid;
       error = g_setuid(uid);
     }
+    g_mk_temp_dir(0);
     if (error == 0)
     {
       g_clearenv();
@@ -105,12 +107,12 @@ env_set_user(char* username, char* passwd_file, int display)
           g_mkdir(".vnc");
           g_sprintf(passwd_file, "%s/.vnc/sesman_%s_passwd", pw_dir, username);
         }
-	else
-	{
+        else
+        {
           /* we use auth_file_path as requested */
           g_sprintf(passwd_file, g_cfg->auth_file_path, username);
         }
-	LOG_DBG(&(g_cfg->log), "pass file: %s", passwd_file);
+        LOG_DBG(&(g_cfg->log), "pass file: %s", passwd_file);
       }
     }
   }

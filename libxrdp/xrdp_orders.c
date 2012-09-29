@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
+   Copyright (C) Jay Sorg 2004-2010
 
    orders
 
@@ -127,6 +127,10 @@ xrdp_orders_send(struct xrdp_orders* self)
 int APP_CC
 xrdp_orders_force_send(struct xrdp_orders* self)
 {
+  if (self == 0)
+  {
+    return 1;
+  }
   if ((self->order_level > 0) && (self->order_count > 0))
   {
     s_mark_end(self->out_s);
@@ -336,10 +340,10 @@ xrdp_order_pack_small_or_tiny(struct xrdp_orders* self,
                               char* present_ptr, int present,
                               int present_size)
 {
-  int move_up_count;
-  int index;
-  int size;
-  int keep_looking;
+  int move_up_count = 0;
+  int index = 0;
+  int size = 0;
+  int keep_looking = 1;
 
   move_up_count = 0;
   keep_looking = 1;
@@ -527,11 +531,11 @@ xrdp_orders_screen_blt(struct xrdp_orders* self, int x, int y,
                        int cx, int cy, int srcx, int srcy,
                        int rop, struct xrdp_rect* rect)
 {
-  int order_flags;
-  int vals[12];
-  int present;
-  char* present_ptr;
-  char* order_flags_ptr;
+  int order_flags = 0;
+  int vals[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int present = 0;
+  char* present_ptr = (char *)NULL;
+  char* order_flags_ptr = (char *)NULL;
 
   xrdp_orders_check(self, 25);
   self->order_count++;
@@ -662,11 +666,11 @@ xrdp_orders_screen_blt(struct xrdp_orders* self, int x, int y,
     present |= 0x40;
     if (order_flags & RDP_ORDER_DELTA)
     {
-      out_uint8(self->out_s, srcy - self->orders_state.scr_blt_srcy)
+      out_uint8(self->out_s, srcy - self->orders_state.scr_blt_srcy);
     }
     else
     {
-      out_uint16_le(self->out_s, srcy)
+      out_uint16_le(self->out_s, srcy);
     }
     self->orders_state.scr_blt_srcy = srcy;
   }
@@ -911,7 +915,7 @@ xrdp_orders_dest_blt(struct xrdp_orders* self, int x, int y,
   out_uint8s(self->out_s, 1);
   if (order_flags & RDP_ORDER_CHANGE)
   {
-    out_uint8(self->out_s, self->orders_state.last_order)
+    out_uint8(self->out_s, self->orders_state.last_order);
   }
   present = 0;
   /* present, set later, 1 byte */
@@ -996,12 +1000,14 @@ xrdp_orders_line(struct xrdp_orders* self, int mix_mode,
                  struct xrdp_pen* pen,
                  struct xrdp_rect* rect)
 {
-  int order_flags;
-  int vals[8];
-  int present;
-  char* present_ptr;
-  char* order_flags_ptr;
+  int order_flags = 0;
+  int vals[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  int present = 0;
+  char* present_ptr = (char *)NULL;
+  char* order_flags_ptr = (char *)NULL;
   struct xrdp_pen blank_pen;
+
+  g_memset(&blank_pen,0,sizeof(struct xrdp_pen));
 
   /* if mix mode or rop are out of range, mstsc build 6000+ will parse the orders
      wrong */
@@ -1067,7 +1073,7 @@ xrdp_orders_line(struct xrdp_orders* self, int mix_mode,
   if (mix_mode != self->orders_state.line_mix_mode)
   {
     present |= 0x0001;
-    out_uint16_le(self->out_s, mix_mode)
+    out_uint16_le(self->out_s, mix_mode);
     self->orders_state.line_mix_mode = mix_mode;
   }
   if (startx != self->orders_state.line_startx)
@@ -1125,15 +1131,15 @@ xrdp_orders_line(struct xrdp_orders* self, int mix_mode,
   if (bg_color != self->orders_state.line_bg_color)
   {
     present |= 0x0020;
-    out_uint8(self->out_s, bg_color)
-    out_uint8(self->out_s, bg_color >> 8)
-    out_uint8(self->out_s, bg_color >> 16)
+    out_uint8(self->out_s, bg_color);
+    out_uint8(self->out_s, bg_color >> 8);
+    out_uint8(self->out_s, bg_color >> 16);
     self->orders_state.line_bg_color = bg_color;
   }
   if (rop != self->orders_state.line_rop)
   {
     present |= 0x0040;
-    out_uint8(self->out_s, rop)
+    out_uint8(self->out_s, rop);
     self->orders_state.line_rop = rop;
   }
   if (pen == 0)
@@ -1144,21 +1150,21 @@ xrdp_orders_line(struct xrdp_orders* self, int mix_mode,
   if (pen->style != self->orders_state.line_pen.style)
   {
     present |= 0x0080;
-    out_uint8(self->out_s, pen->style)
+    out_uint8(self->out_s, pen->style);
     self->orders_state.line_pen.style = pen->style;
   }
   if (pen->width != self->orders_state.line_pen.width)
   {
     present |= 0x0100;
-    out_uint8(self->out_s, pen->width)
+    out_uint8(self->out_s, pen->width);
     self->orders_state.line_pen.width = pen->width;
   }
   if (pen->color != self->orders_state.line_pen.color)
   {
     present |= 0x0200;
-    out_uint8(self->out_s, pen->color)
-    out_uint8(self->out_s, pen->color >> 8)
-    out_uint8(self->out_s, pen->color >> 16)
+    out_uint8(self->out_s, pen->color);
+    out_uint8(self->out_s, pen->color >> 8);
+    out_uint8(self->out_s, pen->color >> 16);
     self->orders_state.line_pen.color = pen->color;
   }
   xrdp_order_pack_small_or_tiny(self, order_flags_ptr, order_flags,
@@ -1176,11 +1182,11 @@ xrdp_orders_mem_blt(struct xrdp_orders* self, int cache_id,
                     int rop, int srcx, int srcy,
                     int cache_idx, struct xrdp_rect* rect)
 {
-  int order_flags;
-  int vals[12];
-  int present;
-  char* present_ptr;
-  char* order_flags_ptr;
+  int order_flags = 0;
+  int vals[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int present = 0;
+  char* present_ptr = (char *)NULL;
+  char* order_flags_ptr = (char *)NULL;
 
   xrdp_orders_check(self, 30);
   self->order_count++;
@@ -1224,7 +1230,7 @@ xrdp_orders_mem_blt(struct xrdp_orders* self, int cache_id,
   out_uint8s(self->out_s, 1);
   if (order_flags & RDP_ORDER_CHANGE)
   {
-    out_uint8(self->out_s, self->orders_state.last_order)
+    out_uint8(self->out_s, self->orders_state.last_order);
   }
   present = 0;
   /* present, set later, 2 bytes */
@@ -1352,10 +1358,10 @@ xrdp_orders_text(struct xrdp_orders* self,
                  int x, int y, char* data, int data_len,
                  struct xrdp_rect* rect)
 {
-  int order_flags;
-  int present;
-  char* present_ptr;
-  char* order_flags_ptr;
+  int order_flags = 0;
+  int present = 0;
+  char* present_ptr = (char *)NULL;
+  char* order_flags_ptr = (char *)NULL;
 
   xrdp_orders_check(self, 100);
   self->order_count++;
@@ -1423,17 +1429,17 @@ xrdp_orders_text(struct xrdp_orders* self,
   if (fg_color != self->orders_state.text_fg_color)
   {
     present |= 0x000010;
-    out_uint8(self->out_s, fg_color)
-    out_uint8(self->out_s, fg_color >> 8)
-    out_uint8(self->out_s, fg_color >> 16)
+    out_uint8(self->out_s, fg_color);
+    out_uint8(self->out_s, fg_color >> 8);
+    out_uint8(self->out_s, fg_color >> 16);
     self->orders_state.text_fg_color = fg_color;
   }
   if (bg_color != self->orders_state.text_bg_color)
   {
     present |= 0x000020;
-    out_uint8(self->out_s, bg_color)
-    out_uint8(self->out_s, bg_color >> 8)
-    out_uint8(self->out_s, bg_color >> 16)
+    out_uint8(self->out_s, bg_color);
+    out_uint8(self->out_s, bg_color >> 8);
+    out_uint8(self->out_s, bg_color >> 16);
     self->orders_state.text_bg_color = bg_color;
   }
   if (clip_left != self->orders_state.text_clip_left)
@@ -1546,14 +1552,14 @@ xrdp_orders_send_raw_bitmap(struct xrdp_orders* self,
                             int width, int height, int bpp, char* data,
                             int cache_id, int cache_idx)
 {
-  int order_flags;
-  int len;
-  int bufsize;
-  int Bpp;
-  int i;
-  int j;
-  int pixel;
-  int e;
+  int order_flags = 0;
+  int len = 0;
+  int bufsize = 0;
+  int Bpp = 0;
+  int i = 0;
+  int j = 0;
+  int pixel = 0;
+  int e = 0;
 
   if (width > 64)
   {
@@ -1626,16 +1632,16 @@ xrdp_orders_send_bitmap(struct xrdp_orders* self,
                         int width, int height, int bpp, char* data,
                         int cache_id, int cache_idx)
 {
-  int order_flags;
-  int len;
-  int bufsize;
-  int Bpp;
-  int i;
-  int lines_sending;
-  int e;
-  struct stream* s;
-  struct stream* temp_s;
-  char* p;
+  int order_flags = 0;
+  int len = 0;
+  int bufsize = 0;
+  int Bpp = 0;
+  int i = 0;
+  int lines_sending = 0;
+  int e = 0;
+  struct stream* s = NULL;
+  struct stream* temp_s = NULL;
+  char* p = NULL;
 
   if (width > 64)
   {
@@ -1717,9 +1723,9 @@ xrdp_orders_send_font(struct xrdp_orders* self,
                       struct xrdp_font_char* font_char,
                       int font_index, int char_index)
 {
-  int order_flags;
-  int datasize;
-  int len;
+  int order_flags = 0;
+  int datasize = 0;
+  int len = 0;
 
   datasize = FONT_DATASIZE(font_char);
   xrdp_orders_check(self, datasize + 18);
@@ -1749,14 +1755,14 @@ xrdp_orders_send_raw_bitmap2(struct xrdp_orders* self,
                              int width, int height, int bpp, char* data,
                              int cache_id, int cache_idx)
 {
-  int order_flags;
-  int len;
-  int bufsize;
-  int Bpp;
-  int i;
-  int j;
-  int pixel;
-  int e;
+  int order_flags = 0;
+  int len = 0;
+  int bufsize = 0;
+  int Bpp = 0;
+  int i = 0;
+  int j = 0;
+  int pixel = 0;
+  int e = 0;
 
   if (width > 64)
   {
@@ -1830,16 +1836,16 @@ xrdp_orders_send_bitmap2(struct xrdp_orders* self,
                          int width, int height, int bpp, char* data,
                          int cache_id, int cache_idx)
 {
-  int order_flags;
-  int len;
-  int bufsize;
-  int Bpp;
-  int i;
-  int lines_sending;
-  int e;
-  struct stream* s;
-  struct stream* temp_s;
-  char* p;
+  int order_flags = 0;
+  int len = 0;
+  int bufsize = 0;
+  int Bpp = 0;
+  int i = 0;
+  int lines_sending = 0;
+  int e = 0;
+  struct stream* s = NULL;
+  struct stream* temp_s = NULL;
+  char* p = NULL;
 
   if (width > 64)
   {
@@ -1904,8 +1910,8 @@ int APP_CC
 xrdp_orders_send_brush(struct xrdp_orders* self, int width, int height,
                        int bpp, int type, int size, char* data, int cache_id)
 {
-  int order_flags;
-  int len;
+  int order_flags = 0;
+  int len = 0;
 
   xrdp_orders_check(self, size + 12);
   self->order_count++;
