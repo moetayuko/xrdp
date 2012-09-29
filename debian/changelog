@@ -6,6 +6,8 @@ xrdp (0.6.0-1) unstable; urgency=low
   * Drop the following patches, applied upstream:
       + alt-gr-fix.patch
       + keycode-fix.patch
+  * Bump Standards-Version to 3.9.3.
+  * Enable hardening.
 
  -- Vincent Bernat <bernat@debian.org>  Sat, 29 Sep 2012 13:00:49 +0200
 
