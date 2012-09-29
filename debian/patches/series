@@ -2,6 +2,3 @@
 04quiet_start.patch
 05-default-keymap.patch
 06-xrdp_pidfile_early.patch
-07-unix-socks-in-var-run.patch
-alt-gr-fix.patch
-keycode-fix.patch

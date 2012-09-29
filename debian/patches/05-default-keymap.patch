@@ -1,10 +1,10 @@
 Ensure that the default keymap is US english if there is a problem locating one.
 
-diff --git a/xrdp/lang.c b/xrdp/lang.c
-index 751d2ba..7ae351f 100644
---- a/xrdp/lang.c
-+++ b/xrdp/lang.c
-@@ -234,6 +234,13 @@ get_keymaps(int keylayout, struct xrdp_keymap* keymap)
+Index: xrdp/xrdp/lang.c
+===================================================================
+--- xrdp.orig/xrdp/lang.c	2012-09-29 13:01:00.267338590 +0200
++++ xrdp/xrdp/lang.c	2012-09-29 13:03:28.446647925 +0200
+@@ -239,6 +239,13 @@
        g_file_close(fd);
      }
    }
