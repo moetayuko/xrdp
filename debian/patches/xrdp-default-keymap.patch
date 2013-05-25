@@ -1,0 +1,15 @@
++++ xrdp.orig/xrdp/lang.c  2010-11-04 16:52:27.000000000 +0100
+--- xrdp/xrdp/lang.c       2012-10-06 17:17:50.655882597 +0200
+@@ -209,7 +209,11 @@
+   filename = (char*)g_malloc(256, 0);
+   /* check if there is a keymap file */
+   g_snprintf(filename, 255, "%s/km-%4.4x.ini", XRDP_CFG_PATH, keylayout);
+-  /* if the file does not exist, try again with 'en-us' as fallback */
++  /* if the file does not exist, try the local default, and finally 'en-us' */
++  if (!g_file_exist(filename))
++  {
++    g_snprintf(filename, 255, "%s/km-default.ini", XRDP_CFG_PATH);
++  }
+   if (!g_file_exist(filename))
+   {
+     g_snprintf(filename, 255, "%s/km-0409.ini", XRDP_CFG_PATH);

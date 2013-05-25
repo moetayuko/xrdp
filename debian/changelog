@@ -2,6 +2,8 @@ xrdp (0.6.0-2) UNRELEASED; urgency=low
 
   * Add Norvegian keyboard definition, thanks to Dag-Erling
     Smørgrav. Closes: #709588
+  * Use /etc/xrdp/km-default.ini as a fallback for keyboard definition
+    before trying `en-US`. Patch from Petter Reinholdtsen. Closes: #709590.
 
  -- Vincent Bernat <bernat@debian.org>  Sat, 25 May 2013 11:11:42 +0200
 

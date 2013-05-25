@@ -4,3 +4,4 @@
 06-xrdp_pidfile_early.patch
 08-format-security.patch
 10-km-0414.patch
+xrdp-default-keymap.patch
