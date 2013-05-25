@@ -1,3 +1,10 @@
+xrdp (0.6.0-2) UNRELEASED; urgency=low
+
+  * Add Norvegian keyboard definition, thanks to Dag-Erling
+    Smørgrav. Closes: #709588
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 25 May 2013 11:11:42 +0200
+
 xrdp (0.6.0-1) unstable; urgency=low
 
   * New upstream version. Closes: #687039.
