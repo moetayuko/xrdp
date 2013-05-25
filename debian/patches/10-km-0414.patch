@@ -1,3 +1,5 @@
+Norvegian keyboard definition.
+
 diff --git a/instfiles/km-0414.ini b/instfiles/km-0414.ini
 new file mode 100644
 index 0000000..08ba2ab

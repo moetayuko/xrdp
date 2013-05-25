@@ -1,3 +1,9 @@
+At the moment, if xrdp do not find the keyboard mapping provided by the
+RDP client, it call back to en-us.  We would like to be able to change
+the default fallback keymapping to Norwegian.  Attached is a patch
+written by Dag-Erling Smørgrav to make this possible, by teaching xrdp
+to look for km-default.ini before it fall back to km-0409.ini (en-us).
+
 +++ xrdp.orig/xrdp/lang.c  2010-11-04 16:52:27.000000000 +0100
 --- xrdp/xrdp/lang.c       2012-10-06 17:17:50.655882597 +0200
 @@ -209,7 +209,11 @@
