@@ -7,8 +7,8 @@ Build-Depends: debhelper (>= 7.0.50~), libssl-dev, libpam0g-dev,
 	       libx11-dev, libxfixes-dev, libfreerdp-dev, pkg-config
 Standards-Version: 3.9.3
 Homepage: http://xrdp.sourceforge.net
-Vcs-Browser: http://git.debian.org/?p=collab-maint/xrdp.git
-Vcs-Git: git://git.debian.org/git/collab-maint/xrdp.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/xrdp.git
+Vcs-Git: git://anonscm.debian.org/git/collab-maint/xrdp.git
 
 Package: xrdp
 Architecture: any
