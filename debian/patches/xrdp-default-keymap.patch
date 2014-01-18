@@ -4,8 +4,10 @@ the default fallback keymapping to Norwegian.  Attached is a patch
 written by Dag-Erling Smørgrav to make this possible, by teaching xrdp
 to look for km-default.ini before it fall back to km-0409.ini (en-us).
 
-+++ xrdp.orig/xrdp/lang.c  2010-11-04 16:52:27.000000000 +0100
---- xrdp/xrdp/lang.c       2012-10-06 17:17:50.655882597 +0200
+Index: xrdp-v0.6.1/xrdp/lang.c
+===================================================================
+--- xrdp-v0.6.1.orig/xrdp/lang.c	2014-01-18 14:57:14.151536204 +0100
++++ xrdp-v0.6.1/xrdp/lang.c	2014-01-18 14:57:14.143536344 +0100
 @@ -209,7 +209,11 @@
    filename = (char*)g_malloc(256, 0);
    /* check if there is a keymap file */
