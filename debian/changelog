@@ -8,6 +8,7 @@ xrdp (0.6.1-1) UNRELEASED; urgency=low
   * Drop session reuse patch which was integrated upstream. Closes: #710007.
   * Update Vcs-* fields.
   * Bump Standards-Version to 3.9.5.
+  * Add Lintian overrides for missing manual pages.
 
  -- Vincent Bernat <bernat@debian.org>  Sat, 18 Jan 2014 14:50:45 +0100
 

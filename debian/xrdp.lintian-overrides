@@ -1,0 +1,8 @@
+# I don't have time to document internal stuff. They should be moved to
+# /usr/lib/xrdp, but this would need more patches.
+
+xrdp: binary-without-manpage usr/sbin/xrdp-chansrv
+xrdp: binary-without-manpage usr/bin/xrdp-dis
+xrdp: binary-without-manpage usr/bin/xrdp-genkeymap
+xrdp: binary-without-manpage usr/bin/xrdp-sesadmin
+xrdp: binary-without-manpage usr/sbin/xrdp-sessvc
