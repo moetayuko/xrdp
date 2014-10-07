@@ -1,3 +1,13 @@
+xrdp (0.6.1-2) unstable; urgency=medium
+
+  [ Johannes Schauer ]
+  * Check for libtoolize rather than libtool. Closes: #761793
+
+  [ Vincent Bernat ]
+  * Upload to unstable.
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 07 Oct 2014 21:35:25 +0200
+
 xrdp (0.6.1-1) unstable; urgency=low
 
   * New upstream release.
