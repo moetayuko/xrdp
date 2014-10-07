@@ -5,6 +5,7 @@ xrdp (0.6.1-2) unstable; urgency=medium
 
   [ Vincent Bernat ]
   * Upload to unstable.
+  * Bump Standards-Version to 3.9.6.
 
  -- Vincent Bernat <bernat@debian.org>  Tue, 07 Oct 2014 21:35:25 +0200
 
