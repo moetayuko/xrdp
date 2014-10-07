@@ -1,0 +1,15 @@
+Description: check for libtoolize rather than libtool
+Author: Johannes Schauer <j.schauer@email.de>
+Forwarded: no
+
+--- xrdp-0.6.1.orig/bootstrap
++++ xrdp-0.6.1/bootstrap
+@@ -14,7 +14,7 @@ then
+   exit 1
+ fi
+ 
+-which libtool
++which libtoolize
+ if ! test $? -eq 0
+ then
+   echo "error, install libtool"

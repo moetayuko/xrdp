@@ -1,4 +1,15 @@
-xrdp (0.6.1-1) UNRELEASED; urgency=low
+xrdp (0.6.1-2) unstable; urgency=medium
+
+  [ Johannes Schauer ]
+  * Check for libtoolize rather than libtool. Closes: #761793
+
+  [ Vincent Bernat ]
+  * Upload to unstable.
+  * Bump Standards-Version to 3.9.6.
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 07 Oct 2014 21:35:25 +0200
+
+xrdp (0.6.1-1) unstable; urgency=low
 
   * New upstream release.
   * Add Norvegian keyboard definition, thanks to Dag-Erling
