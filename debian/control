@@ -24,7 +24,8 @@ Description: Remote Desktop Protocol (RDP) server
  Matt Chapman, xrdp offers a graphical login to a remote
  client using RDP (the Remote Desktop Protocol). xrdp can
  connect to either a VNC X11 server or another RDP server.
- .
- To connect to an RDP server, Unix users can use freerdp
- or, although more buggy, rdesktop; Microsoft Windows users
- do not need any additional software.
+ It provides a fully functional Linux terminal server,
+ accepting connections from freerdp, rdesktop, and the
+ built-in terminal server / remote desktop clients of
+ Microsoft Windows operating systems, offering an X-Window
+ desktop to the user.
