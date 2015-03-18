@@ -4,7 +4,7 @@ It is based on the git “devel” branch of xrdp, as there are no
 official tarballs as distfiles any longer.
 
 
-Unless otherwise specified, the packaging is
+Unless otherwise specified, the packaging is covered by The MirOS Licence:
 Copyright © 2015
 	Thorsten “mirabilos” Glaser <thorsten.glaser@teckids.org>
 
@@ -24,7 +24,133 @@ damage or existence of a defect, except proven that it results out
 of said person’s immediate fault when using the work as intended.
 
 
+The systemd integration, as part of the packaging, is also covered
+by The MirOS Licence (see above), but done by:
+Copyright © 2015
+	Dominik George <dominik.george@teckids.org>
+
+
 xrdp itself comes under a couple of licences. Most of xrdp is
 Copyright (C) Jay Sorg 2004-2014 and covered by the Apache 2 licence,
 which can be found at /usr/share/common-licenses/Apache-2.0 on
-Debian systems. […]
+Debian systems.
+
+Some of the manual pages are also written by:
+Simone Fedele <ilsimo@users.sourceforge.net>
+Vincent Bernat <bernat@luffy.cx>
+
+
+common/ssl_calls.{c,h} are also Apache 2 from Jay Sorg and additionally:
+Copyright (C) Idan Freiberg 2013-2014
+
+common/xrdp_constants.h are also Apache 2 from Jay Sorg and additionally:
+Copyright (C) Matthew Chapman 1999-2008
+Copyright (C) Kevin Zhou 2012
+
+Parts of the RemoteFX Codec Library are Apache 2 from or additionally from:
+Copyright 2011 Vic Lee
+
+libxrdp/{xrdp_caps.c,xrdp_fastpath.c,xrdp_iso.c} are also Apache 2
+from Jay Sorg and additionally:
+Copyright (C) Idan Freiberg 2004-2014
+
+libxrdp/xrdp_mppc_enc.c is also Apache 2 from Jay Sorg and additionally:
+Copyright 2012-2013 Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
+
+libxrdp/xrdp_surface.c is also Apache 2 from Jay Sorg and additionally:
+Copyright (C) Kevin Zhou 2012
+
+Most of sesman/chansrv/ is Apache 2 from or additionally from:
+Copyright (C) Laxmikant Rashinkar 2009-2014
+
+tests/gtcp_proxy/{gtcp-proxy,hexdump}.c are Apache 2 from:
+Copyright (C) Laxmikant Rashinkar 2013 LK.Rashinkar@gmail.com
+
+xorg/X11R7.6/buildx.sh is also Apache 2 from Jay Sorg and Laxmikant Rashinkar.
+
+xorg/tests/xdemo/ is Apache 2 from:
+Copyright (C) Laxmikant Rashinkar 2004-2012
+
+xorgxrdp/module/rdpCapture.{c,h} are Apache 2 from:
+Copyright (C) Laxmikant Rashinkar 2014
+
+xrdpapi/ and xrdpvr/ are Apache 2 from or additionally from:
+most: Copyright (C) Laxmikant Rashinkar 2012-2013
+xrdpapi.h additionally: Copyright (C) Thomas Goddard 2012-2013
+
+
+common/d3des.{c,h} are proprietary software under no licence,
+Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
+Copyright (c) 1988,1989,1990,1991,1992 by Richard Outerbridge.
+
+sesman/tools/sestest.c is under no explicit licence,
+(c) 2008 Simone Fedele
+
+Some files have neither an explicit licence nor any copyright
+or authorship information; consense says they are covered by
+the terms in the top-level COPYING file (Apache 2 by Jay Sorg),
+if they are protected by copyright law at all.
+
+
+The xrdp-genkeymap program is covered by the GNU GPLv2 or later,
+at /usr/share/common-licenses/GPL-2 on Debian systems:
+Copyright (C) Michał Górny 2014 <mgorny@gentoo.org>
+Copyright (C) Ádám Wallner 2008 <wallner@bitbaro.hu>
+The generated keymaps are a function of the keymaps shipped with
+the X Window System and not protected by copyright.
+
+
+Some header files and most of xorg/X11R7.6/rdp/ and xorgrdp/
+come with a variant of the Historical Permission Notice and Disclaimer
+which adds an explicit permission to sell, repositions the “without
+fee” words, and has a redundant reproduction requirement verbatim
+from the MIT licence and uses the MIT disclaimer except disclaiming
+liablility by “The Open Group”:
+
+Copyright 2005-2014 Jay Sorg
+
+Permission to use, copy, modify, distribute, and sell this software and its
+documentation for any purpose is hereby granted without fee, provided that
+the above copyright notice appear in all copies and that both that
+copyright notice and this permission notice appear in supporting
+documentation.
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+Several binaries and images have unclear status and sources:
+
+• probably not copyright-protected:
+  – sesman/chansrv/pcsc/dumps/ (protocol dumps?)
+  – sesman/chansrv/wave-format-server.txt (file/protocol dumps or standard)
+
+• generated, plaintext, can almost certainly be regenerated:
+  – tcutils/moc_mainwindow.cpp
+  – tcutils/qrc_resources.cpp
+  – tcutils/tcutils.pro
+  – tcutils/ui_mainwindow.h
+  – xrdp/rsakeys.ini (looks like a generated RSA key)
+
+• generated, ELF binaries, almost certainly from shipped source:
+  – tcutils/tcutils
+  – tests/gtcp_proxy/gtcp-proxy
+
+• unclear, probably harmless, clarification can’t hurt:
+  – tcutils/resources/images/tools.gif
+  – xrdp/ad24b.bmp, xrdp/ad256.bmp (IIRC they come from X11)
+  – xrdp/cursor0.cur, xrdp/cursor1.cur (probably also X11)
+  – xrdp/xrdp24b.bmp, xrdp/xrdp256.bmp (project logo, self-drawn?)
+  – xrdp/xrdp_logo.bmp (“connecting…” graphics, self-drawn?)
+  – Coding_Style.odt (self-written?)
+
+• unclear, needs clarification:
+  – xorg/tests/xdemo/yosemite.bmp
+  – xrdp/sans-10.fv1 (probably transformed from DejaVu Sans somehow)
