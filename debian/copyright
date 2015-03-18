@@ -1,0 +1,30 @@
+This package was debianised anew by members of Teckids e.V. with
+only marginal guidance from the original Debian xrdp packaging.
+It is based on the git “devel” branch of xrdp, as there are no
+official tarballs as distfiles any longer.
+
+
+Unless otherwise specified, the packaging is
+Copyright © 2015
+	Thorsten “mirabilos” Glaser <thorsten.glaser@teckids.org>
+
+Provided that these terms and disclaimer and all copyright notices
+are retained or reproduced in an accompanying document, permission
+is granted to deal in this work without restriction, including un‐
+limited rights to use, publicly perform, distribute, sell, modify,
+merge, give away, or sublicence.
+
+This work is provided “AS IS” and WITHOUT WARRANTY of any kind, to
+the utmost extent permitted by applicable law, neither express nor
+implied; without malicious intent or gross negligence. In no event
+may a licensor, author or contributor be held liable for indirect,
+direct, other damage, loss, or other issues arising in any way out
+of dealing in the work, even if advised of the possibility of such
+damage or existence of a defect, except proven that it results out
+of said person’s immediate fault when using the work as intended.
+
+
+xrdp itself comes under a couple of licences. Most of xrdp is
+Copyright (C) Jay Sorg 2004-2014 and covered by the Apache 2 licence,
+which can be found at /usr/share/common-licenses/Apache-2.0 on
+Debian systems. […]

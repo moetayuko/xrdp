@@ -1,0 +1,30 @@
+Source: xrdp
+Origin: Teckids
+Bugs: mailto:supraadmin@lists.teckids.org
+Homepage: http://www.xrdp.org/
+Section: net
+Priority: optional
+Maintainer: Teckids e.V. <supraadmin@lists.teckids.org>
+Uploaders: Thorsten Glaser <thorsten.glaser@teckids.org>,
+ Simon Bruder <simon.bruder@teckids.org>,
+ Dominik George <dominik.george@teckids.org>
+Build-Depends: debhelper (>= 9), autoconf (>= 2.59),
+ automake (>= 1.6), libfreerdp-dev, libpam0g-dev, libssl-dev,
+ libtool, libx11-dev, libxfixes-dev, pkg-config
+Standards-Version: 3.9.6
+Vcs-Browser: https://github.com/teckids/xrdp
+Vcs-Git: https://github.com/teckids/xrdp.git
+
+Package: xrdp
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, adduser
+Recommends: vnc4server | tightvncserver | vnc-server
+Description: Remote Desktop Protocol (RDP) server
+ Based on the work by NeutrinoRDP, FreeRDP, rdesktop, and
+ Matt Chapman, xrdp offers a graphical login to a remote
+ client using RDP (the Remote Desktop Protocol). xrdp can
+ connect to either a VNC X11 server or another RDP server.
+ .
+ To connect to an RDP server, Unix users can use freerdp
+ or, although more buggy, rdesktop; Microsoft Windows users
+ do not need any additional software.
