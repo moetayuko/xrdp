@@ -39,6 +39,11 @@ Some of the manual pages are also written by:
 Simone Fedele <ilsimo@users.sourceforge.net>
 Vincent Bernat <bernat@luffy.cx>
 
+The manual page xrdp-keygen.8 from Vincent Bernat, as well as
+everything else taken from the original Debian packaging (currently
+only the last few lines of debian/changelog) is covered by the GNU
+GPLv2 or later, at /usr/share/common-licenses/GPL-2 on Debian systems.
+
 
 common/ssl_calls.{c,h} are also Apache 2 from Jay Sorg and additionally:
 Copyright (C) Idan Freiberg 2013-2014
@@ -92,8 +97,7 @@ the terms in the top-level COPYING file (Apache 2 by Jay Sorg),
 if they are protected by copyright law at all.
 
 
-The xrdp-genkeymap program is covered by the GNU GPLv2 or later,
-at /usr/share/common-licenses/GPL-2 on Debian systems:
+The xrdp-genkeymap program is covered by the GNU GPLv2 or later:
 Copyright (C) Michał Górny 2014 <mgorny@gentoo.org>
 Copyright (C) Ádám Wallner 2008 <wallner@bitbaro.hu>
 The generated keymaps are a function of the keymaps shipped with
