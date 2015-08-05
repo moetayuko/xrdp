@@ -1,0 +1,26 @@
+# DP: config patches for Debian
+
+--- a/sesman/startwm.sh
++++ b/sesman/startwm.sh
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/bin/bash
+ 
+ #start the window manager
+ wm_start()
+--- a/xorgxrdp/xrdpdev/xorg.conf
++++ b/xorgxrdp/xrdpdev/xorg.conf
+@@ -12,10 +12,9 @@ Section "ServerFlags"
+ EndSection
+ 
+ Section "Files"
+-    FontPath "/usr/X11R6/lib/X11/fonts/misc/:unscaled"
+-    FontPath "/usr/X11R6/lib/X11/fonts/75dpi/:unscaled"
+-    FontPath "/usr/X11R6/lib/X11/fonts/100dpi/:unscaled"
+-    FontPath "/usr/X11R6/lib/X11/fonts/viewtouch"
++    FontPath "/usr/share/fonts/X11/misc/:unscaled"
++    FontPath "/usr/share/fonts/X11/75dpi/:unscaled"
++    FontPath "/usr/share/fonts/X11/100dpi/:unscaled"
+ EndSection
+ 
+ Section "Module"
