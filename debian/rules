@@ -30,7 +30,6 @@ override_dh_auto_configure:
 	    --enable-ipv6 \
 	    --enable-jpeg \
 	    --enable-fuse \
-	    --enable-xrdpvr \
 	    --enable-opus
 	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
 

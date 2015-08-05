@@ -11,6 +11,8 @@ TODO:
 
 - consider --enable-neutrinordp but it FTBFS
 
+- consider --enable-xrdpvr but squeeze’s FFmpeg is the last supported one
+
 - create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 
 - contact Simone Fedele about
