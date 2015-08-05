@@ -40,8 +40,9 @@ Simone Fedele <ilsimo@users.sourceforge.net>
 Vincent Bernat <bernat@luffy.cx>
 
 The manual page xrdp-keygen.8 from Vincent Bernat, as well as
-everything else taken from the original Debian packaging
-(currently nothing) is covered by the GNU GPLv2 or later,
+everything else taken from the original Debian packaging…
+• PID path change
+… is covered by the GNU GPLv2 or later, which can be found
 at /usr/share/common-licenses/GPL-2 on Debian systems.
 
 

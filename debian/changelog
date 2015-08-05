@@ -2,9 +2,10 @@ xrdp (0.9.0~git20150803-1~alpha1) teckids; urgency=medium
 
   * New upstream git snapshot
   * Update copyright file from snapshot and issue #232
-  * Also make xorgxrdp module
+  * Also make xorgxrdp module plus adapt config to Debian
+  * Use a well-integrated X session start script
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 05 Aug 2015 20:24:11 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 05 Aug 2015 22:17:16 +0200
 
 xrdp (0.9.0~git20150318-1~alpha1) teckids; urgency=medium
 
