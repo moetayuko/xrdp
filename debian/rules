@@ -26,9 +26,6 @@ endif
 override_dh_auto_configure:
 	./bootstrap
 	cd xorgxrdp && ./bootstrap
-	#TODO: --enable-kerberos but with which lib?
-	#TODO: --enable-neutrinordp but it FTBFS
-	#TODO: --enable-rfxcodec but not before autotoolised
 	./configure ${CONFIGURE_ARGS} \
 	    --enable-ipv6 \
 	    --enable-jpeg \

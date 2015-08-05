@@ -1,0 +1,27 @@
+TODO:
+
+- build and install the pulseaudio plugin
+  from sesman/chansrv/pulse but there is no pulseaudio-modules-dev
+
+- patch librfxcodec/ to be autotoolised then --enable-rfxcodec
+  and add it to Makefile.am before libxrdp
+  + can use yasm and SSE for i386 and amd64 too
+
+- add --enable-kerberos after figuring out which (MIT or Heimdal)
+
+- consider --enable-neutrinordp but it FTBFS
+
+- create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
+
+- contact Simone Fedele about
+  * manpage licence (though probably fine as-is)
+  * sesman/tools/sestest.c
+
+- replace common/d3des.{c,h} with mircvs://src/lib/libc/crypt/crypt.c
+
+- remove sesman/tools/sestest.c unless free'd
+  * unhook from Makefile.am
+
+- replace xorg/tests/xdemo/yosemite.bmp
+
+- move from non-free to main
