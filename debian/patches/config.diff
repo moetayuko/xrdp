@@ -1,13 +1,5 @@
 # DP: config patches for Debian
 
---- a/sesman/startwm.sh
-+++ b/sesman/startwm.sh
-@@ -1,4 +1,4 @@
--#!/bin/sh
-+#!/bin/bash
- 
- #start the window manager
- wm_start()
 --- a/xorgxrdp/xrdpdev/xorg.conf
 +++ b/xorgxrdp/xrdpdev/xorg.conf
 @@ -12,10 +12,9 @@ Section "ServerFlags"

@@ -1,7 +1,5 @@
 TODO:
 
-- patch debian/xrdp/etc/xrdp/startwm.sh
-
 - provide Debian init system integration
   * systemd
   * sysvinit
