@@ -31,7 +31,7 @@ Copyright © 2015
 
 
 xrdp itself comes under a couple of licences. Most of xrdp is
-Copyright (C) Jay Sorg 2004-2014 and covered by the Apache 2 licence,
+Copyright (C) Jay Sorg 2004-2015 and covered by the Apache 2 licence,
 which can be found at /usr/share/common-licenses/Apache-2.0 on
 Debian systems.
 
@@ -40,9 +40,9 @@ Simone Fedele <ilsimo@users.sourceforge.net>
 Vincent Bernat <bernat@luffy.cx>
 
 The manual page xrdp-keygen.8 from Vincent Bernat, as well as
-everything else taken from the original Debian packaging (currently
-only the last few lines of debian/changelog) is covered by the GNU
-GPLv2 or later, at /usr/share/common-licenses/GPL-2 on Debian systems.
+everything else taken from the original Debian packaging
+(currently nothing) is covered by the GNU GPLv2 or later,
+at /usr/share/common-licenses/GPL-2 on Debian systems.
 
 
 common/ssl_calls.{c,h} are also Apache 2 from Jay Sorg and additionally:
@@ -65,8 +65,19 @@ Copyright 2012-2013 Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
 libxrdp/xrdp_surface.c is also Apache 2 from Jay Sorg and additionally:
 Copyright (C) Kevin Zhou 2012
 
+sesman/session.c is also Apache 2 from Jay Sorg and additionally:
+Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+Copyright (c) 2000-2001 Markus Friedl
+Copyright (c) 2011-2015 Koichiro Iwao, Kyushu Institute of Technology
+with contributions from Darren Tucker
+
 Most of sesman/chansrv/ is Apache 2 from or additionally from:
 Copyright (C) Laxmikant Rashinkar 2009-2014
+
+The files under sesman/chansrv/pcsc/dumps/ as well as
+sesman/chansrv/clipboard-notes.txt and wave-format-server.txt
+are mere protocol dumps (observations) and notes, and thus
+not protected by copyright law.
 
 tests/gtcp_proxy/{gtcp-proxy,hexdump}.c are Apache 2 from:
 Copyright (C) Laxmikant Rashinkar 2013 LK.Rashinkar@gmail.com
@@ -76,12 +87,59 @@ xorg/X11R7.6/buildx.sh is also Apache 2 from Jay Sorg and Laxmikant Rashinkar.
 xorg/tests/xdemo/ is Apache 2 from:
 Copyright (C) Laxmikant Rashinkar 2004-2012
 
-xorgxrdp/module/rdpCapture.{c,h} are Apache 2 from:
-Copyright (C) Laxmikant Rashinkar 2014
-
 xrdpapi/ and xrdpvr/ are Apache 2 from or additionally from:
 most: Copyright (C) Laxmikant Rashinkar 2012-2013
 xrdpapi.h additionally: Copyright (C) Thomas Goddard 2012-2013
+
+xrdp/sans-10.fv1 is a bitmap font (and thus not protected by
+copyright law in either USA or Germany) derived from the font
+DejaVu Sans by rendering then screenshotting it. The original
+DejaVu Sans font is derived from Bitstream Vera™, which is a
+trademark of Bitstream, Inc., all changes Public Domain.
+
+Bitstream Vera is: Copyright (c) 2003 by Bitstream, Inc.
+ All Rights Reserved.
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of the fonts accompanying this license ("Fonts") and associated
+ documentation files (the "Font Software"), to reproduce and distribute the
+ Font Software, including without limitation the rights to use, copy, merge,
+ publish, distribute, and/or sell copies of the Font Software, and to permit
+ persons to whom the Font Software is furnished to do so, subject to the
+ following conditions:
+
+ The above copyright and trademark notices and this permission notice shall
+ be included in all copies of one or more of the Font Software typefaces.
+
+ The Font Software may be modified, altered, or added to, and in particular
+ the designs of glyphs or characters in the Fonts may be modified and
+ additional glyphs or characters may be added to the Fonts, only if the fonts
+ are renamed to names not containing either the words "Bitstream" or the word
+ "Vera".
+
+ This License becomes null and void to the extent applicable to Fonts or Font
+ Software that has been modified and is distributed under the "Bitstream
+ Vera" names.
+
+ The Font Software may be sold as part of a larger software package but no
+ copy of one or more of the Font Software typefaces may be sold by itself.
+
+ THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT,
+ TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL BITSTREAM OR THE GNOME
+ FOUNDATION BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING
+ ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE
+ FONT SOFTWARE.
+
+ Except as contained in this notice, the names of Gnome, the Gnome
+ Foundation, and Bitstream Inc., shall not be used in advertising or
+ otherwise to promote the sale, use or other dealings in this Font Software
+ without prior written authorization from the Gnome Foundation or Bitstream
+ Inc., respectively. For further information, contact: fonts at gnome dot
+ org.
 
 
 common/d3des.{c,h} are proprietary software under no licence,
@@ -90,6 +148,10 @@ Copyright (c) 1988,1989,1990,1991,1992 by Richard Outerbridge.
 
 sesman/tools/sestest.c is under no explicit licence,
 (c) 2008 Simone Fedele
+
+xorg/tests/xdemo/yosemite.bmp is a derived work of two images from
+http://www.appstate.edu/~marshallst/photos/boone_photos/yosemite_valley.html
+and lack a proper licence.
 
 Some files have neither an explicit licence nor any copyright
 or authorship information; consense says they are covered by
@@ -111,7 +173,7 @@ fee” words, and has a redundant reproduction requirement verbatim
 from the MIT licence and uses the MIT disclaimer except disclaiming
 liablility by “The Open Group”:
 
-Copyright 2005-2014 Jay Sorg
+Copyright 2005-2015 Jay Sorg
 
 Permission to use, copy, modify, distribute, and sell this software and its
 documentation for any purpose is hereby granted without fee, provided that
@@ -130,11 +192,16 @@ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-Several binaries and images have unclear status and sources:
+xorgxrdp/module/rdpCapture.{c,h} are under the same terms and additionally:
+Copyright 2014 Laxmikant Rashinkar
 
-• probably not copyright-protected:
-  – sesman/chansrv/pcsc/dumps/ (protocol dumps?)
-  – sesman/chansrv/wave-format-server.txt (file/protocol dumps or standard)
+
+Several files and resources have unclear status and sources:
+
+• missing explicit licence (see above) but require one:
+  – common/d3des.{c,h}
+  – sesman/tools/sestest.c
+  – xorg/tests/xdemo/yosemite.bmp
 
 • generated, plaintext, can almost certainly be regenerated:
   – tcutils/moc_mainwindow.cpp
@@ -143,10 +210,6 @@ Several binaries and images have unclear status and sources:
   – tcutils/ui_mainwindow.h
   – xrdp/rsakeys.ini (looks like a generated RSA key)
 
-• generated, ELF binaries, almost certainly from shipped source:
-  – tcutils/tcutils
-  – tests/gtcp_proxy/gtcp-proxy
-
 • unclear, probably harmless, clarification can’t hurt:
   – tcutils/resources/images/tools.gif
   – xrdp/ad24b.bmp, xrdp/ad256.bmp (IIRC they come from X11)
@@ -154,7 +217,3 @@ Several binaries and images have unclear status and sources:
   – xrdp/xrdp24b.bmp, xrdp/xrdp256.bmp (project logo, self-drawn?)
   – xrdp/xrdp_logo.bmp (“connecting…” graphics, self-drawn?)
   – Coding_Style.odt (self-written?)
-
-• unclear, needs clarification:
-  – xorg/tests/xdemo/yosemite.bmp
-  – xrdp/sans-10.fv1 (probably transformed from DejaVu Sans somehow)

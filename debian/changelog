@@ -1,17 +1,13 @@
+xrdp (0.9.0~git20150803-1~alpha1) teckids; urgency=medium
+
+  * New upstream git snapshot
+  * Update copyright file from snapshot and issue #232
+
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 05 Aug 2015 18:50:18 +0200
+
 xrdp (0.9.0~git20150318-1~alpha1) teckids; urgency=medium
 
   * New upstream git snapshot
   * Document legal issues at https://github.com/neutrinolabs/xrdp/issues/232
 
  -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 18 Mar 2015 21:22:35 +0100
-
-xrdp (0.6.1-2) unstable; urgency=medium
-
-  [ Johannes Schauer ]
-  * Check for libtoolize rather than libtool. Closes: #761793
-
-  [ Vincent Bernat ]
-  * Upload to unstable.
-  * Bump Standards-Version to 3.9.6.
-
- -- Vincent Bernat <bernat@debian.org>  Tue, 07 Oct 2014 21:35:25 +0200
