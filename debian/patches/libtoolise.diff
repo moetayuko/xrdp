@@ -1,0 +1,25 @@
+# DP: taken from upstream
+# DP: should no longer be needed with next git snapshot
+
+--- a/bootstrap
++++ b/bootstrap
+@@ -14,7 +14,7 @@ then
+   exit 1
+ fi
+ 
+-which libtool
++which libtool || which libtoolize
+ if ! test $? -eq 0
+ then
+   echo "error, install libtool"
+--- a/xorgxrdp/bootstrap
++++ b/xorgxrdp/bootstrap
+@@ -14,7 +14,7 @@ then
+   exit 1
+ fi
+ 
+-which libtool
++which libtool || which libtoolize
+ if ! test $? -eq 0
+ then
+   echo "error, install libtool"
