@@ -9,8 +9,10 @@ Uploaders: Thorsten Glaser <thorsten.glaser@teckids.org>,
  Simon Bruder <simon.bruder@teckids.org>,
  Dominik George <dominik.george@teckids.org>
 Build-Depends: debhelper (>= 9), autoconf (>= 2.59),
- automake (>= 1.6), libfreerdp-dev, libpam0g-dev, libssl-dev,
- libtool, libx11-dev, libxfixes-dev, pkg-config, xserver-xorg-dev
+ automake (>= 1.6), libfreerdp-dev, libfuse-dev, libjpeg-dev,
+ libopus-dev, libpam0g-dev, libssl-dev, libtool, libx11-dev,
+ libxfixes-dev, libxrandr-dev, nasm, pkg-config, systemd,
+ xserver-xorg-dev
 Standards-Version: 3.9.6
 Vcs-Browser: https://github.com/teckids/xrdp
 Vcs-Git: https://github.com/teckids/xrdp.git

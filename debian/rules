@@ -6,6 +6,16 @@
 override_dh_auto_configure:
 	./bootstrap
 	cd xorgxrdp && ./bootstrap
-	./configure --help
-	cd xorgxrdp && ./configure --help
+	#TODO: kerberos
+	dh_auto_configure -v -- --disable-silent-rules \
+	    --disable-dependency-tracking \
+	    --enable-ipv6 \
+	    --enable-neutrinordp \
+	    --enable-jpeg \
+	    --enable-fuse \
+	    --enable-xrdpvr \
+	    --enable-rfxcodec \
+	    --enable-opus
+	cd xorgxrdp && dh_auto_configure -v -- --disable-silent-rules \
+	    --disable-dependency-tracking
 	exit 1
