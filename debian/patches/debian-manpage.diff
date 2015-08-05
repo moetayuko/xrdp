@@ -1,3 +1,6 @@
+# DP: fix upstream oversight
+# DP: should be submitted upstream
+
 --- a/docs/man/xrdp-keygen.8
 +++ b/docs/man/xrdp-keygen.8
 @@ -1,4 +1,8 @@
