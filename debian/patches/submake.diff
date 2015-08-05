@@ -1,0 +1,11 @@
+# DP: recurse into xorgxrdp/ as well
+# DP: maybe should be made into a proper configure option for upstream
+
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -27,4 +27,5 @@ SUBDIRS = \
+   instfiles \
+   genkeymap \
+   xrdpapi \
++  xorgxrdp \
+   $(XRDPVRDIR)

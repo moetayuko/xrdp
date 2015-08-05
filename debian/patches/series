@@ -1,2 +1,3 @@
 debian-manpage.diff
 libtoolise.diff
+submake.diff
