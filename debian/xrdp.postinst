@@ -24,7 +24,10 @@ set -e
 
 case $1 in
 configure)
-	test -e /etc/xrdp/rsakeys.ini || xrdp-keygen xrdp auto
+	test -e /etc/xrdp/rsakeys.ini || (
+		umask 077
+		xrdp-keygen xrdp auto
+	)
 	;;
 
 abort-upgrade|abort-remove|abort-deconfigure)
