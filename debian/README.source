@@ -2,8 +2,7 @@ TODO:
 
 - patch debian/xrdp/etc/xrdp/startwm.sh
 
-- remove debian/xrdp/lib/systemd/system/xrdp{,-sesman}.service
-  and provide Debian init system integration
+- provide Debian init system integration
   * systemd
   * sysvinit
 
