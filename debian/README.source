@@ -1,9 +1,11 @@
 TODO:
 
-- patch these files:
-  * debian/xrdp/etc/xrdp/startwm.sh
-  * debian/xrdp/lib/systemd/system/xrdp-sesman.service
-  * debian/xrdp/lib/systemd/system/xrdp.service
+- patch debian/xrdp/etc/xrdp/startwm.sh
+
+- remove debian/xrdp/lib/systemd/system/xrdp{,-sesman}.service
+  and provide Debian init system integration
+  * systemd
+  * sysvinit
 
 - build and install the pulseaudio plugin
   from sesman/chansrv/pulse but there is no pulseaudio-modules-dev
