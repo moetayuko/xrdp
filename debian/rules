@@ -1,5 +1,25 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/default.mk
+
+# this is precisely what dh_auto_configure does
+CONFIGURE_ARGS:=	--build=${DEB_BUILD_GNU_TYPE} \
+			--prefix=/usr \
+			--includedir=\${prefix}/include \
+			--mandir=\${prefix}/share/man \
+			--infodir=\${prefix}/share/info \
+			--sysconfdir=/etc \
+			--localstatedir=/var \
+			--disable-silent-rules \
+			--libdir=\${prefix}/lib/${DEB_HOST_MULTIARCH} \
+			--libexecdir=\${prefix}/lib/${DEB_HOST_MULTIARCH} \
+			--disable-maintainer-mode \
+			--disable-dependency-tracking
+
+ifneq (${DEB_BUILD_GNU_TYPE},${DEB_HOST_GNU_TYPE})
+CONFIGURE_ARGS+=	--host=${DEB_HOST_GNU_TYPE}
+endif
+
 %:
 	dh $@
 
@@ -7,8 +27,7 @@ override_dh_auto_configure:
 	./bootstrap
 	cd xorgxrdp && ./bootstrap
 	#TODO: kerberos
-	dh_auto_configure -v -- --disable-silent-rules \
-	    --disable-dependency-tracking \
+	./configure ${CONFIGURE_ARGS} \
 	    --enable-ipv6 \
 	    --enable-neutrinordp \
 	    --enable-jpeg \
@@ -16,6 +35,5 @@ override_dh_auto_configure:
 	    --enable-xrdpvr \
 	    --enable-rfxcodec \
 	    --enable-opus
-	cd xorgxrdp && dh_auto_configure -v -- --disable-silent-rules \
-	    --disable-dependency-tracking
+	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
 	exit 1
