@@ -3,8 +3,6 @@ TODO:
 - provide Debian init system integration
   * systemd
   * sysvinit
-    - Ensure that /var/run/xrdp is owned by xrdp:xrdp
-    - Sleep a bit after stopping so that xrdp can be restarted
     - Add an option in /etc/default/xrdp to avoid to restart on
       upgrade, thanks to a suggestion from Ola Lundqvist
 

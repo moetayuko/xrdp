@@ -4,8 +4,9 @@ xrdp (0.9.0~git20150803-1~alpha2) teckids; urgency=medium
   * Use an xrdp user; tear it down on purge like old Debian package does
   * Tear down logfiles on postrm, like Debian
   * Remove old RSA keyfile from insecure versions, like Debian
+  * Add some instructions on starting, since we don’t have initscripts yet
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Thu, 06 Aug 2015 20:27:48 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Thu, 06 Aug 2015 21:00:08 +0200
 
 xrdp (0.9.0~git20150803-1~alpha1) teckids; urgency=medium
 

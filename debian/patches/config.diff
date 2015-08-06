@@ -1,5 +1,15 @@
 # DP: config patches for Debian
 
+--- a/sesman/sesman.ini
++++ b/sesman/sesman.ini
+@@ -87,6 +87,7 @@ param5=-noreset
+ param6=-ac
+ param7=-nolisten
+ param8=tcp
++param9=-retro
+ 
+ [Chansrv]
+ # drive redirection, defaults to xrdp_client if not set
 --- a/xorgxrdp/xrdpdev/xorg.conf
 +++ b/xorgxrdp/xrdpdev/xorg.conf
 @@ -12,10 +12,9 @@ Section "ServerFlags"
@@ -16,3 +26,22 @@
  EndSection
  
  Section "Module"
+--- a/xrdp/xrdp.ini
++++ b/xrdp/xrdp.ini
+@@ -140,14 +140,14 @@ tcutils=true
+ # chansrvport=/tmp/.xrdp/xrdp_chansrv_socket_7210
+ 
+ [xrdp1]
+-name=sesman-X11rdp
++name=sesman-xorgxrdp
+ lib=libxup.so
+ username=ask
+ password=ask
+ ip=127.0.0.1
+ port=-1
+ xserverbpp=24
+-code=10
++code=20
+ 
+ [xrdp2]
+ name=sesman-Xvnc
