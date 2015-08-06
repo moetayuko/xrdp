@@ -33,7 +33,7 @@ override_dh_auto_configure:
 	    --enable-opus
 	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
 	find . -name Makefile -print0 | \
-	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$&/xrdp!g' --
+	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
 override_dh_auto_install:
 	dh_auto_install -v
