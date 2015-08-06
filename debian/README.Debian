@@ -12,8 +12,8 @@ Initially:
 To start, in order:
 • create /var/run/xrdp and chown it to xrdp:xrdp
 To start, in order (to stop, in reverse order):
-• start the xrdp dæmon as xrdp:xrdp
-• start the xrdp-sesman dæmon as superuser
+• start the xrdp daemon as xrdp:xrdp
+• start the xrdp-sesman daemon as superuser
 After stopping, sleep a bit to facilitate restarts.
 
 
