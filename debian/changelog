@@ -7,7 +7,7 @@ xrdp (0.9.0~git20150803-1~alpha2) teckids; urgency=medium
   * Add some instructions on starting, since we don’t have initscripts yet
   * First round of lintian and actual bugfixes
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Thu, 06 Aug 2015 21:19:00 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Thu, 06 Aug 2015 21:25:56 +0200
 
 xrdp (0.9.0~git20150803-1~alpha1) teckids; urgency=medium
 

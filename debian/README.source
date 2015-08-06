@@ -46,6 +46,13 @@ Noteworthy lintian warnings:
 
 E: xrdp: binary-or-shlib-defines-rpath lib/x86_64-linux-gnu/xrdp/libxrdp.so.0.0.0 /usr/lib
 E: xrdp: binary-or-shlib-defines-rpath usr/sbin/xrdp /usr/lib
-E: xrdp: non-standard-toplevel-dir share/
+W: xrdp: manpage-section-mismatch usr/share/man/man1/xrdp-dis.1.gz:1 1 != 8
 X: xrdp: shlib-calls-exit usr/lib/xorg/modules/input/xrdpkeyb_drv.so
 W: xrdp: shlib-with-executable-stack usr/lib/xorg/modules/libxorgxrdp.so
+
+New in sid:
+
+X: xrdp: static-library-has-unneeded-section usr/lib/x86_64-linux-gnu/xrdp/libcommon.a(d3des.o) .comment
+[…]
+X: xrdp: unstripped-static-library usr/lib/xorg/modules/drivers/xrdpdev_drv.a(xrdpdev.o)
+[…]
