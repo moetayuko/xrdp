@@ -4,3 +4,4 @@ make-fixes.diff
 config.diff
 keymap-default.diff
 keymap-fallback.diff
+misc-fixes.diff
