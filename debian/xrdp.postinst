@@ -29,6 +29,10 @@ configure)
 	    --disabled-password --disabled-login \
 	    --home /var/run/xrdp xrdp
 
+	if dpkg --compare-versions "$2" lt '0.4.0~dfsg-7'; then
+		rm -f /etc/xrdp/rsakeys.ini
+	fi
+
 	test -e /etc/xrdp/rsakeys.ini || (
 		umask 077
 		xrdp-keygen xrdp auto
