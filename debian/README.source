@@ -8,10 +8,6 @@ TODO:
     - Add an option in /etc/default/xrdp to avoid to restart on
       upgrade, thanks to a suggestion from Ola Lundqvist
 
-- merge some patches and other changes from Debian package
-  * user/group xrdp (XXX delete on purge?), Depends: adduser
-  * remove dirs and files on purge
-
 - d/control Description: can it now connect to X.org, too?
   => test!
 
