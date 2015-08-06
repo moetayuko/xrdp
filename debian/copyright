@@ -42,8 +42,12 @@ Vincent Bernat <bernat@luffy.cx>
 The manual page xrdp-keygen.8 from Vincent Bernat, as well as
 everything else taken from the original Debian packaging…
 • PID path change
+• Fallback to en-us keymap
 … is covered by the GNU GPLv2 or later, which can be found
 at /usr/share/common-licenses/GPL-2 on Debian systems.
+
+The patch to fall back to a local default keymap before English
+is contributed by Dag-Erling Smørgrav and Petter Reinholdtsen.
 
 
 common/ssl_calls.{c,h} are also Apache 2 from Jay Sorg and additionally:
