@@ -41,3 +41,11 @@ TODO:
 - consider --enable-neutrinordp but it FTBFS
 
 - consider --enable-xrdpvr but squeeze’s FFmpeg is the last supported one
+
+Noteworthy lintian warnings:
+
+E: xrdp: binary-or-shlib-defines-rpath lib/x86_64-linux-gnu/xrdp/libxrdp.so.0.0.0 /usr/lib
+E: xrdp: binary-or-shlib-defines-rpath usr/sbin/xrdp /usr/lib
+E: xrdp: non-standard-toplevel-dir share/
+X: xrdp: shlib-calls-exit usr/lib/xorg/modules/input/xrdpkeyb_drv.so
+W: xrdp: shlib-with-executable-stack usr/lib/xorg/modules/libxorgxrdp.so
