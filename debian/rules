@@ -5,14 +5,14 @@ include /usr/share/dpkg/default.mk
 # this is precisely what dh_auto_configure does
 CONFIGURE_ARGS:=	--build=${DEB_BUILD_GNU_TYPE} \
 			--prefix=/usr \
-			--includedir=\${prefix}/include \
-			--mandir=\${prefix}/share/man \
-			--infodir=\${prefix}/share/info \
+			--includedir=\$${prefix}/include \
+			--mandir=\$${prefix}/share/man \
+			--infodir=\$${prefix}/share/info \
 			--sysconfdir=/etc \
 			--localstatedir=/var \
 			--disable-silent-rules \
-			--libdir=\${prefix}/lib/${DEB_HOST_MULTIARCH} \
-			--libexecdir=\${prefix}/lib/${DEB_HOST_MULTIARCH} \
+			--libdir=\$${prefix}/lib/${DEB_HOST_MULTIARCH} \
+			--libexecdir=\$${prefix}/lib/${DEB_HOST_MULTIARCH} \
 			--disable-maintainer-mode \
 			--disable-dependency-tracking
 
