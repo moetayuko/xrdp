@@ -1,8 +1,9 @@
 xrdp (0.9.0~git20150803-1~alpha2) teckids; urgency=medium
 
   * Merge some patches from the Debian package
+  * Use an xrdp user; tear it down on purge like old Debian package does
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Thu, 06 Aug 2015 20:16:58 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Thu, 06 Aug 2015 20:25:20 +0200
 
 xrdp (0.9.0~git20150803-1~alpha1) teckids; urgency=medium
 

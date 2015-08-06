@@ -28,6 +28,9 @@ remove)
 purge)
 	rm -f /etc/xrdp/rsakeys.ini
 	rmdir --ignore-fail-on-non-empty /etc/xrdp
+
+	(deluser --system --quiet xrdp || :)
+	(delgroup --system --quiet xrdp || :)
 	;;
 
 upgrade|disappear|failed-upgrade|abort-install|abort-upgrade)

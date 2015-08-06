@@ -24,9 +24,15 @@ set -e
 
 case $1 in
 configure)
+	getent passwd xrdp >/dev/null 2>&1 || adduser \
+	    --quiet --system --group --no-create-home \
+	    --disabled-password --disabled-login \
+	    --home /var/run/xrdp xrdp
+
 	test -e /etc/xrdp/rsakeys.ini || (
 		umask 077
 		xrdp-keygen xrdp auto
+		chown xrdp /etc/xrdp/rsakeys.ini
 	)
 	;;
 
