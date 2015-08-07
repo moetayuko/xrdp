@@ -12,20 +12,6 @@ Initially:
 To start, in order:
 • create /var/run/xrdp and chown it to xrdp:xrdp
 To start, in order (to stop, in reverse order):
-• start the xrdp daemon as xrdp:xrdp
 • start the xrdp-sesman daemon as superuser
+• start the xrdp daemon as xrdp:xrdp
 After stopping, sleep a bit to facilitate restarts.
-
-
-To start, do something similar to what follows, except, in
-what order (before? after? the above), as which user, etc.
-(probably as root) are currently unknowns:
-
-Xorg -config xrdp/xorg.conf -retro -noreset -ac :10
-
-The Wiki says thereto:
-| Use the "Session manager" entry in xrdp chooser at connection. The
-| main difference is the ''code=20'' which make usage of Xorg driver
-| instead of X11rdp
-So I think we do *not* need to start it manually, maybe?
-Please try without it at first!
