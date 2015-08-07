@@ -24,11 +24,6 @@ set -e
 
 case $1 in
 configure)
-	getent passwd xrdp >/dev/null 2>&1 || adduser \
-	    --quiet --system --group --no-create-home \
-	    --disabled-password --disabled-login \
-	    --home /var/run/xrdp xrdp
-
 	if dpkg --compare-versions "$2" lt '0.4.0~dfsg-7'; then
 		rm -f /etc/xrdp/rsakeys.ini
 	fi

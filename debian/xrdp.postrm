@@ -28,9 +28,6 @@ remove)
 purge)
 	rm -rf /etc/xrdp /var/run/xrdp
 	rm -f /var/log/sesman.log /var/log/xrdp-sesman.log
-
-	(deluser --system --quiet xrdp || :)
-	(delgroup --system --quiet xrdp || :)
 	;;
 
 upgrade|disappear|failed-upgrade|abort-install|abort-upgrade)
