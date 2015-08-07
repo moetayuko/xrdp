@@ -1,3 +1,10 @@
+xrdp (0.9.0~git20150803-1~alpha3) teckids; urgency=medium
+
+  * Add systemd integration
+  * Update README.Debian after testing
+
+ -- Dominik George <dominik.george@teckids.org>  Fri, 07 Aug 2015 12:14:23 +0200
+
 xrdp (0.9.0~git20150803-1~alpha2) teckids; urgency=medium
 
   * Merge some patches from the Debian package
