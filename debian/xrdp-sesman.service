@@ -8,6 +8,7 @@ BindTo=xrdp.service
 Type=forking
 PIDFile=/var/run/xrdp/xrdp-sesman.pid
 EnvironmentFile=/etc/default/xrdp
+RuntimeDirectory=/run/xrdp
 ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
 ExecStop=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS --kill
 

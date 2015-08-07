@@ -7,6 +7,7 @@ After=syslog.target network.target xrdp-sesman.service
 Type=forking
 PIDFile=/var/run/xrdp/xrdp.pid
 EnvironmentFile=/etc/default/xrdp
+RuntimeDirectory=/run/xrdp
 ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS --nodaemon
 ExecStop=/usr/sbin/xrdp $XRDP_OPTIONS --kill
 
