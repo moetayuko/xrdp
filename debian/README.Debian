@@ -1,8 +1,8 @@
-There is currently no init system integration.
+There currently is only integration with systemd.
 
-To start this, you have to approximately do the following
-(please submit actual methods, fixes, sysv-rc and systemd
-scripts, and possibly upstart and OpenRC scripts, to us):
+To start this manually, you have to do the following
+(please submit actual methods, fixes, sysv-rc scripts,
+and possibly upstart and OpenRC scripts, to us):
 
 Initially:
 • review /etc/xrdp/xrdp.ini
@@ -10,8 +10,8 @@ Initially:
 • review /etc/X11/xrdp/xorg.conf
 
 To start, in order:
-• create /var/run/xrdp and chown it to xrdp:xrdp
+• create /var/run/xrdp
 To start, in order (to stop, in reverse order):
 • start the xrdp-sesman daemon as superuser
-• start the xrdp daemon as xrdp:xrdp
+• start the xrdp daemon as superuser
 After stopping, sleep a bit to facilitate restarts.
