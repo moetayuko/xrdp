@@ -7,7 +7,7 @@
  AM_CONDITIONAL(XRDP_OPUS, [test x$enable_opus = xyes])
  
 -AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
-+AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
++AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
  
  # checking for openssl
  AC_CHECK_HEADER([openssl/rc4.h], [],
@@ -89,7 +89,7 @@
  AC_PROG_LIBTOOL
  
 -AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
-+AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
++AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
  
  AC_CHECK_HEADER([xorg/xorg-server.h], [],
    [AC_MSG_ERROR([please install xserver-xorg-dev or xorg-x11-server-sdk])])
