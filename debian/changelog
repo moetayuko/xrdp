@@ -13,8 +13,9 @@ xrdp (0.9.0~git20150826-1~alpha1) teckids; urgency=medium
   * Update the README files
   * Lots of lintian and other warning fixes (C, rpath, manpage, NX stack, …)
   * Never restart on upgrade
+  * Run Xsession with /bin/sh if not executable
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 26 Aug 2015 21:29:59 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 26 Aug 2015 22:49:04 +0200
 
 xrdp (0.9.0~git20150803-1~alpha3) teckids; urgency=medium
 
