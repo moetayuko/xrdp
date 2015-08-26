@@ -30,3 +30,4 @@ TODO:
 - consider --enable-neutrinordp but it FTBFS
 
 - consider --enable-xrdpvr but squeeze’s FFmpeg is the last supported one
+  ⇒ maybe the one in stretch/sid works?
