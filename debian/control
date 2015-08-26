@@ -9,7 +9,7 @@ Uploaders: Thorsten Glaser <thorsten.glaser@teckids.org>,
  Simon Bruder <simon.bruder@teckids.org>,
  Dominik George <dominik.george@teckids.org>
 Build-Depends: debhelper (>= 9), autoconf (>= 2.59),
- automake (>= 1.6), libfreerdp-dev,
+ automake (>= 1.6), dh-systemd (>= 1.5), libfreerdp-dev,
  libfuse-dev, libjpeg-dev, libopus-dev, libpam0g-dev, libssl-dev,
  libtool, libx11-dev, libxfixes-dev, libxrandr-dev,
  nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],

@@ -21,7 +21,7 @@ CONFIGURE_ARGS+=	--host=${DEB_HOST_GNU_TYPE}
 endif
 
 %:
-	dh $@
+	dh $@ --with systemd
 
 override_dh_auto_configure:
 	./bootstrap
