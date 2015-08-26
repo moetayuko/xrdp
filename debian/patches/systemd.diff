@@ -2,7 +2,7 @@
 
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
-@@ -1,13 +1,14 @@
+@@ -1,14 +1,15 @@
  [Unit]
 -Description=xrdp session manager
 -After=syslog.target network.target
@@ -12,15 +12,18 @@
  BindTo=xrdp.service
  
  [Service]
- Type=forking
+-Type=forking
 -PIDFile=/var/run/xrdp-sesman.pid
 -EnvironmentFile=/etc/sysconfig/xrdp
+-ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
++Type=simple
 +PIDFile=/var/run/xrdp/xrdp-sesman.pid
 +EnvironmentFile=/etc/default/xrdp
 +RuntimeDirectory=/run/xrdp
- ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
++ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS --nodaemon
  ExecStop=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS --kill
  
+ [Install]
 --- a/instfiles/xrdp.service
 +++ b/instfiles/xrdp.service
 @@ -1,12 +1,13 @@
