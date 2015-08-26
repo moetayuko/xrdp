@@ -1,11 +1,6 @@
 TODO:
 
-- provide Debian init system integration
-  * sysvinit
-    - Add an option in /etc/default/xrdp to avoid to restart on
-      upgrade, thanks to a suggestion from Ola Lundqvist
-  * upstart
-  * openrc
+- provide Debian init system integration, cf. README.Debian
 
 - create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 
