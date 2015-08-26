@@ -15,3 +15,8 @@ To start, in order (to stop, in reverse order):
 • start the xrdp-sesman daemon as superuser
 • start the xrdp daemon as superuser
 After stopping, sleep a bit to facilitate restarts.
+
+This *should* read…
+• create /var/run/xrdp
+• start the xrdp dæmon as xrdp:xrdp
+… though (xrdp-sesman must run as superuser anyway).
