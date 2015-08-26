@@ -24,6 +24,12 @@ damage or existence of a defect, except proven that it results out
 of said person’s immediate fault when using the work as intended.
 
 
+The systemd integration, as part of the packaging, is also covered
+by The MirOS Licence (see above), but done by:
+Copyright © 2015
+	Dominik George <dominik.george@teckids.org>
+
+
 xrdp itself comes under a couple of licences. Most of xrdp is
 Copyright (C) Jay Sorg 2004-2015 and covered by the Apache 2 licence,
 which can be found at /usr/share/common-licenses/Apache-2.0 on
