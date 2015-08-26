@@ -5,9 +5,10 @@ Homepage: http://www.xrdp.org/
 Section: non-free/net
 Priority: optional
 Maintainer: Teckids e.V. <supraadmin@lists.teckids.org>
-Uploaders: Thorsten Glaser <thorsten.glaser@teckids.org>,
- Simon Bruder <simon.bruder@teckids.org>,
- Dominik George <dominik.george@teckids.org>
+Uploaders: Simon Bruder <simon.bruder@teckids.org>,
+ Dominik George <dominik.george@teckids.org>,
+ Thorsten Glaser <thorsten.glaser@teckids.org>,
+ Andreas Gockel <andreas.gockel@teckids.org>
 Build-Depends: debhelper (>= 9), autoconf (>= 2.59),
  automake (>= 1.6), dh-systemd (>= 1.5), libfreerdp-dev,
  libfuse-dev, libjpeg-dev, libopus-dev, libpam0g-dev, libssl-dev,
