@@ -27,3 +27,13 @@
    km-0816.ini \
    km-e0010411.ini \
    km-e0200411.ini \
+--- a/xrdpapi/Makefile.am
++++ b/xrdpapi/Makefile.am
+@@ -9,6 +9,7 @@ AM_CFLAGS = \
+   $(EXTRA_DEFINES)
+ 
+ INCLUDES = \
++  -I$(top_srcdir)/common \
+   $(EXTRA_INCLUDES)
+ 
+ lib_LTLIBRARIES = \
