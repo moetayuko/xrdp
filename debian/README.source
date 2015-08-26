@@ -15,8 +15,10 @@ TODO:
 
 - remove sesman/tools/sestest.c unless free'd
   * unhook from Makefile.am
+  ⇒ fed upstream
 
 - replace xorg/tests/xdemo/yosemite.bmp
+  ⇒ fed upstream
 
 - move from non-free to main
 
@@ -26,6 +28,7 @@ TODO:
 - patch librfxcodec/ to be autotoolised then --enable-rfxcodec
   and add it to Makefile.am before libxrdp
   + can use yasm and SSE for i386 and amd64 too
+  ⇒ upstream doing that atm
 
 - recursive configure too
 
