@@ -234,13 +234,6 @@ Several files and resources have unclear status and sources:
   – sesman/tools/sestest.c
   – xorg/tests/xdemo/yosemite.bmp
 
-• generated, plaintext, can almost certainly be regenerated:
-  – tcutils/moc_mainwindow.cpp
-  – tcutils/qrc_resources.cpp
-  – tcutils/tcutils.pro
-  – tcutils/ui_mainwindow.h
-  – xrdp/rsakeys.ini (looks like a generated RSA key)
-
 • unclear, probably harmless, clarification can’t hurt:
   – tcutils/resources/images/tools.gif
   – xrdp/ad24b.bmp, xrdp/ad256.bmp (IIRC they come from X11)

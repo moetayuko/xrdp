@@ -20,9 +20,6 @@ TODO:
 
 - replace xorg/tests/xdemo/yosemite.bmp
 
-- filter out all files listed under "can almost certainly be regenerated"
-  (we don’t build Qt4 anyway nor use a pregenerated RSA key…)
-
 - move from non-free to main
 
 - build and install the pulseaudio plugin
