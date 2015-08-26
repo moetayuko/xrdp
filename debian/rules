@@ -47,7 +47,7 @@ override_dh_auto_install:
 	# Policy
 	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
 	find debian/xrdp/usr/lib/xorg/modules -name \*.a -print0 | \
-	    xargs -0 strip --strip-debug --
+	    xargs -0 strip --strip-debug -R .comment --
 
 override_dh_installinit:
 	dh_installinit --no-restart-on-upgrade
