@@ -233,11 +233,3 @@ Several files and resources have unclear status and sources:
 • missing explicit licence (see above) but require one:
   – sesman/tools/sestest.c
   – xorg/tests/xdemo/yosemite.bmp
-
-• unclear, probably harmless, clarification can’t hurt:
-  – tcutils/resources/images/tools.gif
-  – xrdp/ad24b.bmp, xrdp/ad256.bmp (IIRC they come from X11)
-  – xrdp/cursor0.cur, xrdp/cursor1.cur (probably also X11)
-  – xrdp/xrdp24b.bmp, xrdp/xrdp256.bmp (project logo, self-drawn?)
-  – xrdp/xrdp_logo.bmp (“connecting…” graphics, self-drawn?)
-  – Coding_Style.odt (self-written?)
