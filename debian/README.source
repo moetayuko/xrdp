@@ -4,7 +4,8 @@ TODO:
   * sysvinit
     - Add an option in /etc/default/xrdp to avoid to restart on
       upgrade, thanks to a suggestion from Ola Lundqvist
-  * others
+  * upstart
+  * openrc
 
 - create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 
