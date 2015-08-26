@@ -32,9 +32,10 @@
 +After=network.target xrdp-sesman.service
  
  [Service]
- Type=forking
+-Type=forking
 -PIDFile=/var/run/xrdp.pid
 -EnvironmentFile=/etc/sysconfig/xrdp
++Type=simple
 +PIDFile=/var/run/xrdp/xrdp.pid
 +EnvironmentFile=/etc/default/xrdp
 +RuntimeDirectory=/run/xrdp
