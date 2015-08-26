@@ -1,6 +1,5 @@
 # DP: recurse into xorgxrdp/ as well (make into proper configure option?)
 # DP: also, actually install keymaps shipped (should be upstreamed)
-# DP: TODO also sync xrdp/xrdp_keyboard.ini
 
 --- a/Makefile.am
 +++ b/Makefile.am

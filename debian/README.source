@@ -27,6 +27,8 @@ TODO:
 
 - recursive configure too
 
+- sync xrdp/xrdp_keyboard.ini with list of shipped keymaps
+
 - consider --enable-neutrinordp but it FTBFS
 
 - consider --enable-xrdpvr but squeeze’s FFmpeg is the last supported one
