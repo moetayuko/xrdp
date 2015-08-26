@@ -2274,7 +2274,7 @@ xrdp_mm_check_wait_objs(struct xrdp_mm *self)
 
 /*****************************************************************************/
 /* frame ack from client */
-static int APP_CC
+int APP_CC
 xrdp_mm_frame_ack(struct xrdp_mm *self, int frame_id)
 {
     int ex;
