@@ -1,3 +1,19 @@
+xrdp (0.9.0~git20150826-1~alpha1) teckids; urgency=medium
+
+  [ Dominik George ]
+  * Add systemd integration
+
+  [ Thorsten Glaser ]
+  * Defer adding sysvinit integration until later, for now…
+  * New upstream git snapshot; remove patches now merged
+  * Update licencing information
+  * Actually enable and install the systemd service files
+  * Update package description for the xorgxrdp feature
+  * Use dpkg-buildflags; enable hardening and -Wl,--as-needed
+  * Update the README files
+
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 26 Aug 2015 19:46:08 +0200
+
 xrdp (0.9.0~git20150803-1~alpha3) teckids; urgency=medium
 
   * Add systemd integration
