@@ -1,0 +1,41 @@
+# DP: systemd service files for Debian
+
+--- a/instfiles/xrdp-sesman.service
++++ b/instfiles/xrdp-sesman.service
+@@ -1,13 +1,14 @@
+ [Unit]
+-Description=xrdp session manager
++Description=Remote Desktop Protocol (RDP) server - Session Manager
+ After=syslog.target network.target
+ StopWhenUnneeded=true
+ BindTo=xrdp.service
+ 
+ [Service]
+ Type=forking
+-PIDFile=/var/run/xrdp-sesman.pid
+-EnvironmentFile=/etc/sysconfig/xrdp
++PIDFile=/var/run/xrdp/xrdp-sesman.pid
++EnvironmentFile=/etc/default/xrdp
++RuntimeDirectory=/run/xrdp
+ ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
+ ExecStop=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS --kill
+ 
+--- a/instfiles/xrdp.service
++++ b/instfiles/xrdp.service
+@@ -1,12 +1,13 @@
+ [Unit]
+-Description=xrdp daemon
++Description=Remote Desktop Protocol (RDP) server
+ Requires=xrdp-sesman.service
+ After=syslog.target network.target xrdp-sesman.service
+ 
+ [Service]
+ Type=forking
+-PIDFile=/var/run/xrdp.pid
+-EnvironmentFile=/etc/sysconfig/xrdp
++PIDFile=/var/run/xrdp/xrdp.pid
++EnvironmentFile=/etc/default/xrdp
++RuntimeDirectory=/run/xrdp
+ ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS --nodaemon
+ ExecStop=/usr/sbin/xrdp $XRDP_OPTIONS --kill
+ 
