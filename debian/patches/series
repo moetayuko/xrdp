@@ -5,3 +5,4 @@ keymap-default.diff
 keymap-fallback.diff
 misc-fixes.diff
 systemd.diff
+nxstack.diff

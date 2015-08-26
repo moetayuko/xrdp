@@ -46,3 +46,5 @@ override_dh_auto_install:
 	rm -f debian/xrdp/etc/xrdp/startwm.sh
 	# Policy
 	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
+	find debian/xrdp/usr/lib/xorg/modules -name \*.a -print0 | \
+	    xargs -0 strip --strip-debug --
