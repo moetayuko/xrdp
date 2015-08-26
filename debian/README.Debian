@@ -1,8 +1,8 @@
 There currently is only integration with systemd.
 
 To start this manually, you have to do the following
-(please submit actual methods, fixes, sysv-rc scripts,
-and possibly upstart and OpenRC scripts, to us):
+(please submit actual methods, fixes, sysv-rc/file-rc
+scripts, and possibly upstart and OpenRC scripts, to us):
 
 Initially:
 • review /etc/xrdp/xrdp.ini
