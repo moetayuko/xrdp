@@ -21,4 +21,5 @@ if test -r /etc/default/locale; then
 	test -z "${LOCPATH+x}" || export LOCPATH
 fi
 
-exec /etc/X11/Xsession
+test -x /etc/X11/Xsession && exec /etc/X11/Xsession
+exec /bin/sh /etc/X11/Xsession
