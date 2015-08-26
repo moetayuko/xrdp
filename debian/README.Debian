@@ -20,3 +20,7 @@ This *should* read…
 • create /var/run/xrdp
 • start the xrdp dæmon as xrdp:xrdp
 … though (xrdp-sesman must run as superuser anyway).
+
+Another security issue is the disablement of access control by default.
+Use at your own risk and inform your users that privacy is possibly not
+guaranteed as all users can attach to RDP users’ sessions locally.
