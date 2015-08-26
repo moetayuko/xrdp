@@ -4,7 +4,7 @@ origtgz:
 - (check that the submodules are up-to-date)
 - $ cd ..
 - $ find xrdp -type f | fgrep -v /.git/ | sort | paxcpio \
-    -oC512 -Hustar -Mset | xz -e >xrdp_0.9.0~gitYYYYMMDD.orig.tar.xz
+    -oC512 -Hustar -Mdist | xz -e >xrdp_0.9.0~gitYYYYMMDD.orig.tar.xz
 
 TODO:
 
