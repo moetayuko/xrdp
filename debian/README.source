@@ -27,8 +27,6 @@ TODO:
 
 - recursive configure too
 
-- add --enable-kerberos after figuring out which (MIT or Heimdal)
-
 - consider --enable-neutrinordp but it FTBFS
 
 - consider --enable-xrdpvr but squeeze’s FFmpeg is the last supported one
