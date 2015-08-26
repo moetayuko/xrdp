@@ -95,6 +95,15 @@
  
 --- a/xorgxrdp/xrdpkeyb/rdpKeyboard.c
 +++ b/xorgxrdp/xrdpkeyb/rdpKeyboard.c
+@@ -502,7 +502,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
+ }
+ 
+ /******************************************************************************/
+-void
++int
+ rdpkeybDeviceInit(DeviceIntPtr pDevice, KeySymsPtr pKeySyms, CARD8 *pModMap)
+ {
+     int i;
 @@ -534,7 +534,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
      if (pKeySyms->map == 0)
      {
