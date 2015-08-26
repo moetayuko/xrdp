@@ -1,13 +1,10 @@
 TODO:
 
 - provide Debian init system integration
-  * systemd
   * sysvinit
     - Add an option in /etc/default/xrdp to avoid to restart on
       upgrade, thanks to a suggestion from Ola Lundqvist
-
-- d/control Description: can it now connect to X.org, too?
-  => test!
+  * others
 
 - create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 

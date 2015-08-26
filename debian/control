@@ -26,7 +26,8 @@ Description: Remote Desktop Protocol (RDP) server
  Based on the work by NeutrinoRDP, FreeRDP, rdesktop, and
  Matt Chapman, xrdp offers a graphical login to a remote
  client using RDP (the Remote Desktop Protocol). xrdp can
- connect to either a VNC X11 server or another RDP server.
+ connect to either a VNC X11 server, another RDP server,
+ or a locally created X.org session with xorgxrdp drivers.
  It provides a fully functional Linux terminal server,
  accepting connections from freerdp, rdesktop, and the
  built-in terminal server / remote desktop clients of
