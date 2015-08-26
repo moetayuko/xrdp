@@ -178,10 +178,6 @@ from FreeBSD ports and is covered by the FreeBSD licence:
  policies, either expressed or implied, of the FreeBSD Project.
 
 
-common/d3des.{c,h} are proprietary software under no licence,
-Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
-Copyright (c) 1988,1989,1990,1991,1992 by Richard Outerbridge.
-
 sesman/tools/sestest.c is under no explicit licence,
 (c) 2008 Simone Fedele
 
@@ -235,7 +231,6 @@ Copyright 2014 Laxmikant Rashinkar
 Several files and resources have unclear status and sources:
 
 • missing explicit licence (see above) but require one:
-  – common/d3des.{c,h}
   – sesman/tools/sestest.c
   – xorg/tests/xdemo/yosemite.bmp
 

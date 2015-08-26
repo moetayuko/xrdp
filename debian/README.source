@@ -15,8 +15,6 @@ TODO:
   * manpage licence (though probably fine as-is)
   * sesman/tools/sestest.c
 
-- replace common/d3des.{c,h} with mircvs://src/lib/libc/crypt/crypt.c
-
 - remove sesman/tools/sestest.c unless free'd
   * unhook from Makefile.am
 
