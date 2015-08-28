@@ -12,14 +12,6 @@ TODO:
 
 - create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 
-- contact Simone Fedele about
-  * manpage licence (though probably fine as-is)
-  * sesman/tools/sestest.c
-
-- remove sesman/tools/sestest.c unless free'd
-  * unhook from Makefile.am
-  ⇒ fed upstream
-
 - replace xorg/tests/xdemo/yosemite.bmp
   ⇒ fed upstream
 

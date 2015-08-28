@@ -89,6 +89,9 @@ sesman/chansrv/pulse/module-xrdp-source.c is GNU GPLv2 or later:
 Copyright 2004-2008 Lennart Poettering
 Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
 
+sesman/tools/ses{admin,test}.c are GNU GPLv2 or later:
+(c) 2008 Simone Fedele
+
 tests/gtcp_proxy/{gtcp-proxy,hexdump}.c are Apache 2 from:
 Copyright (C) Laxmikant Rashinkar 2013 LK.Rashinkar@gmail.com
 
@@ -182,9 +185,6 @@ from FreeBSD ports and is covered by the FreeBSD licence:
  policies, either expressed or implied, of the FreeBSD Project.
 
 
-sesman/tools/ses{admin,test}.c are under no explicit licence,
-(c) 2008 Simone Fedele
-
 xorg/tests/xdemo/yosemite.bmp is a derived work of two images from
 http://www.appstate.edu/~marshallst/photos/boone_photos/yosemite_valley.html
 and lack a proper licence.
@@ -235,5 +235,4 @@ Copyright 2014 Laxmikant Rashinkar
 Several files and resources have unclear status and sources:
 
 • missing explicit licence (see above) but require one:
-  – sesman/tools/ses{admin,test}.c
   – xorg/tests/xdemo/yosemite.bmp
