@@ -10,14 +10,14 @@ Initially:
 • review /etc/X11/xrdp/xorg.conf
 
 To start, in order:
-• create /var/run/xrdp
+• create /var/run/xrdp root:xrdp 0775
 To start, in order (to stop, in reverse order):
 • start the xrdp-sesman daemon as superuser
 • start the xrdp daemon as superuser
 After stopping, sleep a bit to facilitate restarts.
 
 This *should* read…
-• create /var/run/xrdp
+• create /var/run/xrdp xrdp:xrdp 0775
 • start the xrdp dæmon as xrdp:xrdp
 … though (xrdp-sesman must run as superuser anyway).
 
