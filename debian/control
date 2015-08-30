@@ -2,7 +2,7 @@ Source: xrdp
 Origin: Teckids
 Bugs: mailto:supraadmin@lists.teckids.org
 Homepage: http://www.xrdp.org/
-Section: non-free/net
+Section: net
 Priority: optional
 Maintainer: Teckids e.V. <supraadmin@lists.teckids.org>
 Uploaders: Simon Bruder <simon.bruder@teckids.org>,

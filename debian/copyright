@@ -5,28 +5,28 @@ official tarballs as distfiles any longer.
 
 
 Unless otherwise specified, the packaging is covered by The MirOS Licence:
-Copyright © 2015
+
+ Copyright © 2015
 	Thorsten “mirabilos” Glaser <thorsten.glaser@teckids.org>
 
-Provided that these terms and disclaimer and all copyright notices
-are retained or reproduced in an accompanying document, permission
-is granted to deal in this work without restriction, including un‐
-limited rights to use, publicly perform, distribute, sell, modify,
-merge, give away, or sublicence.
+ Provided that these terms and disclaimer and all copyright notices
+ are retained or reproduced in an accompanying document, permission
+ is granted to deal in this work without restriction, including un‐
+ limited rights to use, publicly perform, distribute, sell, modify,
+ merge, give away, or sublicence.
 
-This work is provided “AS IS” and WITHOUT WARRANTY of any kind, to
-the utmost extent permitted by applicable law, neither express nor
-implied; without malicious intent or gross negligence. In no event
-may a licensor, author or contributor be held liable for indirect,
-direct, other damage, loss, or other issues arising in any way out
-of dealing in the work, even if advised of the possibility of such
-damage or existence of a defect, except proven that it results out
-of said person’s immediate fault when using the work as intended.
-
+ This work is provided “AS IS” and WITHOUT WARRANTY of any kind, to
+ the utmost extent permitted by applicable law, neither express nor
+ implied; without malicious intent or gross negligence. In no event
+ may a licensor, author or contributor be held liable for indirect,
+ direct, other damage, loss, or other issues arising in any way out
+ of dealing in the work, even if advised of the possibility of such
+ damage or existence of a defect, except proven that it results out
+ of said person’s immediate fault when using the work as intended.
 
 The systemd integration, as part of the packaging, is also covered
 by The MirOS Licence (see above), but done (mostly) by:
-Copyright © 2015
+ Copyright © 2015
 	Dominik George <dominik.george@teckids.org>
 
 
@@ -50,13 +50,18 @@ at /usr/share/common-licenses/GPL-2 on Debian systems.
 The patch to fall back to a local default keymap before English
 is contributed by Dag-Erling Smørgrav and Petter Reinholdtsen.
 
-
 common/ssl_calls.{c,h} are also Apache 2 from Jay Sorg and additionally:
 Copyright (C) Idan Freiberg 2013-2014
 
 common/xrdp_constants.h are also Apache 2 from Jay Sorg and additionally:
 Copyright (C) Matthew Chapman 1999-2008
 Copyright (C) Kevin Zhou 2012
+
+The xrdp-genkeymap program is covered by the GNU GPLv2 or later:
+Copyright (C) Michał Górny 2014 <mgorny@gentoo.org>
+Copyright (C) Ádám Wallner 2008 <wallner@bitbaro.hu>
+The generated keymaps are a function of the keymaps shipped with
+the X Window System and not protected by copyright law.
 
 Parts of the RemoteFX Codec Library are Apache 2 from or additionally from:
 Copyright 2011 Vic Lee
@@ -71,12 +76,6 @@ Copyright 2012-2013 Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
 libxrdp/xrdp_surface.c is also Apache 2 from Jay Sorg and additionally:
 Copyright (C) Kevin Zhou 2012
 
-sesman/session.c is also Apache 2 from Jay Sorg and additionally:
-Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
-Copyright (c) 2000-2001 Markus Friedl
-Copyright (c) 2011-2015 Koichiro Iwao, Kyushu Institute of Technology
-with contributions from Darren Tucker
-
 Most of sesman/chansrv/ is Apache 2 from or additionally from:
 Copyright (C) Laxmikant Rashinkar 2009-2014
 
@@ -88,6 +87,12 @@ not protected by copyright law.
 sesman/chansrv/pulse/module-xrdp-source.c is GNU GPLv2 or later:
 Copyright 2004-2008 Lennart Poettering
 Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies).
+
+sesman/session.c is also Apache 2 from Jay Sorg and additionally:
+Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+Copyright (c) 2000-2001 Markus Friedl
+Copyright (c) 2011-2015 Koichiro Iwao, Kyushu Institute of Technology
+with contributions from Darren Tucker
 
 sesman/tools/ses{admin,test}.c are GNU GPLv2 or later:
 (c) 2008 Simone Fedele
@@ -155,7 +160,8 @@ Bitstream Vera is: Copyright (c) 2003 by Bitstream, Inc.
  org.
 
 instfiles/rc.d/xrdp was written by https://github.com/metalefty deriving
-from FreeBSD ports and is covered by the FreeBSD licence:
+from FreeBSD ports and is covered by the FreeBSD licence (and not used
+in Debian packaging):
 
  Copyright 1992-2015 The FreeBSD Project. All rights reserved.
 
@@ -184,24 +190,6 @@ from FreeBSD ports and is covered by the FreeBSD licence:
  those of the authors and should not be interpreted as representing official
  policies, either expressed or implied, of the FreeBSD Project.
 
-
-xorg/tests/xdemo/yosemite.bmp is a derived work of two images from
-http://www.appstate.edu/~marshallst/photos/boone_photos/yosemite_valley.html
-and lack a proper licence.
-
-Some files have neither an explicit licence nor any copyright
-or authorship information; consense says they are covered by
-the terms in the top-level COPYING file (Apache 2 by Jay Sorg),
-if they are protected by copyright law at all.
-
-
-The xrdp-genkeymap program is covered by the GNU GPLv2 or later:
-Copyright (C) Michał Górny 2014 <mgorny@gentoo.org>
-Copyright (C) Ádám Wallner 2008 <wallner@bitbaro.hu>
-The generated keymaps are a function of the keymaps shipped with
-the X Window System and not protected by copyright.
-
-
 Some header files and most of xorg/X11R7.6/rdp/ and xorgrdp/
 come with a variant of the Historical Permission Notice and Disclaimer
 which adds an explicit permission to sell, repositions the “without
@@ -209,30 +197,29 @@ fee” words, and has a redundant reproduction requirement verbatim
 from the MIT licence and uses the MIT disclaimer except disclaiming
 liablility by “The Open Group”:
 
-Copyright 2005-2015 Jay Sorg
+ Copyright 2005-2015 Jay Sorg
 
-Permission to use, copy, modify, distribute, and sell this software and its
-documentation for any purpose is hereby granted without fee, provided that
-the above copyright notice appear in all copies and that both that
-copyright notice and this permission notice appear in supporting
-documentation.
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 xorgxrdp/module/rdpCapture.{c,h} are under the same terms and additionally:
 Copyright 2014 Laxmikant Rashinkar
 
-
-Several files and resources have unclear status and sources:
-
-• missing explicit licence (see above) but require one:
-  – xorg/tests/xdemo/yosemite.bmp
+Some files have neither an explicit licence nor any copyright
+or authorship information; consensus says they are covered by
+the terms in the top-level COPYING file (Apache 2 by Jay Sorg),
+if they are protected by copyright law at all. This affects
+Coding_Style.odt and some icons and manpages.

@@ -18,12 +18,6 @@ TODO:
 
 - create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 
-- replace xorg/tests/xdemo/yosemite.bmp
-  ⇒ fed upstream
-  ⇒ excluded in DFSG distfile
-
-- move from non-free to main
-
 - build and install the pulseaudio plugin
   from sesman/chansrv/pulse but there is no pulseaudio-modules-dev
 
