@@ -82,6 +82,17 @@
  {
      LOG(0, ("rail_desktop_resize:"));
      return 0;
+--- a/sesman/session.c
++++ b/sesman/session.c
+@@ -652,7 +652,7 @@ session_start_fork(int width, int height
+                 else
+                 {
+                     log_message(LOG_LEVEL_ERROR, "another Xserver might "
+-                                "already be active on display %d - see log", display);
++                                "already be active on display %d - see log; possibly comment out the two param lines -logfile /dev/null in /etc/xrdp/sesman.ini to debug", display);
+                 }
+ 
+                 log_message(LOG_LEVEL_DEBUG, "aborting connection...");
 --- a/xorgxrdp/configure.ac
 +++ b/xorgxrdp/configure.ac
 @@ -9,7 +9,7 @@ AC_PROG_CC

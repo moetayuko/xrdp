@@ -1,12 +1,25 @@
 # DP: config patches for Debian
+# DP: move -logfile /dev/null to last, for easy commenting out
 
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -87,6 +87,7 @@ param5=-noreset
- param6=-ac
- param7=-nolisten
- param8=tcp
-+param9=-retro
+@@ -81,12 +81,13 @@ param7=96
+ [Xorg]
+ param1=-config
+ param2=xrdp/xorg.conf
+-param3=-logfile
+-param4=/dev/null
+-param5=-noreset
+-param6=-ac
+-param7=-nolisten
+-param8=tcp
++param3=-noreset
++param4=-ac
++param5=-nolisten
++param6=tcp
++param7=-retro
++param8=-logfile
++param9=/dev/null
  
  [Chansrv]
  # drive redirection, defaults to xrdp_client if not set
