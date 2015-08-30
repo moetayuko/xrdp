@@ -1,4 +1,5 @@
 There currently is only integration with systemd.
+XXX missing: SESMAN_START is not honoured there
 
 To start this manually, you have to do the following
 (please submit actual methods, fixes, sysv-rc/file-rc
