@@ -1,30 +1,15 @@
-There is currently integration with:
+Current init system integration:
 • systemd
   ‣ SESMAN_START is not honoured
-  ‣ xrdp is started as root
+  ‣ xrdp is started as root instead of as xrdp user
   ‣ /var/run/xrdp may not be created correctly
 • sysvinit (file-rc, sysv-rc)
+Please submit fixes and OpenRC and upstart integration.
 
-To start this manually, you have to do the following
-(please submit actual methods, fixes, and possibly
-upstart and OpenRC scripts, to us):
-
-Initially:
-• review /etc/xrdp/xrdp.ini
-• review /etc/xrdp/sesman.ini
-• review /etc/X11/xrdp/xorg.conf
-
-To start, in order:
-• create /var/run/xrdp root:xrdp 0775
-To start, in order (to stop, in reverse order):
-• start the xrdp-sesman daemon as superuser
-• start the xrdp daemon as superuser
-After stopping, sleep a bit to facilitate restarts.
-
-This *should* read…
-• create /var/run/xrdp xrdp:xrdp 0775
-• start the xrdp dæmon as xrdp:xrdp
-… though (xrdp-sesman must run as superuser anyway).
+The default setup since version 0.9 is xorgxrdp, not X11rdp or VNC.
+Please review configuration files accordingly. The upgrade path from
+xrdp 0.6 in Debian (conffiles, piuparts, etc.) needs testing. Maybe
+a NEWS.Debian entry should be shipped.
 
 Another security issue is the disablement of access control by default.
 Use at your own risk and inform your users that privacy is possibly not
@@ -33,3 +18,20 @@ See also: https://github.com/neutrinolabs/xrdp/issues/264
 
 Furthermore, the package maintainers would like to know what the log
 messages about /etc/xrdp/cert.pem and /etc/xrdp/key.pem are good for.
+
+The xorgxrdp drivers should be moved into a separate binary package
+which Depends on the correct Xorg server ABIs. (Rewrite both binary
+packages’ long Descriptions in the same go!)
+
+The pulseaudio plugin from sesman/chansrv/pulse should be installed
+but cannot be built due to lack of a pulseaudio-modules-dev package
+in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
+
+Upstream is currently working on converting librfxcodec to autotools;
+we can then pass --enable-rfxcodec but should invest time into proper
+recursive configure (not done yet) and make (partially done); SSE can
+be used iff tested beforehand. (Remember x32!)
+
+We currently do not use either --enable-neutrinordp (because it FTBFS)
+or --enable-xrdpvr (as FFmpeg in squeeze is the last supported version,
+but it may be possible to use the one in stretch/sid).

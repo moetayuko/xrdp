@@ -4,8 +4,9 @@ xrdp (0.9.0~git20150830+dfsg-1~beta2) teckids; urgency=medium
   * Add sysvinit (file-rc, sysv-rc) LSB script (untested)
   * Create logfiles with correct permissions in postinst
   * Add some debugging documentation and patches
+  * Reorganise TODOs; move some to upstream and add others
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Sun, 30 Aug 2015 21:12:45 +0000
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Sun, 30 Aug 2015 21:40:22 +0000
 
 xrdp (0.9.0~git20150830+dfsg-1~beta1) teckids; urgency=high
 
