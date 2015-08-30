@@ -22,7 +22,8 @@ Vcs-Git: https://github.com/teckids/xrdp.git
 Package: xrdp
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, adduser
-Recommends: vnc4server | tightvncserver | vnc-server
+Recommends: xorg | vnc4server | tightvncserver | vnc-server
+Provides: xorg-driver-video, xorg-driver-input
 Description: Remote Desktop Protocol (RDP) server
  Based on the work by NeutrinoRDP, FreeRDP, rdesktop, and
  Matt Chapman, xrdp offers a graphical login to a remote
