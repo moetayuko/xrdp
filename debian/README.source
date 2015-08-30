@@ -14,9 +14,9 @@ way doesn’t work well automatedly either.
 
 TODO:
 
-- provide Debian init system integration, cf. README.Debian
+- improve Debian init system integration, cf. README.Debian
 
-- create upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
+- test upgrade path from xrdb-in-debian (conffiles, piuparts, etc.)
 
 - build and install the pulseaudio plugin
   from sesman/chansrv/pulse but there is no pulseaudio-modules-dev

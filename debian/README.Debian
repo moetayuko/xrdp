@@ -1,9 +1,13 @@
-There currently is only integration with systemd.
-XXX missing: SESMAN_START is not honoured there
+There is currently integration with:
+• systemd
+  ‣ SESMAN_START is not honoured
+  ‣ xrdp is started as root
+  ‣ /var/run/xrdp may not be created correctly
+• sysvinit (file-rc, sysv-rc)
 
 To start this manually, you have to do the following
-(please submit actual methods, fixes, sysv-rc/file-rc
-scripts, and possibly upstart and OpenRC scripts, to us):
+(please submit actual methods, fixes, and possibly
+upstart and OpenRC scripts, to us):
 
 Initially:
 • review /etc/xrdp/xrdp.ini
