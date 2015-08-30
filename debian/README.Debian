@@ -30,7 +30,3 @@ Another security issue is the disablement of access control by default.
 Use at your own risk and inform your users that privacy is possibly not
 guaranteed as all users can attach to RDP users’ sessions locally.
 See also: https://github.com/neutrinolabs/xrdp/issues/264
-
-Before starting, ensure these are creates:
-• /var/log/xrdp-sesman.log (root)
-• /var/log/xrdp.log (xrdp)
