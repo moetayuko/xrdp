@@ -3,8 +3,14 @@ origtgz:
 - $ git checkout upstream/devel
 - (check that the submodules are up-to-date)
 - $ cd ..
-- $ find xrdp -type f | fgrep -v /.git/ | sort | paxcpio \
-    -oC512 -Hustar -Mdist | xz -e >xrdp_0.9.0~gitYYYYMMDD.orig.tar.xz
+- $ v='0.9.0~git'$(date +%Y%m%d) && find xrdp -type f -print0 | \
+    grep -Fvz -e /.git/ -e xorg/tests/xdemo/yosemite.bmp | sort -z | \
+    pax -w -0 -b 512 -M norm -s "!^xrdp/!xrdp-$v/!" -x ustar | \
+    xz -e >xrdp_$v+dfsg.orig.tar.xz
+
+We don’t provide a get-orig-source target because submodules
+don’t work with git-archive, and the manual checkout + find
+way doesn’t work well automatedly either.
 
 TODO:
 
@@ -14,6 +20,7 @@ TODO:
 
 - replace xorg/tests/xdemo/yosemite.bmp
   ⇒ fed upstream
+  ⇒ excluded in DFSG distfile
 
 - move from non-free to main
 

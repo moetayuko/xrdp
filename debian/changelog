@@ -1,3 +1,9 @@
+xrdp (0.9.0~git20150830+dfsg-1~beta1) teckids; urgency=high
+
+  * Repack to omit remaining non-DFSG-free file until resolved upstream
+
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Sun, 30 Aug 2015 18:52:45 +0000
+
 xrdp (0.9.0~git20150826-1~alpha3) teckids; urgency=medium
 
   * Foreground xrdp-sesman as well; partially unbreak /var/run/xrdp
