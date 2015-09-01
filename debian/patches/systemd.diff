@@ -2,14 +2,14 @@
 
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
-@@ -1,14 +1,13 @@
+@@ -1,14 +1,11 @@
  [Unit]
 -Description=xrdp session manager
 -After=syslog.target network.target
+-StopWhenUnneeded=true
+-BindTo=xrdp.service
 +Description=Remote Desktop Protocol (RDP) session manager
 +After=network.target
- StopWhenUnneeded=true
- BindTo=xrdp.service
  
  [Service]
 -Type=forking
