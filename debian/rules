@@ -49,8 +49,8 @@ override_dh_auto_install:
 	find debian/xrdp/usr/lib/ -name \*.a -print0 | \
 	    xargs -0 strip --strip-debug -R .comment --
 	# package split
-	mkdir -p debian/xorgxrdp/etc/X11/xrdp debian/xorgxrdp/usr/lib
-	mv debian/xrdp/etc/X11/xrdp/xorg.conf debian/xorgxrdp/etc/X11/xrdp/
+	mkdir -p debian/xorgxrdp/etc debian/xorgxrdp/usr/lib
+	mv debian/xrdp/etc/X11 debian/xorgxrdp/etc/
 	mv debian/xrdp/usr/lib/xorg debian/xorgxrdp/usr/lib/
 
 override_dh_installinit:
@@ -66,7 +66,7 @@ override_dh_shlibdeps:
 	dh_shlibdeps --remaining-packages
 
 override_dh_gencontrol:
-	echo "xdriver:Depends=$$( \
+	echo >>debian/xorgxrdp.substvars "xdriver:Depends=$$( \
 	    (cd /usr/share/xserver-xorg && cat videodrvdep xinputdep) | \
 	    sed 's/, /\n/g' | sort -u | \
 	    perl -0e 'print join(", ", split(/\n/, <>));')"
