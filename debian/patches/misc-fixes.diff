@@ -61,6 +61,14 @@
  
  #ifndef EREMOTEIO
  #define EREMOTEIO EIO
+@@ -124,6 +130,7 @@ void xfuse_devredir_cb_file_close(void *
+ #define LOG_ERROR   0
+ #define LOG_INFO    1
+ #define LOG_DEBUG   2
++#undef LOG_LEVEL
+ #define LOG_LEVEL   LOG_ERROR
+ 
+ #define log_error(_params...)                           \
 --- a/sesman/chansrv/clipboard.c
 +++ b/sesman/chansrv/clipboard.c
 @@ -176,6 +176,7 @@ x-special/gnome-copied-files
