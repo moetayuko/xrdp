@@ -50,6 +50,15 @@
  
  /* dummy calls when XRDP_FUSE is not defined */
  int xfuse_init()                { return 0; }
+@@ -106,6 +108,8 @@ void xfuse_devredir_cb_file_close(void *
+ #include "chansrv_fuse.h"
+ #include "list.h"
+ #include "fifo.h"
++#include "devredir.h"
++#include "file.h"
+ 
+ #ifndef EREMOTEIO
+ #define EREMOTEIO EIO
 --- a/sesman/chansrv/clipboard.c
 +++ b/sesman/chansrv/clipboard.c
 @@ -176,6 +176,7 @@ x-special/gnome-copied-files
