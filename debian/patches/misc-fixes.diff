@@ -41,19 +41,21 @@
          break;
 --- a/sesman/chansrv/chansrv_fuse.c
 +++ b/sesman/chansrv/chansrv_fuse.c
-@@ -60,6 +60,8 @@ char g_fuse_clipboard_path[256] = ""; /*
+@@ -60,6 +60,9 @@ char g_fuse_clipboard_path[256] = ""; /*
  
  #include "arch.h"
  #include "chansrv_fuse.h"
++#include "chansrv.h"
 +#include "devredir.h"
 +#include "file.h"
  
  /* dummy calls when XRDP_FUSE is not defined */
  int xfuse_init()                { return 0; }
-@@ -106,6 +108,8 @@ void xfuse_devredir_cb_file_close(void *
+@@ -106,6 +109,9 @@ void xfuse_devredir_cb_file_close(void *
  #include "chansrv_fuse.h"
  #include "list.h"
  #include "fifo.h"
++#include "chansrv.h"
 +#include "devredir.h"
 +#include "file.h"
  
