@@ -5,7 +5,7 @@
 # Required-Stop:     $remote_fs $syslog $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: XRDP startup script
+# Short-Description: xrdp (X Remote Desktop Protocol) server
 # Description:       The xrdp daemon uses the Remote Desktop Protocol
 #                    to present a graphical login to a remote client,
 #                    allowing connections to a VNC or X.org-xrdp or

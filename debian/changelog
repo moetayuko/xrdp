@@ -1,8 +1,15 @@
 xrdp (0.9.0~git20150901+dfsg-1~beta1) teckids; urgency=medium
 
-  * Update from upstream git; drop merged patch
+  [ Dominik George ]
+  * Decouple xrdp and xrdp-sesman services
+    - move /var/run/xrdp directory to xrdp
+    - start xrdp as user xrdp
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Tue, 01 Sep 2015 17:51:41 +0200
+  [ Thorsten Glaser ]
+  * Update from upstream git; drop merged patch
+  * Improve service descriptions
+
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Tue, 01 Sep 2015 17:55:27 +0200
 
 xrdp (0.9.0~git20150830+dfsg-1~beta2) teckids; urgency=medium
 
