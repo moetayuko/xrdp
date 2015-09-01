@@ -19,10 +19,6 @@ See also: https://github.com/neutrinolabs/xrdp/issues/264
 Furthermore, the package maintainers would like to know what the log
 messages about /etc/xrdp/cert.pem and /etc/xrdp/key.pem are good for.
 
-The xorgxrdp drivers should be moved into a separate binary package
-which Depends on the correct Xorg server ABIs. (Rewrite both binary
-packages’ long Descriptions in the same go!)
-
 The pulseaudio plugin from sesman/chansrv/pulse should be installed
 but cannot be built due to lack of a pulseaudio-modules-dev package
 in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692

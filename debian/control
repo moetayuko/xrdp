@@ -22,16 +22,26 @@ Vcs-Git: https://github.com/teckids/xrdp.git
 Package: xrdp
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, adduser
-Recommends: xorg | vnc4server | tightvncserver | vnc-server
-Provides: xorg-driver-video, xorg-driver-input
+Recommends: xorgxrdp | vnc-server
 Description: Remote Desktop Protocol (RDP) server
- Based on the work by NeutrinoRDP, FreeRDP, rdesktop, and
- Matt Chapman, xrdp offers a graphical login to a remote
- client using RDP (the Remote Desktop Protocol). xrdp can
- connect to either a VNC X11 server, another RDP server,
- or a locally created X.org session with xorgxrdp drivers.
+ xrdp offers a graphical login to a remote client using
+ RDP (the Remote Desktop Protocol). xrdp can either
+ connect to a VNC X11 server, another RDP server, or a
+ locally created X.org session with the xorgxrdp drivers.
  It provides a fully functional Linux terminal server,
  accepting connections from freerdp, rdesktop, and the
  built-in terminal server / remote desktop clients of
  Microsoft Windows operating systems, offering an X-Window
  desktop to the user.
+
+Package: xorgxrdp
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${xdriver:Depends}
+Recommends: xorg
+Provides: xorg-driver-input, xorg-driver-video
+Description: Remote Desktop Protocol (RDP) modules for X.org
+ xorgxrdp is a set of drivers (screen device, keyboard, and mouse)
+ for X.org enabling use through an RDP session with xrdp. For full
+ operation, most standard X11 fonts and tools need to be installed;
+ the Recommended xorg metapackage is a superset of what’s actually
+ needed but will do.

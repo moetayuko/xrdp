@@ -40,7 +40,7 @@ override_dh_auto_configure:
 	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
 override_dh_auto_install:
-	dh_auto_install -v
+	dh_auto_install -v --destdir=debian/xrdp
 	# this file scares me
 	rm -f debian/xrdp/etc/xrdp/xrdp.sh
 	rm -f debian/xrdp/etc/xrdp/startwm.sh
@@ -48,12 +48,29 @@ override_dh_auto_install:
 	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
 	find debian/xrdp/usr/lib/ -name \*.a -print0 | \
 	    xargs -0 strip --strip-debug -R .comment --
+	# package split
+	mkdir -p debian/xorgxrdp/etc/X11/xrdp debian/xorgxrdp/usr/lib
+	mv debian/xrdp/etc/X11/xrdp/xorg.conf debian/xorgxrdp/etc/X11/xrdp/
+	mv debian/xrdp/usr/lib/xorg debian/xorgxrdp/usr/lib/
 
 override_dh_installinit:
 	dh_installinit --no-restart-on-upgrade
 
 override_dh_systemd_start:
 	dh_systemd_start --no-restart-on-upgrade
+
+override_dh_shlibdeps:
+	# That's a plugin, use appropriate warning level:
+	dh_shlibdeps -pxorgxrdp -- --warnings=6
+	# Use default levels for everything else:
+	dh_shlibdeps --remaining-packages
+
+override_dh_gencontrol:
+	echo "xdriver:Depends=$$( \
+	    (cd /usr/share/xserver-xorg && cat videodrvdep xinputdep) | \
+	    sed 's/, /\n/g' | sort -u | \
+	    perl -0e 'print join(", ", split(/\n/, <>));')"
+	dh_gencontrol
 
 # We don’t provide a get-orig-source target because submodules
 # don’t work with git-archive, and the manual checkout + find

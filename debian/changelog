@@ -8,8 +8,9 @@ xrdp (0.9.0~git20150901+dfsg-1~beta1) teckids; urgency=medium
   [ Thorsten Glaser ]
   * Update from upstream git; drop merged patch
   * Improve service descriptions
+  * Split xorgxrdp into a separate package with appropriate Depends
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Tue, 01 Sep 2015 17:55:27 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Tue, 01 Sep 2015 19:00:55 +0200
 
 xrdp (0.9.0~git20150830+dfsg-1~beta2) teckids; urgency=medium
 
