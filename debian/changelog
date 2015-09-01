@@ -9,8 +9,12 @@ xrdp (0.9.0~git20150901+dfsg-1~beta1) teckids; urgency=medium
   * Update from upstream git; drop merged patch
   * Improve service descriptions
   * Split xorgxrdp into a separate package with appropriate Depends
+  * Add NEWS file documenting the default now being xorgxrdp,
+    asking the admin to review configs and ensure packages are installed,
+    and documenting that SESMAN_START is ignored by systemd
+  * Document RESTART_ON_UPGRADE is now obsolete (always "no")
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Tue, 01 Sep 2015 19:00:55 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Tue, 01 Sep 2015 19:08:30 +0200
 
 xrdp (0.9.0~git20150830+dfsg-1~beta2) teckids; urgency=medium
 

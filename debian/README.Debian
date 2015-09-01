@@ -1,17 +1,7 @@
-Current init system integration:
-• systemd
-  ‣ SESMAN_START is not honoured
-  ‣ xrdp is started as root instead of as xrdp user
-  ‣ /var/run/xrdp may not be created correctly
-• sysvinit (file-rc, sysv-rc)
-Please submit fixes and OpenRC and upstart integration.
+Upgrade from xrdp 0.6 (Debian jessie) should be tested (including
+things like conffiles, logfiles, piuparts, etc).
 
-The default setup since version 0.9 is xorgxrdp, not X11rdp or VNC.
-Please review configuration files accordingly. The upgrade path from
-xrdp 0.6 in Debian (conffiles, piuparts, etc.) needs testing. Maybe
-a NEWS.Debian entry should be shipped.
-
-Another security issue is the disablement of access control by default.
+A security issue is the disablement of access control by default.
 Use at your own risk and inform your users that privacy is possibly not
 guaranteed as all users can attach to RDP users’ sessions locally.
 See also: https://github.com/neutrinolabs/xrdp/issues/264
