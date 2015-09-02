@@ -26,8 +26,9 @@ remove)
 	;;
 
 purge)
-	rm -rf /etc/pam.d/sesman /etc/xrdp /var/run/xrdp
+	rm -f /etc/pam.d/sesman /etc/xrdp/rsakeys.ini
 	rm -f /var/log/sesman.log /var/log/xrdp.log /var/log/xrdp-sesman.log
+	rm -rf /var/run/xrdp
 
 	(deluser --system --quiet xrdp || :)
 	(delgroup --system --quiet xrdp || :)
