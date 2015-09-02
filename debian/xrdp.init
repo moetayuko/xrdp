@@ -25,6 +25,15 @@ unset LANGUAGE
 # exit cleanly if disabled or not installed
 test -x /usr/sbin/xrdp || exit 0
 
+# assume superuser privs below
+case $(id -u) in
+(0) ;;
+(*)
+	echo >&2 "E: need root"
+	exit 1
+	;;
+esac
+
 # Debian/LSB init script foobar
 DESC='Remote Desktop Protocol server'
 NAME=xrdp
@@ -41,6 +50,16 @@ test -r /etc/default/xrdp && . /etc/default/xrdp
 # create run directory
 test -d /var/run/xrdp || mkdir /var/run/xrdp || exit $?
 chown xrdp:xrdp /var/run/xrdp || exit $?
+
+# create socks directory
+test -e /tmp/.xrdp || mkdir -m1777 /tmp/.xrdp || exit $?
+case $(stat -c '%a,%u,%g,%F' /tmp/.xrdp) in
+(1777,0,0,directory) ;;
+(*)
+	echo >&2 "E: /tmp/.xrdp has wrong permissions"
+	exit 1
+	;;
+esac
 
 # take action
 rv=0

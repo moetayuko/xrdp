@@ -3,8 +3,9 @@ xrdp (0.9.0~git20150902-1~beta1) teckids; urgency=medium
   * New upstream snapshot, DFSG-free AFAICT TTBOMK
   * Correct missing $ in sysvinit script
   * Clean up a now-obsolete conffile from xrdp 0.6
+  * Document the /tmp/.xrdp/ issue and precreate it from sysvinit script
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 02 Sep 2015 15:16:02 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 02 Sep 2015 15:45:56 +0200
 
 xrdp (0.9.0~git20150901+dfsg-1~beta1) teckids; urgency=medium
 

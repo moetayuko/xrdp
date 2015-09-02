@@ -9,6 +9,13 @@ See also: https://github.com/neutrinolabs/xrdp/issues/264
 Furthermore, the package maintainers would like to know what the log
 messages about /etc/xrdp/cert.pem and /etc/xrdp/key.pem are good for.
 
+Another security issue is the hard-coded use of /tmp/.xrdp/ which
+probably should be moved to /var/run/xrdp/sockdir/ (pre-create in
+initscript with 0:0 1777; no idea about systemd); a local patch
+could fix it with the hard-coded replacement path, but that’s
+probably okay. For now, the sysvinit script creates this path and
+sanity-checks it.
+
 The pulseaudio plugin from sesman/chansrv/pulse should be installed
 but cannot be built due to lack of a pulseaudio-modules-dev package
 in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
