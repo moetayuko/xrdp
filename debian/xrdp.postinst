@@ -38,6 +38,10 @@ configure)
 		rm -f /etc/xrdp/rsakeys.ini
 	fi
 
+	if dpkg --compare-versions "$2" lt '0.9'; then
+		rm -f /etc/pam.d/sesman
+	fi
+
 	test -e /etc/xrdp/rsakeys.ini || (
 		umask 077
 		xrdp-keygen xrdp auto
