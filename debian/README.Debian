@@ -1,7 +1,10 @@
 Upgrade from xrdp 0.6 (Debian jessie) should be tested (including
 things like conffiles, logfiles, piuparts, etc).
 
-A security issue is the disablement of access control by default.
+Consider using TLS encryption instead of the default RDP encryption,
+but do make sure to test all possible clients, and mind client bugs.
+
+Another security issue is the disablement of access control by default.
 Use at your own risk and inform your users that privacy is possibly not
 guaranteed as all users can attach to RDP users’ sessions locally.
 See also: https://github.com/neutrinolabs/xrdp/issues/264

@@ -42,6 +42,8 @@ configure)
 		rm -f /etc/pam.d/sesman
 	fi
 
+	# generate a (512-bit, but that doesn't matter here
+	# because the RDP4 crypto is MITMable anyway)
 	test -e /etc/xrdp/rsakeys.ini || (
 		umask 077
 		xrdp-keygen xrdp auto
