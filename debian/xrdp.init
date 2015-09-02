@@ -52,9 +52,12 @@ test -d /var/run/xrdp || mkdir /var/run/xrdp || exit $?
 chown xrdp:xrdp /var/run/xrdp || exit $?
 
 # create socks directory
-test -e /tmp/.xrdp || mkdir -m1777 /tmp/.xrdp || exit $?
-case $(stat -c '%a,%u,%g,%F' /tmp/.xrdp) in
-(1777,0,0,directory) ;;
+test -e /tmp/.xrdp || mkdir -m3777 /tmp/.xrdp || exit $?
+case $(stat -c '%a,%u,%G,%F' /tmp/.xrdp) in
+(3777,0,xrdp,directory) ;;
+(3777,0,root,directory|3777,0,wheel,directory)
+	chgrp xrdp /tmp/.xrdp
+	;;
 (*)
 	echo >&2 "E: /tmp/.xrdp has wrong permissions"
 	exit 1

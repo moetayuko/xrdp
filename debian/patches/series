@@ -5,3 +5,4 @@ keymap-fallback.diff
 misc-fixes.diff
 systemd.diff
 nxstack.diff
+fix_perms.diff
