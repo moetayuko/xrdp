@@ -218,6 +218,9 @@ liablility by “The Open Group”:
 xorgxrdp/module/rdpCapture.{c,h} are under the same terms and additionally:
 Copyright 2014 Laxmikant Rashinkar
 
+xorg/tests/xdemo/yosemite.bmp is Copyright © 2015 mirabilos <tg@mirbsd.org>
+and published under any OSI certified Open Source licence.
+
 Some files have neither an explicit licence nor any copyright
 or authorship information; consensus says they are covered by
 the terms in the top-level COPYING file (Apache 2 by Jay Sorg),
