@@ -25,15 +25,6 @@ unset LANGUAGE
 # exit cleanly if disabled or not installed
 test -x /usr/sbin/xrdp || exit 0
 
-# assume superuser privs below
-case $(id -u) in
-(0) ;;
-(*)
-	echo >&2 "E: need root"
-	exit 1
-	;;
-esac
-
 # Debian/LSB init script foobar
 DESC='Remote Desktop Protocol server'
 NAME=xrdp
@@ -47,20 +38,19 @@ SESMAN_OPTIONS=
 XRDP_OPTIONS=
 test -r /etc/default/xrdp && . /etc/default/xrdp
 
-# create run directory
-test -d /var/run/xrdp || mkdir /var/run/xrdp || exit $?
-chown xrdp:xrdp /var/run/xrdp || exit $?
-
-# create socks directory
-test -e /tmp/.xrdp || mkdir -m3777 /tmp/.xrdp || exit $?
-case $(stat -c '%a,%u,%G,%F' /tmp/.xrdp) in
-(3777,0,xrdp,directory) ;;
-(3777,0,root,directory|3777,0,wheel,directory)
-	chgrp xrdp /tmp/.xrdp
+# prepare for actions
+case $1 in
+(status)
+	# nothing to do here
+	;;
+(start|stop|force-reload|restart|try-restart)
+	# check for root; create run-time directories
+	. /usr/share/xrdp/socksetup
 	;;
 (*)
-	echo >&2 "E: /tmp/.xrdp has wrong permissions"
-	exit 1
+	# syntax error
+	echo >&2 "Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
+	exit 3
 	;;
 esac
 
@@ -133,6 +123,7 @@ case $1 in
 		test $rc -gt 1 && test $rv -lt $rc && rv=$rc
 	fi
 	rm -f /var/run/xrdp/xrdp-sesman.pid /var/run/xrdp/xrdp.pid
+	rm -rf /var/run/xrdp/sockdir
 	test x"$VERBOSE" = x"no" || log_end_msg $rv
 	;;
 (status)
@@ -226,9 +217,7 @@ case $1 in
 	rc=$?
 	test $rc -gt 0 && rv=$rc
 	;;
-(*)
-	echo >&2 "Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
-	exit 3
-	;;
 esac
+# make “/etc/init.d/xrdp status” work for nōn-root
+(sleep 3; chmod a+r /var/run/xrdp/*.pid 2>/dev/null) &
 exit 0
