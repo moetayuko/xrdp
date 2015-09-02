@@ -1,5 +1,5 @@
-Upgrade from xrdp 0.6 (Debian jessie) should be tested (including
-things like conffiles, logfiles, piuparts, etc).
+See xrdp.NEWS for any upgrade notes from xrdp 0.6 (Debian jessie);
+more testing (conffiles, logfiles, piuparts, etc.) is welcome.
 
 Consider using TLS encryption instead of the default RDP encryption,
 but do make sure to test all possible clients, and mind client bugs.

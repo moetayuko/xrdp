@@ -1,14 +1,15 @@
 xrdp (0.9.0~git20150902-1~beta1) teckids; urgency=high
 
   * New upstream snapshot, DFSG-free AFAICT TTBOMK
-  * Correct missing $ in sysvinit script
+  * Correct bug in initscript and a spelling mistake upstream
   * Clean up a now-obsolete conffile from xrdp 0.6
-  * Document the /tmp/.xrdp/ issue and precreate it from sysvinit script
   * Fix permissions to connect to xorgxrdp server from xrdp daemon
-  * Correct misspelling of “doesn’t”
-  * Don’t debug to stdout when starting the dæmons
+  * Don’t debug to stdout while starting the dæmons
+  * Move files in user homes into dotfiles using XDG cache dir
+  * Secure paths used by both dæmons
+  * Improve package and service descriptions and other texts
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 02 Sep 2015 17:25:40 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 02 Sep 2015 19:11:17 +0200
 
 xrdp (0.9.0~git20150901+dfsg-1~beta1) teckids; urgency=medium
 

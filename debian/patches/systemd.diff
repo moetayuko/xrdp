@@ -8,7 +8,7 @@
 -After=syslog.target network.target
 -StopWhenUnneeded=true
 -BindTo=xrdp.service
-+Description=Remote Desktop Protocol (RDP) session manager
++Description=xrdp (X Remote Desktop Protocol) session manager
 +Requires=xrdp.service
 +After=network.target xrdp.service
  
@@ -30,7 +30,7 @@
 -Description=xrdp daemon
 -Requires=xrdp-sesman.service
 -After=syslog.target network.target xrdp-sesman.service
-+Description=Remote Desktop Protocol (RDP) server
++Description=xrdp (X Remote Desktop Protocol) protocol server
 +After=network.target
  
  [Service]

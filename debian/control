@@ -25,14 +25,17 @@ Depends: ${misc:Depends}, ${shlibs:Depends}, adduser
 Recommends: xorgxrdp | vnc-server
 Description: Remote Desktop Protocol (RDP) server
  xrdp offers a graphical login to a remote client using
- RDP (the Remote Desktop Protocol). xrdp can either
- connect to a VNC X11 server, another RDP server, or a
- locally created X.org session with the xorgxrdp drivers.
- It provides a fully functional Linux terminal server,
- accepting connections from freerdp, rdesktop, and the
+ RDP (the Remote Desktop Protocol). xrdp can connect to
+ a locally created X.org session with the xorgxrdp drivers,
+ to a VNC X11 server, and forward to another RDP server.
+ .
+ xrdp accepts connections from freerdp, rdesktop, and the
  built-in terminal server / remote desktop clients of
- Microsoft Windows operating systems, offering an X-Window
- desktop to the user.
+ Microsoft Windows operating systems.
+ In the xorgxrdp (which replaces X11RDP) and VNC modes,
+ it provides a fully functional Linux terminal server,
+ offering an X-Window desktop to the user. In the RDP
+ or VNC forwarding mode, any sort of desktop can be used.
 
 Package: xorgxrdp
 Architecture: any
