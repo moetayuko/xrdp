@@ -47,7 +47,7 @@ rv=0
 case $1 in
 (start)
 	test x"$VERBOSE" = x"no" || log_daemon_msg "Starting $DESC"
-	test x"SESMAN_START" = x"yes" && \
+	test x"$SESMAN_START" = x"yes" && \
 	    if start-stop-daemon --start --quiet \
 	    --pidfile /var/run/xrdp/xrdp-sesman.pid \
 	    --startas /usr/sbin/xrdp-sesman --name xrdp-sesman \
@@ -114,7 +114,7 @@ case $1 in
 	test x"$VERBOSE" = x"no" || log_end_msg $rv
 	;;
 (status)
-	if test x"SESMAN_START" = x"yes"; then
+	if test x"$SESMAN_START" = x"yes"; then
 		status_of_proc -p /var/run/xrdp/xrdp-sesman.pid \
 		    /usr/sbin/xrdp-sesman xrdp-sesman
 		rc=$?
@@ -127,7 +127,7 @@ case $1 in
 	;;
 (force-reload|restart)
 	test x"$VERBOSE" = x"no" || log_daemon_msg "Restarting $DESC"
-	if test x"SESMAN_START" = x"yes"; then
+	if test x"$SESMAN_START" = x"yes"; then
 		test x"$VERBOSE" = x"no" || log_progress_msg "xrdp-sesman"
 		start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
 		    --pidfile /var/run/xrdp/xrdp-sesman.pid \
