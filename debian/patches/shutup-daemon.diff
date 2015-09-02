@@ -29,3 +29,13 @@
          /* no options on command line. normal startup */
          g_printf("starting sesman...\n");
          daemon = 1;
+--- a/xrdp/xrdp.c
++++ b/xrdp/xrdp.c
+@@ -516,7 +516,6 @@ main(int argc, char **argv)
+ 
+         if (0 != pid)
+         {
+-            g_writeln("process %d started ok", pid);
+             /* exit, this is the main process */
+             g_deinit();
+             g_exit(0);
