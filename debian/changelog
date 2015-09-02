@@ -6,8 +6,9 @@ xrdp (0.9.0~git20150902-1~beta1) teckids; urgency=high
   * Document the /tmp/.xrdp/ issue and precreate it from sysvinit script
   * Fix permissions to connect to xorgxrdp server from xrdp daemon
   * Correct misspelling of “doesn’t”
+  * Don’t debug to stdout when starting the dæmons
 
- -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 02 Sep 2015 16:59:36 +0200
+ -- Thorsten Glaser <thorsten.glaser@teckids.org>  Wed, 02 Sep 2015 17:25:40 +0200
 
 xrdp (0.9.0~git20150901+dfsg-1~beta1) teckids; urgency=medium
 

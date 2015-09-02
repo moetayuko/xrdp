@@ -6,3 +6,4 @@ misc-fixes.diff
 systemd.diff
 nxstack.diff
 fix_perms.diff
+shutup-daemon.diff
