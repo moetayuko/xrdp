@@ -5,3 +5,4 @@ xrdp-default-keymap.patch
 libtoolize_check.patch
 fix-man-section.patch
 spelling.patch
+remove_rpath.patch

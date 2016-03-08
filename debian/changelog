@@ -12,6 +12,7 @@ xrdp (0.8.0+dfsg-1) UNRELEASED; urgency=medium
   * Remove unused lintian-overrides
   * Fix section of manpage xrdp-dis.1
   * Fix spelling issue
+  * Remove RPATH
 
  -- Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
 
