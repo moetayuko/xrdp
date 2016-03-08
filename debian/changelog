@@ -6,6 +6,7 @@ xrdp (0.8.0-1) UNRELEASED; urgency=medium
   * cme fix dpkg-copyright
   * Refresh quilt patches
   * Build-Depends: libxrandr-dev
+  * Fix minor issues in d/rules
 
  -- Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
 
