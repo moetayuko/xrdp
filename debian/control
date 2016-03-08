@@ -12,6 +12,7 @@ Build-Depends: debhelper (>= 9),
                libx11-dev,
                libxfixes-dev,
                libfreerdp-dev,
+               libxrandr-dev,
                pkg-config
 Standards-Version: 3.9.7
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/xrdp.git
