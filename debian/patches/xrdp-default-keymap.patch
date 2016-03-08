@@ -1,23 +1,24 @@
-At the moment, if xrdp do not find the keyboard mapping provided by the
-RDP client, it call back to en-us.  We would like to be able to change
-the default fallback keymapping to Norwegian.  Attached is a patch
-written by Dag-Erling Smørgrav to make this possible, by teaching xrdp
-to look for km-default.ini before it fall back to km-0409.ini (en-us).
+Author: Vincent Bernat <bernat@debian.org>
+Last-Updated: Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
+Description: Enable user provided default keymap km-default.ini
+ At the moment, if xrdp do not find the keyboard mapping provided by the
+ RDP client, it call back to en-us.  We would like to be able to change
+ the default fallback keymapping to Norwegian.  Attached is a patch
+ written by Dag-Erling Smørgrav to make this possible, by teaching xrdp
+ to look for km-default.ini before it fall back to km-0409.ini (en-us).
 
-Index: xrdp-v0.6.1/xrdp/lang.c
-===================================================================
---- xrdp-v0.6.1.orig/xrdp/lang.c	2014-01-18 14:57:14.151536204 +0100
-+++ xrdp-v0.6.1/xrdp/lang.c	2014-01-18 14:57:14.143536344 +0100
-@@ -209,7 +209,11 @@
-   filename = (char*)g_malloc(256, 0);
-   /* check if there is a keymap file */
-   g_snprintf(filename, 255, "%s/km-%4.4x.ini", XRDP_CFG_PATH, keylayout);
--  /* if the file does not exist, try again with 'en-us' as fallback */
-+  /* if the file does not exist, try the local default, and finally 'en-us' */
-+  if (!g_file_exist(filename))
-+  {
-+    g_snprintf(filename, 255, "%s/km-default.ini", XRDP_CFG_PATH);
-+  }
-   if (!g_file_exist(filename))
-   {
-     g_snprintf(filename, 255, "%s/km-0409.ini", XRDP_CFG_PATH);
+--- a/xrdp/lang.c
++++ b/xrdp/lang.c
+@@ -221,7 +221,11 @@ get_keymaps(int keylayout, struct xrdp_k
+     /* check if there is a keymap file */
+     g_snprintf(filename, 255, "%s/km-%4.4x.ini", XRDP_CFG_PATH, keylayout);
+ 
+-    /* if the file does not exist, try again with 'en-us' as fallback */
++    /* if the file does not exist, try the local default, and finally 'en-us' */
++    if (!g_file_exist(filename))
++    {
++        g_snprintf(filename, 255, "%s/km-default.ini", XRDP_CFG_PATH);
++    }
+     if (!g_file_exist(filename))
+     {
+         g_snprintf(filename, 255, "%s/km-0409.ini", XRDP_CFG_PATH);
