@@ -1,30 +1,26 @@
-/*
-   Copyright (c) 2004-2010 Jay Sorg
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-   DEALINGS IN THE SOFTWARE.
-
-   Parsing structs and macros
-
-   based on parse.h from rdesktop
-   this is a super fast stream method, you bet
-   needed functions g_malloc, g_free, g_memset, g_memcpy
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2013
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Parsing structs and macros
+ *
+ * based on parse.h from rdesktop
+ * this is a super fast stream method, you bet
+ * needed functions g_malloc, g_free, g_memset, g_memcpy
+ */
 
 #if !defined(PARSE_H)
 #define PARSE_H
@@ -108,7 +104,6 @@ struct stream
 #define s_mark_end(s) \
   (s)->end = (s)->p
 
-/******************************************************************************/
 #define in_sint8(s, v) do \
 { \
   (v) = *((signed char*)((s)->p)); \
@@ -192,6 +187,31 @@ struct stream
 #endif
 
 /******************************************************************************/
+#if defined(B_ENDIAN) || defined(NEED_ALIGN)
+#define in_uint64_le(s, v) do \
+{ \
+  (v) = (tui64) \
+    ( \
+      (((tui64)(*((unsigned char*)((s)->p + 0)))) << 0) | \
+      (((tui64)(*((unsigned char*)((s)->p + 1)))) << 8) | \
+      (((tui64)(*((unsigned char*)((s)->p + 2)))) << 16) | \
+      (((tui64)(*((unsigned char*)((s)->p + 3)))) << 24) | \
+      (((tui64)(*((unsigned char*)((s)->p + 4)))) << 32) | \
+      (((tui64)(*((unsigned char*)((s)->p + 5)))) << 40) | \
+      (((tui64)(*((unsigned char*)((s)->p + 6)))) << 48) | \
+      (((tui64)(*((unsigned char*)((s)->p + 7)))) << 56) \
+    ); \
+  (s)->p += 8; \
+} while (0)
+#else
+#define in_uint64_le(s, v) do \
+{ \
+  (v) = *((tui64*)((s)->p)); \
+  (s)->p += 8; \
+} while (0)
+#endif
+
+/******************************************************************************/
 #define in_uint32_be(s, v) do \
 { \
   (v) = *((unsigned char*)((s)->p)); \
@@ -262,6 +282,35 @@ struct stream
 #endif
 
 /******************************************************************************/
+#if defined(B_ENDIAN) || defined(NEED_ALIGN)
+#define out_uint64_le(s, v) do \
+{ \
+  *((s)->p) = (unsigned char)((v) >> 0); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 8); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 16); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 24); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 32); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 40); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 48); \
+  (s)->p++; \
+  *((s)->p) = (unsigned char)((v) >> 56); \
+  (s)->p++; \
+} while (0)
+#else
+#define out_uint64_le(s, v) do \
+{ \
+  *((tui64*)((s)->p)) = (v); \
+  (s)->p += 8; \
+} while (0)
+#endif
+
+/******************************************************************************/
 #define out_uint32_be(s, v) do \
 { \
   *((s)->p) = (unsigned char)((v) >> 24); \
@@ -309,5 +358,103 @@ struct stream
   g_memset((s)->p, 0, (n)); \
   (s)->p += (n); \
 } while (0)
+
+/*
+ * @brief allocate a new stream
+ *
+ * @param _s opaque handle to the new stream
+ * @param _l length of new stream
+ ******************************************************************************/
+#define xstream_new(_s, _l)   \
+do                           \
+{                            \
+    make_stream((_s));       \
+    init_stream((_s), (_l)); \
+} while (0)
+
+/**
+ * @brief release a previously allocated stream
+ *
+ * @param _s opaque handle returned by stream_new()
+ *****************************************************************************/
+#define xstream_free(_s) free_stream(_s)
+
+#define xstream_rd_u8(_s, _var)       in_uint8(_s, _var)
+#define xstream_rd_u16_le(_s, _var)   in_uint16_le(_s, _var)
+#define xstream_rd_u32_le(_s, _var)   in_uint32_le(_s, _var)
+
+#define xstream_rd_s8_le(_s, _var)    in_sint8(_s, _var)
+#define xstream_rd_s16_le(_s, _var)   in_sint16_le(_s, _var)
+#define xstream_rd_s32_le(_s, _var)   TODO
+
+#define xstream_wr_u8(_s, _var)       out_uint8(_s, _var)
+#define xstream_wr_u16_le(_s, _var)   out_uint16_le(_s, _var)
+#define xstream_wr_u32_le(_s, _var)   out_uint32_le(_s, _var)
+
+#define xstream_wr_s8(_s, _var)       TODO
+#define xstream_wr_s16_le(_s, _var)   TODO
+#define xstream_wr_s32_le(_s, _var)   TODO
+
+#define xstream_rd_u64_le(_s, _v)                             \
+do                                                            \
+{                                                             \
+    _v =                                                      \
+    (tui64)(*((unsigned char *)_s->p)) |                      \
+    (((tui64) (*(((unsigned char *)_s->p) + 1))) << 8)  |     \
+    (((tui64) (*(((unsigned char *)_s->p) + 2))) << 16) |     \
+    (((tui64) (*(((unsigned char *)_s->p) + 3))) << 24) |     \
+    (((tui64) (*(((unsigned char *)_s->p) + 4))) << 32) |     \
+    (((tui64) (*(((unsigned char *)_s->p) + 5))) << 40) |     \
+    (((tui64) (*(((unsigned char *)_s->p) + 6))) << 48) |     \
+    (((tui64) (*(((unsigned char *)_s->p) + 7))) << 56);      \
+    _s->p += 8;                                               \
+} while (0)
+
+#define xstream_wr_u64_le(_s, _v)                                           \
+do                                                                          \
+{                                                                           \
+    *(((unsigned char *) _s->p) + 0) = (unsigned char) ((_v >>  0) & 0xff); \
+    *(((unsigned char *) _s->p) + 1) = (unsigned char) ((_v >>  8) & 0xff); \
+    *(((unsigned char *) _s->p) + 2) = (unsigned char) ((_v >> 16) & 0xff); \
+    *(((unsigned char *) _s->p) + 3) = (unsigned char) ((_v >> 24) & 0xff); \
+    *(((unsigned char *) _s->p) + 4) = (unsigned char) ((_v >> 32) & 0xff); \
+    *(((unsigned char *) _s->p) + 5) = (unsigned char) ((_v >> 40) & 0xff); \
+    *(((unsigned char *) _s->p) + 6) = (unsigned char) ((_v >> 48) & 0xff); \
+    *(((unsigned char *) _s->p) + 7) = (unsigned char) ((_v >> 56) & 0xff); \
+    _s->p += 8;                                                             \
+} while (0)
+
+/* copy data into stream */
+#define xstream_copyin(_s, _dest, _len)   \
+do                                        \
+{                                         \
+    g_memcpy((_s)->p, (_dest), (_len));   \
+    (_s)->p += (_len);                    \
+} while (0)
+
+/* copy data out of stream */
+#define xstream_copyout(_dest, _s, _len)  \
+do                                        \
+{                                         \
+    g_memcpy((_dest), (_s)->p, (_len));   \
+    (_s)->p += (_len);                    \
+} while (0)
+
+#define xstream_rd_string(_dest, _s, _len) \
+do                                         \
+{                                          \
+    g_memcpy((_dest), (_s)->p, (_len));    \
+    (_s)->p += (_len);                     \
+} while (0)
+
+#define xstream_wr_string(_s, _src, _len) \
+do                                        \
+{                                         \
+    g_memcpy((_s)->p, (_src), (_len));    \
+    (_s)->p += (_len);                    \
+} while (0)
+
+#define xstream_len(_s)               (int) ((_s)->p - (_s)->data)
+#define xstream_seek(_s, _len)        (_s)->p += (_len)
 
 #endif

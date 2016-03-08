@@ -1,24 +1,23 @@
-/*
-   rdesktop: A Remote Desktop Protocol client.
-   Miscellaneous protocol constants
-   Copyright (C) Matthew Chapman 1999-2008
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
-
-/* modified for xrdp */
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ * Miscellaneous protocol constants
+ *
+ * Copyright (C) Matthew Chapman 1999-2008
+ * Copyright (C) Jay Sorg 2004-2013
+ * Copyright (C) Kevin Zhou 2012
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #if !defined(XRDP_CONSTANTS_H)
 #define XRDP_CONSTANTS_H
@@ -26,11 +25,35 @@
 /* TCP port for Remote Desktop Protocol */
 #define TCP_PORT_RDP                   3389
 
-#define ISO_PDU_CR                     0xE0 /* Connection Request */
-#define ISO_PDU_CC                     0xD0 /* Connection Confirm */
+#define ISO_PDU_CR                     0xE0 /* X.224 Connection Request */
+#define ISO_PDU_CC                     0xD0 /* X.224 Connection Confirm */
 #define ISO_PDU_DR                     0x80 /* Disconnect Request */
 #define ISO_PDU_DT                     0xF0 /* Data */
 #define ISO_PDU_ER                     0x70 /* Error */
+
+
+/* RDP Security Negotiation codes */
+#define RDP_NEG_REQ                    0x01
+#define RDP_NEG_RSP                    0x02
+#define RDP_NEG_FAILURE                0x03
+#define RDP_CORRELATION_INFO           0x06
+/* Protocol types codes */
+#define PROTOCOL_RDP                   0x0
+#define PROTOCOL_SSL                   0x1
+#define PROTOCOL_HYBRID                0x2
+#define PROTOCOL_HYBRID_EX             0x8
+/* Negotiation packet flags */
+#define EXTENDED_CLIENT_DATA_SUPPORTED 0x1
+#define DYNVC_GFX_PROTOCOL_SUPPORTED   0x2
+#define RDP_NEGRSP_RESERVED            0x4
+/* Failure Codes */
+#define SSL_REQUIRED_BY_SERVER          0x1
+#define SSL_NOT_ALLOWED_BY_SERVER       0x2
+#define SSL_CERT_NOT_ON_SERVER          0x3
+#define INCONSISTENT_FLAGS              0x4
+#define HYBRID_REQUIRED_BY_SERVER       0x5
+#define SSL_WITH_USER_AUTH_REQUIRED_BY_SERVER   0x6
+
 
 /* MCS PDU codes */
 #define MCS_EDRQ                       1  /* Erect Domain Request */
@@ -73,6 +96,7 @@
 #define SEC_TAG_CLI_CRYPT              0xc002
 #define SEC_TAG_CLI_CHANNELS           0xc003
 #define SEC_TAG_CLI_4                  0xc004
+#define SEC_TAG_CLI_MONITOR            0xc005
 
 #define SEC_TAG_PUBKEY                 0x0006
 #define SEC_TAG_KEYSIG                 0x0008
@@ -127,6 +151,7 @@
 #define RDP_POINTER_MOVE               3
 #define RDP_POINTER_COLOR              6
 #define RDP_POINTER_CACHED             7
+#define RDP_POINTER_POINTER            8
 
 #define RDP_NULL_POINTER               0
 #define RDP_DEFAULT_POINTER            0x7F00
@@ -324,16 +349,22 @@
 #define CF_GDIOBJLAST                  1023
 
 /* Sound format constants */
-#define WAVE_FORMAT_PCM	               1
+#define WAVE_FORMAT_PCM                1
 #define WAVE_FORMAT_ADPCM              2
 #define WAVE_FORMAT_ALAW               6
 #define WAVE_FORMAT_MULAW              7
 
 /* Virtual channel options */
-#define CHANNEL_OPTION_INITIALIZED     0x80000000
-#define CHANNEL_OPTION_ENCRYPT_RDP     0x40000000
-#define CHANNEL_OPTION_COMPRESS_RDP    0x00800000
-#define CHANNEL_OPTION_SHOW_PROTOCOL   0x00200000
+#define XR_CHANNEL_OPTION_SHOW_PROTOCOL 0x00200000
+#define XR_CHANNEL_OPTION_COMPRESS      0x00400000
+#define XR_CHANNEL_OPTION_COMPRESS_RDP  0x00800000
+#define XR_CHANNEL_OPTION_PRI_LOW       0x02000000
+#define XR_CHANNEL_OPTION_PRI_MED       0x04000000
+#define XR_CHANNEL_OPTION_PRI_HIGH      0x08000000
+#define XR_CHANNEL_OPTION_ENCRYPT_CS    0x10000000
+#define XR_CHANNEL_OPTION_ENCRYPT_SC    0x20000000
+#define XR_CHANNEL_OPTION_ENCRYPT_RDP   0x40000000
+#define XR_CHANNEL_OPTION_INITIALIZED   0x80000000
 
 /* NT status codes for RDPDR */
 #define STATUS_SUCCESS                 0x00000000
@@ -410,6 +441,7 @@
 #define RDP_ORDER_TRIBLT    14
 #define RDP_ORDER_POLYLINE  22
 #define RDP_ORDER_TEXT2     27
+#define RDP_ORDER_COMPOSITE 37 /* 0x25 */
 
 #define RDP_ORDER_RAW_BMPCACHE  0
 #define RDP_ORDER_COLCACHE      1
@@ -418,6 +450,12 @@
 #define RDP_ORDER_RAW_BMPCACHE2 4
 #define RDP_ORDER_BMPCACHE2     5
 #define RDP_ORDER_BRUSHCACHE    7
+#define RDP_ORDER_BMPCACHE3     8
+
+/* orderSupportExFlags (2 bytes): A 16-bit, unsigned integer.
+   Extended order support flags. */
+#define XR_ORDERFLAGS_EX_CACHE_BITMAP_REV3_SUPPORT   0x0002
+#define XR_ORDERFLAGS_EX_ALTSEC_FRAME_MARKER_SUPPORT 0x0004
 
 /* drawable types */
 #define WND_TYPE_BITMAP  0
@@ -430,6 +468,7 @@
 #define WND_TYPE_COMBO   7
 #define WND_TYPE_SPECIAL 8
 #define WND_TYPE_LISTBOX 9
+#define WND_TYPE_OFFSCREEN 10
 
 /* button states */
 #define BUTTON_STATE_UP   0
@@ -450,11 +489,108 @@
 #define WM_BUTTON4DOWN 108
 #define WM_BUTTON5UP   109
 #define WM_BUTTON5DOWN 110
+#define WM_BUTTON6UP   111
+#define WM_BUTTON6DOWN 112
+#define WM_BUTTON7UP   113
+#define WM_BUTTON7DOWN 114
 #define WM_INVALIDATE  200
 
 #define CB_ITEMCHANGE  300
 
+#define  OSMAJORTYPE_UNSPECIFIED    0x0000
+#define  OSMAJORTYPE_WINDOWS        0x0001
+#define  OSMAJORTYPE_OS2            0x0002
+#define  OSMAJORTYPE_MACINTOSH      0x0003
+#define  OSMAJORTYPE_UNIX           0x0004
+
+#define  OSMINORTYPE_UNSPECIFIED      0x0000
+#define  OSMINORTYPE_WINDOWS_31X      0x0001
+#define  TS_OSMINORTYPE_WINDOWS_95    0x0002
+#define  TS_OSMINORTYPE_WINDOWS_NT    0x0003
+#define  TS_OSMINORTYPE_OS2_V21       0x0004
+
+#define  TS_OSMINORTYPE_POWER_PC          0x0005
+#define  TS_OSMINORTYPE_MACINTOSH         0x0006
+#define  TS_OSMINORTYPE_NATIVE_XSERVER    0x0007
+#define  TS_OSMINORTYPE_PSEUDO_XSERVER    0x0008
+
+#define  TS_CAPS_PROTOCOLVERSION       0x0200
+#define  FASTPATH_OUTPUT_SUPPORTED     0x0001
+#define  NO_BITMAP_COMPRESSION_HDR     0x0400
+#define  LONG_CREDENTIALS_SUPPORTED    0x0004
+#define  AUTORECONNECT_SUPPORTED       0x0008
+#define  ENC_SALTED_CHEKSUM            0x0010
+#define  NEGOTIATEORDERSUPPORT         0x0002
+#define  ZEROBOUNDSDELTASUPPORT        0x0008
+#define  COLORINDEXSUPPORT             0x0020
+#define  SOLIDPATTERNBRUSHONLY         0x0040
+#define  ORDERFLAGS_EXTRA_FLAGS        0x0080
+
+#define  INPUT_FLAG_SCANCODES       0x0001
+#define  INPUT_FLAG_MOUSEX          0x0004
+#define  INPUT_FLAG_FASTPATH_INPUT  0x0008
+#define  INPUT_FLAG_UNICODE         0x0010
+#define  INPUT_FLAG_FASTPATH_INPUT2 0x0020
+
+#define  COMPDESK_NOT_SUPPORTED      0x0000
+#define  COMPDESK_SUPPORTED          0x0001
+
+#define SURCMDS_SETSURFACEBITS      0x00000002
+#define SURCMDS_FRAMEMARKER         0x00000010
+#define SURCMDS_STREAMSUFRACEBITS   0x00000040
+
+/* CODEC_GUID_NSCODEC  0xCA8D1BB9000F154F589FAE2D1A87E2D6 */
+#define XR_CODEC_GUID_NSCODEC \
+  "\xb9\x1b\x8d\xca\x0f\x00\x4f\x15\x58\x9f\xae\x2d\x1a\x87\xe2\xd6"
+
+/* CODEC_GUID_REMOTEFX 0x76772F12BD724463AFB3B73C9C6F7886 */
+#define XR_CODEC_GUID_REMOTEFX \
+  "\x12\x2F\x77\x76\x72\xBD\x63\x44\xAF\xB3\xB7\x3C\x9C\x6F\x78\x86"
+
+/* CODEC_GUID_JPEG 0x430C9EED1BAF4CE6869ACB8B37B66237*/
+#define XR_CODEC_GUID_JPEG \
+  "\xE6\x4C\xAF\x1B\xED\x9E\x0C\x43\x86\x9A\xCB\x8B\x37\xB6\x62\x37"
+
+#define RDP_CAPSET_SURFCMDS       0x1c
+#define RDP_CAPLEN_SURFCMDS       0x0c
+#define RDP_CAPSET_BMPCODECS      0x1d
+#define RDP_CAPLEN_BMPCODECS      0x1c
+#define RDP_CAPSET_COMPDESK       0x19
+#define RDP_CAPLEN_COMPDESK       0x06
+#define RDP_CAPSET_LPOINTER       0x27
+#define RDP_CAPLEN_LPOINTER       0x06
+
+#define FASTPATH_OUTPUT_ACTION_FASTPATH   0x0
+#define FASTPATH_OUTPUT_ACTION_X224       0x3
+
+#define FASTPATH_OUTPUT_SECURE_CHECKSUM   0x1
+#define FASTPATH_OUTPUT_ENCRYPTED         0x2
+
+#define FASTPATH_UPDATETYPE_ORDERS        0x0
+#define FASTPATH_UPDATETYPE_BITMAP        0x1
+#define FASTPATH_UPDATETYPE_PALETTE       0x2
+#define FASTPATH_UPDATETYPE_SYNCHRONIZE   0x3
+#define FASTPATH_UPDATETYPE_SURFCMDS      0x4
+#define FASTPATH_UPDATETYPE_PTR_NULL      0x5
+#define FASTPATH_UPDATETYPE_PTR_DEFAULT   0x6
+#define FASTPATH_UPDATETYPE_PTR_POSITION  0x8
+#define FASTPATH_UPDATETYPE_COLOR         0x9
+#define FASTPATH_UPDATETYPE_CACHED        0xA
+#define FASTPATH_UPDATETYPE_POINTER       0xB
+
+#define FASTPATH_FRAGMENT_SINGLE     0x0
+#define FASTPATH_FRAGMENT_LAST       0x1
+#define FASTPATH_FRAGMENT_FIRST      0x2
+#define FASTPATH_FRAGMENT_NEXT       0x3
+
+#define FASTPATH_MAX_PACKET_SIZE    0x3fff
+
+#define CMDTYPE_SET_SURFACE_BITS       0x0001
+#define CMDTYPE_FRAME_MARKER           0x0004
+#define CMDTYPE_STREAM_SURFACE_BITS    0x0006
+
 #define XRDP_MAX_BITMAP_CACHE_ID  3
 #define XRDP_MAX_BITMAP_CACHE_IDX 2000
+#define XRDP_BITMAP_CACHE_ENTRIES 2048
 
 #endif

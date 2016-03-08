@@ -1,11 +1,28 @@
-EXTRA_DIST = d3des.h arch.h os_calls.h list.h file.h parse.h defines.h file_loc.h log.h os_calls.h ssl_calls.h thread_calls.h trans.h xrdp_constants.h
-
+EXTRA_DIST = \
+  arch.h \
+  d3des.h \
+  defines.h \
+  file.h \
+  file_loc.h \
+  list.h \
+  log.h \
+  os_calls.h \
+  os_calls.h \
+  parse.h \
+  rail.h \
+  ssl_calls.h \
+  thread_calls.h \
+  trans.h \
+  xrdp_client_info.h \
+  xrdp_constants.h \
+  xrdp_rail.h
 
 AM_CFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\"
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -DXRDP_LOG_PATH=\"${localstatedir}/log\"
 
 lib_LTLIBRARIES = \
   libcommon.la

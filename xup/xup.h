@@ -1,30 +1,30 @@
-/*
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-   xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2010
-
-   libxup main header file
-
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2013
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * libxup main header file
+ */
 
 /* include other h files */
 #include "arch.h"
 #include "parse.h"
 #include "os_calls.h"
 #include "defines.h"
+#include "xrdp_client_info.h"
+#include "xrdp_rail.h"
 
 #define CURRENT_MOD_VER 2
 
@@ -53,7 +53,8 @@ struct mod
   int (*server_screen_blt)(struct mod* v, int x, int y, int cx, int cy,
                            int srcx, int srcy);
   int (*server_paint_rect)(struct mod* v, int x, int y, int cx, int cy,
-                           char* data, int width, int height, int srcx, int srcy);
+                           char* data, int width, int height,
+                           int srcx, int srcy);
   int (*server_set_cursor)(struct mod* v, int x, int y, char* data, char* mask);
   int (*server_palette)(struct mod* v, int* palette);
   int (*server_msg)(struct mod* v, char* msg, int code);
@@ -87,7 +88,57 @@ struct mod
                                 char* data, int data_len,
                                 int total_data_len, int flags);
   int (*server_bell_trigger)(struct mod* v);
-  tbus server_dumby[100 - 25]; /* align, 100 minus the number of server
+  /* off screen bitmaps */
+  int (*server_create_os_surface)(struct mod* v, int rdpindex,
+                                  int width, int height);
+  int (*server_switch_os_surface)(struct mod* v, int rdpindex);
+  int (*server_delete_os_surface)(struct mod* v, int rdpindex);
+  int (*server_paint_rect_os)(struct mod* v, int x, int y,
+                              int cx, int cy,
+                              int rdpindex, int srcx, int srcy);
+  int (*server_set_hints)(struct mod* v, int hints, int mask);
+  /* rail */
+  int (*server_window_new_update)(struct mod* v, int window_id,
+                                  struct rail_window_state_order* window_state,
+                                  int flags);
+  int (*server_window_delete)(struct mod* v, int window_id);
+  int (*server_window_icon)(struct mod* v,
+                            int window_id, int cache_entry, int cache_id,
+                            struct rail_icon_info* icon_info,
+                            int flags);
+  int (*server_window_cached_icon)(struct mod* v,
+                                   int window_id, int cache_entry,
+                                   int cache_id, int flags);
+  int (*server_notify_new_update)(struct mod* v,
+                                  int window_id, int notify_id,
+                                  struct rail_notify_state_order* notify_state,
+                                  int flags);
+  int (*server_notify_delete)(struct mod* v, int window_id,
+                              int notify_id);
+  int (*server_monitored_desktop)(struct mod* v,
+                                  struct rail_monitored_desktop_order* mdo,
+                                  int flags);
+  int (*server_set_cursor_ex)(struct mod* v, int x, int y, char* data,
+                              char* mask, int bpp);
+  int (*server_add_char_alpha)(struct mod* v, int font, int charactor,
+                               int offset, int baseline,
+                               int width, int height, char* data);
+  int (*server_create_os_surface_bpp)(struct mod* v, int rdpindex,
+                                      int width, int height, int bpp);
+  int (*server_paint_rect_bpp)(struct mod* v, int x, int y, int cx, int cy,
+                               char* data, int width, int height,
+                               int srcx, int srcy, int bpp);
+  int (*server_composite)(struct mod* v, int srcidx, int srcformat, int srcwidth,
+                          int srcrepeat, int* srctransform, int mskflags, int mskidx,
+                          int mskformat, int mskwidth, int mskrepeat, int op,
+                          int srcx, int srcy, int mskx, int msky,
+                          int dstx, int dsty, int width, int height, int dstformat);
+  int (*server_paint_rects)(struct mod* v,
+                            int num_drects, short *drects,
+                            int num_crects, short *crects,
+                            char *data, int width, int height, int flags);
+
+  tbus server_dumby[100 - 43]; /* align, 100 minus the number of server
                                   functions above */
   /* common */
   tbus handle; /* pointer to self as long */
@@ -105,4 +156,7 @@ struct mod
   char port[256];
   tbus sck_obj;
   int shift_state;
+  struct xrdp_client_info client_info;
+  int screen_shmem_id;
+  char *screen_shmem_pixels;
 };
