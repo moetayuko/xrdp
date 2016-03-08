@@ -1,27 +1,22 @@
-/*
-   Copyright (c) 2008-2010 Jay Sorg
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-   DEALINGS IN THE SOFTWARE.
-
-   generic transport
-
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2013
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * generic transport
+ */
 
 #if !defined(TRANS_H)
 #define TRANS_H
@@ -43,10 +38,11 @@ struct trans; /* forward declaration */
 
 typedef int (*ttrans_data_in)(struct trans* self);
 typedef int (*ttrans_conn_in)(struct trans* self, struct trans* new_self);
+typedef int (*tis_term)(void);
 
 struct trans
 {
-  tbus sck;
+  tbus sck; /* socket handle */
   int mode; /* 1 tcp, 2 unix socket */
   int status;
   int type1; /* 1 listener 2 server 3 client */
@@ -57,6 +53,12 @@ struct trans
   struct stream* in_s;
   struct stream* out_s;
   char* listen_filename;
+  tis_term is_term; /* used to test for exit */
+  struct stream* wait_s;
+  char addr[256];
+  char port[256];
+  int no_stream_init_on_data_in;
+  int extra_flags; /* user defined */
 };
 
 struct trans* APP_CC
@@ -64,7 +66,11 @@ trans_create(int mode, int in_size, int out_size);
 void APP_CC
 trans_delete(struct trans* self);
 int APP_CC
-trans_get_wait_objs(struct trans* self, tbus* objs, int* count, int* timeout);
+trans_get_wait_objs(struct trans* self, tbus* objs, int* count);
+int APP_CC
+trans_get_wait_objs_rw(struct trans *self,
+                       tbus *robjs, int *rcount,
+                       tbus *wobjs, int *wcount);
 int APP_CC
 trans_check_wait_objs(struct trans* self);
 int APP_CC
@@ -75,6 +81,8 @@ int APP_CC
 trans_force_read(struct trans* self, int size);
 int APP_CC
 trans_force_write(struct trans* self);
+int APP_CC
+trans_write_copy(struct trans* self);
 int APP_CC
 trans_connect(struct trans* self, const char* server, const char* port,
               int timeout);

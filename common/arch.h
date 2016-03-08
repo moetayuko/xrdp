@@ -1,25 +1,20 @@
-/*
-   Copyright (c) 2004-2012 Jay Sorg
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-   DEALINGS IN THE SOFTWARE.
-
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2013
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #if !defined(ARCH_H)
 #define ARCH_H
@@ -37,6 +32,12 @@
     defined(__AIX__) || defined(__PPC__) || defined(__mips__) || \
     defined(__ia64__) || defined(__ppc__) || defined(__arm__)
 #define NEED_ALIGN
+#elif defined(__x86__) || defined(__x86_64__) || \
+      defined(__AMD64__) || defined(_M_IX86) || \
+      defined(__i386__)
+#define NO_NEED_ALIGN
+#else
+#warning unknown arch
 #endif
 #endif
 
@@ -67,6 +68,8 @@
 #define EXPORT_CC
 #endif
 
+#ifndef DEFINED_Ts
+#define DEFINED_Ts
 typedef char ti8;
 typedef unsigned char tui8;
 typedef signed char tsi8;
@@ -76,6 +79,7 @@ typedef signed short tsi16;
 typedef int ti32;
 typedef unsigned int tui32;
 typedef signed int tsi32;
+typedef int tbool;
 #if defined(_WIN64)
 /* Microsoft's VC++ compiler uses the more backwards-compatible LLP64 model.
    Most other 64 bit compilers(Solaris, AIX, HP, Linux, Mac OS X) use
@@ -99,5 +103,6 @@ typedef int tsock;
 typedef unsigned long long tui64;
 typedef signed long long tsi64;
 #endif
+#endif /* DEFINED_Ts */
 
 #endif
