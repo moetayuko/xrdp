@@ -1,0 +1,15 @@
+Description: Fix spelling issue
+Author: Andreas Tille <tille@debian.org>
+Last-Updated: Tue, 08 Mar 2016 11:15:04 +0100
+
+--- a/libxrdp/xrdp_mcs.c
++++ b/libxrdp/xrdp_mcs.c
+@@ -180,7 +180,7 @@ xrdp_mcs_recv(struct xrdp_mcs *self, str
+         }
+         else
+         {
+-            log_message(LOG_LEVEL_DEBUG,"Recieved an unhandled appid:%d",appid);
++            log_message(LOG_LEVEL_DEBUG,"Received an unhandled appid:%d",appid);
+         }
+ 
+         break;
