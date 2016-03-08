@@ -1,20 +1,22 @@
-Ensure that the default keymap is US english if there is a problem locating one.
+Author: Vincent Bernat <bernat@debian.org>
+Last-Updated: Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
+Description: Ensure that the default keymap is US english if there is a problem locating one.
 
-Index: xrdp/xrdp/lang.c
-===================================================================
---- xrdp.orig/xrdp/lang.c	2012-09-29 13:01:00.267338590 +0200
-+++ xrdp/xrdp/lang.c	2012-09-29 13:03:28.446647925 +0200
-@@ -239,6 +239,13 @@
-       g_file_close(fd);
+--- a/xrdp/lang.c
++++ b/xrdp/lang.c
+@@ -258,7 +258,15 @@ get_keymaps(int keylayout, struct xrdp_k
      }
-   }
-+  else if (keylayout != 0x409)
-+  {
-+    g_free(filename);
-+    g_writeln("keymap for 0x%4.4x was not found. Falling back to 0x0409 instead",
-+	      keylayout);
-+    return get_keymaps(0x409, keymap);
-+  }
-   g_free(filename);
-   return 0;
- }
+     else
+     {
++      if (keylayout != 0x409)
++      {
++        g_free(filename);
++        log_message(LOG_LEVEL_WARNING, "keymap for 0x%4.4x was not found. Falling back to 0x0409 instead",
++                    keylayout);
++        return get_keymaps(0x409, keymap);
++      } else {
+         log_message(LOG_LEVEL_WARNING, "File does not exist: %s", filename);
++      }
+     }
+ 
+     g_free(filename);
