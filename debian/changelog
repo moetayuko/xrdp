@@ -1,6 +1,7 @@
 xrdp (0.8.0-1) UNRELEASED; urgency=medium
 
   * Point watch file to github
+  * Add myself as Uploader
 
  -- Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
 
