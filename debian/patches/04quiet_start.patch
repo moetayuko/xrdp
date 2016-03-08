@@ -23,20 +23,6 @@ Description: Avoid displaying a lot of information when starting xrdp and sesman
  
      return 0;
  }
-@@ -225,11 +225,11 @@ config_read_logging(int file, struct log
-     lc->log_file=g_strdup("./sesman.log");
-   }
- 
--  g_printf("logging configuration:\r\n");
-+  /* g_printf("logging configuration:\r\n");
-   g_printf("\tLogFile:       %s\r\n",lc->log_file);
-   g_printf("\tLogLevel:      %i\r\n", lc->log_level);
-   g_printf("\tEnableSyslog:  %i\r\n", lc->enable_syslog);
--  g_printf("\tSyslogLevel:   %i\r\n", lc->syslog_level);
-+  g_printf("\tSyslogLevel:   %i\r\n", lc->syslog_level); */
- 
-   return 0;
- }
 @@ -293,7 +293,7 @@ config_read_security(int file, struct co
      }
  
