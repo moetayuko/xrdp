@@ -10,6 +10,7 @@ xrdp (0.8.0+dfsg-1) UNRELEASED; urgency=medium
   * Remove file tcutils/tcutils via Files-Excluded
   * Fix license of files in common/*
   * Remove unused lintian-overrides
+  * Fix section of manpage xrdp-dis.1
 
  -- Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
 

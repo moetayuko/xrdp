@@ -1,0 +1,12 @@
+Description: Fix section of manpage xrdp-dis.1
+Author: Andreas Tille <tille@debian.org>
+Last-Updated: Tue, 08 Mar 2016 11:15:04 +0100
+
+--- a/docs/man/xrdp-dis.1
++++ b/docs/man/xrdp-dis.1
+@@ -1,4 +1,4 @@
+-.TH "xrdp-dis" "8" "0.7.0" "xrdp team"
++.TH "xrdp-dis" "1" "0.7.0" "xrdp team"
+ .SH NAME
+ xrdp\-dis \- xrdp disconnect utility
+ 
