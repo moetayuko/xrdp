@@ -7,6 +7,8 @@ xrdp (0.8.0+dfsg-1) UNRELEASED; urgency=medium
   * Refresh quilt patches
   * Build-Depends: libxrandr-dev
   * Fix minor issues in d/rules
+  * Remove file tcutils/tcutils via Files-Excluded
+  * Fix license of files in common/*
 
  -- Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
 
