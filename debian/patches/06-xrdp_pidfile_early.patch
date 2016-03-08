@@ -1,4 +1,9 @@
-Ensure that the PID file is written before sleeping.
+Author: Vincent Bernat <bernat@debian.org>
+Description: Ensure that the PID file is written before sleeping.
+ .
+ This patch is deactivated since it seems to be applied upstream in
+ version 0.8.0
+
 
 Index: xrdp/xrdp/xrdp.c
 ===================================================================
