@@ -1,3 +1,4 @@
 version=3
 
-https://github.com/neutrinolabs/xrdp/releases .*/archive/v(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz)
+opts="repacksuffix=+dfsg,dversionmangle=s/\+dfsg//g,repack,compression=xz" \
+  https://github.com/neutrinolabs/xrdp/releases .*/archive/v(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz)

@@ -1,6 +1,7 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: xrdp
 Source: https://github.com/neutrinolabs/xrdp
+Files-Excluded: tcutils/tcutils
 
 Files: *
 Copyright: © 2003-2010 Jay Sorg

@@ -1,4 +1,4 @@
-xrdp (0.8.0-1) UNRELEASED; urgency=medium
+xrdp (0.8.0+dfsg-1) UNRELEASED; urgency=medium
 
   * Point watch file to github
   * Add myself as Uploader
