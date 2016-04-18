@@ -1,8 +1,12 @@
-04quiet_start.patch
-05-default-keymap.patch
-# 06-xrdp_pidfile_early.patch
-xrdp-default-keymap.patch
-libtoolize_check.patch
-fix-man-section.patch
-spelling.patch
-remove_rpath.patch
+make-fixes.diff
+config.diff
+keymap-default.diff
+keymap-fallback.diff
+misc-fixes.diff
+systemd.diff
+nxstack.diff
+fix_perms.diff
+shutup-daemon.diff
+sockpath.diff
+fusepath.diff
+chansrvlog.diff
