@@ -1,4 +1,4 @@
-xrdp (0.9.0~20160418+git6c21aca-1) unstable; urgency=medium
+xrdp (0.9.0~20150902+gitc0ef543-1) unstable; urgency=medium
 
   The default setup since version 0.9 is xorgxrdp, not X11rdp or VNC.
   Please ensure that the backend server (xorgxrdp or any VNC X server),

@@ -4,7 +4,7 @@ GIT ?= $(shell dpkg-parsechangelog -ldebian/changelog | perl -ne 'print $$1 if m
 VER ?= $(shell dpkg-parsechangelog -ldebian/changelog | perl -ne 'print $$1 if m{^Version:\s+([^+]+\+git[^-]+)};')
 
 LIBRFXCODEC_GIT ?= 61f6e92
-XORGXRDP_GIT ?= a0add6c
+XORGXRDP_GIT ?= 4a2b11f
 
 DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed
 DEB_BUILD_MAINT_OPTIONS=hardening=+all
