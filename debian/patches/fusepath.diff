@@ -1,0 +1,35 @@
+# DP: make FUSE mount root hidden from normal ls
+
+--- a/sesman/chansrv/chansrv_fuse.c
++++ b/sesman/chansrv/chansrv_fuse.c
+@@ -39,7 +39,7 @@
+ 
+ //#define USE_SYNC_FLAG
+ 
+-static char g_fuse_mount_name[256] = "xrdp_client";
++static char g_fuse_mount_name[256] = ".xrdp_client";
+ 
+ /* FUSE mount point */
+ char g_fuse_root_path[256] = "";
+@@ -446,7 +446,7 @@ xfuse_init(void)
+ 
+     load_fuse_config();
+ 
+-    /* define FUSE mount point to ~/xrdp_client, ~/thinclient_drives */
++    /* define FUSE mount point to ~/.xrdp_client, ~/.thinclient_drives */
+     g_snprintf(g_fuse_root_path, 255, "%s/%s", g_getenv("HOME"), g_fuse_mount_name);
+     g_snprintf(g_fuse_clipboard_path, 255, "%s/.clipboard", g_fuse_root_path);
+ 
+--- a/sesman/sesman.ini
++++ b/sesman/sesman.ini
+@@ -90,8 +90,8 @@ param8=-logfile
+ param9=/dev/null
+ 
+ [Chansrv]
+-# drive redirection, defaults to xrdp_client if not set
+-FuseMountName=thinclient_drives
++# drive redirection, defaults to .xrdp_client if not set
++FuseMountName=.thinclient_drives
+ 
+ [SessionVariables]
+ PULSE_SCRIPT=/etc/xrdp/pulse/default.pa

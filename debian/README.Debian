@@ -1,0 +1,24 @@
+See xrdp.NEWS for any upgrade notes from xrdp 0.6 (Debian jessie);
+more testing (conffiles, logfiles, piuparts, etc.) is welcome.
+
+Consider using TLS encryption instead of the default RDP encryption,
+but do make sure to test all possible clients, and mind client bugs.
+TLS has been tested with Microsoft Remotedesktop in Windows 7 and
+above, rdesktop 1.8 and freerdp 1.1 (Remmina, et al).
+
+Another security issue is the disablement of access control by default.
+Use at your own risk and inform your users that privacy is possibly not
+guaranteed as all users can attach to RDP users’ sessions locally.
+See also: https://github.com/neutrinolabs/xrdp/issues/264
+
+The pulseaudio plugin from sesman/chansrv/pulse should be installed
+but cannot be built due to lack of a pulseaudio-modules-dev package
+in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
+
+Upstream is currently working on converting librfxcodec to autotools;
+we can then pass --enable-rfxcodec but should invest time into proper
+recursive configure (not done yet) and make (partially done); SSE can
+be used iff tested beforehand. (Remember x32!)
+
+We currently do not use --enable-xrdpvr (as FFmpeg in squeeze is the last
+supported version, but it may be possible to use the one in stretch/sid).

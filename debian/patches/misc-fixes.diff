@@ -1,0 +1,278 @@
+# DP: misc. fixes, should go upstream
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -98,7 +98,7 @@ AC_ARG_ENABLE(opus, AS_HELP_STRING([--en
+               [], [enable_opus=no])
+ AM_CONDITIONAL(XRDP_OPUS, [test x$enable_opus = xyes])
+ 
+-AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
++AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
+ 
+ # checking for openssl
+ AC_CHECK_HEADER([openssl/rc4.h], [],
+--- a/docs/man/xrdp-dis.1
++++ b/docs/man/xrdp-dis.1
+@@ -1,4 +1,4 @@
+-.TH "xrdp-dis" "8" "0.7.0" "xrdp team"
++.TH "xrdp-dis" "1" "0.7.0" "xrdp team"
+ .SH NAME
+ xrdp\-dis \- xrdp disconnect utility
+ 
+@@ -7,7 +7,7 @@ xrdp\-dis \- xrdp disconnect utility
+ 
+ .SH DESCRIPTION
+ .PP
+-\fBxrdp\-dix\fP is run with no parameters to disconnect your xrdp session.
++\fBxrdp\-dis\fP is run with no parameters to disconnect your xrdp session.
+ 
+ .SH ENVIRONMENT
+ .TP
+--- a/libxrdp/libxrdp.c
++++ b/libxrdp/libxrdp.c
+@@ -1074,7 +1074,7 @@ libxrdp_query_channel(struct xrdp_sessio
+ }
+ 
+ /*****************************************************************************/
+-/* returns a zero based index of the channel, -1 if error or it dosen't
++/* returns a zero based index of the channel, -1 if error or it doesn't
+    exist */
+ int EXPORT_CC
+ libxrdp_get_channel_id(struct xrdp_session *session, char *name)
+--- a/libxrdp/xrdp_mcs.c
++++ b/libxrdp/xrdp_mcs.c
+@@ -183,7 +183,7 @@ xrdp_mcs_recv(struct xrdp_mcs *self, str
+         }
+         else
+         {
+-            log_message(LOG_LEVEL_DEBUG,"Recieved an unhandled appid:%d",appid);
++            log_message(LOG_LEVEL_DEBUG,"Received an unhandled appid:%d",appid);
+         }
+ 
+         break;
+--- a/rdp/rdp_orders.c
++++ b/rdp/rdp_orders.c
+@@ -1435,7 +1435,7 @@ rdp_orders_process_orders(struct rdp_ord
+ }
+ 
+ /*****************************************************************************/
+-/* returns pointer, it might return bmpdata if the data dosen't need to
++/* returns pointer, it might return bmpdata if the data doesn't need to
+    be converted, else it mallocs it.  The calling function must free
+    it if needed */
+ char *APP_CC
+--- a/sesman/chansrv/chansrv_fuse.c
++++ b/sesman/chansrv/chansrv_fuse.c
+@@ -60,6 +60,9 @@ char g_fuse_clipboard_path[256] = ""; /*
+ 
+ #include "arch.h"
+ #include "chansrv_fuse.h"
++#include "chansrv.h"
++#include "devredir.h"
++#include "file.h"
+ 
+ /* dummy calls when XRDP_FUSE is not defined */
+ int xfuse_init()                { return 0; }
+@@ -106,6 +109,9 @@ void xfuse_devredir_cb_file_close(void *
+ #include "chansrv_fuse.h"
+ #include "list.h"
+ #include "fifo.h"
++#include "chansrv.h"
++#include "devredir.h"
++#include "file.h"
+ 
+ #ifndef EREMOTEIO
+ #define EREMOTEIO EIO
+@@ -124,6 +130,7 @@ void xfuse_devredir_cb_file_close(void *
+ #define LOG_ERROR   0
+ #define LOG_INFO    1
+ #define LOG_DEBUG   2
++#undef LOG_LEVEL
+ #define LOG_LEVEL   LOG_ERROR
+ 
+ #define log_error(_params...)                           \
+--- a/sesman/chansrv/clipboard.c
++++ b/sesman/chansrv/clipboard.c
+@@ -176,6 +176,7 @@ x-special/gnome-copied-files
+ #define LOG_ERROR   0
+ #define LOG_INFO    1
+ #define LOG_DEBUG   2
++#undef LOG_LEVEL
+ #define LOG_LEVEL   LOG_ERROR
+ 
+ #define log_error(_params...)                           \
+--- a/sesman/chansrv/devredir.h
++++ b/sesman/chansrv/devredir.h
+@@ -101,6 +101,8 @@ int dev_redir_file_open(void *fusep, tui
+ 
+ int devredir_file_close(void *fusep, tui32 device_id, tui32 file_id);
+ 
++int APP_CC devredir_rmdir_or_file(void *fusep, tui32 device_id, char *path, int mode);
++
+ int devredir_file_read(void *fusep, tui32 device_id, tui32 FileId,
+                         tui32 Length, tui64 Offset);
+ 
+--- a/sesman/chansrv/rail.c
++++ b/sesman/chansrv/rail.c
+@@ -1775,7 +1775,7 @@ rail_configure_window(XConfigureEvent *c
+ 
+ /*****************************************************************************/
+ static int
+-rail_desktop_resize(lxevent)
++rail_desktop_resize(XEvent *lxevent)
+ {
+     LOG(0, ("rail_desktop_resize:"));
+     return 0;
+--- a/sesman/session.c
++++ b/sesman/session.c
+@@ -652,7 +652,7 @@ session_start_fork(int width, int height
+                 else
+                 {
+                     log_message(LOG_LEVEL_ERROR, "another Xserver might "
+-                                "already be active on display %d - see log", display);
++                                "already be active on display %d - see log; possibly comment out the two param lines -logfile /dev/null in /etc/xrdp/sesman.ini to debug", display);
+                 }
+ 
+                 log_message(LOG_LEVEL_DEBUG, "aborting connection...");
+--- a/xorg/X11R7.6/rdp/rdpPolyFillRect.c
++++ b/xorg/X11R7.6/rdp/rdpPolyFillRect.c
+@@ -188,7 +188,7 @@ rdpPolyFillRect(DrawablePtr pDrawable, G
+                      pGC->alu == GXnoop ||
+                      pGC->alu == GXand ||
+                      pGC->alu == GXcopy /*||
+-                     pGC->alu == GXxor*/)) /* todo, why dosen't xor work? */
++                     pGC->alu == GXxor*/)) /* todo, why doesn't xor work? */
+             {
+                 draw_item_add_fill_region(pDirtyPriv, fill_reg, pGC->fgPixel,
+                                           pGC->alu);
+@@ -210,7 +210,7 @@ rdpPolyFillRect(DrawablePtr pDrawable, G
+                      pGC->alu == GXnoop ||
+                      pGC->alu == GXand ||
+                      pGC->alu == GXcopy /*||
+-                     pGC->alu == GXxor*/)) /* todo, why dosen't xor work? */
++                     pGC->alu == GXxor*/)) /* todo, why doesn't xor work? */
+             {
+                 rdpup_set_fgcolor(pGC->fgPixel);
+                 rdpup_set_opcode(pGC->alu);
+@@ -253,7 +253,7 @@ rdpPolyFillRect(DrawablePtr pDrawable, G
+                          pGC->alu == GXnoop ||
+                          pGC->alu == GXand ||
+                          pGC->alu == GXcopy /*||
+-                         pGC->alu == GXxor*/)) /* todo, why dosen't xor work? */
++                         pGC->alu == GXxor*/)) /* todo, why doesn't xor work? */
+                 {
+                     LLOGLN(10, ("rdpPolyFillRect: 3"));
+                     draw_item_add_fill_region(pDirtyPriv, &clip_reg,
+@@ -280,7 +280,7 @@ rdpPolyFillRect(DrawablePtr pDrawable, G
+                          pGC->alu == GXnoop ||
+                          pGC->alu == GXand ||
+                          pGC->alu == GXcopy /*||
+-                         pGC->alu == GXxor*/)) /* todo, why dosen't xor work? */
++                         pGC->alu == GXxor*/)) /* todo, why doesn't xor work? */
+                 {
+                     rdpup_set_fgcolor(pGC->fgPixel);
+                     rdpup_set_opcode(pGC->alu);
+--- a/xorg/X11R7.6/rdp/rdpmain.c
++++ b/xorg/X11R7.6/rdp/rdpmain.c
+@@ -590,7 +590,7 @@ rdpScreenInit(int index, ScreenPtr pScre
+ /******************************************************************************/
+ /* this is the first function called, it can be called many times
+    returns the number or parameters processed
+-   if it dosen't apply to the rdp part, return 0 */
++   if it doesn't apply to the rdp part, return 0 */
+ int
+ ddxProcessArgument(int argc, char **argv, int i)
+ {
+--- a/xorgxrdp/configure.ac
++++ b/xorgxrdp/configure.ac
+@@ -9,7 +9,7 @@ AC_PROG_CC
+ AC_C_CONST
+ AC_PROG_LIBTOOL
+ 
+-AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
++AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
+ 
+ AC_CHECK_HEADER([xorg/xorg-server.h], [],
+   [AC_MSG_ERROR([please install xserver-xorg-dev or xorg-x11-server-sdk])])
+--- a/xorgxrdp/xrdpdev/xrdpdev.c
++++ b/xorgxrdp/xrdpdev/xrdpdev.c
+@@ -138,7 +138,7 @@ rdpPreInit(ScrnInfoPtr pScrn, int flags)
+     rgb zeros1;
+     Gamma zeros2;
+     int got_res_match;
+-    char **modename;
++    const char **modename;
+     DisplayModePtr mode;
+     rdpPtr dev;
+ 
+--- a/xorgxrdp/xrdpkeyb/rdpKeyboard.c
++++ b/xorgxrdp/xrdpkeyb/rdpKeyboard.c
+@@ -502,7 +502,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
+ }
+ 
+ /******************************************************************************/
+-void
++int
+ rdpkeybDeviceInit(DeviceIntPtr pDevice, KeySymsPtr pKeySyms, CARD8 *pModMap)
+ {
+     int i;
+@@ -534,7 +534,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+     if (pKeySyms->map == 0)
+     {
+         LLOGLN(0, ("rdpkeybDeviceInit: malloc failed"));
+-        exit(1);
++        return 1;
+     }
+     else
+     {
+@@ -550,6 +550,8 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+     {
+         pKeySyms->map[i] = g_kbdMap[i];
+     }
++
++    return 0;
+ }
+ 
+ /******************************************************************************/
+@@ -645,7 +647,8 @@ rdpkeybControl(DeviceIntPtr device, int
+     switch (what)
+     {
+         case DEVICE_INIT:
+-            rdpkeybDeviceInit(device, &keySyms, modMap);
++            if (rdpkeybDeviceInit(device, &keySyms, modMap))
++                return BadAlloc;
+             memset(&set, 0, sizeof(set));
+             set.rules = "base";
+             set.model = "pc104";
+--- a/xrdp/lang.c
++++ b/xrdp/lang.c
+@@ -267,7 +267,7 @@ get_keymaps(int keylayout, struct xrdp_k
+             if (g_memcmp(lkeymap, keymap, sizeof(struct xrdp_keymap)) != 0)
+             {
+                 log_message(LOG_LEVEL_WARNING,
+-                            "local keymap file for 0x%4.4x found and dosen't match "
++                            "local keymap file for 0x%4.4x found and doesn't match "
+                             "built in keymap, using local keymap file", keylayout);
+             }
+ 
+--- a/xrdp/xrdp.h
++++ b/xrdp/xrdp.h
+@@ -381,6 +381,8 @@ int APP_CC
+ xrdp_mm_check_chan(struct xrdp_mm *self);
+ int APP_CC
+ xrdp_mm_check_wait_objs(struct xrdp_mm* self);
++int APP_CC
++xrdp_mm_frame_ack(struct xrdp_mm *self, int frame_id);
+ int DEFAULT_CC
+ server_begin_update(struct xrdp_mod* mod);
+ int DEFAULT_CC
+--- a/xrdpapi/xrdpapi.c
++++ b/xrdpapi/xrdpapi.c
+@@ -36,6 +36,7 @@
+ #include <sys/un.h>
+ 
+ #include "xrdpapi.h"
++#include "os_calls.h"
+ 
+ struct wts_obj
+ {

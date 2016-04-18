@@ -1,3 +1,11 @@
+xrdp (0.9.0~git20160418.6c21aca-1 UNRELEASED; urgency=medium
+
+  * New upstream release.
+    + Taken from git because there are no recent releases
+    + DFSG-free upstream, no more need for Debian patches
+
+ -- Dominik George <nik@naturalnet.de>  Mon, 18 Apr 2016 13:47:12 +0200
+
 xrdp (0.8.0+dfsg-1) UNRELEASED; urgency=medium
 
   * Point watch file to github
