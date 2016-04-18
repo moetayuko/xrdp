@@ -1,29 +1,73 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
+
+DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed
+DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+DPKG_EXPORT_BUILDFLAGS:=1
+include /usr/share/dpkg/default.mk
+
+# this is precisely what dh_auto_configure does
+CONFIGURE_ARGS:=	--build=${DEB_BUILD_GNU_TYPE} \
+			--prefix=/usr \
+			--includedir=\$${prefix}/include \
+			--mandir=\$${prefix}/share/man \
+			--infodir=\$${prefix}/share/info \
+			--sysconfdir=/etc \
+			--localstatedir=/var \
+			--disable-silent-rules \
+			--libdir=\$${prefix}/lib/${DEB_HOST_MULTIARCH} \
+			--libexecdir=\$${prefix}/lib/${DEB_HOST_MULTIARCH} \
+			--disable-maintainer-mode \
+			--disable-dependency-tracking
+
+ifneq (${DEB_BUILD_GNU_TYPE},${DEB_HOST_GNU_TYPE})
+CONFIGURE_ARGS+=	--host=${DEB_HOST_GNU_TYPE}
+endif
 
 %:
-	dh $@
+	dh $@ --with systemd
 
 override_dh_auto_configure:
 	./bootstrap
-	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
-	find -name Makefile | while read i; do sed -e 's#\(XRDP_PID_PATH.*/run\)#\1/xrdp#g' -i "$$i"; done
+	cd xorgxrdp && ./bootstrap
+	./configure ${CONFIGURE_ARGS} \
+	    --enable-ipv6 \
+	    --enable-jpeg \
+	    --enable-fuse \
+	    --enable-opus
+	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
+	find . -name Makefile -print0 | \
+	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
-override_dh_makeshlibs:
-	dh_makeshlibs -a -n
-override_dh_installman:
-	dh_installman -a debian/xrdp-keygen.8
-override_dh_installpam:
-	dh_installpam --name=sesman
-	rm debian/xrdp/etc/pam.d/xrdp-sesman
+override_dh_auto_install:
+	dh_auto_install -v --destdir=debian/xrdp
+	# remove unused/confusing files
+	rm -f debian/xrdp/etc/xrdp/xrdp.sh
+	rm -f debian/xrdp/etc/xrdp/startwm.sh
+	# Policy
+	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
+	find debian/xrdp/usr/lib/ -name \*.a -print0 | \
+	    xargs -0 strip --strip-debug -R .comment --
+	# package split
+	mkdir -p debian/xorgxrdp/etc debian/xorgxrdp/usr/lib
+	mv debian/xrdp/etc/X11 debian/xorgxrdp/etc/
+	mv debian/xrdp/usr/lib/xorg debian/xorgxrdp/usr/lib/
 
-override_dh_installdeb:
-	# Clean up some files
-	rm debian/xrdp/etc/xrdp/xrdp.sh
-	rm debian/xrdp/usr/lib/xrdp/*a
-	rm -f debian/xrdp/usr/bin/xrdp-sestest
-	# Use our own startwm.sh
-	install -m 755 debian/startwm.sh debian/xrdp/etc/xrdp
-	# Move rsakeys to documentation
-	cp -a xrdp/rsakeys.ini debian/xrdp/usr/share/doc/xrdp
-	dh_installdeb -a
+override_dh_installinit:
+	dh_installinit --no-restart-on-upgrade
+
+override_dh_systemd_start:
+	dh_systemd_start --no-restart-on-upgrade
+
+override_dh_shlibdeps:
+	# That's a plugin, use appropriate warning level:
+	dh_shlibdeps -pxorgxrdp -- --warnings=6
+	# Use default levels for everything else:
+	dh_shlibdeps --remaining-packages
+
+override_dh_gencontrol:
+	echo >>debian/xorgxrdp.substvars "xdriver:Depends=$$( \
+	    (cd /usr/share/xserver-xorg && cat videodrvdep xinputdep) | \
+	    sed 's/, /\n/g' | sort -u | \
+	    perl -0e 'print join(", ", split(/\n/, <>));')"
+	dh_gencontrol
