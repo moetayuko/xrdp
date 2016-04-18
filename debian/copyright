@@ -14,7 +14,7 @@ Files: docs/man/xrdp.8 docs/man/xrdp-genkeymap.8 docs/man/xrdp-sesman.8 docs/man
 Copyright: Simone Fedele <ilsimo@users.sourceforge.net>
 License: GPL-2+
 
-Files: common/ssl_calls.{c,h}
+Files: common/ssl_calls.*
 Copyright: © 2003-2010 Jay Sorg
  (C) Idan Freiberg 2013-2014
 License: Apache-2.0
@@ -53,11 +53,11 @@ Copyright: © 2003-2010 Jay Sorg
  with contributions from Darren Tucker
 License: Apache-2.0
 
-Files: sesman/tools/ses{admin,test}.c
+Files: sesman/tools/sesadmin.c sesman/tools/sestest.c
 Copyright: (c) 2008 Simone Fedele
 License: GPL-2+
 
-Files: tests/gtcp_proxy/{gtcp-proxy,hexdump}.c
+Files: tests/gtcp_proxy/gtcp-proxy.c tests/gtcp_proxy/hexdump.c
 Copyright: Copyright (C) Laxmikant Rashinkar 2013 LK.Rashinkar@gmail.com
 License: Apache-2.0
 
@@ -72,7 +72,7 @@ License: Apache-2.0
 
 Files: xrdp/sans-10.fv1
 Copyright: 2003 by Bitstream, Inc.
-License: custom
+License: Bitstream
  All Rights Reserved.
  .
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -148,7 +148,7 @@ License: FreeBSD
 
 Files: xorg/X11R7.6/rdp/* xorgxrdp/*
 Copyright: © 2003-2010 Jay Sorg
-License: custom
+License: Historic
  Permission to use, copy, modify, distribute, and sell this software and its
  documentation for any purpose is hereby granted without fee, provided that
  the above copyright notice appear in all copies and that both that
