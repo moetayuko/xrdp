@@ -1,4 +1,4 @@
-xrdp (0.9.0~git20150901+dfsg-1~exp1) experimental; urgency=medium
+xrdp (0.9.0~20160418+git6c21aca-1) unstable; urgency=medium
 
   The default setup since version 0.9 is xorgxrdp, not X11rdp or VNC.
   Please ensure that the backend server (xorgxrdp or any VNC X server),
@@ -15,4 +15,4 @@ xrdp (0.9.0~git20150901+dfsg-1~exp1) experimental; urgency=medium
 
   RESTART_ON_UPGRADE=no is now the default and cannot be changed.
 
- -- Dominik George <dominik.george@teckids.org>  Sun, 24 Jan 2016 18:25:12 +0100
+ -- Dominik George <nik@naturalnet.de>  Sun, 24 Jan 2016 18:25:12 +0100
