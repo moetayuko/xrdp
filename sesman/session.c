@@ -3,6 +3,11 @@
  *
  * Copyright (C) Jay Sorg 2004-2013
  *
+ * BSD process grouping by:
+ * Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland.
+ * Copyright (c) 2000-2001 Markus Friedl.
+ * Copyright (c) 2011-2015 Koichiro Iwao, Kyushu Institute of Technology.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -90,9 +95,10 @@ dumpItemsToString(struct list *self, char *outstr, int len)
 
 /******************************************************************************/
 struct session_item *DEFAULT_CC
-session_get_bydata(char *name, int width, int height, int bpp, int type)
+session_get_bydata(char *name, int width, int height, int bpp, int type, char *client_ip)
 {
     struct session_chain *tmp;
+    enum SESMAN_CFG_SESS_POLICY policy = g_cfg->sess.policy;
 
     /*THREAD-FIX require chain lock */
     lock_chain_acquire();
@@ -104,23 +110,49 @@ session_get_bydata(char *name, int width, int height, int bpp, int type)
     {
         case SCP_SESSION_TYPE_XVNC: /* 0 */
             type = SESMAN_SESSION_TYPE_XVNC; /* 2 */
+            policy |= SESMAN_CFG_SESS_POLICY_D;  /* Xvnc cannot resize */
             break;
         case SCP_SESSION_TYPE_XRDP: /* 1 */
             type = SESMAN_SESSION_TYPE_XRDP; /* 1 */
+            break;
+        case SCP_SESSION_TYPE_XORG:
+            type = SESMAN_SESSION_TYPE_XORG;
             break;
         default:
             lock_chain_release();
             return 0;
     }
 
+#if 0
+    log_message(LOG_LEVEL_INFO,
+            "session_get_bydata: search policy %d U %s W %d H %d bpp %d T %d IP %s",
+            policy, name, width, height, bpp, type, client_ip);
+#endif
+
     while (tmp != 0)
     {
-        if (type == SESMAN_SESSION_TYPE_XRDP)
+#if 0
+        log_message(LOG_LEVEL_INFO,
+            "session_get_bydata: try %p U %s W %d H %d bpp %d T %d IP %s",
+            tmp->item,
+            tmp->item->name,
+            tmp->item->width, tmp->item->height,
+            tmp->item->bpp, tmp->item->type,
+            tmp->item->client_ip);
+#endif
+
+        if ((type == SESMAN_SESSION_TYPE_XRDP) || (type == SESMAN_SESSION_TYPE_XORG))
         {
             /* only name and bpp need to match for X11rdp, it can resize */
             if (g_strncmp(name, tmp->item->name, 255) == 0 &&
-                    tmp->item->bpp == bpp &&
-                    tmp->item->type == type)
+                (!(policy & SESMAN_CFG_SESS_POLICY_D) ||
+                 (tmp->item->width == width && tmp->item->height == height)) &&
+                (!(policy & SESMAN_CFG_SESS_POLICY_I) ||
+                 (g_strncmp_d(client_ip, tmp->item->client_ip, ':', 255) == 0)) &&
+                (!(policy & SESMAN_CFG_SESS_POLICY_C) ||
+                 (g_strncmp(client_ip, tmp->item->client_ip, 255) == 0)) &&
+                tmp->item->bpp == bpp &&
+                tmp->item->type == type)
             {
                 /*THREAD-FIX release chain lock */
                 lock_chain_release();
@@ -129,10 +161,13 @@ session_get_bydata(char *name, int width, int height, int bpp, int type)
         }
 
         if (g_strncmp(name, tmp->item->name, 255) == 0 &&
-                tmp->item->width == width &&
-                tmp->item->height == height &&
-                tmp->item->bpp == bpp &&
-                tmp->item->type == type)
+            (tmp->item->width == width && tmp->item->height == height) &&
+            (!(policy & SESMAN_CFG_SESS_POLICY_I) ||
+             (g_strncmp_d(client_ip, tmp->item->client_ip, ':', 255) == 0)) &&
+            (!(policy & SESMAN_CFG_SESS_POLICY_C) ||
+             (g_strncmp(client_ip, tmp->item->client_ip, 255) == 0)) &&
+            tmp->item->bpp == bpp &&
+            tmp->item->type == type)
         {
             /*THREAD-FIX release chain lock */
             lock_chain_release();
@@ -173,26 +208,62 @@ x_server_running_check_ports(int display)
 
     if (!x_running) /* check 59xx */
     {
-        sck = g_tcp_socket();
-        g_sprintf(text, "59%2.2d", display);
-        x_running = g_tcp_bind(sck, text);
-        g_tcp_close(sck);
+        if ((sck = g_tcp_socket()) != -1)
+        {
+            g_sprintf(text, "59%2.2d", display);
+            x_running = g_tcp_bind(sck, text);
+            g_tcp_close(sck);
+        }
     }
 
     if (!x_running) /* check 60xx */
     {
-        sck = g_tcp_socket();
-        g_sprintf(text, "60%2.2d", display);
-        x_running = g_tcp_bind(sck, text);
-        g_tcp_close(sck);
+        if ((sck = g_tcp_socket()) != -1)
+        {
+            g_sprintf(text, "60%2.2d", display);
+            x_running = g_tcp_bind(sck, text);
+            g_tcp_close(sck);
+        }
     }
 
     if (!x_running) /* check 62xx */
     {
-        sck = g_tcp_socket();
-        g_sprintf(text, "62%2.2d", display);
-        x_running = g_tcp_bind(sck, text);
-        g_tcp_close(sck);
+        if ((sck = g_tcp_socket()) != -1)
+        {
+            g_sprintf(text, "62%2.2d", display);
+            x_running = g_tcp_bind(sck, text);
+            g_tcp_close(sck);
+        }
+    }
+
+    if (!x_running)
+    {
+        g_sprintf(text, XRDP_CHANSRV_STR, display);
+        x_running = g_file_exist(text);
+    }
+
+    if (!x_running)
+    {
+        g_sprintf(text, CHANSRV_PORT_OUT_STR, display);
+        x_running = g_file_exist(text);
+    }
+
+    if (!x_running)
+    {
+        g_sprintf(text, CHANSRV_PORT_IN_STR, display);
+        x_running = g_file_exist(text);
+    }
+
+    if (!x_running)
+    {
+        g_sprintf(text, CHANSRV_API_STR, display);
+        x_running = g_file_exist(text);
+    }
+
+    if (!x_running)
+    {
+        g_sprintf(text, XRDP_X11RDP_STR, display);
+        x_running = g_file_exist(text);
     }
 
     return x_running;
@@ -258,7 +329,8 @@ session_start_sessvc(int xpid, int wmpid, long data, char *username, int display
     list_add_item(sessvc_params, (long)g_strdup(wmpid_str));
     list_add_item(sessvc_params, 0); /* mandatory */
 
-    env_set_user(username, 0, display);
+    env_set_user(username, 0, display,
+                 g_cfg->session_variables1, g_cfg->session_variables2);
 
     /* executing sessvc */
     g_execvp(exe_path, ((char **)sessvc_params->items));
@@ -393,6 +465,7 @@ session_start_fork(int width, int height, int bpp, char *username,
     char screen[32];
     char text[256];
     char passwd_file[256];
+    char *pfile;
     char **pp1 = (char **)NULL;
     struct session_chain *temp = (struct session_chain *)NULL;
     struct list *xserver_params = (struct list *)NULL;
@@ -457,6 +530,42 @@ session_start_fork(int width, int height, int bpp, char *username,
         g_sprintf(geometry, "%dx%d", width, height);
         g_sprintf(depth, "%d", bpp);
         g_sprintf(screen, ":%d", display);
+#ifdef __FreeBSD__
+        /*
+         * FreeBSD bug
+         * ports/157282: effective login name is not set by xrdp-sesman
+         * http://www.freebsd.org/cgi/query-pr.cgi?pr=157282
+         *
+         * from:
+         *  $OpenBSD: session.c,v 1.252 2010/03/07 11:57:13 dtucker Exp $
+         *  with some ideas about BSD process grouping to xrdp
+         */
+        pid_t bsdsespid = g_fork();
+
+        if (bsdsespid == -1)
+        {
+        }
+        else if (bsdsespid == 0) /* BSD session leader */
+        {
+            /**
+             * Create a new session and process group since the 4.4BSD
+             * setlogin() affects the entire process group
+             */
+            if (setsid() < 0)
+            {
+              log_message(LOG_LEVEL_ERROR,
+                "setsid failed - pid %d", g_getpid());
+            }
+
+            if (setlogin(username) < 0)
+            {
+              log_message(LOG_LEVEL_ERROR,
+                "setlogin failed for user %s - pid %d", username, g_getpid());
+            }
+        }
+
+        g_waitpid(bsdsespid);
+#endif
         wmpid = g_fork();
         if (wmpid == -1)
         {
@@ -471,7 +580,9 @@ session_start_fork(int width, int height, int bpp, char *username,
             }
             else if (pampid == 0) /* child: X11/client */
             {
-                env_set_user(username, 0, display);
+                env_set_user(username, 0, display,
+                             g_cfg->session_variables1,
+                             g_cfg->session_variables2);
                 if (x_server_running(display))
                 {
                     auth_set_env(data);
@@ -564,8 +675,14 @@ session_start_fork(int width, int height, int bpp, char *username,
             }
             else if (xpid == 0) /* child */
             {
-                env_set_user(username, passwd_file, display);
-                env_check_password_file(passwd_file, password);
+                pfile = 0;
+                if (type == SESMAN_SESSION_TYPE_XVNC)
+                {
+                    pfile = passwd_file;
+                }
+                env_set_user(username, pfile, display,
+                             g_cfg->session_variables1,
+                             g_cfg->session_variables2);
 
                 g_snprintf(text, 255, "%d", g_cfg->sess.max_idle_time);
                 g_setenv("XRDP_SESMAN_MAX_IDLE_TIME", text, 1);
@@ -574,10 +691,41 @@ session_start_fork(int width, int height, int bpp, char *username,
                 g_snprintf(text, 255, "%d", g_cfg->sess.kill_disconnected);
                 g_setenv("XRDP_SESMAN_KILL_DISCONNECTED", text, 1);
 
-                if (type == SESMAN_SESSION_TYPE_XVNC)
+                if (type == SESMAN_SESSION_TYPE_XORG)
                 {
                     xserver_params = list_create();
                     xserver_params->auto_free = 1;
+
+                    /* these are the must have parameters */
+                    list_add_item(xserver_params, (long) g_strdup("Xorg"));
+                    list_add_item(xserver_params, (long) g_strdup(screen));
+
+                    /* additional parameters from sesman.ini file */
+                    list_append_list_strdup(g_cfg->xorg_params, xserver_params, 0);
+
+                    /* make sure it ends with a zero */
+                    list_add_item(xserver_params, 0);
+
+                    pp1 = (char **) xserver_params->items;
+
+                    log_message(LOG_LEVEL_INFO, "%s", dumpItemsToString(xserver_params, execvpparams, 2048));
+
+                    /* some args are passed via env vars */
+                    g_sprintf(geometry, "%d", width);
+                    g_setenv("XRDP_START_WIDTH", geometry, 1);
+
+                    g_sprintf(geometry, "%d", height);
+                    g_setenv("XRDP_START_HEIGHT", geometry, 1);
+
+                    /* fire up Xorg */
+                    g_execvp("Xorg", pp1);
+                }
+                else if (type == SESMAN_SESSION_TYPE_XVNC)
+                {
+                    env_check_password_file(passwd_file, password);
+                    xserver_params = list_create();
+                    xserver_params->auto_free = 1;
+
                     /* these are the must have parameters */
                     list_add_item(xserver_params, (long)g_strdup("Xvnc"));
                     list_add_item(xserver_params, (long)g_strdup(screen));
@@ -596,13 +744,14 @@ session_start_fork(int width, int height, int bpp, char *username,
                     /* make sure it ends with a zero */
                     list_add_item(xserver_params, 0);
                     pp1 = (char **)xserver_params->items;
-                    log_message(LOG_LEVEL_INFO, "Xvnc start:%s", dumpItemsToString(xserver_params, execvpparams, 2048));
+                    log_message(LOG_LEVEL_INFO, "%s", dumpItemsToString(xserver_params, execvpparams, 2048));
                     g_execvp("Xvnc", pp1);
                 }
                 else if (type == SESMAN_SESSION_TYPE_XRDP)
                 {
                     xserver_params = list_create();
                     xserver_params->auto_free = 1;
+
                     /* these are the must have parameters */
                     list_add_item(xserver_params, (long)g_strdup("X11rdp"));
                     list_add_item(xserver_params, (long)g_strdup(screen));
@@ -619,7 +768,7 @@ session_start_fork(int width, int height, int bpp, char *username,
                     /* make sure it ends with a zero */
                     list_add_item(xserver_params, 0);
                     pp1 = (char **)xserver_params->items;
-                    log_message(LOG_LEVEL_INFO, "X11rdp start:%s", dumpItemsToString(xserver_params, execvpparams, 2048));
+                    log_message(LOG_LEVEL_INFO, "%s", dumpItemsToString(xserver_params, execvpparams, 2048));
                     g_execvp("X11rdp", pp1);
                 }
                 else
@@ -684,11 +833,21 @@ session_start_fork(int width, int height, int bpp, char *username,
         temp->item->type = type;
         temp->item->status = SESMAN_SESSION_STATUS_ACTIVE;
 
+        /*THREAD-FIX require chain lock */
+        lock_chain_acquire();
+
         temp->next = g_sessions;
         g_sessions = temp;
         g_session_count++;
+
+        /*THREAD-FIX release chain lock */
+        lock_chain_release();
+
+        return display;
     }
 
+    g_free(temp->item);
+    g_free(temp);
     return display;
 }
 
@@ -707,7 +866,8 @@ session_reconnect_fork(int display, char *username)
     }
     else if (pid == 0)
     {
-        env_set_user(username, 0, display);
+        env_set_user(username, 0, display,
+                     g_cfg->session_variables1, g_cfg->session_variables2);
         g_snprintf(text, 255, "%s/%s", XRDP_CFG_PATH, "reconnectwm.sh");
 
         if (g_file_exist(text))
@@ -930,6 +1090,7 @@ session_get_bypid(int pid)
                         "pid %d is null!", pid);
             /*THREAD-FIX release chain lock */
             lock_chain_release();
+            g_free(dummy);
             return 0;
         }
 
@@ -948,6 +1109,7 @@ session_get_bypid(int pid)
 
     /*THREAD-FIX release chain lock */
     lock_chain_release();
+    g_free(dummy);
     return 0;
 }
 

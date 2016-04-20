@@ -1,7 +1,7 @@
 /**
  * xrdp: A Remote Desktop Protocol server.
  *
- * Copyright (C) Jay Sorg 2004-2013
+ * Copyright (C) Jay Sorg 2004-2015
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include "xrdp_client_info.h"
 #include "xrdp_rail.h"
 
-#define CURRENT_MOD_VER 2
+#define CURRENT_MOD_VER 3
 
 struct mod
 {
@@ -44,8 +44,9 @@ struct mod
   int (*mod_get_wait_objs)(struct mod* v, tbus* read_objs, int* rcount,
                            tbus* write_objs, int* wcount, int* timeout);
   int (*mod_check_wait_objs)(struct mod* v);
-  tbus mod_dumby[100 - 9]; /* align, 100 minus the number of mod
-                              functions above */
+  int (*mod_frame_ack)(struct mod* v, int flags, int frame_id);
+  tintptr mod_dumby[100 - 10]; /* align, 100 minus the number of mod
+                                 functions above */
   /* server functions */
   int (*server_begin_update)(struct mod* v);
   int (*server_end_update)(struct mod* v);
@@ -136,15 +137,16 @@ struct mod
   int (*server_paint_rects)(struct mod* v,
                             int num_drects, short *drects,
                             int num_crects, short *crects,
-                            char *data, int width, int height, int flags);
+                            char *data, int width, int height,
+                            int flags, int frame_id);
 
-  tbus server_dumby[100 - 43]; /* align, 100 minus the number of server
-                                  functions above */
+  tintptr server_dumby[100 - 43]; /* align, 100 minus the number of server
+                                     functions above */
   /* common */
-  tbus handle; /* pointer to self as long */
-  tbus wm;
-  tbus painter;
-  int sck;
+  tintptr handle; /* pointer to self as long */
+  tintptr wm;
+  tintptr painter;
+  tintptr si;
   /* mod data */
   int width;
   int height;
@@ -154,9 +156,10 @@ struct mod
   char password[256];
   char ip[256];
   char port[256];
-  tbus sck_obj;
   int shift_state;
   struct xrdp_client_info client_info;
   int screen_shmem_id;
+  int screen_shmem_id_mapped; /* boolean */
   char *screen_shmem_pixels;
+  struct trans *trans;
 };
