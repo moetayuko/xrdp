@@ -1,10 +1,11 @@
 EXTRA_DIST = \
   arch.h \
-  d3des.h \
   defines.h \
   file.h \
   file_loc.h \
   list.h \
+  list16.h \
+  fifo.h \
   log.h \
   os_calls.h \
   os_calls.h \
@@ -15,7 +16,8 @@ EXTRA_DIST = \
   trans.h \
   xrdp_client_info.h \
   xrdp_constants.h \
-  xrdp_rail.h
+  xrdp_rail.h \
+  crc16.h
 
 AM_CFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
@@ -28,9 +30,10 @@ lib_LTLIBRARIES = \
   libcommon.la
 
 libcommon_la_SOURCES = \
-  d3des.c \
   file.c \
   list.c \
+  list16.c \
+  fifo.c \
   log.c \
   os_calls.c \
   ssl_calls.c \
