@@ -3,4 +3,3 @@ xrdp: no-upstream-changelog
 
 # debhelper-generated
 xrdp: postinst-has-useless-call-to-ldconfig
-xrdp: postrm-has-useless-call-to-ldconfig
