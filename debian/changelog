@@ -1,5 +1,6 @@
 xrdp (0.9.0~20150902+gitc0ef543-1) UNRELEASED; urgency=medium
 
+  [ Dominik George ]
   * New upstream release.
     + Taken from git because there are no recent releases
     + DFSG-free upstream, no more need for Debian patches
@@ -13,25 +14,20 @@ xrdp (0.9.0~20150902+gitc0ef543-1) UNRELEASED; urgency=medium
   * Better integrated X session startup script
   * Change of maintainership (Closes: 719624)
 
- -- Dominik George <nik@naturalnet.de>  Mon, 18 Apr 2016 13:47:12 +0200
-
-xrdp (0.8.0+dfsg-1) UNRELEASED; urgency=medium
-
-  * Point watch file to github
+  [ Andreas Tille ]
   * Add myself as Uploader
   * cme fix dpkg-control
   * cme fix dpkg-copyright
   * Refresh quilt patches
   * Build-Depends: libxrandr-dev
   * Fix minor issues in d/rules
-  * Remove file tcutils/tcutils via Files-Excluded
   * Fix license of files in common/*
   * Remove unused lintian-overrides
   * Fix section of manpage xrdp-dis.1
   * Fix spelling issue
   * Remove RPATH
 
- -- Andreas Tille <tille@debian.org>  Tue, 08 Mar 2016 11:15:04 +0100
+ -- Dominik George <nik@naturalnet.de>  Mon, 18 Apr 2016 13:47:12 +0200
 
 xrdp (0.6.1-2) unstable; urgency=medium
 
