@@ -2,13 +2,14 @@
 
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
-@@ -1,13 +1,12 @@
+@@ -1,13 +1,13 @@
  [Unit]
 -Description=xrdp session manager
 -After=syslog.target network.target
 -StopWhenUnneeded=true
 -BindTo=xrdp.service
 +Description=xrdp (X Remote Desktop Protocol) session manager
++Documentation=man:xrdp-sesman(8)  man:sesman.ini(5)
 +Requires=xrdp.service
 +After=network.target xrdp.service
  
@@ -23,12 +24,13 @@
  
 --- a/instfiles/xrdp.service
 +++ b/instfiles/xrdp.service
-@@ -1,14 +1,18 @@
+@@ -1,14 +1,19 @@
  [Unit]
 -Description=xrdp daemon
 -Requires=xrdp-sesman.service
 -After=syslog.target network.target xrdp-sesman.service
 +Description=xrdp (X Remote Desktop Protocol) protocol server
++Documentation=man:xrdp(8) man:xrdp.ini(5)
 +After=network.target
  
  [Service]
