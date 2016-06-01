@@ -49,7 +49,9 @@ override_dh_auto_configure:
 	    --enable-rfxcodec \
 	    --enable-opus
 	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
-	cd librfxcodec && ./configure ${CONFIGURE_ARGS}
+	cd librfxcodec && ./configure ${CONFIGURE_ARGS} \
+	    --disable-shared \
+	    --enable-static
 	find . -name Makefile -print0 | \
 	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
@@ -58,6 +60,7 @@ override_dh_auto_install:
 	# remove unused/confusing files
 	rm -f debian/xrdp/etc/xrdp/xrdp.sh
 	rm -f debian/xrdp/etc/xrdp/startwm.sh
+	rm -f debian/xrdp/usr/bin/rfxcodectest
 	# Policy
 	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
 	find debian/xrdp/usr/lib/ -name \*.a -print0 | \

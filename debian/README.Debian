@@ -12,10 +12,5 @@ The pulseaudio plugin from sesman/chansrv/pulse should be installed
 but cannot be built due to lack of a pulseaudio-modules-dev package
 in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
 
-Upstream is currently working on converting librfxcodec to autotools;
-we can then pass --enable-rfxcodec but should invest time into proper
-recursive configure (not done yet) and make (partially done); SSE can
-be used if tested beforehand. (Remember x32!)
-
 We currently do not use --enable-xrdpvr (as FFmpeg in squeeze is the last
 supported version, but it may be possible to use the one in stretch/sid).

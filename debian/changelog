@@ -5,7 +5,7 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
   * Bump Policy (no change)
   * Enable librfxcodec now that it’s autotool’d
 
- -- Dominik George <nik@naturalnet.de>  Wed, 01 Jun 2016 22:37:13 +0200
+ -- Dominik George <nik@naturalnet.de>  Wed, 01 Jun 2016 23:22:24 +0200
 
 xrdp (0.9.0~20150902+gitc0ef543-1) UNRELEASED; urgency=medium
 

@@ -3,7 +3,15 @@
 
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -31,4 +31,5 @@ SUBDIRS = \
+@@ -24,6 +24,7 @@ SUBDIRS = \
+   mc \
+   $(NEUTRINORDPDIR) \
+   libxrdp \
++  librfxcodec \
+   xrdp \
+   sesman \
+   keygen \
+@@ -31,4 +32,5 @@ SUBDIRS = \
    instfiles \
    genkeymap \
    xrdpapi \
@@ -41,6 +49,17 @@
  CFLAGS="$save_CFLAGS"
  
  AC_SUBST([moduledir], '${libdir}/xrdp')
+--- a/xrdp/Makefile.am
++++ b/xrdp/Makefile.am
+@@ -11,7 +11,7 @@ endif
+ if XRDP_RFXCODEC
+ EXTRA_DEFINES += -DXRDP_RFXCODEC
+ EXTRA_INCLUDES += -I$(top_srcdir)/librfxcodec/include
+-EXTRA_LIBS += $(top_srcdir)/librfxcodec/src/librfxencode.a
++EXTRA_LIBS += $(top_srcdir)/librfxcodec/src/librfxencode.la
+ endif
+ 
+ AM_CPPFLAGS = \
 --- a/xrdpapi/Makefile.am
 +++ b/xrdpapi/Makefile.am
 @@ -4,6 +4,7 @@ EXTRA_LIBS =
