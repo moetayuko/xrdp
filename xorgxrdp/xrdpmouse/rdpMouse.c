@@ -1,5 +1,5 @@
 /*
-Copyright 2013-2014 Jay Sorg
+Copyright 2013-2016 Jay Sorg
 
 Permission to use, copy, modify, distribute, and sell this software and its
 documentation for any purpose is hereby granted without fee, provided that
@@ -111,9 +111,15 @@ PtrAddEvent(rdpPointer *pointer)
     int type;
     int buttons;
 
-    rdpEnqueueMotion(pointer->device, pointer->cursor_x, pointer->cursor_y);
-
     LLOGLN(10, ("PtrAddEvent: x %d y %d", pointer->cursor_x, pointer->cursor_y));
+
+    if ((pointer->old_cursor_x != pointer->cursor_x) ||
+        (pointer->old_cursor_y != pointer->cursor_y))
+    {
+        rdpEnqueueMotion(pointer->device, pointer->cursor_x, pointer->cursor_y);
+        pointer->old_cursor_x = pointer->cursor_x;
+        pointer->old_cursor_y = pointer->cursor_y;
+    }
 
     for (i = 0; i < 5; i++)
     {
@@ -261,7 +267,7 @@ rdpmouseControl(DeviceIntPtr device, int what)
     return Success;
 }
 
-#if XORG_VERSION_CURRENT < (((1) * 10000000) + ((9) * 100000) + ((0) * 1000) + 1)
+#if XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(1, 9, 0, 1, 0)
 
 /* debian 6
    ubuntu 10.04 */

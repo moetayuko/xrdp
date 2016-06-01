@@ -29,7 +29,7 @@ xrdp_painter_create(struct xrdp_wm *wm, struct xrdp_session *session)
     self = (struct xrdp_painter *)g_malloc(sizeof(struct xrdp_painter), 1);
     self->wm = wm;
     self->session = session;
-    self->rop = 0xcc; /* copy gota use 0xcc*/
+    self->rop = 0xcc; /* copy will use 0xcc*/
     self->clip_children = 1;
     return self;
 }
@@ -915,7 +915,6 @@ xrdp_painter_composite(struct xrdp_painter* self,
     int k;
     int dx;
     int dy;
-    int palette_id;
     int cache_srcidx;
     int cache_mskidx;
 
@@ -939,7 +938,6 @@ xrdp_painter_composite(struct xrdp_painter* self,
         dstx += dx;
         dsty += dy;
 
-        palette_id = 0;
         cache_srcidx = src->item_index;
         cache_mskidx = -1;
         if (mskflags & 1)
