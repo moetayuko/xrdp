@@ -1,7 +1,8 @@
 /**
- * xrdp: A Remote Desktop Protocol server.
+ * librfxcodec: A Remote Desktop Protocol client.
+ * RemoteFX Codec Library
  *
- * Copyright (C) Jay Sorg 2004-2013
+ * Copyright 2015 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +17,12 @@
  * limitations under the License.
  */
 
-/**
- *
- * @file thread.h
- * @brief thread stuff...
- * @author Simone Fedele
- *
- */
+#ifndef __RFXCODEC_ENCODE_ALPHA_H
+#define __RFXCODEC_ENCODE_ALPHA_H
 
-#ifndef THREAD_H
-#define THREAD_H
-
-/**
- *
- * @brief Starts the signal handling thread
- * @retval 0 on success
- * @retval 1 on error
- *
- */
-int DEFAULT_CC
-thread_sighandler_start(void);
-
-/**
- *
- * @brief Starts the session update thread
- *
- */
-int DEFAULT_CC
-thread_session_update_start(void);
-
-/**
- *
- * @brief Starts a thread to handle an incoming connection
- *
- */
-int DEFAULT_CC
-thread_scp_start(int skt);
+int
+rfx_encode_plane(struct rfxencode *enc, uint8 *plane, int cx, int cy,
+                 STREAM *s);
 
 #endif
+

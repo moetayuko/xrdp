@@ -1,5 +1,5 @@
 /*
-Copyright 2014-2015 Jay Sorg
+Copyright 2014-2016 Jay Sorg
 
 Permission to use, copy, modify, distribute, and sell this software and its
 documentation for any purpose is hereby granted without fee, provided that
@@ -72,6 +72,7 @@ rdpSimdInit(ScreenPtr pScreen, ScrnInfoPtr pScrn)
     dev->yuy2_to_rgb32 = YUY2_to_RGB32;
     dev->uyvy_to_rgb32 = UYVY_to_RGB32;
     dev->a8r8g8b8_to_a8b8g8r8_box = a8r8g8b8_to_a8b8g8r8_box;
+    dev->a8r8g8b8_to_nv12_box = a8r8g8b8_to_nv12_box;
 #if SIMD_USE_ACCEL
     if (g_simd_use_accel)
     {
@@ -87,6 +88,7 @@ rdpSimdInit(ScreenPtr pScreen, ScrnInfoPtr pScrn)
             dev->yuy2_to_rgb32 = yuy2_to_rgb32_amd64_sse2;
             dev->uyvy_to_rgb32 = uyvy_to_rgb32_amd64_sse2;
             dev->a8r8g8b8_to_a8b8g8r8_box = a8r8g8b8_to_a8b8g8r8_box_amd64_sse2;
+            dev->a8r8g8b8_to_nv12_box = a8r8g8b8_to_nv12_box_amd64_sse2;
             LLOGLN(0, ("rdpSimdInit: sse2 amd64 yuv functions assigned"));
         }
 #elif defined(__x86__) || defined(_M_IX86) || defined(__i386__)
@@ -101,6 +103,7 @@ rdpSimdInit(ScreenPtr pScreen, ScrnInfoPtr pScrn)
             dev->yuy2_to_rgb32 = yuy2_to_rgb32_x86_sse2;
             dev->uyvy_to_rgb32 = uyvy_to_rgb32_x86_sse2;
             dev->a8r8g8b8_to_a8b8g8r8_box = a8r8g8b8_to_a8b8g8r8_box_x86_sse2;
+            dev->a8r8g8b8_to_nv12_box = a8r8g8b8_to_nv12_box_x86_sse2;
             LLOGLN(0, ("rdpSimdInit: sse2 x86 yuv functions assigned"));
         }
 #endif

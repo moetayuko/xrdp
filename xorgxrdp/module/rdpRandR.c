@@ -1,5 +1,5 @@
 /*
-Copyright 2011-2014 Jay Sorg
+Copyright 2011-2016 Jay Sorg
 
 Permission to use, copy, modify, distribute, and sell this software and its
 documentation for any purpose is hereby granted without fee, provided that
@@ -269,7 +269,7 @@ rdpRRGetPanning(ScreenPtr pScreen, RRCrtcPtr crtc, BoxPtr totalArea,
 
     if (!g_panning)
     {
-        return FALSE; 
+        return FALSE;
     }
 
     dev = rdpGetDevFromScreen(pScreen);
