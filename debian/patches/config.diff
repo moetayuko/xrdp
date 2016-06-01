@@ -3,7 +3,7 @@
 
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -84,12 +84,13 @@ param7=96
+@@ -84,12 +84,11 @@ param7=96
  param0=Xorg
  param1=-config
  param2=xrdp/xorg.conf
@@ -18,8 +18,6 @@
 +param5=-nolisten
 +param6=tcp
 +param7=-retro
-+param8=-logfile
-+param9=/dev/null
  
  [Chansrv]
  # drive redirection, defaults to xrdp_client if not set
