@@ -166,15 +166,13 @@ License: GPL-3+ with Autoconf exception
 
 Files: m4/ax_gcc_func_attribute.m4
 Copyright: (c) 2013 Gabriele Svelto <gabriele.svelto@gmail.com>
-License:
- Copying and distribution of this file, with or without modification, are
- permitted in any medium without royalty provided the copyright notice
- and this notice are preserved.  This file is offered as-is, without any
- warranty.
+License: custom-historic
 
-File: m4/ax_require_defined.m4
+Files: m4/ax_require_defined.m4
 Copyright: (c) 2014 Mike Frysinger <vapier@gentoo.org>
-License:
+License: custom-historic
+
+License: custom-historic
  Copying and distribution of this file, with or without modification, are
  permitted in any medium without royalty provided the copyright notice
  and this notice are preserved. This file is offered as-is, without any
