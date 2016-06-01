@@ -3,7 +3,7 @@
 
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -27,4 +27,5 @@ SUBDIRS = \
+@@ -31,4 +31,5 @@ SUBDIRS = \
    instfiles \
    genkeymap \
    xrdpapi \
@@ -11,9 +11,9 @@
    $(XRDPVRDIR)
 --- a/common/Makefile.am
 +++ b/common/Makefile.am
-@@ -40,7 +40,12 @@ libcommon_la_SOURCES = \
-   thread_calls.c \
-   trans.c
+@@ -38,7 +38,12 @@ libcommon_la_SOURCES = \
+   xrdp_constants.h \
+   xrdp_rail.h
  
 +if NEED_LIBDL
 +EXTRA_LIBDL = -ldl
@@ -26,7 +26,7 @@
    -lpthread
 --- a/configure.ac
 +++ b/configure.ac
-@@ -210,6 +210,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
+@@ -227,6 +227,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
    [AC_MSG_ERROR([please install libxrandr-dev or libXrandr-devel])],
    [#include <X11/Xlib.h>])
  
@@ -38,20 +38,20 @@
 +AM_CONDITIONAL(NEED_LIBDL, [test x"$LIBS" != x"$save_LIBS"])
 +LIBS=$save_LIBS
 +
- libdir="${libdir}/xrdp";
- if test "x${prefix}" = "xNONE" ; then
- sysconfdir="/etc";
+ CFLAGS="$save_CFLAGS"
+ 
+ AC_SUBST([moduledir], '${libdir}/xrdp')
 --- a/xrdpapi/Makefile.am
 +++ b/xrdpapi/Makefile.am
-@@ -9,6 +9,7 @@ AM_CFLAGS = \
-   $(EXTRA_DEFINES)
+@@ -4,6 +4,7 @@ EXTRA_LIBS =
+ EXTRA_FLAGS =
  
- INCLUDES = \
+ AM_CPPFLAGS = \
 +  -I$(top_srcdir)/common \
+   $(EXTRA_DEFINES) \
    $(EXTRA_INCLUDES)
  
- lib_LTLIBRARIES = \
-@@ -21,4 +22,5 @@ libxrdpapi_la_LDFLAGS = \
+@@ -18,4 +19,5 @@ libxrdpapi_la_LDFLAGS = \
    $(EXTRA_FLAGS)
  
  libxrdpapi_la_LIBADD = \

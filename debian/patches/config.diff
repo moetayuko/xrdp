@@ -3,8 +3,8 @@
 
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -81,12 +81,13 @@ param7=96
- [Xorg]
+@@ -84,12 +84,13 @@ param7=96
+ param0=Xorg
  param1=-config
  param2=xrdp/xorg.conf
 -param3=-logfile

@@ -2,15 +2,15 @@
 
 --- a/sesman/chansrv/chansrv_fuse.c
 +++ b/sesman/chansrv/chansrv_fuse.c
-@@ -39,7 +39,7 @@
- 
- //#define USE_SYNC_FLAG
+@@ -244,7 +244,7 @@ struct opendir_req
+     struct fuse_file_info *fi;
+ };
  
 -static char g_fuse_mount_name[256] = "xrdp_client";
 +static char g_fuse_mount_name[256] = ".xrdp_client";
  
- /* FUSE mount point */
- char g_fuse_root_path[256] = "";
+ FIFO g_fifo_opendir;
+ 
 @@ -446,7 +446,7 @@ xfuse_init(void)
  
      load_fuse_config();
@@ -22,7 +22,7 @@
  
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -90,8 +90,8 @@ param8=-logfile
+@@ -93,8 +93,8 @@ param8=-logfile
  param9=/dev/null
  
  [Chansrv]

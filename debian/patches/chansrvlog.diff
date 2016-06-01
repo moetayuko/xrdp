@@ -12,7 +12,7 @@
  .BR xrdp\-sesman (8),
 --- a/sesman/chansrv/chansrv.c
 +++ b/sesman/chansrv/chansrv.c
-@@ -1397,7 +1397,27 @@ get_log_path()
+@@ -1396,7 +1396,27 @@ get_log_path()
      log_path = g_getenv("CHANSRV_LOG_PATH");
      if (log_path == 0)
      {

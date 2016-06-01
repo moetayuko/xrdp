@@ -2,7 +2,7 @@
 
 --- a/common/log.c
 +++ b/common/log.c
-@@ -382,11 +382,6 @@ internal_config_read_logging(int file, s
+@@ -389,11 +389,6 @@ internal_config_read_logging(int file, s
      /* try to create path if not exist */
      g_create_path(lc->log_file);
  
@@ -16,7 +16,7 @@
  
 --- a/sesman/sesman.c
 +++ b/sesman/sesman.c
-@@ -161,6 +161,12 @@ main(int argc, char **argv)
+@@ -150,6 +150,12 @@ main(int argc, char **argv)
  
      if (1 == argc)
      {
@@ -31,7 +31,7 @@
          daemon = 1;
 --- a/xrdp/xrdp.c
 +++ b/xrdp/xrdp.c
-@@ -516,7 +516,6 @@ main(int argc, char **argv)
+@@ -545,7 +545,6 @@ main(int argc, char **argv)
  
          if (0 != pid)
          {

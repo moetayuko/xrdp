@@ -2,7 +2,7 @@
 
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
-@@ -1,13 +1,13 @@
+@@ -1,12 +1,12 @@
  [Unit]
 -Description=xrdp session manager
 -After=syslog.target network.target
@@ -16,15 +16,13 @@
  [Service]
  Type=forking
 -PIDFile=/var/run/xrdp-sesman.pid
--EnvironmentFile=/etc/sysconfig/xrdp
-+EnvironmentFile=/etc/default/xrdp
 +PIDFile=/run/xrdp/xrdp-sesman.pid
+ EnvironmentFile=-/etc/sysconfig/xrdp
+ EnvironmentFile=-/etc/default/xrdp
  ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
- ExecStop=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS --kill
- 
 --- a/instfiles/xrdp.service
 +++ b/instfiles/xrdp.service
-@@ -1,14 +1,19 @@
+@@ -1,15 +1,20 @@
  [Unit]
 -Description=xrdp daemon
 -Requires=xrdp-sesman.service
@@ -36,15 +34,14 @@
  [Service]
  Type=forking
 -PIDFile=/var/run/xrdp.pid
--EnvironmentFile=/etc/sysconfig/xrdp
--ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS --nodaemon
-+EnvironmentFile=/etc/default/xrdp
 +PIDFile=/run/xrdp/xrdp.pid
+ EnvironmentFile=-/etc/sysconfig/xrdp
+ EnvironmentFile=-/etc/default/xrdp
 +User=xrdp
 +Group=xrdp
 +PermissionsStartOnly=true
 +ExecStartPre=/bin/sh /usr/share/xrdp/socksetup
-+ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS
+ ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS
  ExecStop=/usr/sbin/xrdp $XRDP_OPTIONS --kill
 +ExecStopPost=/bin/rm -rf /var/run/xrdp/sockdir
  

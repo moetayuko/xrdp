@@ -194,8 +194,23 @@ Copyright: © 2007, 2008 Vincent Bernat <bernat@debian.org>
  © 2016 Andreas Tille <tille@debian.org>
 License: GPL-2+
 
-Files: debian/rules debian/xrdp.init debian/xrdp.postinst debian/xrdp.postrm
-Copyright: © 2015, 2016 mirabilos <tg@mirbsd.org>
+Files: debian/patches/* debian/rules debian/xrdp.init debian/xrdp.postinst debian/xrdp.postrm
+Copyright: © 2015, 2016 mirabilos <m@mirbsd.org>
+License: MirOS
+
+Files: debian/patches/keymap-default.diff
+Copyright: Dag-Erling Smørgrav
+ Petter Reinholdtsen
+License: Apache-2.0
+
+Files: debian/patches/keymap-fallback.diff
+Copyright: Vincent Bernat
+ Thorsten Glaser
+License: Apache-2.0
+
+Files: debian/patches/systemd.diff
+Copyright: Dominik George
+ Thorsten Glaser
 License: MirOS
 
 License: GPL-3+ with Autoconf exception
