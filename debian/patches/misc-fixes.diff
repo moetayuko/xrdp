@@ -17,6 +17,17 @@
  
  .SH ENVIRONMENT
  .TP
+--- a/librfxcodec/configure.ac
++++ b/librfxcodec/configure.ac
+@@ -9,7 +9,7 @@ AC_PROG_CC
+ AC_C_CONST
+ AC_PROG_LIBTOOL
+ 
+-AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
++AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
+ 
+ if test "x${prefix}" = "xNONE" ; then
+ sysconfdir="/etc";
 --- a/sesman/chansrv/chansrv_fuse.c
 +++ b/sesman/chansrv/chansrv_fuse.c
 @@ -58,6 +58,9 @@ char g_fuse_clipboard_path[256] = ""; /*
