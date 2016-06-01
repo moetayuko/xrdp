@@ -8,6 +8,14 @@ Use at your own risk and inform your users that privacy is possibly not
 guaranteed as all users can attach to RDP users’ sessions locally.
 See also: https://github.com/neutrinolabs/xrdp/issues/264
 
+If the Xorg server does not start, you may need to install the
+xserver-xorg-legacy package (if you’re not using systemd’s or
+consolekit’s privilege mechanism, or not using Linux), and/or
+set one or both of “needs_root_rights=yes” and especially
+“allowed_users=anybody” in /etc/X11/Xwrapper.config to allow
+users, once they are logged in through xrdp, to start their
+own X server.
+
 The pulseaudio plugin from sesman/chansrv/pulse should be installed
 but cannot be built due to lack of a pulseaudio-modules-dev package
 in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
