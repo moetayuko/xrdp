@@ -3,7 +3,7 @@ Upstream-Name: xrdp
 Source: https://github.com/neutrinolabs/xrdp
 
 Files: *
-Copyright: © 2003-2010 Jay Sorg
+Copyright: © 2003-2015 Jay Sorg
 License: Apache-2.0
 
 Files: docs/man/xrdp-keygen.8
@@ -54,7 +54,7 @@ Copyright: Copyright 2004-2008 Lennart Poettering
 License: GPL-2+
 
 Files: sesman/session.c
-Copyright: © 2003-2010 Jay Sorg
+Copyright: © 2004-2015 Jay Sorg
  Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
  Copyright (c) 2000-2001 Markus Friedl
  Copyright (c) 2011-2015 Koichiro Iwao, Kyushu Institute of Technology
@@ -181,7 +181,7 @@ License:
  warranty.
 
 Files: xorg/X11R7.6/rdp/* xorgxrdp/*
-Copyright: © 2003-2010 Jay Sorg
+Copyright: © 2003-2016 Jay Sorg
 License: Historic
 
 Files: xorg/tests/xdemo/yosemite.bmp
