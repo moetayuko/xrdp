@@ -1,6 +1,6 @@
 Consider using TLS encryption instead of the default RDP encryption,
 but do make sure to test all possible clients, and mind client bugs.
-TLS has been tested with Microsoft Remotedesktop in Windows 7 and
+TLS has been tested with Microsoft Remote Desktop in Windows 7 and
 above, rdesktop 1.8 and freerdp 1.1 (Remmina, et al).
 
 Another security issue is the disablement of access control by default.
