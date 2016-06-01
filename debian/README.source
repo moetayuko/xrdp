@@ -4,9 +4,3 @@ The source is obtained from git commits that were verified to work. You
 can use the following command to get an orig tarball:
 
  $ make -f debian/rules get-orig-source
-
-The used commit is what used to be „stable“ in upstream's view, or
-better put, the state the upstream code was in for a long time. It is
-verified to work, and contains some patches that make upstream
-DFSG-free. It has been tested and used in production for quite some
-time.
