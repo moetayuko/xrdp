@@ -3,8 +3,14 @@ Upstream-Name: xrdp
 Upstream-Contact: Jay Sorg
 Source: https://github.com/neutrinolabs/xrdp
 
-Files: common/arch.h
- xorgxrdp/module/x86/cpuid_x86.asm
+Files: COPYING
+ Makefile.am
+ astyle_config.as
+ bootstrap
+ coding_style.md
+ common/Makefile.am
+ common/arch.h
+ common/crc16.h
  common/defines.h
  common/file.c
  common/file.h
@@ -18,40 +24,105 @@ Files: common/arch.h
  common/os_calls.c
  common/os_calls.h
  common/parse.h
+ common/rail.h
  common/thread_calls.c
  common/thread_calls.h
  common/trans.c
  common/trans.h
  common/xrdp_client_info.h
+ common/xrdp_rail.h
+ configure.ac
+ description-pak
+ design.txt
+ docs/Makefile.am
+ docs/man/Makefile.am
+ docs/man/sesman.ini.5
+ docs/man/xrdp-chansrv.8
+ docs/man/xrdp-dis.1
+ docs/man/xrdp-sesadmin.8
+ docs/man/xrdp-sesrun.8
+ docs/man/xrdp-sessvc.8
+ docs/man/xrdp-xcon.8
+ docs/man/xrdp.ini.5
+ faq-compile.txt
+ faq-general.txt
+ file-loc.txt
+ fontdump/.gitignore
+ fontdump/Makefile
+ fontdump/fontdump.c
+ genkeymap/Makefile.am
+ genkeymap/dump-keymaps.sh
+ genkeymap/readme.txt
+ install.txt
+ instfiles/Makefile.am
+ instfiles/default/Makefile.am
+ instfiles/default/xrdp
+ instfiles/init.d/Makefile.am
+ instfiles/init.d/xrdp
+ instfiles/pam.d/Makefile.am
+ instfiles/pam.d/xrdp-sesman.common
+ instfiles/pam.d/xrdp-sesman.other
+ instfiles/pam.d/xrdp-sesman.password-auth
+ instfiles/pulse/Makefile.am
+ instfiles/pulse/default.pa
+ instfiles/rc.d/Makefile.am
+ instfiles/xrdp-sesman.service
+ instfiles/xrdp.service
+ keygen/Makefile.am
  keygen/keygen.c
+ librfxcodec/.gitignore
+ librfxcodec/Makefile.am
+ librfxcodec/acinclude.m4
+ librfxcodec/bootstrap
+ librfxcodec/configure.ac
+ librfxcodec/include/rfxcodec_common.h
+ librfxcodec/include/rfxcodec_decode.h
+ librfxcodec/include/rfxcodec_encode.h
+ librfxcodec/readme.txt
+ librfxcodec/src/Makefile.am
+ librfxcodec/src/amd64/cpuid_amd64.asm
+ librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr1_amd64_sse2.asm
+ librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr3_amd64_sse2.asm
+ librfxcodec/src/nasm_lt.sh
+ librfxcodec/src/rfxcommon.h
+ librfxcodec/src/rfxcompose.h
+ librfxcodec/src/rfxencode.c
+ librfxcodec/src/rfxencode.h
+ librfxcodec/src/rfxencode_alpha.c
+ librfxcodec/src/rfxencode_alpha.h
+ librfxcodec/src/rfxencode_dwt.h
+ librfxcodec/src/x86/cpuid_x86.asm
+ librfxcodec/src/x86/rfxcodec_encode_diff_rlgr1_x86_sse2.asm
+ librfxcodec/src/x86/rfxcodec_encode_diff_rlgr3_x86_sse2.asm
+ librfxcodec/tests/Makefile.am
+ librfxcodec/tests/readme.txt
+ librfxcodec/tests/rfxcodectest.c
+ libxrdp/Makefile.am
+ libxrdp/libxrdp.c
  libxrdp/libxrdp.h
  libxrdp/libxrdpinc.h
+ libxrdp/xrdp_bitmap32_compress.c
  libxrdp/xrdp_bitmap_compress.c
+ libxrdp/xrdp_channel.c
  libxrdp/xrdp_jpeg_compress.c
  libxrdp/xrdp_mcs.c
+ libxrdp/xrdp_orders.c
+ libxrdp/xrdp_orders_rail.c
+ libxrdp/xrdp_orders_rail.h
  libxrdp/xrdp_rdp.c
  libxrdp/xrdp_sec.c
- tests/tcp_proxy/main.c
- xrdp/funcs.c
- xrdp/lang.c
- xrdp/xrdp.c
- xrdp/xrdp.h
- xrdp/xrdp_bitmap.c
- xrdp/xrdp_cache.c
- xrdp/xrdp_font.c
- xrdp/xrdp_listen.c
- xrdp/xrdp_login_wnd.c
- xrdp/xrdp_mm.c
- xrdp/xrdp_painter.c
- xrdp/xrdp_process.c
- xrdp/xrdp_region.c
- xrdp/xrdp_types.h
- xrdp/xrdp_wm.c
- xrdp/xrdpwin.c
- libxrdp/libxrdp.c
- libxrdp/xrdp_orders.c
+ m4/.gitignore
+ mc/Makefile.am
  mc/mc.c
  mc/mc.h
+ neutrinordp/Makefile.am
+ neutrinordp/xrdp-color.c
+ neutrinordp/xrdp-color.h
+ neutrinordp/xrdp-neutrinordp.c
+ neutrinordp/xrdp-neutrinordp.h
+ postinstall-pak
+ prog_std.txt
+ rdp/Makefile.am
  rdp/rdp.c
  rdp/rdp.h
  rdp/rdp_bitmap.c
@@ -62,32 +133,46 @@ Files: common/arch.h
  rdp/rdp_rdp.c
  rdp/rdp_sec.c
  rdp/rdp_tcp.c
+ readme.txt
+ sesman/Doxyfile
+ sesman/Makefile.am
+ sesman/access.c
  sesman/access.h
+ sesman/auth.h
+ sesman/chansrv/Makefile.am
+ sesman/chansrv/clipboard-notes.txt
+ sesman/chansrv/clipboard_common.h
+ sesman/chansrv/clipboard_file.c
+ sesman/chansrv/clipboard_file.h
+ sesman/chansrv/pcsc/.gitignore
+ sesman/chansrv/pcsc/Makefile
+ sesman/chansrv/pcsc/wrapper/Makefile
+ sesman/chansrv/pcsc/wrapper/winscard-func-names.txt
+ sesman/chansrv/pcsc/wrapper/winscard-funcs.h
+ sesman/chansrv/pcsc/wrapper/winscard.c
+ sesman/chansrv/pcsc/wrapper/winscard.def
+ sesman/chansrv/pcsc/xrdp_pcsc.c
+ sesman/chansrv/pulse/.gitignore
+ sesman/chansrv/pulse/Makefile
+ sesman/chansrv/pulse/module-xrdp-sink-symdef.h
+ sesman/chansrv/pulse/module-xrdp-sink.c
+ sesman/chansrv/pulse/module-xrdp-source-symdef.h
+ sesman/chansrv/pulse/pulse-notes.txt
+ sesman/chansrv/pulse/pulse-notes.ubuntu.txt
+ sesman/chansrv/rail.c
+ sesman/chansrv/rail.h
+ sesman/chansrv/smartcard_pcsc.c
+ sesman/chansrv/smartcard_pcsc.h
+ sesman/chansrv/sound.c
+ sesman/chansrv/sound.h
+ sesman/chansrv/wave-format-server.txt
+ sesman/chansrv/xcommon.c
+ sesman/chansrv/xcommon.h
  sesman/config.c
  sesman/config.h
  sesman/env.c
  sesman/env.h
- sesman/scp.h
- sesman/scp_v0.h
- sesman/scp_v1.h
- sesman/scp_v1_mng.c
- sesman/scp_v1_mng.h
- sesman/sesman.h
- sesman/session.h
- sesman/sessvc/sessvc.c
- sesman/sig.c
- sesman/sig.h
- sesman/tools/dis.c
- sesman/tools/sesrun.c
- sesman/tools/tcp.c
- sesman/tools/tcp.h
- sesman/tools/xcon.c
- sesman/verify_user.c
- sesman/verify_user_kerberos.c
- sesman/verify_user_pam.c
- sesman/verify_user_pam_userpass.c
- fontdump/fontdump.c
- sesman/auth.h
+ sesman/libscp/Makefile.am
  sesman/libscp/libscp.h
  sesman/libscp/libscp_commands.h
  sesman/libscp/libscp_commands_mng.h
@@ -115,71 +200,61 @@ Files: common/arch.h
  sesman/libscp/libscp_v1s_mng.h
  sesman/libscp/libscp_vX.c
  sesman/libscp/libscp_vX.h
- librfxcodec/include/rfxcodec_common.h
- librfxcodec/include/rfxcodec_decode.h
- librfxcodec/include/rfxcodec_encode.h
- librfxcodec/src/rfxcommon.h
- librfxcodec/src/rfxcompose.h
- librfxcodec/src/rfxencode.c
- librfxcodec/src/rfxencode.h
- librfxcodec/src/rfxencode_alpha.c
- librfxcodec/src/rfxencode_alpha.h
- librfxcodec/src/rfxencode_dwt.h
- librfxcodec/tests/rfxcodectest.c
- sesman/access.c
  sesman/scp.c
+ sesman/scp.h
  sesman/scp_v0.c
+ sesman/scp_v0.h
  sesman/scp_v1.c
+ sesman/scp_v1.h
+ sesman/scp_v1_mng.c
+ sesman/scp_v1_mng.h
  sesman/sesman.c
- vnc/vnc.c
- vnc/vnc.h
- xup/xup.c
- xup/xup.h
- sesman/chansrv/clipboard_file.c
- sesman/chansrv/clipboard_file.h
- sesman/chansrv/rail.c
- sesman/chansrv/rail.h
- sesman/chansrv/xcommon.c
- sesman/chansrv/xcommon.h
- neutrinordp/xrdp-color.c
- neutrinordp/xrdp-color.h
- neutrinordp/xrdp-neutrinordp.c
- neutrinordp/xrdp-neutrinordp.h
- sesman/chansrv/pulse/module-xrdp-sink.c
- tests/gtcp_proxy/gtcp.c
- tests/gtcp_proxy/gtcp.h
- xorg/tests/randr/trandr.c
- common/rail.h
- common/xrdp_rail.h
- libxrdp/xrdp_orders_rail.h
- sesman/chansrv/sound.c
- sesman/chansrv/sound.h
- libxrdp/xrdp_orders_rail.c
- sesman/chansrv/clipboard_common.h
- sesman/chansrv/smartcard_pcsc.c
- sesman/chansrv/smartcard_pcsc.h
- sesman/verify_user_bsd.c
- libxrdp/xrdp_channel.c
- libxrdp/xrdp_bitmap32_compress.c
- xorgxrdp/module/rdp.h
- common/crc16.h
- genkeymap/dump-keymaps.sh
- librfxcodec/src/nasm_lt.sh
- sesman/chansrv/pcsc/wrapper/winscard-funcs.h
- sesman/chansrv/pcsc/wrapper/winscard.c
- sesman/chansrv/pcsc/xrdp_pcsc.c
- sesman/chansrv/pulse/module-xrdp-sink-symdef.h
- sesman/chansrv/pulse/module-xrdp-source-symdef.h
+ sesman/sesman.h
+ sesman/sesman.ini
+ sesman/session.h
+ sesman/sessvc/Makefile.am
+ sesman/sessvc/sessvc.c
+ sesman/sig.c
+ sesman/sig.h
  sesman/startwm.sh
+ sesman/tools/Makefile.am
  sesman/tools/config.c
+ sesman/tools/dis.c
+ sesman/tools/sesrun.c
+ sesman/tools/tcp.c
+ sesman/tools/tcp.h
+ sesman/tools/xcon.c
+ sesman/verify_user.c
+ sesman/verify_user_bsd.c
+ sesman/verify_user_kerberos.c
+ sesman/verify_user_pam.c
+ sesman/verify_user_pam_userpass.c
+ tcutils/README.txt
  tcutils/main.cpp
  tcutils/mainwindow.cpp
  tcutils/mainwindow.h
+ tcutils/mainwindow.ui
+ tcutils/resources.qrc
+ tcutils/resources/images/tools.gif
+ tcutils/tcutils.pro.user
  tcutils/utils.cpp
  tcutils/utils.h
+ tests/.gitignore
+ tests/gtcp_proxy/Makefile
+ tests/gtcp_proxy/README.txt
+ tests/gtcp_proxy/gtcp.c
+ tests/gtcp_proxy/gtcp.h
+ tests/memtest/Makefile
  tests/memtest/libmem.c
  tests/memtest/libmem.h
  tests/memtest/memtest.c
+ tests/readme.txt
+ tests/tcp_proxy/Makefile
+ tests/tcp_proxy/main.c
+ vnc/Makefile.am
+ vnc/vnc.c
+ vnc/vnc.h
+ vrplayer/README.txt
  vrplayer/decoder.cpp
  vrplayer/decoder.h
  vrplayer/decoderthread.cpp
@@ -188,9 +263,11 @@ Files: common/arch.h
  vrplayer/demuxmedia.h
  vrplayer/dlgabout.cpp
  vrplayer/dlgabout.h
+ vrplayer/dlgabout.ui
  vrplayer/main.cpp
  vrplayer/mainwindow.cpp
  vrplayer/mainwindow.h
+ vrplayer/mainwindow.ui
  vrplayer/mediapacket.cpp
  vrplayer/mediapacket.h
  vrplayer/ourinterface.cpp
@@ -199,153 +276,76 @@ Files: common/arch.h
  vrplayer/playaudio.h
  vrplayer/playvideo.cpp
  vrplayer/playvideo.h
- xorg/X11R7.6/cleanx.sh
- xorg/debuild/debX11rdp.sh
- xorg/tests/nx/client.sh
- xorg/tests/nx/server.sh
- xorgxrdp/module/nasm_lt.sh
- xorgxrdp/test-in-home.sh
- xrdp/xrdp_encoder.h
- astyle_config.as
- bootstrap
- coding_style.md
- common/Makefile.am
- configure.ac
- COPYING
- description-pak
- design.txt
- docs/Makefile.am
- docs/man/Makefile.am
- docs/man/sesman.ini.5
- docs/man/xrdp-chansrv.8
- docs/man/xrdp-dis.1
- docs/man/xrdp.ini.5
- docs/man/xrdp-sesadmin.8
- docs/man/xrdp-sesrun.8
- docs/man/xrdp-sessvc.8
- docs/man/xrdp-xcon.8
- faq-compile.txt
- faq-general.txt
- file-loc.txt
- fontdump/.gitignore
- fontdump/Makefile
- genkeymap/Makefile.am
- genkeymap/readme.txt
- install.txt
- instfiles/default/Makefile.am
- instfiles/default/xrdp
- instfiles/init.d/Makefile.am
- instfiles/init.d/xrdp
- instfiles/Makefile.am
- instfiles/pam.d/Makefile.am
- instfiles/pam.d/xrdp-sesman.common
- instfiles/pam.d/xrdp-sesman.other
- instfiles/pam.d/xrdp-sesman.password-auth
- instfiles/pulse/default.pa
- instfiles/pulse/Makefile.am
- instfiles/rc.d/Makefile.am
- instfiles/xrdp.service
- instfiles/xrdp-sesman.service
- keygen/Makefile.am
- librfxcodec/acinclude.m4
- librfxcodec/bootstrap
- librfxcodec/configure.ac
- librfxcodec/.gitignore
- librfxcodec/Makefile.am
- librfxcodec/readme.txt
- librfxcodec/src/amd64/cpuid_amd64.asm
- librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr1_amd64_sse2.asm
- librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr3_amd64_sse2.asm
- librfxcodec/src/Makefile.am
- librfxcodec/src/x86/cpuid_x86.asm
- librfxcodec/src/x86/rfxcodec_encode_diff_rlgr1_x86_sse2.asm
- librfxcodec/src/x86/rfxcodec_encode_diff_rlgr3_x86_sse2.asm
- librfxcodec/tests/Makefile.am
- librfxcodec/tests/readme.txt
- libxrdp/Makefile.am
- m4/.gitignore
- Makefile.am
- mc/Makefile.am
- neutrinordp/Makefile.am
- postinstall-pak
- prog_std.txt
- rdp/Makefile.am
- readme.txt
- sesman/chansrv/clipboard-notes.txt
- sesman/chansrv/Makefile.am
- sesman/chansrv/pcsc/.gitignore
- sesman/chansrv/pcsc/Makefile
- sesman/chansrv/pcsc/wrapper/Makefile
- sesman/chansrv/pcsc/wrapper/winscard.def
- sesman/chansrv/pcsc/wrapper/winscard-func-names.txt
- sesman/chansrv/pulse/.gitignore
- sesman/chansrv/pulse/Makefile
- sesman/chansrv/pulse/pulse-notes.txt
- sesman/chansrv/pulse/pulse-notes.ubuntu.txt
- sesman/chansrv/wave-format-server.txt
- sesman/Doxyfile
- sesman/libscp/Makefile.am
- sesman/Makefile.am
- sesman/sesman.ini
- sesman/sessvc/Makefile.am
- sesman/tools/Makefile.am
- tcutils/mainwindow.ui
- tcutils/README.txt
- tcutils/resources/images/tools.gif
- tcutils/resources.qrc
- tcutils/tcutils.pro.user
- tests/.gitignore
- tests/gtcp_proxy/Makefile
- tests/gtcp_proxy/README.txt
- tests/memtest/Makefile
- tests/readme.txt
- tests/tcp_proxy/Makefile
- vnc/Makefile.am
- vrplayer/dlgabout.ui
- vrplayer/mainwindow.ui
- vrplayer/README.txt
  vrplayer/vrplayer.pro
- xorg/debuild/x11rdp-files/DEBIAN/control
- xorg/debuild/x11rdp-files/DEBIAN/postinst
  xorg/.gitignore
- xorg/readme.txt
- xorg/tests/randr/Makefile
- xorg/tests/xdemo/Makefile
- xorg/tests/xdemo/README.txt
+ xorg/X11R7.6/cleanx.sh
  xorg/X11R7.6/libXext-1.2.0.patch
  xorg/X11R7.6/rdp/Makefile
  xorg/X11R7.6/x11_file_list.txt
+ xorg/debuild/debX11rdp.sh
+ xorg/debuild/x11rdp-files/DEBIAN/control
+ xorg/debuild/x11rdp-files/DEBIAN/postinst
+ xorg/readme.txt
+ xorg/tests/nx/client.sh
+ xorg/tests/nx/server.sh
+ xorg/tests/randr/Makefile
+ xorg/tests/randr/trandr.c
+ xorg/tests/xdemo/Makefile
+ xorg/tests/xdemo/README.txt
+ xorgxrdp/.gitignore
+ xorgxrdp/Makefile.am
  xorgxrdp/acinclude.m4
  xorgxrdp/bootstrap
  xorgxrdp/configure.ac
- xorgxrdp/.gitignore
- xorgxrdp/Makefile.am
+ xorgxrdp/module/Makefile.am
  xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
  xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
  xorgxrdp/module/amd64/cpuid_amd64.asm
- xorgxrdp/module/Makefile.am
+ xorgxrdp/module/nasm_lt.sh
+ xorgxrdp/module/rdp.h
+ xorgxrdp/module/x86/cpuid_x86.asm
  xorgxrdp/readme.txt
+ xorgxrdp/test-in-home.sh
  xorgxrdp/tests/yuv2rgb/Makefile
  xorgxrdp/xrdpdev/Makefile.am
  xorgxrdp/xrdpdev/xorg.conf
  xorgxrdp/xrdpkeyb/Makefile.am
  xorgxrdp/xrdpmouse/Makefile.am
+ xrdp/Makefile.am
  xrdp/ad24b.bmp
  xrdp/ad256.bmp
- xrdpapi/Makefile.am
- xrdpapi/vrplayer.mk
  xrdp/cursor0.cur
  xrdp/cursor1.cur
  xrdp/czech.txt
- xrdp/Makefile.am
+ xrdp/funcs.c
+ xrdp/lang.c
  xrdp/rdp-scan-codes.txt
- xrdpvr/Makefile.am
+ xrdp/xrdp.c
+ xrdp/xrdp.h
+ xrdp/xrdp.ini
  xrdp/xrdp24b.bmp
  xrdp/xrdp256.bmp
- xrdp/xrdp.ini
+ xrdp/xrdp_bitmap.c
+ xrdp/xrdp_cache.c
+ xrdp/xrdp_encoder.h
+ xrdp/xrdp_font.c
  xrdp/xrdp_keyboard.ini
+ xrdp/xrdp_listen.c
+ xrdp/xrdp_login_wnd.c
  xrdp/xrdp_logo.bmp
+ xrdp/xrdp_mm.c
+ xrdp/xrdp_painter.c
+ xrdp/xrdp_process.c
+ xrdp/xrdp_region.c
+ xrdp/xrdp_types.h
+ xrdp/xrdp_wm.c
+ xrdp/xrdpwin.c
+ xrdpapi/Makefile.am
+ xrdpapi/vrplayer.mk
+ xrdpvr/Makefile.am
  xup/Makefile.am
+ xup/xup.c
+ xup/xup.h
 Copyright: 2004-2016 Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
@@ -353,10 +353,16 @@ Files: instfiles/xrdp.sh
 Copyright: 2013 Mark Balliet <posicat@pobox.com>
 License: Apache-2.0
 
-Files: sesman/chansrv/chansrv_fuse.c
+Files: common/fifo.c
+ common/fifo.h
+ sesman/chansrv/chansrv_common.c
+ sesman/chansrv/chansrv_common.h
+ sesman/chansrv/chansrv_fuse.c
  sesman/chansrv/chansrv_fuse.h
  sesman/chansrv/devredir.c
  sesman/chansrv/devredir.h
+ sesman/chansrv/drdynvc.c
+ sesman/chansrv/drdynvc.h
  sesman/chansrv/fifo.c
  sesman/chansrv/fifo.h
  sesman/chansrv/irp.c
@@ -365,18 +371,12 @@ Files: sesman/chansrv/chansrv_fuse.c
  sesman/chansrv/smartcard.h
  tests/gtcp_proxy/gtcp-proxy.c
  tests/gtcp_proxy/hexdump.c
- common/fifo.c
- common/fifo.h
- xrdp/xrdp_encoder.c
- sesman/chansrv/chansrv_common.c
- sesman/chansrv/chansrv_common.h
+ xorg/tests/xdemo/bmp_parser.c
  xorg/tests/xdemo/common.h
  xorg/tests/xdemo/xdemo.c
- sesman/chansrv/drdynvc.c
- sesman/chansrv/drdynvc.h
+ xrdp/xrdp_encoder.c
  xrdpapi/vrplayer.c
  xrdpvr/xrdpvr_internal.h
- xorg/tests/xdemo/bmp_parser.c
 Copyright: 2013 Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
 License: Apache-2.0
 
@@ -402,21 +402,21 @@ Copyright: 2011 Vic Lee
 License: Apache-2.0
 
 Files: common/ssl_calls.c
- libxrdp/xrdp_iso.c
- libxrdp/xrdp_caps.c
  common/ssl_calls.h
+ libxrdp/xrdp_caps.c
  libxrdp/xrdp_fastpath.c
+ libxrdp/xrdp_iso.c
 Copyright: Idan Freiberg 2013-2014
   Jay Sorg 2004-2014
 License: Apache-2.0
 
-Files: xrdpapi/simple.c
+Files: libxrdp/xrdp_mppc_enc.c
+ sesman/chansrv/smartcard.c
+ xorg/X11R7.6/buildx.sh
+ xrdpapi/simple.c
  xrdpapi/xrdpapi.c
  xrdpvr/xrdpvr.c
  xrdpvr/xrdpvr.h
- sesman/chansrv/smartcard.c
- libxrdp/xrdp_mppc_enc.c
- xorg/X11R7.6/buildx.sh
 Copyright: Jay Sorg 2012-2013
   Laxmikant Rashinkar 2012-2013
 License: Apache-2.0
@@ -433,18 +433,22 @@ Copyright: Jay Sorg
  Simone Fedele
 License: Apache-2.0
 
-Files: xorgxrdp/module/rdpCapture.c
- xorgxrdp/module/rdpCapture.h
- sesman/chansrv/clipboard.c
- sesman/chansrv/chansrv.c
+Files: sesman/chansrv/chansrv.c
  sesman/chansrv/chansrv.h
+ sesman/chansrv/clipboard.c
  sesman/chansrv/clipboard.h
+ xorgxrdp/module/rdpCapture.c
+ xorgxrdp/module/rdpCapture.h
 Copyright: 2014, Laxmikant Rashinkar
   2014-2016, Jay Sorg
 License: MIT
 
 Files: librfxcodec/src/amd64/funcs_amd64.h
+ librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm
+ librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm
  librfxcodec/src/x86/funcs_x86.h
+ librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
+ librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
  xorg/X11R7.6/rdp/gcops.h
  xorg/X11R7.6/rdp/rdp.h
  xorg/X11R7.6/rdp/rdpComposite.c
@@ -506,6 +510,10 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorg/X11R7.6/rdp/rdpup.c
  xorg/X11R7.6/rdp/rdpxv.c
  xorgxrdp/module/amd64/funcs_amd64.h
+ xorgxrdp/module/amd64/i420_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/amd64/uyvy_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/amd64/yuy2_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/amd64/yv12_to_rgb32_amd64_sse2.asm
  xorgxrdp/module/rdpClientCon.c
  xorgxrdp/module/rdpClientCon.h
  xorgxrdp/module/rdpComposite.c
@@ -578,25 +586,17 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/rdpTrapezoids.h
  xorgxrdp/module/rdpXv.c
  xorgxrdp/module/rdpXv.h
- xorgxrdp/module/x86/funcs_x86.h
- xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
- xorgxrdp/xrdpdev/xrdpdev.c
- xorgxrdp/xrdpkeyb/rdpKeyboard.c
- xorgxrdp/xrdpmouse/rdpMouse.c
- librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm
- librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm
- librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
- librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
- xorgxrdp/module/amd64/i420_to_rgb32_amd64_sse2.asm
- xorgxrdp/module/amd64/uyvy_to_rgb32_amd64_sse2.asm
- xorgxrdp/module/amd64/yuy2_to_rgb32_amd64_sse2.asm
- xorgxrdp/module/amd64/yv12_to_rgb32_amd64_sse2.asm
  xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
  xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
+ xorgxrdp/module/x86/funcs_x86.h
  xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
+ xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
+ xorgxrdp/xrdpdev/xrdpdev.c
+ xorgxrdp/xrdpkeyb/rdpKeyboard.c
+ xorgxrdp/xrdpmouse/rdpMouse.c
 Copyright: 2011-2015 Jay Sorg
 License: MIT
 
