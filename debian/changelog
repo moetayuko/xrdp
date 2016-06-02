@@ -19,6 +19,7 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
   * Full license audit
   * Better integrated X session startup script
   * Change of maintainership (Closes: #719624)
+  * Add reportbug note about VNC backend issues
 
   [ Andreas Tille ]
   * Add myself as Uploader
