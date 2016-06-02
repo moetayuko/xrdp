@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: xrdp
-Upstream-Contact: Jay Sorg
+Upstream-Contact: Jay Sorg <jay.sorg@gmail.com>
 Source: https://github.com/neutrinolabs/xrdp
 
 Files: COPYING
