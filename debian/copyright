@@ -422,7 +422,7 @@ Files: sesman/chansrv/chansrv.c
  xorgxrdp/module/rdpCapture.h
 Copyright: 2014, Laxmikant Rashinkar
   2014-2016, Jay Sorg
-License: MIT
+License: Expat
 
 Files: librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm
@@ -598,7 +598,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/xrdpmouse/Makefile.am
  xorgxrdp/xrdpmouse/rdpMouse.c
 Copyright: 2011-2015 Jay Sorg
-License: MIT
+License: Expat
 
 Files: common/xrdp_constants.h
 Copyright: Jay Sorg 2004-2014
@@ -731,7 +731,7 @@ License: GPL-2+
  On Debian systems, the complete text of the licence can be found in
  `/usr/share/common-licenses/GPL-2`.
 
-License: MIT
+License: Expat
  Permission is hereby granted, free of charge, to any person
  obtaining a copy of this software and associated documentation files
  (the "Software"), to deal in the Software without restriction,
