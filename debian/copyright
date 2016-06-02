@@ -692,7 +692,7 @@ Copyright: Dominik George <nik@naturalnet.de>
 License: MirOS
 
 Files: sesman/chansrv/pcsc/dumps/*
- instfiles/km-*,ini
+ instfiles/km-*.ini
 Copyright: None
 License: None
  Not copyrightable as these files are pure data dumps.
