@@ -20,6 +20,7 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
   * Better integrated X session startup script
   * Change of maintainership (Closes: #719624)
   * Add reportbug note about VNC backend issues
+  * Make sure to report on relevant backend packages in reportbug
 
   [ Andreas Tille ]
   * Add myself as Uploader
