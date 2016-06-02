@@ -1,4 +1,4 @@
-xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
+xrdp (0.9.0~20160601+git703fedd-1) unstable; urgency=medium
 
   [ Dominik George, Thorsten Glaser ]
   * New upstream release.
@@ -9,10 +9,11 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
     + Better input handling (keymapping, pointer events)
     + xrdp's default backend is now xorgxrdp instead of VNC. This
       makes it get rid of various VNC-related issues and use of VNC
-      is discouraged. (Closes: #666731, #688083, #685130, #774447,
-              #816098, #469215, #780053, #654788, #709595, #709594,
-              #735678, #798643, #469754, #741160)
-  * Some changes in default config
+      is discouraged.
+      (Closes: #666731, #688083, #685130, #774447, #816098, #469215,
+      #780053, #654788, #709595, #709594, #735678, #798643, #469754,
+      #741160)
+  * Some changes in default config:
     + xorgxrdp is now default
     + Hide files/mountpoints in users' homes using dotfiles and XDG cache dir
   * Add systemd support
@@ -43,8 +44,12 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
     + Place all license texts at EOF.
     + No blanks in short license tags.
     + Add upstream contact's name.
+  * debian/control:
+    * Add myself to Uploaders: field.
 
- -- Dominik George <nik@naturalnet.de>  Wed, 01 Jun 2016 23:52:32 +0200
+  * Upload sponsored and reviewed by Mike Gabriel.
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 03 Jun 2016 00:14:00 +0200
 
 xrdp (0.6.1-2) unstable; urgency=medium
 
