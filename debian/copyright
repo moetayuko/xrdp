@@ -327,7 +327,7 @@ Files: COPYING
  xup/Makefile.am
  xup/xup.c
  xup/xup.h
-Copyright: 2004-2016 Jay Sorg <jay.sorg@gmail.com>
+Copyright: 2004-2016, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
 Files: instfiles/xrdp.sh
@@ -358,7 +358,7 @@ Files: common/fifo.c
  xrdp/xrdp_encoder.c
  xrdpapi/vrplayer.c
  xrdpvr/xrdpvr_internal.h
-Copyright: 2013 Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
+Copyright: 2013, Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
 License: Apache-2.0
 
 Files: librfxcodec/src/rfx_bitstream.h
@@ -370,7 +370,7 @@ Files: librfxcodec/src/rfx_bitstream.h
  librfxcodec/src/rfxencode_rlgr1.h
  librfxcodec/src/rfxencode_rlgr3.c
  librfxcodec/src/rfxencode_rlgr3.h
-Copyright: 2011 Vic Lee
+Copyright: 2011, Vic Lee
 License: Apache-2.0
 
 Files: librfxcodec/src/rfxcompose.c
@@ -378,8 +378,8 @@ Files: librfxcodec/src/rfxcompose.c
  librfxcodec/src/rfxencode_quantization.c
  librfxcodec/src/rfxencode_tile.c
  librfxcodec/src/rfxencode_tile.h
-Copyright: 2011 Vic Lee
-  2014-2015 Jay Sorg <jay.sorg@gmail.com>
+Copyright: 2011, Vic Lee
+  2014-2015, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
 Files: common/ssl_calls.c
@@ -387,8 +387,8 @@ Files: common/ssl_calls.c
  libxrdp/xrdp_caps.c
  libxrdp/xrdp_fastpath.c
  libxrdp/xrdp_iso.c
-Copyright: Idan Freiberg 2013-2014
-  Jay Sorg 2004-2014
+Copyright: 2013-2014, Idan Freiberg
+  2004-2014, Jay Sorg
 License: Apache-2.0
 
 Files: libxrdp/xrdp_mppc_enc.c
@@ -398,8 +398,8 @@ Files: libxrdp/xrdp_mppc_enc.c
  xrdpapi/xrdpapi.c
  xrdpvr/xrdpvr.c
  xrdpvr/xrdpvr.h
-Copyright: Jay Sorg 2012-2013
-  Laxmikant Rashinkar 2012-2013
+Copyright: 2012-2013, Jay Sorg
+  2012-2013, Laxmikant Rashinkar
 License: Apache-2.0
 
 Files: sesman/tools/sesadmin.c
@@ -597,43 +597,43 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/xrdpkeyb/rdpKeyboard.c
  xorgxrdp/xrdpmouse/Makefile.am
  xorgxrdp/xrdpmouse/rdpMouse.c
-Copyright: 2011-2015 Jay Sorg
+Copyright: 2011-2015, Jay Sorg
 License: Expat
 
 Files: common/xrdp_constants.h
-Copyright: Jay Sorg 2004-2014
-  Kevin Zhou 2012,
-  Matthew Chapman 1999-2008,
+Copyright: 2004-2014, Jay Sorg
+  2012, Kevin Zhou
+  1999-2008, Matthew Chapman
 License: Apache-2.0
 
 Files: docs/man/xrdp-keygen.8
-Copyright: 2007, 2008 Vincent Bernat <bernat@debian.org>
+Copyright: 2007, 2008, Vincent Bernat <bernat@debian.org>
 License: GPL-2+
 
 Files: sesman/session.c
 Copyright: 1995, Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
   2000-2001, Markus Friedl
   2011-2015, Koichiro Iwao, Kyushu Institute of Technology
-  Jay Sorg 2004-2015,
+  2004-2015, Jay Sorg
 License: Apache-2.0
 
 Files: libxrdp/xrdp_surface.c
 Copyright: Jay Sorg 2012-2013,
-  Kevin Zhou 2012
+  2012, Kevin Zhou
 License: Apache-2.0
 
 Files: xrdpapi/xrdpapi.h
-Copyright: Jay Sorg 2012-2013,
-  Laxmikant Rashinkar 2012-2013,
-  Thomas Goddard 2012-2013
+Copyright: 2012-2013,Jay Sorg
+  2012-2013, Laxmikant Rashinkar
+  2012-2013, Thomas Goddard
 License: Apache-2.0
 
 Files: genkeymap/evdev-map.c
-Copyright: Michał Górny 2014, <mgorny@gentoo.org>
+Copyright: 2014, Michał Górny <mgorny@gentoo.org>
 License: GPL-2+
 
 Files: genkeymap/genkeymap.c
-Copyright: Ádám Wallner 2008, <wallner@bitbaro.hu>
+Copyright: 2008, Ádám Wallner <wallner@bitbaro.hu>
 License: GPL-2+
 
 Files: sesman/chansrv/pulse/module-xrdp-source.c
