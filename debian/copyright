@@ -1,13 +1,14 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: xrdp
+Upstream-Contact: Jay Sorg
 Source: https://github.com/neutrinolabs/xrdp
 
 Files: *
-Copyright: © 2003-2015 Jay Sorg
+Copyright: 2003-2015, Jay Sorg
 License: Apache-2.0
 
 Files: docs/man/xrdp-keygen.8
-Copyright: © 2007, 2008 Vincent Bernat <bernat@debian.org>
+Copyright: 2007, 2008, Vincent Bernat <bernat@debian.org>
 License: GPL-2+
 
 Files: docs/man/xrdp.8 docs/man/xrdp-genkeymap.8 docs/man/xrdp-sesman.8 docs/man/xrdp-sesrun.8
@@ -15,71 +16,233 @@ Copyright: Simone Fedele <ilsimo@users.sourceforge.net>
 License: GPL-2+
 
 Files: common/ssl_calls.*
-Copyright: © 2003-2010 Jay Sorg
- (C) Idan Freiberg 2013-2014
+Copyright: 2003-2010, Jay Sorg
+ Idan Freiberg, 2013-2014
 License: Apache-2.0
 
 Files: common/xrdp_constants.h
-Copyright: © 2003-2010 Jay Sorg
- Copyright (C) Matthew Chapman 1999-2008
- Copyright (C) Kevin Zhou 2012
+Copyright: 2003-2010, Jay Sorg
+ 1998-2008, Matthew Chapman
+ 2012, Kevin Zhou
 License: Apache-2.0
 
 Files: genkeymap/*
-Copyright: Copyright (C) Michał Górny 2014 <mgorny@gentoo.org>
- Copyright (C) Ádám Wallner 2008 <wallner@bitbaro.hu>
+Copyright: 2014, Michał Górny <mgorny@gentoo.org>
+ 2008, Ádám Wallner <wallner@bitbaro.hu>
 License: GPL-2+
 
 Files: librfxcodec/*
-Copyright: © 2003-2015 Jay Sorg
- Copyright 2011 Vic Lee
+Copyright: 2003-2015, Jay Sorg
+ 2011, Vic Lee
 License: Apache-2.0
 
-Files: librfxcodec/src/amd64/funcs_amd64.h librfxcodec/src/x86/funcs_x86.h
-Copyright: 2014-2015 Jay Sorg
+Files: librfxcodec/src/amd64/funcs_amd64.h
+ librfxcodec/src/x86/funcs_x86.h
+Copyright: 2014-2015, Jay Sorg
 License: Historic
 
-Files: librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
-Copyright: 2016 Jay Sorg
+Files: librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm
+ librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm
+ librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
+ librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
+Copyright: 2016, Jay Sorg
 License: Historic
 
 Files: sesman/chansrv/*
-Copyright: © 2003-2010 Jay Sorg
- Copyright (C) Laxmikant Rashinkar 2009-2014
+Copyright: 2003-2010, Jay Sorg
+ 2009-2014, Laxmikant Rashinkar
 License: Apache-2.0
 
 Files: sesman/chansrv/pulse/module-xrdp-source.c
-Copyright: Copyright 2004-2008 Lennart Poettering
- Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies)
+Copyright: 2004-2008, Lennart Poettering
+ 2008, Nokia Corporation and/or its subsidiary(-ies)
 License: GPL-2+
 
 Files: sesman/session.c
-Copyright: © 2004-2015 Jay Sorg
- Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
- Copyright (c) 2000-2001 Markus Friedl
- Copyright (c) 2011-2015 Koichiro Iwao, Kyushu Institute of Technology
- with contributions from Darren Tucker
+Copyright: 2004-2015, Jay Sorg
+ 1995, Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+ 2000-2001, Markus Friedl
+ 2011-2015, Koichiro Iwao, Kyushu Institute of Technology
 License: Apache-2.0
+Comment:
+ With contributions from Darren Tucker.
 
-Files: sesman/tools/sesadmin.c sesman/tools/sestest.c
-Copyright: (c) 2008 Simone Fedele
+Files: sesman/tools/sesadmin.c
+ sesman/tools/sestest.c
+Copyright: 2008, Simone Fedele
 License: GPL-2+
 
-Files: tests/gtcp_proxy/gtcp-proxy.c tests/gtcp_proxy/hexdump.c
-Copyright: Copyright (C) Laxmikant Rashinkar 2013 LK.Rashinkar@gmail.com
+Files: tests/gtcp_proxy/gtcp-proxy.c
+ tests/gtcp_proxy/hexdump.c
+Copyright: 2013, Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
 License: Apache-2.0
 
 Files: xorg/tests/xdemo/*
-Copyright: Copyright (C) Laxmikant Rashinkar 2004-2012
+Copyright: 2004-2012, Laxmikant Rashinkar
 License: Apache-2.0
 
-Files: xrdpapi/* xrdpvr/*
-Copyright: © 2003-2010 Jay Sorg
- Copyright (C) Laxmikant Rashinkar 2012-2013
+Files: xrdpapi/*
+ xrdpvr/*
+Copyright: 2003-2010, Jay Sorg
+ 2012-2013, Laxmikant Rashinkar
 License: Apache-2.0
 
 Files: xrdp/sans-10.fv1
-Copyright: 2003 by Bitstream, Inc.
+Copyright: 2003, Bitstream, Inc.
+License: Bitstream
+
+Files: instfiles/rc.d/xrdp
+Copyright: metalefty
+License: FreeBSD
+
+Files: m4/ax_append_flag.m4
+Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
+ 2011, Maarten Bosmans <mkbosmans@gmail.com>
+License: GPL-3+~autoconf
+
+Files: m4/ax_cflags_warn_all.m4
+Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
+ 2010, Rhys Ulerich <rhys.ulerich@gmail.com>
+License: GPL-3+~autoconf
+
+Files: m4/ax_gcc_func_attribute.m4
+Copyright: 2013, Gabriele Svelto <gabriele.svelto@gmail.com>
+License: custom-historic
+
+Files: m4/ax_require_defined.m4
+Copyright: 2014, Mike Frysinger <vapier@gentoo.org>
+License: custom-historic
+
+Files: xorg/X11R7.6/rdp/* xorgxrdp/*
+Copyright: 2003-2016, Jay Sorg
+License: Historic
+
+Files: xorg/tests/xdemo/yosemite.bmp
+Copyright: 2015, mirabilos <tg@mirbsd.org>
+License: MirOS
+
+Files: debian/*
+Copyright: 2007, 2008, Vincent Bernat <bernat@debian.org>
+ 2015, 2016, Dominik George <nik@naturalnet.de>
+ 2016, Andreas Tille <tille@debian.org>
+License: GPL-2+
+
+Files: debian/patches/* debian/rules debian/xrdp.init debian/xrdp.postinst debian/xrdp.postrm
+Copyright: 2015, 2016, mirabilos <m@mirbsd.org>
+License: MirOS
+
+Files: debian/patches/keymap-default.diff
+Copyright: Dag-Erling Smørgrav
+ Petter Reinholdtsen
+License: Apache-2.0
+
+Files: debian/patches/keymap-fallback.diff
+Copyright: Vincent Bernat
+ Thorsten Glaser
+License: Apache-2.0
+
+Files: debian/patches/systemd.diff
+Copyright: Dominik George
+ Thorsten Glaser
+License: MirOS
+
+License: GPL-3+~autoconf
+ This program is free software: you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by the
+ Free Software Foundation, either version 3 of the License, or (at your
+ option) any later version.
+ .
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program. If not, see <http://www.gnu.org/licenses/>.
+ .
+ As a special exception, the respective Autoconf Macro's copyright owner
+ gives unlimited permission to copy, distribute and modify the configure
+ scripts that are the output of Autoconf when processing the Macro. You
+ need not follow the terms of the GNU General Public License when using
+ or distributing such scripts, even though portions of the text of the
+ Macro appear in them. The GNU General Public License (GPL) does govern
+ all other use of the material that constitutes the Autoconf Macro.
+ .
+ This special exception to the GPL applies to versions of the Autoconf
+ Macro released by the Autoconf Archive. When you make and distribute a
+ modified version of the Autoconf Macro, you may extend this special
+ exception to the GPL to apply to your modified version as well.
+ .
+ On Debian systems, the complete text of the licence can be found in
+ `/usr/share/common-licenses/GPL-3`.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems, the complete text of the licence can be found in
+ `/usr/share/common-licenses/GPL-2`.
+
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ .
+      http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the complete text of the licence can be found in
+ `/usr/share/common-licenses/Apache-2.0`.
+
+License: Historic
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: MirOS
+ Provided that these terms and disclaimer and all copyright notices
+ are retained or reproduced in an accompanying document, permission
+ is granted to deal in this work without restriction, including un‐
+ limited rights to use, publicly perform, distribute, sell, modify,
+ merge, give away, or sublicence.
+ .
+ This work is provided "AS IS" and WITHOUT WARRANTY of any kind, to
+ the utmost extent permitted by applicable law, neither express nor
+ implied; without malicious intent or gross negligence. In no event
+ may a licensor, author or contributor be held liable for indirect,
+ direct, other damage, loss, or other issues arising in any way out
+ of dealing in the work, even if advised of the possibility of such
+ damage or existence of a defect, except proven that it results out
+ of said person's immediate fault when using the work as intended.
+
 License: Bitstream
  All Rights Reserved.
  .
@@ -124,8 +287,6 @@ License: Bitstream
  Inc., respectively. For further information, contact: fonts at gnome dot
  org.
 
-Files: instfiles/rc.d/xrdp
-Copyright: metalefty
 License: FreeBSD
  Copyright 1992-2015 The FreeBSD Project. All rights reserved.
  .
@@ -154,130 +315,8 @@ License: FreeBSD
  those of the authors and should not be interpreted as representing official
  policies, either expressed or implied, of the FreeBSD Project.
 
-Files: m4/ax_append_flag.m4
-Copyright: (c) 2008 Guido U. Draheim <guidod@gmx.de>
- (c) 2011 Maarten Bosmans <mkbosmans@gmail.com>
-License: GPL-3+ with Autoconf exception
-
-Files: m4/ax_cflags_warn_all.m4
-Copyright: (c) 2008 Guido U. Draheim <guidod@gmx.de>
- (c) 2010 Rhys Ulerich <rhys.ulerich@gmail.com>
-License: GPL-3+ with Autoconf exception
-
-Files: m4/ax_gcc_func_attribute.m4
-Copyright: (c) 2013 Gabriele Svelto <gabriele.svelto@gmail.com>
-License: custom-historic
-
-Files: m4/ax_require_defined.m4
-Copyright: (c) 2014 Mike Frysinger <vapier@gentoo.org>
-License: custom-historic
-
 License: custom-historic
  Copying and distribution of this file, with or without modification, are
  permitted in any medium without royalty provided the copyright notice
  and this notice are preserved. This file is offered as-is, without any
  warranty.
-
-Files: xorg/X11R7.6/rdp/* xorgxrdp/*
-Copyright: © 2003-2016 Jay Sorg
-License: Historic
-
-Files: xorg/tests/xdemo/yosemite.bmp
-Copyright: © 2015 mirabilos <tg@mirbsd.org>
-License: MirOS
-
-Files: debian/*
-Copyright: © 2007, 2008 Vincent Bernat <bernat@debian.org>
- © 2015, 2016 Dominik George <nik@naturalnet.de>
- © 2016 Andreas Tille <tille@debian.org>
-License: GPL-2+
-
-Files: debian/patches/* debian/rules debian/xrdp.init debian/xrdp.postinst debian/xrdp.postrm
-Copyright: © 2015, 2016 mirabilos <m@mirbsd.org>
-License: MirOS
-
-Files: debian/patches/keymap-default.diff
-Copyright: Dag-Erling Smørgrav
- Petter Reinholdtsen
-License: Apache-2.0
-
-Files: debian/patches/keymap-fallback.diff
-Copyright: Vincent Bernat
- Thorsten Glaser
-License: Apache-2.0
-
-Files: debian/patches/systemd.diff
-Copyright: Dominik George
- Thorsten Glaser
-License: MirOS
-
-License: GPL-3+ with Autoconf exception
- This program is free software: you can redistribute it and/or modify it
- under the terms of the GNU General Public License as published by the
- Free Software Foundation, either version 3 of the License, or (at your
- option) any later version.
- .
- This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- Public License for more details.
- .
- You should have received a copy of the GNU General Public License along
- with this program. If not, see <http://www.gnu.org/licenses/>.
- .
- As a special exception, the respective Autoconf Macro's copyright owner
- gives unlimited permission to copy, distribute and modify the configure
- scripts that are the output of Autoconf when processing the Macro. You
- need not follow the terms of the GNU General Public License when using
- or distributing such scripts, even though portions of the text of the
- Macro appear in them. The GNU General Public License (GPL) does govern
- all other use of the material that constitutes the Autoconf Macro.
- .
- This special exception to the GPL applies to versions of the Autoconf
- Macro released by the Autoconf Archive. When you make and distribute a
- modified version of the Autoconf Macro, you may extend this special
- exception to the GPL to apply to your modified version as well.
- .
- On Debian systems, the complete text of the licence can be found in
- `/usr/share/common-licenses/GPL-3`.
-
-License: GPL-2+
- On Debian systems, the complete text of the licence can be found in
- `/usr/share/common-licenses/GPL-2`.
-
-License: Apache-2.0
- On Debian systems, the complete text of the licence can be found in
- `/usr/share/common-licenses/Apache-2.0`.
-
-License: Historic
- Permission to use, copy, modify, distribute, and sell this software and its
- documentation for any purpose is hereby granted without fee, provided that
- the above copyright notice appear in all copies and that both that
- copyright notice and this permission notice appear in supporting
- documentation.
- .
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- .
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
- AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-License: MirOS
- Provided that these terms and disclaimer and all copyright notices
- are retained or reproduced in an accompanying document, permission
- is granted to deal in this work without restriction, including un‐
- limited rights to use, publicly perform, distribute, sell, modify,
- merge, give away, or sublicence.
- .
- This work is provided "AS IS" and WITHOUT WARRANTY of any kind, to
- the utmost extent permitted by applicable law, neither express nor
- implied; without malicious intent or gross negligence. In no event
- may a licensor, author or contributor be held liable for indirect,
- direct, other damage, loss, or other issues arising in any way out
- of dealing in the work, even if advised of the possibility of such
- damage or existence of a defect, except proven that it results out
- of said person's immediate fault when using the work as intended.
