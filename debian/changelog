@@ -7,15 +7,16 @@ xrdp (0.9.0~20160601+git703fedd-1) unstable; urgency=medium
     + Working x11rdp backend (native X server access)
     + librfxcodec (better bitmap handling)
     + Better input handling (keymapping, pointer events)
-    + Closes: 666731, 688083, 685130, 774447, 816098, 469215, 780053, 654788,
-              709595, 709594, 735678, 798643, 469754, 741160
+    + Closes: #666731, #688083, #685130, #774447, #816098, #469215,
+              #780053, #654788, #709595, #709594, #735678, #798643,
+              #469754, #741160
   * Some changes in default config
     + xorgxrdp is now default
     + Hide files/mountpoints in users' homes using dotfiles and XDG cache dir
   * Add systemd support
   * Full license audit
   * Better integrated X session startup script
-  * Change of maintainership (Closes: 719624)
+  * Change of maintainership (Closes: #719624)
 
   [ Andreas Tille ]
   * Add myself as Uploader
