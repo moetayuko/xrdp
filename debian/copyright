@@ -3,10 +3,6 @@ Upstream-Name: xrdp
 Upstream-Contact: Jay Sorg
 Source: https://github.com/neutrinolabs/xrdp
 
-Files: *
-Copyright: 2003-2015, Jay Sorg
-License: Apache-2.0
-
 Files: docs/man/xrdp-keygen.8
 Copyright: 2007, 2008, Vincent Bernat <bernat@debian.org>
 License: GPL-2+
