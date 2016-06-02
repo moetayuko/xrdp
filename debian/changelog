@@ -7,9 +7,11 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
     + Working x11rdp backend (native X server access)
     + librfxcodec (better bitmap handling)
     + Better input handling (keymapping, pointer events)
-    + Closes: #666731, #688083, #685130, #774447, #816098, #469215,
-              #780053, #654788, #709595, #709594, #735678, #798643,
-              #469754, #741160
+    + xrdp's default backend is now xorgxrdp instead of VNC. This
+      makes it get rid of various VNC-related issues and use of VNC
+      is discouraged. (Closes: #666731, #688083, #685130, #774447,
+              #816098, #469215, #780053, #654788, #709595, #709594,
+              #735678, #798643, #469754, #741160)
   * Some changes in default config
     + xorgxrdp is now default
     + Hide files/mountpoints in users' homes using dotfiles and XDG cache dir
