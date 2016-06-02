@@ -292,25 +292,6 @@ Files: COPYING
  xorg/tests/randr/trandr.c
  xorg/tests/xdemo/Makefile
  xorg/tests/xdemo/README.txt
- xorgxrdp/.gitignore
- xorgxrdp/Makefile.am
- xorgxrdp/acinclude.m4
- xorgxrdp/bootstrap
- xorgxrdp/configure.ac
- xorgxrdp/module/Makefile.am
- xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
- xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
- xorgxrdp/module/amd64/cpuid_amd64.asm
- xorgxrdp/module/nasm_lt.sh
- xorgxrdp/module/rdp.h
- xorgxrdp/module/x86/cpuid_x86.asm
- xorgxrdp/readme.txt
- xorgxrdp/test-in-home.sh
- xorgxrdp/tests/yuv2rgb/Makefile
- xorgxrdp/xrdpdev/Makefile.am
- xorgxrdp/xrdpdev/xorg.conf
- xorgxrdp/xrdpkeyb/Makefile.am
- xorgxrdp/xrdpmouse/Makefile.am
  xrdp/Makefile.am
  xrdp/ad24b.bmp
  xrdp/ad256.bmp
@@ -509,11 +490,22 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorg/X11R7.6/rdp/rdprandr.h
  xorg/X11R7.6/rdp/rdpup.c
  xorg/X11R7.6/rdp/rdpxv.c
+ xorgxrdp/.gitignore
+ xorgxrdp/Makefile.am
+ xorgxrdp/acinclude.m4
+ xorgxrdp/bootstrap
+ xorgxrdp/configure.ac
+ xorgxrdp/module/Makefile.am
+ xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
+ xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
+ xorgxrdp/module/amd64/cpuid_amd64.asm
  xorgxrdp/module/amd64/funcs_amd64.h
  xorgxrdp/module/amd64/i420_to_rgb32_amd64_sse2.asm
  xorgxrdp/module/amd64/uyvy_to_rgb32_amd64_sse2.asm
  xorgxrdp/module/amd64/yuy2_to_rgb32_amd64_sse2.asm
  xorgxrdp/module/amd64/yv12_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/nasm_lt.sh
+ xorgxrdp/module/rdp.h
  xorgxrdp/module/rdpClientCon.c
  xorgxrdp/module/rdpClientCon.h
  xorgxrdp/module/rdpComposite.c
@@ -588,14 +580,22 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/rdpXv.h
  xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
  xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
+ xorgxrdp/module/x86/cpuid_x86.asm
  xorgxrdp/module/x86/funcs_x86.h
  xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
+ xorgxrdp/readme.txt
+ xorgxrdp/test-in-home.sh
+ xorgxrdp/tests/yuv2rgb/Makefile
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
+ xorgxrdp/xrdpdev/Makefile.am
+ xorgxrdp/xrdpdev/xorg.conf
  xorgxrdp/xrdpdev/xrdpdev.c
+ xorgxrdp/xrdpkeyb/Makefile.am
  xorgxrdp/xrdpkeyb/rdpKeyboard.c
+ xorgxrdp/xrdpmouse/Makefile.am
  xorgxrdp/xrdpmouse/rdpMouse.c
 Copyright: 2011-2015 Jay Sorg
 License: MIT
