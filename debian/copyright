@@ -4,6 +4,7 @@ Upstream-Contact: Jay Sorg
 Source: https://github.com/neutrinolabs/xrdp
 
 Files: common/arch.h
+ xorgxrdp/module/x86/cpuid_x86.asm
  common/defines.h
  common/file.c
  common/file.h
@@ -205,6 +206,146 @@ Files: common/arch.h
  xorgxrdp/module/nasm_lt.sh
  xorgxrdp/test-in-home.sh
  xrdp/xrdp_encoder.h
+ astyle_config.as
+ bootstrap
+ coding_style.md
+ common/Makefile.am
+ configure.ac
+ COPYING
+ description-pak
+ design.txt
+ docs/Makefile.am
+ docs/man/Makefile.am
+ docs/man/sesman.ini.5
+ docs/man/xrdp-chansrv.8
+ docs/man/xrdp-dis.1
+ docs/man/xrdp.ini.5
+ docs/man/xrdp-sesadmin.8
+ docs/man/xrdp-sesrun.8
+ docs/man/xrdp-sessvc.8
+ docs/man/xrdp-xcon.8
+ faq-compile.txt
+ faq-general.txt
+ file-loc.txt
+ fontdump/.gitignore
+ fontdump/Makefile
+ genkeymap/Makefile.am
+ genkeymap/readme.txt
+ install.txt
+ instfiles/default/Makefile.am
+ instfiles/default/xrdp
+ instfiles/init.d/Makefile.am
+ instfiles/init.d/xrdp
+ instfiles/Makefile.am
+ instfiles/pam.d/Makefile.am
+ instfiles/pam.d/xrdp-sesman.common
+ instfiles/pam.d/xrdp-sesman.other
+ instfiles/pam.d/xrdp-sesman.password-auth
+ instfiles/pulse/default.pa
+ instfiles/pulse/Makefile.am
+ instfiles/rc.d/Makefile.am
+ instfiles/xrdp.service
+ instfiles/xrdp-sesman.service
+ keygen/Makefile.am
+ librfxcodec/acinclude.m4
+ librfxcodec/bootstrap
+ librfxcodec/configure.ac
+ librfxcodec/.gitignore
+ librfxcodec/Makefile.am
+ librfxcodec/readme.txt
+ librfxcodec/src/amd64/cpuid_amd64.asm
+ librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr1_amd64_sse2.asm
+ librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr3_amd64_sse2.asm
+ librfxcodec/src/Makefile.am
+ librfxcodec/src/x86/cpuid_x86.asm
+ librfxcodec/src/x86/rfxcodec_encode_diff_rlgr1_x86_sse2.asm
+ librfxcodec/src/x86/rfxcodec_encode_diff_rlgr3_x86_sse2.asm
+ librfxcodec/tests/Makefile.am
+ librfxcodec/tests/readme.txt
+ libxrdp/Makefile.am
+ m4/.gitignore
+ Makefile.am
+ mc/Makefile.am
+ neutrinordp/Makefile.am
+ postinstall-pak
+ prog_std.txt
+ rdp/Makefile.am
+ readme.txt
+ sesman/chansrv/clipboard-notes.txt
+ sesman/chansrv/Makefile.am
+ sesman/chansrv/pcsc/.gitignore
+ sesman/chansrv/pcsc/Makefile
+ sesman/chansrv/pcsc/wrapper/Makefile
+ sesman/chansrv/pcsc/wrapper/winscard.def
+ sesman/chansrv/pcsc/wrapper/winscard-func-names.txt
+ sesman/chansrv/pulse/.gitignore
+ sesman/chansrv/pulse/Makefile
+ sesman/chansrv/pulse/pulse-notes.txt
+ sesman/chansrv/pulse/pulse-notes.ubuntu.txt
+ sesman/chansrv/wave-format-server.txt
+ sesman/Doxyfile
+ sesman/libscp/Makefile.am
+ sesman/Makefile.am
+ sesman/sesman.ini
+ sesman/sessvc/Makefile.am
+ sesman/tools/Makefile.am
+ tcutils/mainwindow.ui
+ tcutils/README.txt
+ tcutils/resources/images/tools.gif
+ tcutils/resources.qrc
+ tcutils/tcutils.pro.user
+ tests/.gitignore
+ tests/gtcp_proxy/Makefile
+ tests/gtcp_proxy/README.txt
+ tests/memtest/Makefile
+ tests/readme.txt
+ tests/tcp_proxy/Makefile
+ vnc/Makefile.am
+ vrplayer/dlgabout.ui
+ vrplayer/mainwindow.ui
+ vrplayer/README.txt
+ vrplayer/vrplayer.pro
+ xorg/debuild/x11rdp-files/DEBIAN/control
+ xorg/debuild/x11rdp-files/DEBIAN/postinst
+ xorg/.gitignore
+ xorg/readme.txt
+ xorg/tests/randr/Makefile
+ xorg/tests/xdemo/Makefile
+ xorg/tests/xdemo/README.txt
+ xorg/X11R7.6/libXext-1.2.0.patch
+ xorg/X11R7.6/rdp/Makefile
+ xorg/X11R7.6/x11_file_list.txt
+ xorgxrdp/acinclude.m4
+ xorgxrdp/bootstrap
+ xorgxrdp/configure.ac
+ xorgxrdp/.gitignore
+ xorgxrdp/Makefile.am
+ xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
+ xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
+ xorgxrdp/module/amd64/cpuid_amd64.asm
+ xorgxrdp/module/Makefile.am
+ xorgxrdp/readme.txt
+ xorgxrdp/tests/yuv2rgb/Makefile
+ xorgxrdp/xrdpdev/Makefile.am
+ xorgxrdp/xrdpdev/xorg.conf
+ xorgxrdp/xrdpkeyb/Makefile.am
+ xorgxrdp/xrdpmouse/Makefile.am
+ xrdp/ad24b.bmp
+ xrdp/ad256.bmp
+ xrdpapi/Makefile.am
+ xrdpapi/vrplayer.mk
+ xrdp/cursor0.cur
+ xrdp/cursor1.cur
+ xrdp/czech.txt
+ xrdp/Makefile.am
+ xrdp/rdp-scan-codes.txt
+ xrdpvr/Makefile.am
+ xrdp/xrdp24b.bmp
+ xrdp/xrdp256.bmp
+ xrdp/xrdp.ini
+ xrdp/xrdp_keyboard.ini
+ xrdp/xrdp_logo.bmp
+ xup/Makefile.am
 Copyright: 2004-2016 Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
@@ -284,6 +425,13 @@ Files: sesman/tools/sesadmin.c
  sesman/tools/sestest.c
 Copyright: 2008, Simone Fedele
 License: GPL-2+
+
+Files: docs/man/xrdp.8
+ docs/man/xrdp-genkeymap.8
+ docs/man/xrdp-sesman.8
+Copyright: Jay Sorg
+ Simone Fedele
+License: Apache-2.0
 
 Files: xorgxrdp/module/rdpCapture.c
  xorgxrdp/module/rdpCapture.h
@@ -439,6 +587,16 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm
  librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
  librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
+ xorgxrdp/module/amd64/i420_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/amd64/uyvy_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/amd64/yuy2_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/amd64/yv12_to_rgb32_amd64_sse2.asm
+ xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
+ xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
+ xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
+ xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
+ xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
+ xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
 Copyright: 2011-2015 Jay Sorg
 License: MIT
 
@@ -447,6 +605,10 @@ Copyright: Jay Sorg 2004-2014
   Kevin Zhou 2012,
   Matthew Chapman 1999-2008,
 License: Apache-2.0
+
+Files: docs/man/xrdp-keygen.8
+Copyright: 2007, 2008 Vincent Bernat <bernat@debian.org>
+License: GPL-2+
 
 Files: sesman/session.c
 Copyright: 1995, Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -529,6 +691,12 @@ Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
 License: MirOS
 
+Files: sesman/chansrv/pcsc/dumps/*
+ instfiles/km-*,ini
+Copyright: None
+License: None
+ Not copyrightable as these files are pure data dumps.
+
 License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -572,7 +740,6 @@ License: MIT
  and to permit persons to whom the Software is furnished to do so,
  subject to the following conditions:
  .
-
  The above copyright notice and this permission notice shall be included
  in all copies or substantial portions of the Software.
  .
