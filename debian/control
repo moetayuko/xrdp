@@ -1,6 +1,7 @@
 Source: xrdp
 Maintainer: Dominik George <nik@naturalnet.de>
-Uploaders: Andreas Tille <tille@debian.org>
+Uploaders: Andreas Tille <tille@debian.org>,
+ Mike Gabriel <sunweaver@debian.org>,
 Section: net
 Priority: optional
 Build-Depends: debhelper (>= 9),
