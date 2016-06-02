@@ -7,6 +7,11 @@ xrdp (0.9.0~20160601+git703fedd-1) unstable; urgency=medium
   - /etc/xrdp/xrdp.ini
   - /etc/X11/xrdp/xorg.conf
 
+  Use of VNC is discouraged. If your goal is not exactly to access
+  an already running VNC server, then you should use xorgxrdp instead
+  because VNC brings along quite a lot of issues compared to native
+  RDP that xrdp is not going to workaround properly.
+
   If you were using an unmodified configuration, you should automatically
   get the new backend. If not, and you choose not to update configuration
   files, the old VNC backend will keep working.
