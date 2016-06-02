@@ -31,6 +31,15 @@ xrdp (0.9.0~20160601+git703fedd-1) UNRELEASED; urgency=medium
   * Fix spelling issue
   * Remove RPATH
 
+  [ Mike Gabriel ]
+  * debian/copyright:
+    + Add auto-genericated template for copyright file.
+  * debian/copyright:
+    + Various format fixes in Copyright: fields.
+    + Place all license texts at EOF.
+    + No blanks in short license tags.
+    + Add upstream contact's name.
+
  -- Dominik George <nik@naturalnet.de>  Wed, 01 Jun 2016 23:52:32 +0200
 
 xrdp (0.6.1-2) unstable; urgency=medium
