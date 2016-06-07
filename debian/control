@@ -19,7 +19,7 @@ Build-Depends: debhelper (>= 9),
                libxrandr-dev,
                nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
                pkg-config,
-               systemd,
+               systemd [linux-any],
                xserver-xorg-dev
 Standards-Version: 3.9.8
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/xrdp.git
