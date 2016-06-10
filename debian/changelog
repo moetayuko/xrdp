@@ -1,3 +1,9 @@
+xrdp (0.9.0~20160601+git703fedd-3) UNRELEASED; urgency=medium
+
+  * Properly handle conffile on upgrade (Closes: #826901)
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 10 Jun 2016 08:14:25 +0200
+
 xrdp (0.9.0~20160601+git703fedd-2) unstable; urgency=medium
 
   * Fix build on non-linux platforms (due to systemd dependency).

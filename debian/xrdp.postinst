@@ -38,10 +38,6 @@ configure)
 		rm -f /etc/xrdp/rsakeys.ini
 	fi
 
-	if dpkg --compare-versions "$2" lt '0.9'; then
-		rm -f /etc/pam.d/sesman
-	fi
-
 	# generate a (512-bit, but that doesn't matter here
 	# because the RDP4 crypto is MITMable anyway)
 	test -e /etc/xrdp/rsakeys.ini || (
