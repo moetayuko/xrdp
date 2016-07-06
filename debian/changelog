@@ -1,4 +1,4 @@
-xrdp (0.9.0~20160601+git703fedd-3) UNRELEASED; urgency=medium
+xrdp (0.9.0~20160601+git703fedd-3) unstable; urgency=medium
 
   * Properly handle conffile on upgrade (Closes: #826901)
 
