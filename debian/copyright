@@ -676,6 +676,11 @@ Files: xorg/tests/xdemo/yosemite.bmp
 Copyright: 2015, 2016, mirabilos <m@mirbsd.org>
 License: MirOS
 
+Files: debian/*
+Copyright: Dominik George <nik@naturalnet.de>
+ Thorsten Glaser <tg@mirbsd.org>
+License: MirOS
+
 Files: debian/patches/keymap-default.diff
 Copyright: Dag-Erling Smørgrav
  Petter Reinholdtsen
@@ -685,11 +690,6 @@ Files: debian/patches/keymap-fallback.diff
 Copyright: Vincent Bernat
  Thorsten Glaser <tg@mirbsd.org>
 License: Apache-2.0
-
-Files: debian/*
-Copyright: Dominik George <nik@naturalnet.de>
- Thorsten Glaser <tg@mirbsd.org>
-License: MirOS
 
 Files: sesman/chansrv/pcsc/dumps/*
  instfiles/km-*.ini
