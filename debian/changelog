@@ -1,32 +1,111 @@
-xrdp (0.5.0-2+deb7u3) wheezy-security; urgency=high
+xrdp (0.9.0~20160601+git703fedd-3~bpo8+1) jessie-backports; urgency=medium
 
-  * Non-maintainer upload by the Debian LTS team.
-  * Fix regression added by CVE-2017-16927 patch. Thanks for Frank Richter for
-    the report and the patch.
+  * Rebuild for jessie-backports.
 
- -- Lucas Kanashiro <kanashiro@debian.org>  Tue, 12 Dec 2017 11:42:09 -0200
+ -- Andreas Tille <tille@debian.org>  Fri, 15 Jul 2016 10:08:38 +0200
 
-xrdp (0.5.0-2+deb7u2) wheezy-security; urgency=high
+xrdp (0.9.0~20160601+git703fedd-3) unstable; urgency=medium
 
-  * Non-maintainer upload by the Debian LTS team.
-  * Fix CVE-2017-16927: The scp_v0s_accept function in
-    sesman/libscp/libscp_v0.c in the session manager in xrdp uses an untrusted
-    integer as a write length, which allows local users to cause a denial of
-    service (buffer overflow and application crash) or possibly have
-    unspecified other impact via a crafted input stream.
+  * Properly handle conffile on upgrade (Closes: #826901)
 
- -- Lucas Kanashiro <kanashiro@debian.org>  Mon, 27 Nov 2017 16:57:57 -0200
+ -- Dominik George <nik@naturalnet.de>  Fri, 10 Jun 2016 08:14:25 +0200
 
-xrdp (0.5.0-2+deb7u1) wheezy-security; urgency=high
+xrdp (0.9.0~20160601+git703fedd-2) unstable; urgency=medium
 
-  * Non-maintainer upload by the LTS team.
-  * Fix CVE-2017-6967:
-    xrdp calls the PAM function auth_start_session() in an incorrect location,
-    leading to PAM session modules not being properly initialized, with a
-    potential consequence of incorrect configurations or elevation of
-    privileges, aka a pam_limits.so bypass.
+  * Fix build on non-linux platforms (due to systemd dependency).
 
- -- Markus Koschany <apo@debian.org>  Mon, 27 Mar 2017 08:49:09 +0200
+ -- Dominik George <nik@naturalnet.de>  Wed, 08 Jun 2016 11:42:36 +0200
+
+xrdp (0.9.0~20160601+git703fedd-1) unstable; urgency=medium
+
+  [ Dominik George, Thorsten Glaser ]
+  * New upstream release.
+    + Taken from git because there are no recent releases
+    + DFSG-free upstream, no more need for Debian patches
+    + Working x11rdp backend (native X server access)
+    + librfxcodec (better bitmap handling)
+    + Better input handling (keymapping, pointer events)
+    + xrdp's default backend is now xorgxrdp instead of VNC. This
+      makes it get rid of various VNC-related issues and use of VNC
+      is discouraged.
+      (Closes: #666731, #688083, #685130, #774447, #816098, #469215,
+      #780053, #654788, #709595, #709594, #735678, #798643, #469754,
+      #741160)
+  * Some changes in default config:
+    + xorgxrdp is now default
+    + Hide files/mountpoints in users' homes using dotfiles and XDG cache dir
+  * Add systemd support
+  * Full license audit
+  * Better integrated X session startup script
+  * Change of maintainership (Closes: #719624)
+  * Add reportbug note about VNC backend issues
+  * Make sure to report on relevant backend packages in reportbug
+
+  [ Andreas Tille ]
+  * Add myself as Uploader
+  * cme fix dpkg-control
+  * cme fix dpkg-copyright
+  * Refresh quilt patches
+  * Build-Depends: libxrandr-dev
+  * Fix minor issues in d/rules
+  * Fix license of files in common/*
+  * Remove unused lintian-overrides
+  * Fix section of manpage xrdp-dis.1
+  * Fix spelling issue
+  * Remove RPATH
+
+  [ Mike Gabriel ]
+  * debian/copyright:
+    + Add auto-genericated template for copyright file.
+  * debian/copyright:
+    + Various format fixes in Copyright: fields.
+    + Place all license texts at EOF.
+    + No blanks in short license tags.
+    + Add upstream contact's name.
+  * debian/control:
+    * Add myself to Uploaders: field.
+
+  * Upload sponsored and reviewed by Mike Gabriel.
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 03 Jun 2016 00:14:00 +0200
+
+xrdp (0.6.1-2) unstable; urgency=medium
+
+  [ Johannes Schauer ]
+  * Check for libtoolize rather than libtool. Closes: #761793
+
+  [ Vincent Bernat ]
+  * Upload to unstable.
+  * Bump Standards-Version to 3.9.6.
+
+ -- Vincent Bernat <bernat@debian.org>  Tue, 07 Oct 2014 21:35:25 +0200
+
+xrdp (0.6.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Add Norvegian keyboard definition, thanks to Dag-Erling
+    Smørgrav. Closes: #709588
+  * Use /etc/xrdp/km-default.ini as a fallback for keyboard definition
+    before trying `en-US`. Patch from Petter Reinholdtsen. Closes: #709590.
+  * Drop session reuse patch which was integrated upstream. Closes: #710007.
+  * Update Vcs-* fields.
+  * Bump Standards-Version to 3.9.5.
+  * Add Lintian overrides for missing manual pages.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 18 Jan 2014 14:50:45 +0100
+
+xrdp (0.6.0-1) unstable; urgency=low
+
+  * New upstream version. Closes: #687039.
+  * Drop 07-unix-socks-in-var-run.patch: upstream now creates a dedicated
+    directory for Unix sockets in /tmp (with mkdtemp).
+  * Drop the following patches, applied upstream:
+      + alt-gr-fix.patch
+      + keycode-fix.patch
+  * Bump Standards-Version to 3.9.3.
+  * Enable hardening.
+
+ -- Vincent Bernat <bernat@debian.org>  Sat, 29 Sep 2012 13:00:49 +0200
 
 xrdp (0.5.0-2) unstable; urgency=low
 

@@ -1,17 +1,18 @@
-
-AM_CFLAGS = \
+AM_CPPFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\"
-
-INCLUDES = \
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -I$(top_srcdir)/common \
   -I$(top_srcdir)/sesman/libscp
 
 if SESMAN_NOPAM
 AUTH_C = verify_user.c
 AUTH_LIB = -lcrypt
+else
+if SESMAN_BSD
+AUTH_C = verify_user_bsd.c
+AUTH_LIB = 
 else
 if SESMAN_PAMUSERPASS
 AUTH_C = verify_user_pam_userpass.c
@@ -26,34 +27,47 @@ AUTH_LIB = -lpam
 endif
 endif
 endif
+endif
 
 sbin_PROGRAMS = \
   xrdp-sesman
 
 xrdp_sesman_SOURCES = \
-  scp.c \
-  scp_v0.c \
-  scp_v1.c \
-  scp_v1_mng.c \
-  sesman.c \
-  session.c \
-  sig.c \
-  thread.c \
-  lock.c \
   access.c \
+  access.h \
+  auth.h \
   config.c \
+  config.h \
   env.c \
+  env.h \
+  scp.c \
+  scp.h \
+  scp_v0.c \
+  scp_v0.h \
+  scp_v1.c \
+  scp_v1.h \
+  scp_v1_mng.c \
+  scp_v1_mng.h \
+  sesman.c \
+  sesman.h \
+  session.c \
+  session.h \
+  sig.c \
+  sig.h \
   $(AUTH_C)
 
 xrdp_sesman_LDADD = \
-  $(top_srcdir)/common/libcommon.la \
-  $(top_srcdir)/sesman/libscp/libscp.la \
-  $(AUTH_LIB)
+  $(top_builddir)/common/libcommon.la \
+  $(top_builddir)/sesman/libscp/libscp.la \
+  $(AUTH_LIB) \
+  -lpthread
 
 sesmansysconfdir=$(sysconfdir)/xrdp
 
-sesmansysconf_DATA = \
-  sesman.ini \
+dist_sesmansysconf_DATA = \
+  sesman.ini
+
+dist_sesmansysconf_SCRIPTS = \
   startwm.sh
 
 SUBDIRS = \
@@ -61,7 +75,3 @@ SUBDIRS = \
   tools \
   sessvc \
   chansrv
-
-# must be tab below
-install-data-hook:
-	chmod 755 $(DESTDIR)$(sysconfdir)/xrdp/startwm.sh

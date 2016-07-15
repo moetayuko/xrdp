@@ -1,24 +1,22 @@
-/*
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-   xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2007-2009
-
-   media center
-
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2013
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * media center
+ */
 
 /* include other h files */
 #include "arch.h"
@@ -26,7 +24,7 @@
 #include "os_calls.h"
 #include "defines.h"
 
-#define CURRENT_MOD_VER 1
+#define CURRENT_MOD_VER 3
 
 struct mod
 {
@@ -40,8 +38,12 @@ struct mod
   int (*mod_signal)(struct mod* v);
   int (*mod_end)(struct mod* v);
   int (*mod_set_param)(struct mod* v, char* name, char* value);
-  long mod_dumby[100 - 6]; /* align, 100 minus the number of mod
-                              functions above */
+  int (*mod_session_change)(struct mod* v, int, int);
+  int (*mod_get_wait_objs)(struct mod* v, tbus* read_objs, int* rcount,
+                           tbus* write_objs, int* wcount, int* timeout);
+  int (*mod_check_wait_objs)(struct mod* v);
+  tintptr mod_dumby[100 - 9]; /* align, 100 minus the number of mod
+                                 functions above */
   /* server functions */
   int (*server_begin_update)(struct mod* v);
   int (*server_end_update)(struct mod* v);
@@ -60,12 +62,12 @@ struct mod
   int (*server_set_bgcolor)(struct mod* v, int bgcolor);
   int (*server_set_opcode)(struct mod* v, int opcode);
   int (*server_set_mixmode)(struct mod* v, int mixmode);
-  int (*server_set_brush)(struct mod* v, int x_orgin, int y_orgin,
+  int (*server_set_brush)(struct mod* v, int x_origin, int y_origin,
                           int style, char* pattern);
   int (*server_set_pen)(struct mod* v, int style,
                         int width);
   int (*server_draw_line)(struct mod* v, int x1, int y1, int x2, int y2);
-  int (*server_add_char)(struct mod* v, int font, int charactor,
+  int (*server_add_char)(struct mod* v, int font, int character,
                          int offset, int baseline,
                          int width, int height, char* data);
   int (*server_draw_text)(struct mod* v, int font,
@@ -82,14 +84,16 @@ struct mod
   int (*server_send_to_channel)(struct mod* v, int channel_id,
                                 char* data, int data_len,
                                 int total_data_len, int flags);
-  long server_dumby[100 - 24]; /* align, 100 minus the number of server
-                                  functions above */
+  int (*server_bell_trigger)(struct mod* v);
+  tintptr server_dumby[100 - 25]; /* align, 100 minus the number of server
+                                     functions above */
   /* common */
-  long handle; /* pointer to self as long */
-  long wm;
-  long painter;
-  int sck;
+  tintptr handle; /* pointer to self as long */
+  tintptr wm;
+  tintptr painter;
+  tintptr si;
   /* mod data */
+  int sck;
   int width;
   int height;
   int bpp;

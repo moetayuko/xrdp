@@ -1,3 +1,20 @@
+ACLOCAL_AMFLAGS = -I m4
+AM_DISTCHECK_CONFIGURE_FLAGS = --without-systemdsystemunitdir
+
+EXTRA_DIST = bootstrap COPYING coding_style.md design.txt faq-compile.txt \
+  faq-general.txt file-loc.txt install.txt m4 prog_std.txt readme.txt
+
+if XRDP_NEUTRINORDP
+NEUTRINORDPDIR = neutrinordp
+else
+NEUTRINORDPDIR =
+endif
+
+if XRDP_XRDPVR
+XRDPVRDIR = xrdpvr
+else
+XRDPVRDIR =
+endif
 
 SUBDIRS = \
   common \
@@ -5,10 +22,13 @@ SUBDIRS = \
   rdp \
   xup \
   mc \
+  $(NEUTRINORDPDIR) \
   libxrdp \
   xrdp \
   sesman \
   keygen \
   docs \
   instfiles \
-  genkeymap
+  genkeymap \
+  xrdpapi \
+  $(XRDPVRDIR)

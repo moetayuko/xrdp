@@ -1,23 +1,61 @@
 Source: xrdp
+Maintainer: Dominik George <nik@naturalnet.de>
+Uploaders: Andreas Tille <tille@debian.org>,
+ Mike Gabriel <sunweaver@debian.org>,
 Section: net
 Priority: optional
-Maintainer: Vincent Bernat <bernat@debian.org>
-Build-Depends: debhelper (>= 7.0.50~), libssl-dev, libpam0g-dev,
-	       autoconf (>= 2.59), automake (>= 1.6), libtool,
-	       libx11-dev, libxfixes-dev
-Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 9),
+               autoconf (>= 2.59),
+               automake (>= 1.6),
+               dh-systemd (>= 1.5),
+               libfuse-dev,
+               libjpeg-dev,
+               libopus-dev,
+               libpam0g-dev,
+               libssl-dev,
+               libtool,
+               libx11-dev,
+               libxfixes-dev,
+               libxrandr-dev,
+               nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
+               pkg-config,
+               systemd [linux-any],
+               xserver-xorg-dev
+Standards-Version: 3.9.8
+Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/xrdp.git
+Vcs-Git: https://anonscm.debian.org/git/collab-maint/xrdp.git
 Homepage: http://xrdp.sourceforge.net
-Vcs-Browser: http://git.debian.org/?p=collab-maint/xrdp.git
-Vcs-Git: git://git.debian.org/git/collab-maint/xrdp.git
 
 Package: xrdp
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
-Recommends: vnc4server | tightvncserver | vnc-server
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         adduser
+Recommends: xorgxrdp
 Description: Remote Desktop Protocol (RDP) server
- Based on research work by the rdesktop project, xrdp uses the Remote
- Desktop Protocol to present a graphical login to a remote client.
- xrdp can connect to a VNC server or another RDP server.
+ xrdp offers a graphical login to a remote client using
+ RDP (the Remote Desktop Protocol). xrdp can connect to
+ a locally created X.org session with the xorgxrdp drivers,
+ to a VNC X11 server, and forward to another RDP server.
  .
- Microsoft Windows users can connect to a system running xrdp without
- installing additional software.
+ xrdp accepts connections from freerdp, rdesktop, and the
+ built-in terminal server / remote desktop clients of
+ Microsoft Windows operating systems.
+ In the xorgxrdp (which replaces X11RDP) and VNC modes,
+ it provides a fully functional Linux terminal server,
+ offering an X-Window desktop to the user. In the RDP
+ or VNC forwarding mode, any sort of desktop can be used.
+
+Package: xorgxrdp
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         ${xdriver:Depends}
+Recommends: xorg
+Provides: xorg-driver-input, xorg-driver-video
+Description: Remote Desktop Protocol (RDP) modules for X.org
+ xorgxrdp is a set of drivers (screen device, keyboard, and mouse)
+ for X.org enabling use through an RDP session with xrdp. For full
+ operation, most standard X11 fonts and tools need to be installed;
+ the Recommended xorg metapackage is a superset of what’s actually
+ needed but will do.

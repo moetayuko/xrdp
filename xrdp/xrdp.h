@@ -1,24 +1,22 @@
-/*
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-   xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
-
-   main include file
-
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2014
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * main include file
+ */
 
 /* include other h files */
 #if defined(HAVE_CONFIG_H)
@@ -26,23 +24,25 @@
 #endif
 #include "arch.h"
 #include "parse.h"
+#include "trans.h"
+#include "list.h"
+#include "list16.h"
 #include "libxrdpinc.h"
-#include "xrdp_types.h"
 #include "xrdp_constants.h"
+#include "xrdp_types.h"
 #include "defines.h"
 #include "os_calls.h"
 #include "ssl_calls.h"
 #include "thread_calls.h"
-#include "list.h"
 #include "file.h"
 #include "file_loc.h"
-#include "trans.h"
+#include "xrdp_client_info.h"
 
 /* xrdp.c */
 long APP_CC
 g_xrdp_sync(long (*sync_func)(long param1, long param2), long sync_param1,
             long sync_param2);
-int APP_CC
+int DEFAULT_CC
 g_is_term(void);
 void APP_CC
 g_set_term(int in_val);
@@ -51,7 +51,7 @@ g_get_term_event(void);
 tbus APP_CC
 g_get_sync_event(void);
 void APP_CC
-g_loop(void);
+g_process_waiting_function(void);
 
 /* xrdp_cache.c */
 struct xrdp_cache* APP_CC
@@ -63,7 +63,8 @@ int APP_CC
 xrdp_cache_reset(struct xrdp_cache* self,
                  struct xrdp_client_info* client_info);
 int APP_CC
-xrdp_cache_add_bitmap(struct xrdp_cache* self, struct xrdp_bitmap* bitmap);
+xrdp_cache_add_bitmap(struct xrdp_cache* self, struct xrdp_bitmap* bitmap,
+                      int hints);
 int APP_CC
 xrdp_cache_add_palette(struct xrdp_cache* self, int* palette);
 int APP_CC
@@ -79,6 +80,13 @@ xrdp_cache_add_pointer_static(struct xrdp_cache* self,
 int APP_CC
 xrdp_cache_add_brush(struct xrdp_cache* self,
                      char* brush_item_data);
+int APP_CC
+xrdp_cache_add_os_bitmap(struct xrdp_cache* self, struct xrdp_bitmap* bitmap,
+                         int rdpindex);
+int APP_CC
+xrdp_cache_remove_os_bitmap(struct xrdp_cache* self, int rdpindex);
+struct xrdp_os_bitmap_item* APP_CC
+xrdp_cache_get_os_bitmap(struct xrdp_cache* self, int rdpindex);
 
 /* xrdp_wm.c */
 struct xrdp_wm* APP_CC
@@ -89,7 +97,9 @@ xrdp_wm_delete(struct xrdp_wm* self);
 int APP_CC
 xrdp_wm_send_palette(struct xrdp_wm* self);
 int APP_CC
-xrdp_wm_load_static_colors(struct xrdp_wm* self);
+xrdp_wm_send_bell(struct xrdp_wm* self);
+int APP_CC
+xrdp_wm_load_static_colors_plus(struct xrdp_wm* self, char* autorun_name);
 int APP_CC
 xrdp_wm_load_static_pointers(struct xrdp_wm* self);
 int APP_CC
@@ -99,6 +109,8 @@ xrdp_wm_send_bitmap(struct xrdp_wm* self, struct xrdp_bitmap* bitmap,
                     int x, int y, int cx, int cy);
 int APP_CC
 xrdp_wm_set_pointer(struct xrdp_wm* self, int cache_idx);
+unsigned int APP_CC
+xrdp_wm_htoi (const char *ptr);
 int APP_CC
 xrdp_wm_set_focused(struct xrdp_wm* self, struct xrdp_bitmap* wnd);
 int APP_CC
@@ -117,13 +129,16 @@ int APP_CC
 xrdp_wm_pu(struct xrdp_wm* self, struct xrdp_bitmap* control);
 int APP_CC
 xrdp_wm_send_pointer(struct xrdp_wm* self, int cache_idx,
-                     char* data, char* mask, int x, int y);
+                     char* data, char* mask, int x, int y, int bpp);
 int APP_CC
-xrdp_wm_pointer(struct xrdp_wm* self, char* data, char* mask, int x, int y);
+xrdp_wm_pointer(struct xrdp_wm* self, char* data, char* mask, int x, int y,
+                int bpp);
 int
 callback(long id, int msg, long param1, long param2, long param3, long param4);
 int APP_CC
-xrdp_wm_delete_all_childs(struct xrdp_wm* self);
+xrdp_wm_delete_all_children(struct xrdp_wm* self);
+int APP_CC
+xrdp_wm_show_log(struct xrdp_wm *self);
 int APP_CC
 xrdp_wm_log_msg(struct xrdp_wm* self, char* msg);
 int APP_CC
@@ -194,15 +209,14 @@ xrdp_bitmap_copy_box(struct xrdp_bitmap* self,
                      struct xrdp_bitmap* dest,
                      int x, int y, int cx, int cy);
 int APP_CC
+xrdp_bitmap_hash_crc(struct xrdp_bitmap *self);
+int APP_CC
 xrdp_bitmap_copy_box_with_crc(struct xrdp_bitmap* self,
                               struct xrdp_bitmap* dest,
                               int x, int y, int cx, int cy);
 int APP_CC
 xrdp_bitmap_compare(struct xrdp_bitmap* self,
                     struct xrdp_bitmap* b);
-int APP_CC
-xrdp_bitmap_compare_with_crc(struct xrdp_bitmap* self,
-                             struct xrdp_bitmap* b);
 int APP_CC
 xrdp_bitmap_invalidate(struct xrdp_bitmap* self, struct xrdp_rect* rect);
 int APP_CC
@@ -227,6 +241,8 @@ struct xrdp_painter* APP_CC
 xrdp_painter_create(struct xrdp_wm* wm, struct xrdp_session* session);
 void APP_CC
 xrdp_painter_delete(struct xrdp_painter* self);
+int APP_CC
+wm_painter_set_target(struct xrdp_painter* self);
 int APP_CC
 xrdp_painter_begin_update(struct xrdp_painter* self);
 int APP_CC
@@ -270,6 +286,20 @@ xrdp_painter_copy(struct xrdp_painter* self,
                   struct xrdp_bitmap* dst,
                   int x, int y, int cx, int cy,
                   int srcx, int srcy);
+int APP_CC
+xrdp_painter_composite(struct xrdp_painter* self,
+                       struct xrdp_bitmap* src,
+                       int srcformat,
+                       int srcwidth,
+                       int srcrepeat,
+                       struct xrdp_bitmap* dst,
+                       int* srctransform,
+                       int mskflags,
+                       struct xrdp_bitmap* msk,
+                       int mskformat, int mskwidth, int mskrepeat, int op,
+                       int srcx, int srcy, int mskx, int msky,
+                       int dstx, int dsty, int width, int height,
+                       int dstformat);
 int APP_CC
 xrdp_painter_line(struct xrdp_painter* self,
                   struct xrdp_bitmap* bitmap,
@@ -323,6 +353,8 @@ get_keymaps(int keylayout, struct xrdp_keymap* keymap);
 /* xrdp_login_wnd.c */
 int APP_CC
 xrdp_login_wnd_create(struct xrdp_wm* self);
+int APP_CC
+load_xrdp_config(struct xrdp_config *config, int bpp);
 
 /* xrdp_bitmap_compress.c */
 int APP_CC
@@ -346,11 +378,17 @@ xrdp_mm_get_wait_objs(struct xrdp_mm* self,
                       tbus* read_objs, int* rcount,
                       tbus* write_objs, int* wcount, int* timeout);
 int APP_CC
+xrdp_mm_check_chan(struct xrdp_mm *self);
+int APP_CC
 xrdp_mm_check_wait_objs(struct xrdp_mm* self);
+int APP_CC
+xrdp_mm_frame_ack(struct xrdp_mm *self, int frame_id);
 int DEFAULT_CC
 server_begin_update(struct xrdp_mod* mod);
 int DEFAULT_CC
 server_end_update(struct xrdp_mod* mod);
+int DEFAULT_CC
+server_bell_trigger(struct xrdp_mod* mod);
 int DEFAULT_CC
 server_fill_rect(struct xrdp_mod* mod, int x, int y, int cx, int cy);
 int DEFAULT_CC
@@ -360,14 +398,34 @@ int DEFAULT_CC
 server_paint_rect(struct xrdp_mod* mod, int x, int y, int cx, int cy,
                   char* data, int width, int height, int srcx, int srcy);
 int DEFAULT_CC
+server_paint_rect_bpp(struct xrdp_mod* mod, int x, int y, int cx, int cy,
+                      char* data, int width, int height, int srcx, int srcy,
+                      int bpp);
+int DEFAULT_CC
+server_composite(struct xrdp_mod* mod, int srcidx, int srcformat, int srcwidth,
+                 int srcrepeat, int* srctransform, int mskflags, int mskidx,
+                 int mskformat, int mskwidth, int mskrepeat, int op,
+                 int srcx, int srcy, int mskx, int msky,
+                 int dstx, int dsty, int width, int height, int dstformat);
+int DEFAULT_CC
+server_paint_rects(struct xrdp_mod* mod, int num_drects, short *drects,
+                   int num_crects, short *crects,
+                   char *data, int width, int height,
+                   int flags, int frame_id);
+int DEFAULT_CC
 server_set_pointer(struct xrdp_mod* mod, int x, int y,
                    char* data, char* mask);
+int DEFAULT_CC
+server_set_pointer_ex(struct xrdp_mod* mod, int x, int y,
+                      char* data, char* mask, int bpp);
 int DEFAULT_CC
 server_palette(struct xrdp_mod* mod, int* palette);
 int DEFAULT_CC
 server_msg(struct xrdp_mod* mod, char* msg, int code);
 int DEFAULT_CC
 server_is_term(struct xrdp_mod* mod);
+int APP_CC
+xrdp_child_fork(void);
 int DEFAULT_CC
 server_set_clip(struct xrdp_mod* mod, int x, int y, int cx, int cy);
 int DEFAULT_CC
@@ -381,14 +439,14 @@ server_set_opcode(struct xrdp_mod* mod, int opcode);
 int DEFAULT_CC
 server_set_mixmode(struct xrdp_mod* mod, int mixmode);
 int DEFAULT_CC
-server_set_brush(struct xrdp_mod* mod, int x_orgin, int y_orgin,
+server_set_brush(struct xrdp_mod* mod, int x_origin, int y_origin,
                  int style, char* pattern);
 int DEFAULT_CC
 server_set_pen(struct xrdp_mod* mod, int style, int width);
 int DEFAULT_CC
 server_draw_line(struct xrdp_mod* mod, int x1, int y1, int x2, int y2);
 int DEFAULT_CC
-server_add_char(struct xrdp_mod* mod, int font, int charactor,
+server_add_char(struct xrdp_mod* mod, int font, int character,
                 int offset, int baseline,
                 int width, int height, char* data);
 int DEFAULT_CC
@@ -401,6 +459,8 @@ server_draw_text(struct xrdp_mod* mod, int font,
 int DEFAULT_CC
 server_reset(struct xrdp_mod* mod, int width, int height, int bpp);
 int DEFAULT_CC
+is_channel_allowed(struct xrdp_wm* wm, int channel_id);
+int DEFAULT_CC
 server_query_channel(struct xrdp_mod* mod, int index, char* channel_name,
                      int* channel_flags);
 int DEFAULT_CC
@@ -409,3 +469,48 @@ int DEFAULT_CC
 server_send_to_channel(struct xrdp_mod* mod, int channel_id,
                        char* data, int data_len,
                        int total_data_len, int flags);
+int DEFAULT_CC
+server_create_os_surface(struct xrdp_mod* mod, int id,
+                         int width, int height);
+int DEFAULT_CC
+server_create_os_surface_bpp(struct xrdp_mod* mod, int id,
+                             int width, int height, int bpp);
+int DEFAULT_CC
+server_switch_os_surface(struct xrdp_mod* mod, int id);
+int DEFAULT_CC
+server_delete_os_surface(struct xrdp_mod* mod, int id);
+int DEFAULT_CC
+server_paint_rect_os(struct xrdp_mod* mod, int x, int y, int cx, int cy,
+                     int id, int srcx, int srcy);
+int DEFAULT_CC
+server_set_hints(struct xrdp_mod* mod, int hints, int mask);
+int DEFAULT_CC
+server_window_new_update(struct xrdp_mod* mod, int window_id,
+                         struct rail_window_state_order* window_state,
+                         int flags);
+int DEFAULT_CC
+server_window_delete(struct xrdp_mod* mod, int window_id);
+int DEFAULT_CC
+server_window_icon(struct xrdp_mod* mod, int window_id, int cache_entry,
+                   int cache_id, struct rail_icon_info* icon_info,
+                   int flags);
+int DEFAULT_CC
+server_window_cached_icon(struct xrdp_mod* mod,
+                          int window_id, int cache_entry,
+                          int cache_id, int flags);
+int DEFAULT_CC
+server_notify_new_update(struct xrdp_mod* mod,
+                         int window_id, int notify_id,
+                         struct rail_notify_state_order* notify_state,
+                         int flags);
+int DEFAULT_CC
+server_notify_delete(struct xrdp_mod* mod, int window_id,
+                     int notify_id);
+int DEFAULT_CC
+server_monitored_desktop(struct xrdp_mod* mod,
+                         struct rail_monitored_desktop_order* mdo,
+                         int flags);
+int DEFAULT_CC
+server_add_char_alpha(struct xrdp_mod* mod, int font, int character,
+                      int offset, int baseline,
+                      int width, int height, char* data);

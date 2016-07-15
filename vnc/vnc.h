@@ -1,33 +1,30 @@
-/*
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-   xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2009
-
-   libvnc
-
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2015
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * libvnc
+ */
 
 /* include other h files */
 #include "arch.h"
 #include "parse.h"
 #include "os_calls.h"
-#include "d3des.h"
 #include "defines.h"
 
-#define CURRENT_MOD_VER 1
+#define CURRENT_MOD_VER 3
 
 struct vnc
 {
@@ -45,8 +42,8 @@ struct vnc
   int (*mod_get_wait_objs)(struct vnc* v, tbus* read_objs, int* rcount,
                            tbus* write_objs, int* wcount, int* timeout);
   int (*mod_check_wait_objs)(struct vnc* v);
-  long mod_dumby[100 - 9]; /* align, 100 minus the number of mod
-                              functions above */
+  tintptr mod_dumby[100 - 9]; /* align, 100 minus the number of mod
+                                 functions above */
   /* server functions */
   int (*server_begin_update)(struct vnc* v);
   int (*server_end_update)(struct vnc* v);
@@ -65,12 +62,12 @@ struct vnc
   int (*server_set_bgcolor)(struct vnc* v, int bgcolor);
   int (*server_set_opcode)(struct vnc* v, int opcode);
   int (*server_set_mixmode)(struct vnc* v, int mixmode);
-  int (*server_set_brush)(struct vnc* v, int x_orgin, int y_orgin,
+  int (*server_set_brush)(struct vnc* v, int x_origin, int y_origin,
                           int style, char* pattern);
   int (*server_set_pen)(struct vnc* v, int style,
                         int width);
   int (*server_draw_line)(struct vnc* v, int x1, int y1, int x2, int y2);
-  int (*server_add_char)(struct vnc* v, int font, int charactor,
+  int (*server_add_char)(struct vnc* v, int font, int character,
                          int offset, int baseline,
                          int width, int height, char* data);
   int (*server_draw_text)(struct vnc* v, int font,
@@ -87,13 +84,14 @@ struct vnc
   int (*server_send_to_channel)(struct vnc* v, int channel_id,
                                 char* data, int data_len,
                                 int total_data_len, int flags);
-  long server_dumby[100 - 24]; /* align, 100 minus the number of server
-                                  functions above */
+  int (*server_bell_trigger)(struct vnc* v);
+  tintptr server_dumby[100 - 25]; /* align, 100 minus the number of server
+                                     functions above */
   /* common */
-  long handle; /* pointer to self as long */
-  long wm;
-  long painter;
-  int sck;
+  tintptr handle; /* pointer to self as long */
+  tintptr wm;
+  tintptr painter;
+  tintptr si;
   /* mod data */
   int server_width;
   int server_height;
@@ -113,7 +111,7 @@ struct vnc
   int shift_state; /* 0 up, 1 down */
   int keylayout;
   int clip_chanid;
-  char* clip_data;
-  int clip_data_size;
-  tbus sck_obj;
+  struct stream *clip_data_s;
+  int delay_ms;
+  struct trans *trans;
 };

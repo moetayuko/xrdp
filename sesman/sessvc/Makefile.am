@@ -1,11 +1,9 @@
 
-AM_CFLAGS = \
+AM_CPPFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\"
-
-INCLUDES = \
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -I$(top_srcdir)/common
 
 sbin_PROGRAMS = \
@@ -15,4 +13,4 @@ xrdp_sessvc_SOURCES = \
   sessvc.c
 
 xrdp_sessvc_LDADD = \
-  $(top_srcdir)/common/libcommon.la
+  $(top_builddir)/common/libcommon.la

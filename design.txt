@@ -7,7 +7,7 @@ one could be running a custom app made for xrdp
 one could be running a X11 session
 clients control the screen size and color depth
 
-all controlled by a cofiguaration file.
+all controlled by a configuration file.
 
 you can create a lib or use a lib with your executable that talks
 to xrdp server.
@@ -31,5 +31,5 @@ is lost, the session remains.
 
 For X11, start the XServer after the user is
 authenticated.  First check for the next available X11 display,
-create a user session, start the XServer and set the DISPLAY enviromenet
+create a user session, start the XServer and set the DISPLAY environment
 variable.

@@ -1,21 +1,20 @@
-/*
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-   xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2009
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2012
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef LIBSCP_LOCK_H
 #define LIBSCP_LOCK_H
@@ -53,8 +52,8 @@ scp_lock_fork_release(void);
  *
  * @brief starts a section that is critical for forking
  *
- * starts a section that is critical for forking, that is noone can fork()
- * while i'm in a critical section. But if someone wanted to fork we have
+ * starts a section that is critical for forking, that is no one can fork()
+ * while I'm in a critical section. But if someone wanted to fork we have
  * to wait until he finishes with lock_fork_release()
  *
  * @return
@@ -72,4 +71,3 @@ void DEFAULT_CC
 scp_lock_fork_critical_section_end(int blocking);
 
 #endif
-
