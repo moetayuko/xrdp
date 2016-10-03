@@ -8,26 +8,6 @@
  .SH NAME
  xrdp\-dis \- xrdp disconnect utility
  
-@@ -7,7 +7,7 @@ xrdp\-dis \- xrdp disconnect utility
- 
- .SH DESCRIPTION
- .PP
--\fBxrdp\-dix\fP is run with no parameters to disconnect your xrdp session.
-+\fBxrdp\-dis\fP is run with no parameters to disconnect your xrdp session.
- 
- .SH ENVIRONMENT
- .TP
---- a/librfxcodec/configure.ac
-+++ b/librfxcodec/configure.ac
-@@ -9,7 +9,7 @@ AC_PROG_CC
- AC_C_CONST
- AC_PROG_LIBTOOL
- 
--AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
-+AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
- 
- if test "x${prefix}" = "xNONE" ; then
- sysconfdir="/etc";
 --- a/libxrdp/xrdp_jpeg_compress.c
 +++ b/libxrdp/xrdp_jpeg_compress.c
 @@ -213,7 +213,7 @@ xrdp_jpeg_deinit(void *handle)
@@ -165,7 +145,7 @@
  
  static void xfuse_cb_setattr(fuse_req_t req, fuse_ino_t ino, struct stat *attr,
                               int to_set, struct fuse_file_info *fi);
-@@ -1070,7 +1087,7 @@ static void xfuse_dump_fs()
+@@ -1075,7 +1092,7 @@ static void xfuse_dump_fs()
                    xinode->nentries, xinode->nopen, xinode->is_synced,
                    xinode->name);
      }
@@ -174,7 +154,7 @@
  }
  
  /**
-@@ -1079,20 +1096,22 @@ static void xfuse_dump_fs()
+@@ -1084,20 +1101,22 @@ static void xfuse_dump_fs()
   * @param xino xinode structure to dump
   *****************************************************************************/
  
@@ -200,7 +180,7 @@
  
  /**
   * Return the device_id associated with specified inode and copy the
-@@ -1289,10 +1308,12 @@ static int xfuse_does_file_exist(int par
+@@ -1294,10 +1313,12 @@ static int xfuse_does_file_exist(int par
      return 0;
  }
  
@@ -213,7 +193,7 @@
  
  static int xfuse_delete_file_with_xinode(XRDP_INODE *xinode)
  {
-@@ -1445,12 +1466,12 @@ int xfuse_devredir_cb_enum_dir(void *vp,
+@@ -1450,12 +1471,12 @@ int xfuse_devredir_cb_enum_dir(void *vp,
  
      if (!xfuse_is_inode_valid(fip->inode))
      {
@@ -228,7 +208,7 @@
  
      /* if filename is . or .. don't add it */
      if ((strcmp(xinode->name, ".") == 0) || (strcmp(xinode->name, "..") == 0))
-@@ -1463,8 +1484,8 @@ int xfuse_devredir_cb_enum_dir(void *vp,
+@@ -1468,8 +1489,8 @@ int xfuse_devredir_cb_enum_dir(void *vp,
  
      if ((xip = xfuse_get_inode_from_pinode_name(fip->inode, xinode->name)) != NULL)
      {
@@ -239,7 +219,7 @@
          g_free(xinode);
          xip->stale = 0;
          return -1;
-@@ -1516,7 +1537,7 @@ void xfuse_devredir_cb_enum_dir_done(voi
+@@ -1521,7 +1542,7 @@ void xfuse_devredir_cb_enum_dir_done(voi
      /* do we have a valid inode? */
      if (!xfuse_is_inode_valid(fip->inode))
      {
@@ -248,7 +228,7 @@
          if (fip->invoke_fuse)
              fuse_reply_err(fip->req, EBADF);
          goto done;
-@@ -1610,8 +1631,8 @@ void xfuse_devredir_cb_open_file(void *v
+@@ -1615,8 +1636,8 @@ void xfuse_devredir_cb_open_file(void *v
          fh->FileId = FileId;
  
          fip->fi->fh = (uint64_t) ((long) fh);
@@ -259,7 +239,7 @@
      }
  
      if (fip->invoke_fuse)
-@@ -1714,8 +1735,8 @@ void xfuse_devredir_cb_write_file(void *
+@@ -1719,8 +1740,8 @@ void xfuse_devredir_cb_write_file(void *
          return;
      }
  
@@ -270,7 +250,7 @@
  
      fuse_reply_write(fip->req, length);
  
-@@ -1723,7 +1744,7 @@ void xfuse_devredir_cb_write_file(void *
+@@ -1728,7 +1749,7 @@ void xfuse_devredir_cb_write_file(void *
      if ((xinode = g_xrdp_fs.inode_table[fip->inode]) != NULL)
          xinode->size += length;
      else
@@ -279,7 +259,7 @@
  
      free(fip);
  }
-@@ -1844,12 +1865,12 @@ void xfuse_devredir_cb_file_close(void *
+@@ -1849,12 +1870,12 @@ void xfuse_devredir_cb_file_close(void *
          return;
      }
  
@@ -295,7 +275,7 @@
          fuse_reply_err(fip->req, EBADF);
          return;
      }
-@@ -1895,7 +1916,7 @@ static void xfuse_cb_lookup(fuse_req_t r
+@@ -1900,7 +1921,7 @@ static void xfuse_cb_lookup(fuse_req_t r
  
      if (!xfuse_is_inode_valid(parent))
      {
@@ -304,7 +284,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -1903,7 +1924,7 @@ static void xfuse_cb_lookup(fuse_req_t r
+@@ -1908,7 +1929,7 @@ static void xfuse_cb_lookup(fuse_req_t r
      xinode = xfuse_get_inode_from_pinode_name(parent, name);
      if (xinode == NULL)
      {
@@ -313,7 +293,7 @@
          fuse_reply_err(req, ENOENT);
          return;
      }
-@@ -1924,8 +1945,8 @@ static void xfuse_cb_lookup(fuse_req_t r
+@@ -1929,8 +1950,8 @@ static void xfuse_cb_lookup(fuse_req_t r
      e.generation = 1;
  
      fuse_reply_entry(req, &e);
@@ -324,7 +304,7 @@
      return;
  }
  
-@@ -1946,7 +1967,7 @@ static void xfuse_cb_getattr(fuse_req_t
+@@ -1951,7 +1972,7 @@ static void xfuse_cb_getattr(fuse_req_t
      /* if ino is not valid, just return */
      if (!xfuse_is_inode_valid(ino))
      {
@@ -333,7 +313,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -1971,6 +1992,7 @@ static void xfuse_cb_getattr(fuse_req_t
+@@ -1976,6 +1997,7 @@ static void xfuse_cb_getattr(fuse_req_t
   *
   *****************************************************************************/
  
@@ -341,7 +321,7 @@
  static void xfuse_dirbuf_add(fuse_req_t req, struct dirbuf *b,
                               const char *name, fuse_ino_t ino)
  {
-@@ -1987,6 +2009,7 @@ static void xfuse_dirbuf_add(fuse_req_t
+@@ -1992,6 +2014,7 @@ static void xfuse_dirbuf_add(fuse_req_t
      fuse_add_direntry(req, b->p + oldsize, b->size - oldsize, name, &stbuf,
                        b->size);
  }
@@ -349,7 +329,7 @@
  
  static int xfuse_dirbuf_add1(fuse_req_t req, struct dirbuf1 *b,
                               const char *name, fuse_ino_t ino)
-@@ -2030,12 +2053,12 @@ static void xfuse_cb_readdir(fuse_req_t
+@@ -2035,12 +2058,12 @@ static void xfuse_cb_readdir(fuse_req_t
      int              i;
      int              first_time;
  
@@ -364,7 +344,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2068,7 +2091,7 @@ static void xfuse_cb_readdir(fuse_req_t
+@@ -2073,7 +2096,7 @@ static void xfuse_cb_readdir(fuse_req_t
              ti = g_xrdp_fs.inode_table[ino];
              if (!ti)
              {
@@ -373,7 +353,7 @@
                  fuse_reply_buf(req, NULL, 0);
                  return;
              }
-@@ -2156,19 +2179,19 @@ static void xfuse_remove_dir_or_file(fus
+@@ -2161,19 +2184,19 @@ static void xfuse_remove_dir_or_file(fus
      char        full_path[4096];
      tui32       device_id;
  
@@ -396,7 +376,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2262,14 +2285,14 @@ static void xfuse_cb_rename(fuse_req_t r
+@@ -2267,14 +2290,14 @@ static void xfuse_cb_rename(fuse_req_t r
  
      tui32 device_id;
  
@@ -414,7 +394,7 @@
          fuse_reply_err(req, EINVAL);
          return;
      }
-@@ -2277,7 +2300,7 @@ static void xfuse_cb_rename(fuse_req_t r
+@@ -2282,7 +2305,7 @@ static void xfuse_cb_rename(fuse_req_t r
      /* is new_parent inode valid? */
      if (!xfuse_is_inode_valid(new_parent))
      {
@@ -423,7 +403,7 @@
          fuse_reply_err(req, EINVAL);
          return;
      }
-@@ -2297,8 +2320,8 @@ static void xfuse_cb_rename(fuse_req_t r
+@@ -2302,8 +2325,8 @@ static void xfuse_cb_rename(fuse_req_t r
      old_xinode = xfuse_get_inode_from_pinode_name(old_parent, old_name);
      if (old_xinode  == NULL)
      {
@@ -434,7 +414,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2420,7 +2443,7 @@ static void xfuse_create_dir_or_file(fus
+@@ -2425,7 +2448,7 @@ static void xfuse_create_dir_or_file(fus
      /* is parent inode valid? */
      if ((parent == 1) || (!xfuse_is_inode_valid(parent)))
      {
@@ -443,7 +423,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2502,7 +2525,7 @@ static void xfuse_cb_open(fuse_req_t req
+@@ -2507,7 +2530,7 @@ static void xfuse_cb_open(fuse_req_t req
  
      if (!xfuse_is_inode_valid(ino))
      {
@@ -452,7 +432,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2511,7 +2534,7 @@ static void xfuse_cb_open(fuse_req_t req
+@@ -2516,7 +2539,7 @@ static void xfuse_cb_open(fuse_req_t req
      xinode = g_xrdp_fs.inode_table[ino];
      if (!xinode)
      {
@@ -461,7 +441,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2582,13 +2605,12 @@ static void xfuse_cb_release(fuse_req_t
+@@ -2587,13 +2610,12 @@ static void xfuse_cb_release(fuse_req_t
  {
      XFUSE_INFO   *fip    = NULL;
      XFUSE_HANDLE *handle = (XFUSE_HANDLE *) (tintptr) (fi->fh);
@@ -477,7 +457,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2596,7 +2618,7 @@ static void xfuse_cb_release(fuse_req_t
+@@ -2601,7 +2623,7 @@ static void xfuse_cb_release(fuse_req_t
      XRDP_INODE *xinode = g_xrdp_fs.inode_table[ino];
      if (!xinode)
      {
@@ -486,7 +466,7 @@
          fuse_reply_err(req, 0);
          return;
      }
-@@ -2632,10 +2654,9 @@ static void xfuse_cb_release(fuse_req_t
+@@ -2637,10 +2659,9 @@ static void xfuse_cb_release(fuse_req_t
      fip->device_id = handle->DeviceId;
      fip->fi = fi;
  
@@ -499,7 +479,7 @@
      fip->fi->fh = 0;
      xinode->close_in_progress = 1;
  
-@@ -2768,8 +2789,8 @@ static void xfuse_cb_write(fuse_req_t re
+@@ -2773,8 +2794,8 @@ static void xfuse_cb_write(fuse_req_t re
      fusep->device_id = fh->DeviceId;
      fusep->fi = fi;
  
@@ -510,7 +490,7 @@
  
      dev_redir_file_write(fusep, fh->DeviceId, fh->FileId, buf, size, off);
      log_debug("exiting");
-@@ -2791,6 +2812,7 @@ static void xfuse_cb_create(fuse_req_t r
+@@ -2796,6 +2817,7 @@ static void xfuse_cb_create(fuse_req_t r
  /**
   *****************************************************************************/
  
@@ -518,7 +498,7 @@
  static void xfuse_cb_fsync(fuse_req_t req, fuse_ino_t ino, int datasync,
                             struct fuse_file_info *fi)
  {
-@@ -2798,6 +2820,7 @@ static void xfuse_cb_fsync(fuse_req_t re
+@@ -2803,6 +2825,7 @@ static void xfuse_cb_fsync(fuse_req_t re
      log_debug("function not required");
      fuse_reply_err(req, EINVAL);
  }
@@ -526,7 +506,7 @@
  
  /**
   *****************************************************************************/
-@@ -2812,14 +2835,14 @@ static void xfuse_cb_setattr(fuse_req_t
+@@ -2817,14 +2840,14 @@ static void xfuse_cb_setattr(fuse_req_t
  
      if (!xfuse_is_inode_valid(ino))
      {
@@ -543,7 +523,7 @@
          fuse_reply_err(req, EBADF);
          return;
      }
-@@ -2845,9 +2868,9 @@ static void xfuse_cb_setattr(fuse_req_t
+@@ -2850,9 +2873,9 @@ static void xfuse_cb_setattr(fuse_req_t
  
      if (to_set & FUSE_SET_ATTR_SIZE)
      {
@@ -555,7 +535,7 @@
      }
  
      if (to_set & FUSE_SET_ATTR_ATIME)
-@@ -2928,11 +2951,11 @@ static int xfuse_proc_opendir_req(fuse_r
+@@ -2933,11 +2956,11 @@ static int xfuse_proc_opendir_req(fuse_r
      char             full_path[4096];
      char            *cptr;
  
@@ -569,7 +549,7 @@
          fuse_reply_err(req, EBADF);
          g_free(fifo_remove(&g_fifo_opendir));
          return -1;
-@@ -2943,7 +2966,7 @@ static int xfuse_proc_opendir_req(fuse_r
+@@ -2948,7 +2971,7 @@ static int xfuse_proc_opendir_req(fuse_r
  
      if ((xinode = g_xrdp_fs.inode_table[ino]) == NULL)
      {
@@ -578,7 +558,7 @@
          fuse_reply_err(req, EBADF);
          g_free(fifo_remove(&g_fifo_opendir));
          return -1;
-@@ -2965,16 +2988,17 @@ static int xfuse_proc_opendir_req(fuse_r
+@@ -2970,16 +2993,17 @@ static int xfuse_proc_opendir_req(fuse_r
      {
          goto do_remote_lookup;
      }
@@ -611,7 +591,7 @@
  
 --- a/sesman/session.c
 +++ b/sesman/session.c
-@@ -609,7 +609,7 @@ session_start_fork(int width, int height
+@@ -616,7 +616,7 @@ session_start_fork(int width, int height
                  else
                  {
                      log_message(LOG_LEVEL_ERROR, "another Xserver might "

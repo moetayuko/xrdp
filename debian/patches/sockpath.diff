@@ -236,7 +236,7 @@
              }
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
-@@ -134,10 +134,10 @@ xrdpvr=true
+@@ -138,10 +138,10 @@ xrdpvr=true
  tcutils=true
  
  # for debugging xrdp, in section xrdp1, change port=-1 to this:
@@ -251,7 +251,7 @@
  name=sesman-xorgxrdp
 --- a/xrdpapi/xrdpapi.c
 +++ b/xrdpapi/xrdpapi.c
-@@ -143,7 +143,7 @@ WTSVirtualChannelOpenEx(unsigned int Ses
+@@ -145,7 +145,7 @@ WTSVirtualChannelOpenEx(unsigned int Ses
      memset(&s, 0, sizeof(struct sockaddr_un));
      s.sun_family = AF_UNIX;
      bytes = sizeof(s.sun_path);
