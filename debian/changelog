@@ -1,3 +1,9 @@
+xrdp (0.9.0~20160920+gitf0c0976-1) unstable; urgency=medium
+
+  * New upstream version.
+
+ -- Dominik George <nik@naturalnet.de>  Mon, 03 Oct 2016 16:22:01 +0200
+
 xrdp (0.9.0~20160601+git703fedd-3) unstable; urgency=medium
 
   * Properly handle conffile on upgrade (Closes: #826901)
