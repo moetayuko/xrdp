@@ -51,8 +51,6 @@ sig_sesman_shutdown(int sig)
 
     g_set_wait_obj(g_term_event);
 
-    g_tcp_close(g_sck);
-
     session_sigkill_all();
 
     g_snprintf(pid_file, 255, "%s/xrdp-sesman.pid", XRDP_PID_PATH);
@@ -75,7 +73,7 @@ sig_sesman_reload_cfg(int sig)
         return;
     }
 
-    cfg = g_malloc(sizeof(struct config_sesman), 1);
+    cfg = g_new0(struct config_sesman, 1);
 
     if (0 == cfg)
     {

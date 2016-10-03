@@ -200,6 +200,7 @@ clipboard_get_file(char* file, int bytes)
     }
     g_memcpy(filename, file + pindex + 1, (bytes - 1) - pindex);
     /* this should replace %20 with space */
+    clipboard_check_file(pathname);
     clipboard_check_file(filename);
     g_snprintf(full_fn, 255, "%s/%s", pathname, filename);
     if (g_directory_exist(full_fn))
@@ -660,7 +661,11 @@ clipboard_c2s_in_files(struct stream *s, char *file_list)
                        "supported [%s]", cfd->cFileName);
             continue;
         }
-        xfuse_add_clip_dir_item(cfd->cFileName, 0, cfd->fileSizeLow, lindex);
+        if (xfuse_add_clip_dir_item(cfd->cFileName, 0, cfd->fileSizeLow, lindex) == -1)
+        {
+            log_error("clipboard_c2s_in_files: failed to add clip dir item");
+            continue;
+        }
 
         if (file_count > 0)
         {

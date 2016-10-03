@@ -1,7 +1,7 @@
 /**
  * RFX codec encoder
  *
- * Copyright 2014-2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2014 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,8 @@
 #endif
 
 /******************************************************************************/
-int
-rfxcodec_encode_create_ex(int width, int height, int format, int flags,
-                          void **handle)
+void *
+rfxcodec_encode_create(int width, int height, int format, int flags)
 {
     struct rfxencode *enc;
     int ax;
@@ -50,14 +49,9 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     enc = (struct rfxencode *) malloc(sizeof(struct rfxencode));
     if (enc == 0)
     {
-        return 1;
+        return 0;
     }
     memset(enc, 0, sizeof(struct rfxencode));
-
-    enc->dwt_buffer = (sint16*)(((size_t)(enc->dwt_buffer_a)) & ~15);
-    enc->dwt_buffer1 = (sint16*)(((size_t)(enc->dwt_buffer1_a)) & ~15);
-    enc->dwt_buffer2 = (sint16*)(((size_t)(enc->dwt_buffer2_a)) & ~15);
-
 #if defined(RFX_USE_ACCEL_X86)
     cpuid_x86(1, 0, &ax, &bx, &cx, &dx);
 #elif defined(RFX_USE_ACCEL_AMD64)
@@ -121,7 +115,7 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     {
         enc->mode = RLGR1;
     }
-    switch (format)
+    switch (format) 
     {
         case RFX_FORMAT_BGRA:
             enc->bits_per_pixel = 32;
@@ -140,7 +134,7 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
             break;
         default:
             free(enc);
-            return 2;
+            return NULL;
     }
     enc->format = format;
     /* assign encoding functions */
@@ -148,106 +142,40 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     {
         if (enc->mode == RLGR3)
         {
-            printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3\n");
             enc->rfx_encode = rfx_encode_component_rlgr3; /* rfxencode_tile.c */
         }
         else
         {
-            printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1\n");
             enc->rfx_encode = rfx_encode_component_rlgr1; /* rfxencode_tile.c */
         }
     }
     else
     {
 #if defined(RFX_USE_ACCEL_X86)
-        if (enc->got_sse41)
+        if (enc->mode == RLGR3)
         {
-            if (enc->mode == RLGR3)
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3_x86_sse41\n");
-                enc->rfx_encode = rfx_encode_component_rlgr3_x86_sse41; /* rfxencode_tile.c */
-            }
-            else
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1_x86_sse41\n");
-                enc->rfx_encode = rfx_encode_component_rlgr1_x86_sse41; /* rfxencode_tile.c */
-            }
-        }
-        else if (enc->got_sse2)
-        {
-            if (enc->mode == RLGR3)
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3_x86_sse2\n");
-                enc->rfx_encode = rfx_encode_component_rlgr3_x86_sse2; /* rfxencode_tile.c */
-            }
-            else
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1_x86_sse2\n");
-                enc->rfx_encode = rfx_encode_component_rlgr1_x86_sse2; /* rfxencode_tile.c */
-            }
+            enc->rfx_encode = rfx_encode_component_rlgr3_x86_sse2; /* rfxencode_tile.c */
         }
         else
         {
-            if (enc->mode == RLGR3)
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3\n");
-                enc->rfx_encode = rfx_encode_component_rlgr3; /* rfxencode_tile.c */
-            }
-            else
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1\n");
-                enc->rfx_encode = rfx_encode_component_rlgr1; /* rfxencode_tile.c */
-            }
+            enc->rfx_encode = rfx_encode_component_rlgr1_x86_sse2; /* rfxencode_tile.c */
         }
 #elif defined(RFX_USE_ACCEL_AMD64)
-        if (enc->got_sse41)
+        if (enc->mode == RLGR3)
         {
-            if (enc->mode == RLGR3)
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3_amd64_sse41\n");
-                enc->rfx_encode = rfx_encode_component_rlgr3_amd64_sse41; /* rfxencode_tile.c */
-            }
-            else
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1_amd64_sse41\n");
-                enc->rfx_encode = rfx_encode_component_rlgr1_amd64_sse41; /* rfxencode_tile.c */
-            }
-        }
-        else if (enc->got_sse2)
-        {
-            if (enc->mode == RLGR3)
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3_amd64_sse2\n");
-                enc->rfx_encode = rfx_encode_component_rlgr3_amd64_sse2; /* rfxencode_tile.c */
-            }
-            else
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1_amd64_sse2\n");
-                enc->rfx_encode = rfx_encode_component_rlgr1_amd64_sse2; /* rfxencode_tile.c */
-            }
+            enc->rfx_encode = rfx_encode_component_rlgr3_amd64_sse2; /* rfxencode_tile.c */
         }
         else
         {
-            if (enc->mode == RLGR3)
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3\n");
-                enc->rfx_encode = rfx_encode_component_rlgr3; /* rfxencode_tile.c */
-            }
-            else
-            {
-                printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1\n");
-                enc->rfx_encode = rfx_encode_component_rlgr1; /* rfxencode_tile.c */
-            }
+            enc->rfx_encode = rfx_encode_component_rlgr1_amd64_sse2; /* rfxencode_tile.c */
         }
 #else
         if (enc->mode == RLGR3)
         {
-            printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr3\n");
             enc->rfx_encode = rfx_encode_component_rlgr3; /* rfxencode_tile.c */
         }
         else
         {
-            printf("rfxcodec_encode_create: rfx_encode set to rfx_encode_component_rlgr1\n");
             enc->rfx_encode = rfx_encode_component_rlgr1; /* rfxencode_tile.c */
         }
 #endif
@@ -258,23 +186,7 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     if (bx == 0)
     {
     }
-    *handle = enc;
-    return 0;
-}
-
-/******************************************************************************/
-void *
-rfxcodec_encode_create(int width, int height, int format, int flags)
-{
-    int error;
-    void *handle;
-
-    error = rfxcodec_encode_create_ex(width, height, format, flags, &handle);
-    if (error == 0)
-    {
-        return handle; 
-    }
-    return 0;
+    return enc;
 }
 
 /******************************************************************************/
@@ -294,11 +206,11 @@ rfxcodec_encode_destroy(void * handle)
 
 /******************************************************************************/
 int
-rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
-                   char *buf, int width, int height, int stride_bytes,
-                   const struct rfx_rect *regions, int num_regions,
-                   const struct rfx_tile *tiles, int num_tiles,
-                   const char *quants, int num_quants, int flags)
+rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
+                char *buf, int width, int height, int stride_bytes,
+                struct rfx_rect *regions, int num_regions,
+                struct rfx_tile *tiles, int num_tiles,
+                const int *quants, int num_quants)
 {
     struct rfxencode *enc;
     STREAM s;
@@ -319,25 +231,10 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
     }
     if (rfx_compose_message_data(enc, &s, regions, num_regions,
                                  buf, width, height, stride_bytes,
-                                 tiles, num_tiles, quants, num_quants,
-                                 flags) != 0)
+                                 tiles, num_tiles, quants, num_quants) != 0)
     {
         return 1;
     }
     *cdata_bytes = (int) (s.p - s.data);
     return 0;
 }
-
-/******************************************************************************/
-int
-rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
-                char *buf, int width, int height, int stride_bytes,
-                const struct rfx_rect *regions, int num_regions,
-                const struct rfx_tile *tiles, int num_tiles,
-                const char *quants, int num_quants)
-{
-    return rfxcodec_encode_ex(handle, cdata, cdata_bytes, buf, width, height,
-                              stride_bytes, regions, num_regions, tiles,
-                              num_tiles, quants, num_quants, 0);
-}
-
