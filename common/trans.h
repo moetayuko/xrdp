@@ -41,8 +41,8 @@ typedef int (DEFAULT_CC *ttrans_data_in)(struct trans* self);
 typedef int (DEFAULT_CC *ttrans_conn_in)(struct trans* self,
                                          struct trans* new_self);
 typedef int (DEFAULT_CC *tis_term)(void);
-typedef int (APP_CC *trans_recv_proc) (struct trans *self, void *ptr, int len);
-typedef int (APP_CC *trans_send_proc) (struct trans *self, const void *data, int len);
+typedef int (APP_CC *trans_recv_proc) (struct trans *self, char *ptr, int len);
+typedef int (APP_CC *trans_send_proc) (struct trans *self, const char *data, int len);
 typedef int (APP_CC *trans_can_recv_proc) (struct trans *self, int sck, int millis);
 
 /* optional source info */
@@ -122,7 +122,8 @@ trans_get_in_s(struct trans* self);
 struct stream* APP_CC
 trans_get_out_s(struct trans* self, int size);
 int APP_CC
-trans_set_tls_mode(struct trans *self, const char *key, const char *cert);
+trans_set_tls_mode(struct trans *self, const char *key, const char *cert,
+                   int disableSSLv3, const char *tls_ciphers);
 int APP_CC
 trans_shutdown_tls_mode(struct trans *self);
 int APP_CC

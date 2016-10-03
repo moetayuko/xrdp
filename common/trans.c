@@ -28,7 +28,7 @@
 
 /*****************************************************************************/
 int APP_CC
-trans_tls_recv(struct trans *self, void *ptr, int len)
+trans_tls_recv(struct trans *self, char *ptr, int len)
 {
     if (self->tls == NULL)
     {
@@ -39,7 +39,7 @@ trans_tls_recv(struct trans *self, void *ptr, int len)
 
 /*****************************************************************************/
 int APP_CC
-trans_tls_send(struct trans *self, const void *data, int len)
+trans_tls_send(struct trans *self, const char *data, int len)
 {
     if (self->tls == NULL)
     {
@@ -61,14 +61,14 @@ trans_tls_can_recv(struct trans *self, int sck, int millis)
 
 /*****************************************************************************/
 int APP_CC
-trans_tcp_recv(struct trans *self, void *ptr, int len)
+trans_tcp_recv(struct trans *self, char *ptr, int len)
 {
     return g_tcp_recv(self->sck, ptr, len, 0);
 }
 
 /*****************************************************************************/
 int APP_CC
-trans_tcp_send(struct trans *self, const void *data, int len)
+trans_tcp_send(struct trans *self, const char *data, int len)
 {
     return g_tcp_send(self->sck, data, len, 0);
 }
@@ -881,7 +881,8 @@ trans_get_out_s(struct trans *self, int size)
 /*****************************************************************************/
 /* returns error */
 int APP_CC
-trans_set_tls_mode(struct trans *self, const char *key, const char *cert)
+trans_set_tls_mode(struct trans *self, const char *key, const char *cert,
+                   int disableSSLv3, const char *tls_ciphers)
 {
     self->tls = ssl_tls_create(self, key, cert);
     if (self->tls == NULL)
@@ -890,7 +891,7 @@ trans_set_tls_mode(struct trans *self, const char *key, const char *cert)
         return 1;
     }
 
-    if (ssl_tls_accept(self->tls) != 0)
+    if (ssl_tls_accept(self->tls, disableSSLv3, tls_ciphers) != 0)
     {
         g_writeln("trans_set_tls_mode: ssl_tls_accept failed");
         return 1;

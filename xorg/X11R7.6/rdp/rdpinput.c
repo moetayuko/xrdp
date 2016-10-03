@@ -27,7 +27,7 @@ keyboard and mouse stuff
    num lock */
 /* this should be fixed in rdesktop */
 /* g_pause_spe flag for special control sent by ms client before scan code
-   69 is sent to tell that its pause, not num lock.  both pause and num
+   69 is sent to tell that it's pause, not num lock.  both pause and num
    lock use scan code 69 */
 
 /* tab notes */
@@ -324,6 +324,10 @@ rdpLoadLayout(struct xrdp_client_info *client_info)
     if (strlen(client_info->layout) > 0)
     {
         set.layout = client_info->layout;
+    }
+    if (strlen(client_info->options) > 0)
+    {
+        set.options = client_info->options;
     }
 
  retry:

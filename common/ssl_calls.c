@@ -111,7 +111,7 @@ ssl_sha1_clear(void *sha1_info)
 
 /*****************************************************************************/
 void APP_CC
-ssl_sha1_transform(void *sha1_info, char *data, int len)
+ssl_sha1_transform(void *sha1_info, const char *data, int len)
 {
     SHA1_Update((SHA_CTX *)sha1_info, data, len);
 }
@@ -187,7 +187,7 @@ ssl_des3_decrypt_info_create(const char *key, const char* ivec)
     const tui8 *lkey;
     const tui8 *livec;
 
-    des3_ctx = g_malloc(sizeof(EVP_CIPHER_CTX), 1);
+    des3_ctx = g_new0(EVP_CIPHER_CTX, 1);
     EVP_CIPHER_CTX_init(des3_ctx);
     lkey = (const tui8 *) key;
     livec = (const tui8 *) ivec;
@@ -560,7 +560,7 @@ ssl_tls_create(struct trans *trans, const char *key, const char *cert)
 
 /*****************************************************************************/
 int APP_CC
-ssl_tls_print_error(char *func, SSL *connection, int value)
+ssl_tls_print_error(const char *func, SSL *connection, int value)
 {
     switch (SSL_get_error(connection, value))
     {
@@ -590,18 +590,22 @@ ssl_tls_print_error(char *func, SSL *connection, int value)
 
 /*****************************************************************************/
 int APP_CC
-ssl_tls_accept(struct ssl_tls *self)
+ssl_tls_accept(struct ssl_tls *self, int disableSSLv3,
+               const char *tls_ciphers)
 {
     int connection_status;
     long options = 0;
 
     /**
-     * SSL_OP_NO_SSLv2:
-     *
-     * We only want SSLv3 and TLSv1, so disable SSLv2.
+     * SSL_OP_NO_SSLv2
      * SSLv3 is used by, eg. Microsoft RDC for Mac OS X.
+     * No SSLv3 if disableSSLv3=yes so only tls used
      */
     options |= SSL_OP_NO_SSLv2;
+    if (disableSSLv3)
+    {
+        options |= SSL_OP_NO_SSLv3;
+    }
 
 #if defined(SSL_OP_NO_COMPRESSION)
     /**
@@ -638,6 +642,16 @@ ssl_tls_accept(struct ssl_tls *self)
                      SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER |
                      SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_options(self->ctx, options);
+
+    if (g_strlen(tls_ciphers) > 1)
+    {
+        if (SSL_CTX_set_cipher_list(self->ctx, tls_ciphers) == 0)
+        {
+            g_writeln("ssl_tls_accept: invalid cipher options");
+            return 1;
+        }
+    }
+
     SSL_CTX_set_read_ahead(self->ctx, 1);
 
     if (self->ctx == NULL)
