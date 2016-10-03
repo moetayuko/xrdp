@@ -4,7 +4,7 @@ Uploaders: Andreas Tille <tille@debian.org>,
  Mike Gabriel <sunweaver@debian.org>,
 Section: net
 Priority: optional
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper (>= 10),
                autoconf (>= 2.59),
                automake (>= 1.6),
                dh-systemd (>= 1.5),
