@@ -41,7 +41,6 @@ endif
 override_dh_auto_configure:
 	./bootstrap
 	cd xorgxrdp && ./bootstrap
-	cd librfxcodec && ./bootstrap
 	./configure ${CONFIGURE_ARGS} \
 	    --enable-ipv6 \
 	    --enable-jpeg \
@@ -49,9 +48,6 @@ override_dh_auto_configure:
 	    --enable-rfxcodec \
 	    --enable-opus
 	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
-	cd librfxcodec && ./configure ${CONFIGURE_ARGS} \
-	    --disable-shared \
-	    --enable-static
 	find . -name Makefile -print0 | \
 	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
