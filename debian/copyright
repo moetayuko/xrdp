@@ -25,6 +25,7 @@ Files: COPYING
  common/os_calls.h
  common/parse.h
  common/rail.h
+ common/pixman-region.h
  common/thread_calls.c
  common/thread_calls.h
  common/trans.c
@@ -663,6 +664,19 @@ Files: m4/ax_require_defined.m4
 Copyright: 2014, Mike Frysinger <vapier@gentoo.org>
 License: custom-historic
 
+Files: m4/ax_append_compile_flags.m4
+Copyright: 2011 Maarten Bosmans <mkbosmans@gmail.com>
+License: GPL-3+~autoconf
+
+Files: m4/ax_check_compile_flag.m4
+Copyright: 2008 Guido U. Draheim <guidod@gmx.de>
+ 2011 Maarten Bosmans <mkbosmans@gmail.com>
+License: GPL-3+~autoconf
+
+Files: m4/ax_type_socklen_t.m4
+Copyright: 2008 Lars Brinkhoff <lars@nocrew.org>
+License: GPL-3+~autoconf
+
 Files: instfiles/rc.d/xrdp
 Copyright: metalefty
 License: FreeBSD
@@ -693,9 +707,101 @@ License: Apache-2.0
 
 Files: sesman/chansrv/pcsc/dumps/*
  instfiles/km-*.ini
+ xorg/X11R7.6/xkeyboard-config-2.0.patch
 Copyright: None
 License: None
- Not copyrightable as these files are pure data dumps.
+ Not copyrightable.
+
+Files: common/pixman-region.c
+Copyright: 1987, 1988, 1989, 1998  The Open Group
+ 1987, 1988, 1989 by Digital Equipment Corporation, Maynard, Massachusetts.
+ 1998 Keith Packard
+License: custom-old-MIT
+ Copyright 1987, 1988, 1989, 1998  The Open Group
+ .
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ .
+ Except as contained in this notice, the name of The Open Group shall not be
+ used in advertising or otherwise to promote the sale, use or other dealings
+ in this Software without prior written authorization from The Open Group.
+ .
+ Copyright 1987, 1988, 1989 by
+ Digital Equipment Corporation, Maynard, Massachusetts.
+ .
+                    All Rights Reserved
+ .
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for any purpose and without fee is hereby granted,
+ provided that the above copyright notice appear in all copies and that
+ both that copyright notice and this permission notice appear in
+ supporting documentation, and that the name of Digital not be
+ used in advertising or publicity pertaining to distribution of the
+ software without specific, written prior permission.
+ .
+ DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+ ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
+ DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
+ ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+ WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+ SOFTWARE.
+ .
+ Copyright © 1998 Keith Packard
+ .
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation, and that the name of Keith Packard not be used in
+ advertising or publicity pertaining to distribution of the software without
+ specific, written prior permission.  Keith Packard makes no
+ representations about the suitability of this software for any purpose.  It
+ is provided "as is" without express or implied warranty.
+ .
+ KEITH PACKARD DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+ EVENT SHALL KEITH PACKARD BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ PERFORMANCE OF THIS SOFTWARE.
+
+Files: common/pixman-region16.c
+Copyright: 2008 Author: Soren Sandmann <sandmann@redhat.com>
+ RedHat Inc.
+License: custom-old-MIT-2
+ Permission to use, copy, modify, distribute, and sell this software
+ and its documentation for any purpose is hereby granted without
+ fee, provided that the above copyright notice appear in all copies
+ and that both that copyright notice and this permission notice
+ appear in supporting documentation, and that the name of
+ Red Hat, Inc. not be used in advertising or publicity pertaining to
+ distribution of the software without specific, written prior
+ permission. Red Hat, Inc. makes no representations about the
+ suitability of this software for any purpose.  It is provided "as
+ is" without express or implied warranty.
+ .
+ RED HAT, INC. DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+ SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS, IN NO EVENT SHALL RED HAT, INC. BE LIABLE FOR ANY SPECIAL,
+ INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+ RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+ OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
