@@ -2,14 +2,14 @@
 
 --- a/librfxcodec/src/amd64/cpuid_amd64.asm
 +++ b/librfxcodec/src/amd64/cpuid_amd64.asm
-@@ -39,3 +39,4 @@ PROC cpuid_amd64
-     ret;
+@@ -43,3 +43,4 @@ PROC _cpuid_amd64
+     ret
      align 16
  
 +section .note.GNU-stack noalloc noexec nowrite progbits
 --- a/librfxcodec/src/x86/cpuid_x86.asm
 +++ b/librfxcodec/src/x86/cpuid_x86.asm
-@@ -37,3 +37,4 @@ PROC cpuid_x86
+@@ -41,3 +41,4 @@ PROC _cpuid_x86
      ret;
      align 16
  
