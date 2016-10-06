@@ -17,8 +17,10 @@ xrdp (0.9.0~20161006+git132cc10-1) UNRELEASED; urgency=medium
   * Refresh quilt patches.
   * Be more aggressive when creating /var/run directories.
      + Fixes upgrade path from 0.6.1. (Closes: #828868)
+  * Move old, duplicate pam config to new name.
+     + Fixes upgrade path from 0.6.1. (Closes: #836583)
 
- -- Dominik George <nik@naturalnet.de>  Fri, 07 Oct 2016 01:01:40 +0200
+ -- Dominik George <nik@naturalnet.de>  Fri, 07 Oct 2016 01:12:21 +0200
 
 xrdp (0.9.0~20160601+git703fedd-3) unstable; urgency=medium
 
