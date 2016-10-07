@@ -10,7 +10,6 @@ Build-Depends:
  autoconf (>= 2.59),
  automake (>= 1.6),
  debhelper (>= 10),
- dh-systemd (>= 1.5),
  libfuse-dev,
  libjpeg-dev,
  libopus-dev,
