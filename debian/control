@@ -37,6 +37,8 @@ Depends:
  ${shlibs:Depends},
 Recommends:
  xorgxrdp,
+Suggests:
+ guacamole,
 Description: Remote Desktop Protocol (RDP) server
  xrdp offers a graphical login to a remote client using
  RDP (the Remote Desktop Protocol). xrdp can connect to

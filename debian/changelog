@@ -2,8 +2,9 @@ xrdp (0.9.0~20161006+git132cc10-2) UNRELEASED; urgency=medium
 
   * Remove unnecessary dh-systemd dependency.
   * Depend on lsb-base.
+  * Suggest guacamole.
 
- -- Dominik George <nik@naturalnet.de>  Tue, 11 Oct 2016 14:34:13 +0200
+ -- Dominik George <nik@naturalnet.de>  Tue, 18 Oct 2016 13:10:03 +0200
 
 xrdp (0.9.0~20161006+git132cc10-1) unstable; urgency=medium
 
