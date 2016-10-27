@@ -4,6 +4,7 @@ xrdp (0.9.0~20161027+gitc524b06-1) UNRELEASED; urgency=medium
   * Remove unnecessary dh-systemd dependency.
   * Depend on lsb-base.
   * Suggest guacamole.
+  * Build with OpenSSL 1.1.0.
 
  -- Dominik George <nik@naturalnet.de>  Tue, 18 Oct 2016 13:10:03 +0200
 
