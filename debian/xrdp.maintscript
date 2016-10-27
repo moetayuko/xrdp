@@ -1,2 +1,1 @@
-rm_conffile /etc/pam.d/xrdp-sesman 0.9~
-mv_conffile /etc/pam.d/sesman /etc/pam.d/xrdp-sesman 0.9~
+rm_conffile /etc/pam.d/sesman 0.9~

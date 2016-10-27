@@ -1,26 +1,26 @@
 xrdp (0.9.0~20161006+git132cc10-1) unstable; urgency=medium
 
-  * New upstream version.
-     + Improve many log messages.
-     + Fixes for build on kfreebsd.
-     + Fix typos and wording of docs and man pages.
-     + Fixes to memory allocation and related things.
-     + Fix in multi-monitor support in x11rdp.
-     + Fix a segfault in x11rdp.
-     + Better region rendring code with pixman.
-     + Fix for issues with non-ASCII characters in clipboard.
-     + Add advanced SSL options in xrdp.ini
-       + Disable SSLv2 by default.
-     + Some keyboard fixes in x11rdp.
-       + Add en-gb keyboard mapping.
-     + Fixes to socket handling.
+  [ Dominik George ]
+  * New upstream version 0.9.0~20161006+git132cc10
+     - Improve many log messages.
+     - Fixes for build on kfreebsd.
+     - Fix typos and wording of docs and man pages.
+     - Fixes to memory allocation and related things.
+     - Fix in multi-monitor support in x11rdp.
+     - Fix a segfault in x11rdp.
+     - Better region rendring code with pixman.
+     - Fix for issues with non-ASCII characters in clipboard.
+     - Add advanced SSL options in xrdp.ini
+       - Disable SSLv2 by default.
+     - Some keyboard fixes in x11rdp.
+       - Add en-gb keyboard mapping.
+     - Fixes to socket handling.
   * Refresh quilt patches.
-  * Be more aggressive when creating /var/run directories.
-     + Fixes upgrade path from 0.6.1. (Closes: #828868)
-  * Move old, duplicate pam config to new name.
-     + Fixes upgrade path from 0.6.1. (Closes: #836583)
+  * Refresh patches
+  * Update copyright.
+  * Move to team maintenance (Debian Edu Packaging Team).
 
- -- Dominik George <nik@naturalnet.de>  Fri, 07 Oct 2016 01:12:21 +0200
+ -- Mike Gabriel <sunweaver@debian.org>  Fri, 07 Oct 2016 12:50:16 +0200
 
 xrdp (0.9.0~20160601+git703fedd-3) unstable; urgency=medium
 
