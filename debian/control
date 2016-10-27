@@ -14,7 +14,7 @@ Build-Depends:
  libjpeg-dev,
  libopus-dev,
  libpam0g-dev,
- libssl-dev,
+ libssl-dev (>=1.1.0),
  libtool,
  libx11-dev,
  libxfixes-dev,
