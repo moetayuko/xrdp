@@ -5,6 +5,10 @@ xrdp (0.9.0~20161027+gitc524b06-1) unstable; urgency=medium
   * Depend on lsb-base.
   * Suggest guacamole.
   * Fix build with OpenSSL 1.1.0. (Closes: #828610)
+  * Be more aggressive when creating /var/run directories.
+     + Fixes upgrade path from 0.6.1. (Closes: #828868)
+  * Move old, duplicate pam config to new name.
+     + Fixes upgrade path from 0.6.1. (Closes: #836583)
 
  -- Dominik George <nik@naturalnet.de>  Thu, 27 Oct 2016 22:53:12 +0200
 
