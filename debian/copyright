@@ -707,6 +707,9 @@ License: Apache-2.0
 Files: sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
+ librfxcodec/rfxcodec.pc.in
+ librfxcodec/rfxcodec-uninstalled.pc.in
+ xorg/X11R7.6/.gitignore
  xorg/X11R7.6/xkeyboard-config-2.0.patch
 Copyright: None
 License: None
