@@ -1,3 +1,9 @@
+From: Dominik George <nik@naturalnet.de>
+Subject: Fix build with OpenSSL 1.1.0
+Bug: https://github.com/neutrinolabs/xrdp/issues/458
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=828610
+Reviewed-by: mirabilos <tg@mirbsd.org>
+Forwarded: https://github.com/neutrinolabs/xrdp/pull/459
 --- a/common/ssl_calls.c
 +++ b/common/ssl_calls.c
 @@ -170,8 +170,7 @@ ssl_des3_encrypt_info_create(const char
