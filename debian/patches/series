@@ -10,3 +10,4 @@ shutup-daemon.diff
 sockpath.diff
 fusepath.diff
 chansrvlog.diff
+fix-build-with-openssl-1.1.0.diff
