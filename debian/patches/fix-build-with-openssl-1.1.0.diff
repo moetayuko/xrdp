@@ -36,27 +36,33 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/459
      }
  }
  
-@@ -250,8 +247,7 @@ ssl_hmac_info_create(void)
+@@ -250,8 +247,12 @@ ssl_hmac_info_create(void)
  {
      HMAC_CTX *hmac_ctx;
  
--    hmac_ctx = (HMAC_CTX *) g_malloc(sizeof(HMAC_CTX), 1);
--    HMAC_CTX_init(hmac_ctx);
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 +    hmac_ctx = HMAC_CTX_new();
++#else
+     hmac_ctx = (HMAC_CTX *) g_malloc(sizeof(HMAC_CTX), 1);
+     HMAC_CTX_init(hmac_ctx);
++#endif
      return hmac_ctx;
  }
  
-@@ -264,8 +260,7 @@ ssl_hmac_info_delete(void *hmac)
+@@ -264,8 +265,12 @@ ssl_hmac_info_delete(void *hmac)
      hmac_ctx = (HMAC_CTX *) hmac;
      if (hmac_ctx != 0)
      {
--        HMAC_CTX_cleanup(hmac_ctx);
--        g_free(hmac_ctx);
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 +        HMAC_CTX_free(hmac_ctx);
++#else
+         HMAC_CTX_cleanup(hmac_ctx);
+         g_free(hmac_ctx);
++#endif
      }
  }
  
-@@ -332,10 +327,10 @@ ssl_mod_exp(char *out, int out_len, char
+@@ -332,10 +337,10 @@ ssl_mod_exp(char *out, int out_len, char
              char *mod, int mod_len, char *exp, int exp_len)
  {
      BN_CTX *ctx;
@@ -71,7 +77,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/459
      int rv;
      char *l_out;
      char *l_in;
-@@ -353,15 +348,15 @@ ssl_mod_exp(char *out, int out_len, char
+@@ -353,15 +358,15 @@ ssl_mod_exp(char *out, int out_len, char
      ssl_reverse_it(l_mod, mod_len);
      ssl_reverse_it(l_exp, exp_len);
      ctx = BN_CTX_new();
@@ -96,7 +102,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/459
  
      if (rv <= out_len)
      {
-@@ -373,10 +368,10 @@ ssl_mod_exp(char *out, int out_len, char
+@@ -373,10 +378,10 @@ ssl_mod_exp(char *out, int out_len, char
          rv = 0;
      }
  
@@ -111,13 +117,18 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/459
      BN_CTX_free(ctx);
      g_free(l_out);
      g_free(l_in);
-@@ -494,29 +489,33 @@ ssl_gen_key_xrdp1(int key_size_in_bits,
+@@ -494,29 +499,38 @@ ssl_gen_key_xrdp1(int key_size_in_bits,
      my_key = RSA_new();
      error = RSA_generate_key_ex(my_key, key_size_in_bits, my_e, 0) == 0;
  
 +    const BIGNUM *n;
 +    const BIGNUM *d;
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 +    RSA_get0_key(my_key, &n, NULL, &d);
++#else
++    n = my_key->n;
++    d = my_key->d;
++#endif
 +
      if (error == 0)
      {
