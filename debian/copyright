@@ -122,7 +122,6 @@ Files: COPYING
  neutrinordp/xrdp-neutrinordp.c
  neutrinordp/xrdp-neutrinordp.h
  postinstall-pak
- prog_std.txt
  rdp/Makefile.am
  rdp/rdp.c
  rdp/rdp.h
@@ -706,6 +705,7 @@ Copyright: Vincent Bernat
 License: Apache-2.0
 
 Files: sesman/chansrv/pcsc/dumps/*
+ instfiles/keymap-names.txt
  instfiles/km-*.ini
  xorg/X11R7.6/xkeyboard-config-2.0.patch
 Copyright: None
