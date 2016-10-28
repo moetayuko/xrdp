@@ -1,5 +1,5 @@
-# DP: don’t spit on the console when starting
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: don’t spit on the console when starting
 --- a/common/log.c
 +++ b/common/log.c
 @@ -383,11 +383,6 @@ internal_config_read_logging(int file, s

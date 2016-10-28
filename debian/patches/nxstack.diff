@@ -1,5 +1,5 @@
-# DP: re-enable non-executable stack
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: re-enable non-executable stack
 --- a/librfxcodec/src/amd64/cpuid_amd64.asm
 +++ b/librfxcodec/src/amd64/cpuid_amd64.asm
 @@ -43,3 +43,4 @@ PROC _cpuid_amd64

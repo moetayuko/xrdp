@@ -1,8 +1,11 @@
-# DP: attempt to fix connection problem between xrdp-sesman (running
-# DP: as root) and xrdp (running as xrdp) by creating the socket for
-# DP: the xorgxrdp server as 0660 in a sgid-xrdp directory, since we
-# DP: can’t easily chgrp here; also fix retval check for listen(2)
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: Fix permissions between xrdp and sesman.
+ Attempt to fix connection problem between xrdp-sesman (running
+ as root) and xrdp (running as xrdp) by creating the socket for
+ the xorgxrdp server as 0660 in a sgid-xrdp directory, since we
+ can’t easily chgrp here; also fix retval check for listen(2)
+Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
+ https://github.com/neutrinolabs/xrdp/pull/464
 --- a/common/os_calls.c
 +++ b/common/os_calls.c
 @@ -122,7 +122,7 @@ g_mk_temp_dir(const char *app_name)

@@ -1,9 +1,12 @@
-# DP: config patches for Debian
-# DP: move -logfile /dev/null to last, for easy commenting out
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: config patches for Debian
+ Move -logfile /dev/null to last, for easy commenting out
+ Add -retro option
+ Use Debian font paths
+ Use xorgxrdp instead of x11rdp
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -84,12 +84,11 @@ param7=96
+@@ -84,12 +84,13 @@ param7=96
  param0=Xorg
  param1=-config
  param2=xrdp/xorg.conf
@@ -17,7 +20,9 @@
 +param4=-ac
 +param5=-nolisten
 +param6=tcp
-+param7=-retro
++param7=-logfile
++param8=/dev/null
++param9=-retro
  
  [Chansrv]
  # drive redirection, defaults to xrdp_client if not set
@@ -39,7 +44,7 @@
  Section "Module"
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
-@@ -144,14 +144,14 @@ tcutils=true
+@@ -145,14 +145,14 @@ tcutils=true
  # chansrvport=/tmp/.xrdp/xrdp_chansrv_socket_7210
  
  [xrdp1]

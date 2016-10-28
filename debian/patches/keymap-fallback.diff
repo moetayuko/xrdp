@@ -1,6 +1,6 @@
-# DP: Fall back to en-us keymap if the chosen one could not be loaded.
-# DP: Patch by Vincent Bernat and Thorsten Glaser
-
+From: Vincent Bernat and Thorsten Glaser
+Subject: Fall back to en-us keymap if the chosen one could not be loaded.
+Forwarded: https://github.com/neutrinolabs/xrdp/pull/466
 --- a/xrdp/lang.c
 +++ b/xrdp/lang.c
 @@ -275,6 +275,12 @@ get_keymaps(int keylayout, struct xrdp_k

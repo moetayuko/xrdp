@@ -1,5 +1,5 @@
-# DP: systemd service files for Debian
-
+From: Dominik George <nik@naturalnet.de
+Subject: systemd service files for Debian
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
 @@ -1,12 +1,12 @@

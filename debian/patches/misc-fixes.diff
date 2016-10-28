@@ -1,5 +1,7 @@
-# DP: misc. fixes, should go upstream
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: misc. fixes
+Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
+ https://github.com/neutrinolabs/xrdp/pull/467
 --- a/docs/man/xrdp-dis.1
 +++ b/docs/man/xrdp-dis.1
 @@ -1,4 +1,4 @@

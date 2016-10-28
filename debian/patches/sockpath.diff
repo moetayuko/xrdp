@@ -1,7 +1,6 @@
-# DP: change location of the socket path to something less racy;
-# DP: also, rely on the initscript to create it with correct
-# DP: permissions and ownership (root:xrdp 3777)
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject:: change location of the socket path to something less racy
+ also, rely on the initscript to create it with correct permissions and ownership
 --- a/common/file_loc.h
 +++ b/common/file_loc.h
 @@ -46,23 +46,23 @@

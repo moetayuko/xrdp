@@ -1,5 +1,6 @@
-# DP: move xrdp-chansrv.log into XDG_CACHE_HOME
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: move xrdp-chansrv.log into XDG_CACHE_HOME
+Forwarded: https://github.com/neutrinolabs/xrdp/pull/462
 --- a/docs/man/xrdp-chansrv.8
 +++ b/docs/man/xrdp-chansrv.8
 @@ -38,6 +38,7 @@ UNIX socket used by \fBxrdp\-chansrv\fP

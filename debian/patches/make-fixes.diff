@@ -1,6 +1,8 @@
-# DP: recurse into xorgxrdp/ as well (make into proper configure option?)
-# DP: also, actually install keymaps shipped (should be upstreamed)
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: Build system fixes
+ recurse into xorgxrdp/ as well (make into proper configure option?)
+ also, actually install keymaps shipped
+Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -24,6 +24,7 @@ SUBDIRS = \
