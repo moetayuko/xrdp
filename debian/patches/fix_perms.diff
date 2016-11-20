@@ -30,7 +30,7 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
      i = atoi(display);
 --- a/xorgxrdp/module/rdpClientCon.c
 +++ b/xorgxrdp/module/rdpClientCon.c
-@@ -1127,7 +1127,7 @@ rdpClientConInit(rdpPtr dev)
+@@ -1176,7 +1176,7 @@ rdpClientConInit(rdpPtr dev)
                  return 0;
              }
          }
@@ -39,18 +39,3 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
      }
      i = atoi(display);
      if (i < 1)
-@@ -1145,7 +1145,13 @@ rdpClientConInit(rdpPtr dev)
-             LLOGLN(0, ("rdpClientConInit: g_tcp_local_bind failed"));
-             return 1;
-         }
--        g_sck_listen(dev->listen_sck);
-+        if (g_sck_listen(dev->listen_sck) != 0)
-+        {
-+            LLOGLN(0, ("rdpClientConInit: g_sck_listen failed"));
-+            unlink(dev->uds_data);
-+            return 1;
-+        }
-+        g_chmod_hex(dev->uds_data, 0x0660);
-         AddEnabledDevice(dev->listen_sck);
-     }
-     return 0;

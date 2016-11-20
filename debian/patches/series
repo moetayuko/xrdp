@@ -1,13 +1,8 @@
 make-fixes.diff
 config.diff
-keymap-default.diff
-keymap-fallback.diff
 misc-fixes.diff
 systemd.diff
 nxstack.diff
 fix_perms.diff
 shutup-daemon.diff
 sockpath.diff
-fusepath.diff
-chansrvlog.diff
-fix-build-with-openssl-1.1.0.diff

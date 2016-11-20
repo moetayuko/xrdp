@@ -13,16 +13,10 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
    xrdp \
    sesman \
    keygen \
-@@ -31,4 +32,5 @@ SUBDIRS = \
-   instfiles \
-   genkeymap \
-   xrdpapi \
-+  xorgxrdp \
-   $(XRDPVRDIR)
 --- a/common/Makefile.am
 +++ b/common/Makefile.am
-@@ -47,7 +47,12 @@ libcommon_la_SOURCES = \
-   xrdp_rail.h \
+@@ -49,7 +49,12 @@ libcommon_la_SOURCES = \
+   trans.h \
    $(PIXMAN_SOURCES)
  
 +if NEED_LIBDL

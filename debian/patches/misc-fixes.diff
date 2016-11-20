@@ -2,14 +2,6 @@ From: Thorsten Glaser <tg@mirbsd.org>
 Subject: misc. fixes
 Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
  https://github.com/neutrinolabs/xrdp/pull/467
---- a/docs/man/xrdp-dis.1
-+++ b/docs/man/xrdp-dis.1
-@@ -1,4 +1,4 @@
--.TH "xrdp-dis" "8" "0.7.0" "xrdp team"
-+.TH "xrdp-dis" "1" "0.7.0" "xrdp team"
- .SH NAME
- xrdp\-dis \- xrdp disconnect utility
- 
 --- a/libxrdp/xrdp_jpeg_compress.c
 +++ b/libxrdp/xrdp_jpeg_compress.c
 @@ -213,7 +213,7 @@ xrdp_jpeg_deinit(void *handle)
@@ -593,7 +585,7 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
  
 --- a/sesman/session.c
 +++ b/sesman/session.c
-@@ -616,7 +616,7 @@ session_start_fork(int width, int height
+@@ -617,7 +617,7 @@ session_start_fork(int width, int height
                  else
                  {
                      log_message(LOG_LEVEL_ERROR, "another Xserver might "
@@ -602,20 +594,9 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
                  }
  
                  log_message(LOG_LEVEL_DEBUG, "aborting connection...");
---- a/xorgxrdp/configure.ac
-+++ b/xorgxrdp/configure.ac
-@@ -9,7 +9,7 @@ AC_PROG_CC
- AC_C_CONST
- AC_PROG_LIBTOOL
- 
--AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
-+AM_CONDITIONAL(GOT_PREFIX, [test "x${prefix}" != "xNONE" && test "x${prefix}" != "x/usr"])
- 
- AC_CHECK_HEADER([xorg/xorg-server.h], [],
-   [AC_MSG_ERROR([please install xserver-xorg-dev or xorg-x11-server-sdk])])
 --- a/xorgxrdp/xrdpkeyb/rdpKeyboard.c
 +++ b/xorgxrdp/xrdpkeyb/rdpKeyboard.c
-@@ -525,7 +525,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
+@@ -534,7 +534,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
  }
  
  /******************************************************************************/
@@ -624,16 +605,16 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
  rdpkeybDeviceInit(DeviceIntPtr pDevice, KeySymsPtr pKeySyms, CARD8 *pModMap)
  {
      int i;
-@@ -557,7 +557,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+@@ -565,7 +565,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
      if (pKeySyms->map == 0)
      {
-         LLOGLN(0, ("rdpkeybDeviceInit: malloc failed"));
+         LLOGLN(0, ("rdpkeybDeviceInit: out of memory"));
 -        exit(1);
 +        return 1;
      }
      else
      {
-@@ -573,6 +573,8 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+@@ -581,6 +581,8 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
      {
          pKeySyms->map[i] = g_kbdMap[i];
      }
@@ -642,7 +623,7 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
  }
  
  /******************************************************************************/
-@@ -668,7 +670,8 @@ rdpkeybControl(DeviceIntPtr device, int
+@@ -676,7 +678,8 @@ rdpkeybControl(DeviceIntPtr device, int
      switch (what)
      {
          case DEVICE_INIT:
@@ -650,8 +631,8 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
 +            if (rdpkeybDeviceInit(device, &keySyms, modMap))
 +                return BadAlloc;
              memset(&set, 0, sizeof(set));
-             set.rules = "base";
-             set.model = "pc104";
+             set.rules = g_base_str;
+             set.model = g_pc104_str;
 --- a/xrdpapi/xrdpapi.c
 +++ b/xrdpapi/xrdpapi.c
 @@ -36,6 +36,7 @@
