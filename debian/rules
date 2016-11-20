@@ -3,8 +3,8 @@
 GIT ?= $(shell dpkg-parsechangelog -ldebian/changelog | perl -ne 'print $$1 if m{^Version:\s+[^+]+\+git([^-]+)};')
 VER ?= $(shell dpkg-parsechangelog -ldebian/changelog | perl -ne 'print $$1 if m{^Version:\s+([^+]+\+git[^-]+)};')
 
-LIBRFXCODEC_GIT ?= 2a90952
-XORGXRDP_GIT ?= 822e3b8
+LIBRFXCODEC_GIT ?= fb80d7d
+XORGXRDP_GIT ?= 1ae1bb2
 
 DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed
 DEB_BUILD_MAINT_OPTIONS=hardening=+all
