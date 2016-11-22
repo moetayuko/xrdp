@@ -74,3 +74,13 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
 +
 +libxrdpapi_la_LIBADD = \
 +  $(top_builddir)/common/libcommon.la
+--- a/xorgxrdp/tests/Makefile.am
++++ b/xorgxrdp/tests/Makefile.am
+@@ -1,6 +1,6 @@
+ EXTRA_DIST = yuv2rgb
+ 
+-TESTS_ENVIRONMENT = top_builddir=$(top_builddir) top_srcdir=$(top_srcdir) $(SHELL)
++TESTS_ENVIRONMENT = top_builddir=$(top_builddir) top_srcdir=$(top_srcdir)
+ 
+ TESTS = xorg-test-run.sh
+ 
