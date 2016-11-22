@@ -587,7 +587,6 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
  xorgxrdp/readme.txt
- xorgxrdp/test-in-home.sh
  xorgxrdp/tests/yuv2rgb/Makefile
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
  xorgxrdp/xrdpdev/Makefile.am
@@ -694,23 +693,15 @@ Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
 License: MirOS
 
-Files: debian/patches/keymap-default.diff
-Copyright: Dag-Erling Smørgrav
- Petter Reinholdtsen
-License: Apache-2.0
-
-Files: debian/patches/keymap-fallback.diff
-Copyright: Vincent Bernat
- Thorsten Glaser <tg@mirbsd.org>
-License: Apache-2.0
-
-Files: sesman/chansrv/pcsc/dumps/*
+Files: .travis.yml
+ sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
  librfxcodec/rfxcodec.pc.in
  librfxcodec/rfxcodec-uninstalled.pc.in
  xorg/X11R7.6/.gitignore
  xorg/X11R7.6/xkeyboard-config-2.0.patch
+ keygen/openssl.conf
 Copyright: None
 License: None
  Not copyrightable.
