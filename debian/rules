@@ -12,6 +12,8 @@ DEB_BUILD_MAINT_OPTIONS=hardening=+all
 DPKG_EXPORT_BUILDFLAGS:=1
 include /usr/share/dpkg/default.mk
 
+export PKG_CONFIG_PATH=${CURDIR}/pkgconfig
+
 # this is precisely what dh_auto_configure does
 CONFIGURE_ARGS:=	--build=${DEB_BUILD_GNU_TYPE} \
 			--prefix=/usr \
