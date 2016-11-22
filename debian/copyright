@@ -121,6 +121,7 @@ Files: COPYING
  neutrinordp/xrdp-color.h
  neutrinordp/xrdp-neutrinordp.c
  neutrinordp/xrdp-neutrinordp.h
+ pkgconfig/Makefile.am
  postinstall-pak
  rdp/Makefile.am
  rdp/rdp.c
@@ -292,6 +293,8 @@ Files: COPYING
  xorg/tests/randr/trandr.c
  xorg/tests/xdemo/Makefile
  xorg/tests/xdemo/README.txt
+ xorgxrdp/tests/Makefile.am
+ xorgxrdp/tests/xorg-test-run.sh
  xrdp/Makefile.am
  xrdp/ad24b.bmp
  xrdp/ad256.bmp
@@ -645,28 +648,34 @@ Copyright: 2003, Bitstream, Inc.
 License: Bitstream
 
 Files: m4/ax_append_flag.m4
+ xorgxrdp/m4/ax_append_flag.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2011, Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_cflags_warn_all.m4
+ xorgxrdp/m4/ax_cflags_warn_all.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2010, Rhys Ulerich <rhys.ulerich@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_gcc_func_attribute.m4
+ xorgxrdp/m4/ax_gcc_func_attribute.m4
 Copyright: 2013, Gabriele Svelto <gabriele.svelto@gmail.com>
 License: custom-historic
 
 Files: m4/ax_require_defined.m4
+ xorgxrdp/m4/ax_require_defined.m4
 Copyright: 2014, Mike Frysinger <vapier@gentoo.org>
 License: custom-historic
 
 Files: m4/ax_append_compile_flags.m4
+ xorgxrdp/m4/ax_append_compile_flags.m4
 Copyright: 2011 Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_check_compile_flag.m4
+ xorgxrdp/m4/ax_check_compile_flag.m4
 Copyright: 2008 Guido U. Draheim <guidod@gmx.de>
  2011 Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
@@ -694,11 +703,16 @@ Copyright: Dominik George <nik@naturalnet.de>
 License: MirOS
 
 Files: .travis.yml
+ pkgconfig/.gitignore
+ xorgxrdp/.travis.yml
+ xorgxrdp/m4/.gitignore
  sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
  librfxcodec/rfxcodec.pc.in
  librfxcodec/rfxcodec-uninstalled.pc.in
+ pkgconfig/xrdp.pc.in
+ pkgconfig/xrdp-uninstalled.pc.in
  xorg/X11R7.6/.gitignore
  xorg/X11R7.6/xkeyboard-config-2.0.patch
  keygen/openssl.conf
