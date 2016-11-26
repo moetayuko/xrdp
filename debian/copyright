@@ -701,6 +701,7 @@ Copyright: Dominik George <nik@naturalnet.de>
 License: MirOS
 
 Files: .travis.yml
+ xorgxrdp/.travis.yml
  sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
