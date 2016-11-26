@@ -1,0 +1,43 @@
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: misc. fixes
+Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
+ https://github.com/neutrinolabs/xrdp/pull/467
+--- a/xorgxrdp/xrdpkeyb/rdpKeyboard.c
++++ b/xorgxrdp/xrdpkeyb/rdpKeyboard.c
+@@ -534,7 +534,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
+ }
+ 
+ /******************************************************************************/
+-void
++int
+ rdpkeybDeviceInit(DeviceIntPtr pDevice, KeySymsPtr pKeySyms, CARD8 *pModMap)
+ {
+     int i;
+@@ -565,7 +565,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+     if (pKeySyms->map == 0)
+     {
+         LLOGLN(0, ("rdpkeybDeviceInit: out of memory"));
+-        exit(1);
++        return 1;
+     }
+     else
+     {
+@@ -581,6 +581,8 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+     {
+         pKeySyms->map[i] = g_kbdMap[i];
+     }
++
++    return 0;
+ }
+ 
+ /******************************************************************************/
+@@ -676,7 +678,8 @@ rdpkeybControl(DeviceIntPtr device, int
+     switch (what)
+     {
+         case DEVICE_INIT:
+-            rdpkeybDeviceInit(device, &keySyms, modMap);
++            if (rdpkeybDeviceInit(device, &keySyms, modMap))
++                return BadAlloc;
+             memset(&set, 0, sizeof(set));
+             set.rules = g_base_str;
+             set.model = g_pc104_str;
