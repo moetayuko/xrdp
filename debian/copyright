@@ -48,7 +48,6 @@ Files: COPYING
  faq-compile.txt
  faq-general.txt
  file-loc.txt
- fontdump/.gitignore
  fontdump/Makefile
  fontdump/fontdump.c
  genkeymap/Makefile.am
@@ -71,7 +70,6 @@ Files: COPYING
  instfiles/xrdp.service
  keygen/Makefile.am
  keygen/keygen.c
- librfxcodec/.gitignore
  librfxcodec/Makefile.am
  librfxcodec/acinclude.m4
  librfxcodec/bootstrap
@@ -112,7 +110,6 @@ Files: COPYING
  libxrdp/xrdp_orders_rail.h
  libxrdp/xrdp_rdp.c
  libxrdp/xrdp_sec.c
- m4/.gitignore
  mc/Makefile.am
  mc/mc.c
  mc/mc.h
@@ -145,7 +142,6 @@ Files: COPYING
  sesman/chansrv/clipboard_common.h
  sesman/chansrv/clipboard_file.c
  sesman/chansrv/clipboard_file.h
- sesman/chansrv/pcsc/.gitignore
  sesman/chansrv/pcsc/Makefile
  sesman/chansrv/pcsc/wrapper/Makefile
  sesman/chansrv/pcsc/wrapper/winscard-func-names.txt
@@ -153,7 +149,6 @@ Files: COPYING
  sesman/chansrv/pcsc/wrapper/winscard.c
  sesman/chansrv/pcsc/wrapper/winscard.def
  sesman/chansrv/pcsc/xrdp_pcsc.c
- sesman/chansrv/pulse/.gitignore
  sesman/chansrv/pulse/Makefile
  sesman/chansrv/pulse/module-xrdp-sink-symdef.h
  sesman/chansrv/pulse/module-xrdp-sink.c
@@ -240,7 +235,6 @@ Files: COPYING
  tcutils/tcutils.pro.user
  tcutils/utils.cpp
  tcutils/utils.h
- tests/.gitignore
  tests/gtcp_proxy/Makefile
  tests/gtcp_proxy/README.txt
  tests/gtcp_proxy/gtcp.c
@@ -278,7 +272,6 @@ Files: COPYING
  vrplayer/playvideo.cpp
  vrplayer/playvideo.h
  vrplayer/vrplayer.pro
- xorg/.gitignore
  xorg/X11R7.6/cleanx.sh
  xorg/X11R7.6/libXext-1.2.0.patch
  xorg/X11R7.6/rdp/Makefile
@@ -493,7 +486,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorg/X11R7.6/rdp/rdprandr.h
  xorg/X11R7.6/rdp/rdpup.c
  xorg/X11R7.6/rdp/rdpxv.c
- xorgxrdp/.gitignore
+ xorgxrdp/COPYING
  xorgxrdp/Makefile.am
  xorgxrdp/acinclude.m4
  xorgxrdp/bootstrap
@@ -599,7 +592,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/xrdpkeyb/rdpKeyboard.c
  xorgxrdp/xrdpmouse/Makefile.am
  xorgxrdp/xrdpmouse/rdpMouse.c
-Copyright: 2011-2015, Jay Sorg
+Copyright: 2011-2016, Jay Sorg
 License: Expat
 
 Files: common/xrdp_constants.h
@@ -684,6 +677,11 @@ Files: m4/ax_type_socklen_t.m4
 Copyright: 2008 Lars Brinkhoff <lars@nocrew.org>
 License: GPL-3+~autoconf
 
+Files: m4/pkg.m4
+Copyright: 2004 Scott James Remnant <scott@netsplit.com>
+ 2012-2015 Dan Nicholson <dbn.lists@gmail.com>
+License: GPL-3+~autoconf
+
 Files: instfiles/rc.d/xrdp
 Copyright: metalefty
 License: FreeBSD
@@ -703,9 +701,6 @@ Copyright: Dominik George <nik@naturalnet.de>
 License: MirOS
 
 Files: .travis.yml
- pkgconfig/.gitignore
- xorgxrdp/.travis.yml
- xorgxrdp/m4/.gitignore
  sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
@@ -716,6 +711,18 @@ Files: .travis.yml
  xorg/X11R7.6/.gitignore
  xorg/X11R7.6/xkeyboard-config-2.0.patch
  keygen/openssl.conf
+ fontdump/.gitignore
+ librfxcodec/.gitignore
+ m4/.gitignore
+ pkgconfig/.gitignore
+ sesman/chansrv/pcsc/.gitignore
+ sesman/chansrv/pulse/.gitignore
+ tests/.gitignore
+ xorg/.gitignore
+ xorg/X11R7.6/.gitignore
+ xorgxrdp/.gitignore
+ xorgxrdp/m4/.gitignore
+ xorgxrdp/tests/.gitignore
 Copyright: None
 License: None
  Not copyrightable.
