@@ -3,9 +3,10 @@ xrdp (0.9.1~20161126+git589b29f-1) UNRELEASED; urgency=medium
   * New upstream commit picked.
      + Bug fix for some socket issues. (Closes: #832112)
      + Bug fix for machines without IPv6. (Closes: #839266, #843981)
+  * Remove old four-nibble keymap conffiles. (Closes: #845701)
   * Move git to pkg-remote.
 
- -- Dominik George <nik@naturalnet.de>  Sat, 26 Nov 2016 12:11:58 +0100
+ -- Dominik George <nik@naturalnet.de>  Sat, 26 Nov 2016 12:27:25 +0100
 
 xrdp (0.9.1~20161119+gite8308d5-1) unstable; urgency=medium
 
