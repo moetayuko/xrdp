@@ -4,7 +4,7 @@ Subject: config patches for Debian
  Use xorgxrdp instead of x11rdp
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -89,6 +89,7 @@ param=-nolisten
+@@ -86,6 +86,7 @@ param=-nolisten
  param=tcp
  param=-logfile
  param=/dev/null

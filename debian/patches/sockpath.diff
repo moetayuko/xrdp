@@ -250,7 +250,7 @@ Subject:: change location of the socket path to something less racy
  ;
 --- a/xrdpapi/xrdpapi.c
 +++ b/xrdpapi/xrdpapi.c
-@@ -145,7 +145,7 @@ WTSVirtualChannelOpenEx(unsigned int Ses
+@@ -144,7 +144,7 @@ WTSVirtualChannelOpenEx(unsigned int Ses
      memset(&s, 0, sizeof(struct sockaddr_un));
      s.sun_family = AF_UNIX;
      bytes = sizeof(s.sun_path);
