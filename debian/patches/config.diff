@@ -4,16 +4,42 @@ Subject: config patches for Debian
  Use xorgxrdp instead of x11rdp
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -84,8 +84,7 @@ param=xrdp/xorg.conf
- param=-noreset
+@@ -61,12 +61,14 @@ LogLevel=DEBUG
+ EnableSyslog=1
+ SyslogLevel=DEBUG
+ 
+-[X11rdp]
+-param=X11rdp
+-param=-bs
++[Xorg]
++param=Xorg
++param=-config
++param=xrdp/xorg.conf
++param=-noreset
  param=-nolisten
  param=tcp
--param=-logfile
--param=/dev/null
+-param=-uds
 +param=-retro
  
+ [Xvnc]
+ param=Xvnc
+@@ -77,16 +79,6 @@ param=-localhost
+ param=-dpi
+ param=96
+ 
+-[Xorg]
+-param=Xorg
+-param=-config
+-param=xrdp/xorg.conf
+-param=-noreset
+-param=-nolisten
+-param=tcp
+-param=-logfile
+-param=/dev/null
+-
  [Chansrv]
  ; drive redirection, defaults to xrdp_client if not set
+ FuseMountName=thinclient_drives
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
 @@ -145,16 +145,6 @@ tcutils=true

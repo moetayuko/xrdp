@@ -1,8 +1,9 @@
-xrdp (0.9.1~20161126+git589b29f-2) UNRELEASED; urgency=medium
+xrdp (0.9.1~20161126+git589b29f-2) unstable; urgency=medium
 
   * Remove X log redirection to /dev/null. (Closes: #846160)
+  * Fix up config patch broken in previous upload. (Closes: #846055)
 
- -- Dominik George <nik@naturalnet.de>  Mon, 28 Nov 2016 20:52:06 +0100
+ -- Dominik George <nik@naturalnet.de>  Tue, 29 Nov 2016 12:59:21 +0100
 
 xrdp (0.9.1~20161126+git589b29f-1) unstable; urgency=medium
 
