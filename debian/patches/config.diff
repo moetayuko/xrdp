@@ -35,7 +35,7 @@ Subject: config patches for Debian
 -param=-nolisten
 -param=tcp
 -param=-logfile
--param=/dev/null
+-param=.xorgxrdp.%s.log
 -
  [Chansrv]
  ; drive redirection, defaults to xrdp_client if not set

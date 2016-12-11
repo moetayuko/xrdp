@@ -19,24 +19,9 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
    pkgconfig \
 +  xorgxrdp \
    $(XRDPVRDIR)
---- a/common/Makefile.am
-+++ b/common/Makefile.am
-@@ -49,7 +49,12 @@ libcommon_la_SOURCES = \
-   trans.h \
-   $(PIXMAN_SOURCES)
- 
-+if NEED_LIBDL
-+EXTRA_LIBDL = -ldl
-+endif
-+
- libcommon_la_LIBADD = \
-+  $(EXTRA_LIBDL) \
-   -lcrypto \
-   -lssl \
-   -lpthread
 --- a/configure.ac
 +++ b/configure.ac
-@@ -246,6 +246,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
+@@ -251,6 +251,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
    [AC_MSG_ERROR([please install libxrandr-dev or libXrandr-devel])],
    [#include <X11/Xlib.h>])
  
@@ -74,13 +59,3 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
 +
 +libxrdpapi_la_LIBADD = \
 +  $(top_builddir)/common/libcommon.la
---- a/xorgxrdp/tests/Makefile.am
-+++ b/xorgxrdp/tests/Makefile.am
-@@ -1,6 +1,6 @@
- EXTRA_DIST = yuv2rgb
- 
--TESTS_ENVIRONMENT = top_builddir=$(top_builddir) top_srcdir=$(top_srcdir) $(SHELL)
-+TESTS_ENVIRONMENT = top_builddir=$(top_builddir) top_srcdir=$(top_srcdir)
- 
- TESTS = xorg-test-run.sh
- 

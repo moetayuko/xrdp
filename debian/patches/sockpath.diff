@@ -222,17 +222,6 @@ Subject:: change location of the socket path to something less racy
      if (dev->listen_sck == 0)
      {
          unlink(dev->uds_data);
---- a/xorgxrdp/module/rdpInput.c
-+++ b/xorgxrdp/module/rdpInput.c
-@@ -86,7 +86,7 @@ rdpUnregisterInputCallback(rdpInputEvent
-             {
-                 /* hack to cleanup
-                    remove when xrdpdevTearDown is working */
--                g_sprintf(text, "/tmp/.xrdp/xrdp_display_%s", display);
-+                g_sprintf(text, "/var/run/xrdp/sockdir/xrdp_display_%s", display);
-                 LLOGLN(0, ("rdpUnregisterInputCallback: deleting file %s", text));
-                 unlink(text);
-             }
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
 @@ -32,7 +32,7 @@ key_file=
