@@ -1,7 +1,5 @@
-From: Thorsten Glaser <tg@mirbsd.org>
-Subject: config patches for Debian
- Add -retro option
- Use xorgxrdp instead of x11rdp
+From: Dominik George <nik@naturalnet.de>
+Subject: Use xorgxrdp instead of x11rdp
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
 @@ -61,12 +61,13 @@ LogLevel=DEBUG
