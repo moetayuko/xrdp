@@ -1,9 +1,12 @@
-xrdp (0.9.1~20161126+git589b29f-3) unstable; urgency=medium
+xrdp (0.9.1~2016121126+git5171fa7-1) unstable; urgency=medium
 
+  * New upstream commit picked.
+     + Disables privilege elevation in X server.
+     + Fix CVE-2013-1430.
   * Add upstream metadata. (Closes: #847401)
   * Fix autorun on direct client login. (Closes: #846055)
 
- -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:24:13 +0100
+ -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:25:35 +0100
 
 xrdp (0.9.1~20161126+git589b29f-2) unstable; urgency=medium
 
