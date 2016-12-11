@@ -42,6 +42,15 @@ Subject: config patches for Debian
  FuseMountName=thinclient_drives
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
+@@ -32,7 +32,7 @@ key_file=
+ 
+ ; Section name to use for automatic login if the client sends username
+ ; and password
+-autorun=X11rdp
++autorun=Xorg
+ 
+ allow_channels=true
+ allow_multimon=true
 @@ -145,16 +145,6 @@ tcutils=true
  ; Session types
  ;
