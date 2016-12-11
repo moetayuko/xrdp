@@ -5,8 +5,10 @@ xrdp (0.9.1~2016121126+git5171fa7-1) unstable; urgency=medium
      + Fix CVE-2013-1430.
   * Add upstream metadata. (Closes: #847401)
   * Fix autorun on direct client login. (Closes: #846055)
+  * Do not force X core pointer (-retro) anymore to allow efficient
+    pointer usage over RDP.
 
- -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:25:35 +0100
+ -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:55:09 +0100
 
 xrdp (0.9.1~20161126+git589b29f-2) unstable; urgency=medium
 
