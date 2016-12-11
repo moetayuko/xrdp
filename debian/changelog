@@ -1,3 +1,9 @@
+xrdp (0.9.1~20161126+git589b29f-3) unstable; urgency=medium
+
+  * Add upstream metadata. (Closes: #847401)
+
+ -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:19:11 +0100
+
 xrdp (0.9.1~20161126+git589b29f-2) unstable; urgency=medium
 
   * Remove X log redirection to /dev/null. (Closes: #846160)
