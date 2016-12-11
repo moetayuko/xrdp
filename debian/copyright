@@ -582,7 +582,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
- xorgxrdp/readme.txt
+ xorgxrdp/README.md
  xorgxrdp/tests/yuv2rgb/Makefile
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
  xorgxrdp/xrdpdev/Makefile.am
