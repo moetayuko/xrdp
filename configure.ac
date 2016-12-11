@@ -118,10 +118,15 @@ AC_ARG_ENABLE(pixman, AS_HELP_STRING([--enable-pixman],
               [], [enable_pixman=no])
 AM_CONDITIONAL(XRDP_PIXMAN, [test x$enable_pixman = xyes])
 
+# Check if -ldl is needed to use dlopen()
+DLOPEN_LIBS=
+AC_CHECK_FUNC(dlopen, [],
+              [AC_CHECK_LIB(dl, dlopen, [DLOPEN_LIBS=-ldl])])
+AC_SUBST(DLOPEN_LIBS)
+
 # checking for openssl
-AC_CHECK_HEADER([openssl/rc4.h], [],
-  [AC_MSG_ERROR([please install libssl-dev or openssl-devel])],
-  [#include <stdlib.h>])
+PKG_CHECK_MODULES([OPENSSL], [openssl >= 0], [],
+  [AC_MSG_ERROR([please install libssl-dev or openssl-devel])])
 
 # checking for pam variation
 # Linux-PAM is used in Linux systems
@@ -196,7 +201,7 @@ then
     [AC_MSG_ERROR([please install libmp3lame-dev or lamemp3-devel])])
 fi
 
-AS_IF( [test "x$enable_pixman" = "xyes"] , [PKG_CHECK_MODULES(XRDP_PIXMAN, pixman-1 >= 0.1.0)] )
+AS_IF( [test "x$enable_pixman" = "xyes"] , [PKG_CHECK_MODULES(PIXMAN, pixman-1 >= 0.1.0)] )
 
 # checking for TurboJPEG
 if test "x$enable_tjpeg" = "xyes"
@@ -256,6 +261,8 @@ localstatedir="/var";
 fi
 
 PKG_INSTALLDIR
+
+AC_CHECK_HEADERS([sys/prctl.h])
 
 AC_CONFIG_FILES([
   common/Makefile
