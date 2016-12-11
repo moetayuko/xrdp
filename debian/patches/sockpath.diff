@@ -235,6 +235,15 @@ Subject:: change location of the socket path to something less racy
              }
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
+@@ -32,7 +32,7 @@ key_file=
+ 
+ ; Section name to use for automatic login if the client sends username
+ ; and password
+-autorun=X11rdp
++autorun=Xorg
+ 
+ allow_channels=true
+ allow_multimon=true
 @@ -135,10 +135,10 @@ xrdpvr=true
  tcutils=true
  

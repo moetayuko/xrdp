@@ -1,8 +1,9 @@
 xrdp (0.9.1~20161126+git589b29f-3) unstable; urgency=medium
 
   * Add upstream metadata. (Closes: #847401)
+  * Fix autorun on direct client login. (Closes: #846055)
 
- -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:19:11 +0100
+ -- Dominik George <nik@naturalnet.de>  Sun, 11 Dec 2016 14:24:13 +0100
 
 xrdp (0.9.1~20161126+git589b29f-2) unstable; urgency=medium
 
