@@ -1,5 +1,7 @@
 xrdp (0.9.1-1) UNRELEASED; urgency=medium
 
+  [ Dominik George ]
+
   * New upstream release.
     + Now has an upstream changelog.
     + Enables xauth cookies to prevent unauthorised X server access.
@@ -8,6 +10,10 @@ xrdp (0.9.1-1) UNRELEASED; urgency=medium
   * Replaced debian/rules get-orig-source with uscan.
   * Re-enabled watch file.
   * Turned into MUT package.
+
+  [ Thorsten Glaser ]
+
+  * xrdp Recommends fuse, so that remote drive sharing actually works.
 
  -- Dominik George <nik@naturalnet.de>  Thu, 22 Dec 2016 22:24:42 +0100
 
