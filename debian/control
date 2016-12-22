@@ -39,6 +39,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
 Recommends:
+ fuse,
  xorgxrdp,
 Suggests:
  guacamole,
