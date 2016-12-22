@@ -224,7 +224,7 @@ Subject:: change location of the socket path to something less racy
          unlink(dev->uds_data);
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
-@@ -135,10 +135,10 @@ xrdpvr=true
+@@ -137,10 +137,10 @@ xrdpvr=true
  tcutils=true
  
  ; for debugging xrdp, in section xrdp1, change port=-1 to this:
