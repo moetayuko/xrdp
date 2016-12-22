@@ -835,44 +835,6 @@ xrdp_wm_xor_pat(struct xrdp_wm *self, int x, int y, int cx, int cy)
 }
 
 /*****************************************************************************/
-/* this don't are about nothing, just copy the bits */
-/* no clipping rects, no windows in the way, nothing */
-static int APP_CC
-xrdp_wm_bitblt(struct xrdp_wm *self,
-               struct xrdp_bitmap *dst, int dx, int dy,
-               struct xrdp_bitmap *src, int sx, int sy,
-               int sw, int sh, int rop)
-{
-    //  int i;
-    //  int line_size;
-    //  int Bpp;
-    //  char* s;
-    //  char* d;
-
-    //  if (sw <= 0 || sh <= 0)
-    //    return 0;
-    if (self->screen == dst && self->screen == src)
-    {
-        /* send a screen blt */
-        //    Bpp = (dst->bpp + 7) / 8;
-        //    line_size = sw * Bpp;
-        //    s = src->data + (sy * src->width + sx) * Bpp;
-        //    d = dst->data + (dy * dst->width + dx) * Bpp;
-        //    for (i = 0; i < sh; i++)
-        //    {
-        //      //g_memcpy(d, s, line_size);
-        //      s += src->width * Bpp;
-        //      d += dst->width * Bpp;
-        //    }
-        libxrdp_orders_init(self->session);
-        libxrdp_orders_screen_blt(self->session, dx, dy, sw, sh, sx, sy, rop, 0);
-        libxrdp_orders_send(self->session);
-    }
-
-    return 0;
-}
-
-/*****************************************************************************/
 /* return true if rect is totally exposed going in reverse z order */
 /* from wnd up */
 static int APP_CC
@@ -935,6 +897,7 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
 
     MAKERECT(rect1, wnd->left, wnd->top, wnd->width, wnd->height);
 
+    self->painter->clip_children = 0;
     if (xrdp_wm_is_rect_vis(self, wnd, &rect1))
     {
         rect2 = rect1;
@@ -942,10 +905,13 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
 
         if (xrdp_wm_is_rect_vis(self, wnd, &rect2))
         {
-            /* if both src and dst are unobscured, we can do a bitblt move */
-            xrdp_wm_bitblt(self, self->screen, wnd->left + dx, wnd->top + dy,
-                           self->screen, wnd->left, wnd->top,
-                           wnd->width, wnd->height, 0xcc);
+            xrdp_painter_begin_update(self->painter);
+            xrdp_painter_copy(self->painter, self->screen, self->screen,
+                              wnd->left + dx, wnd->top + dy,
+                              wnd->width, wnd->height,
+                              wnd->left, wnd->top);
+            xrdp_painter_end_update(self->painter);
+
             wnd->left += dx;
             wnd->top += dy;
             r = xrdp_region_create(self);
@@ -960,9 +926,11 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
             }
 
             xrdp_region_delete(r);
+            self->painter->clip_children = 1;
             return 0;
         }
     }
+    self->painter->clip_children = 1;
 
     wnd->left += dx;
     wnd->top += dy;
@@ -970,6 +938,7 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
     xrdp_bitmap_invalidate(wnd, 0);
     return 0;
 }
+
 
 /*****************************************************************************/
 static int APP_CC
@@ -1527,6 +1496,83 @@ xrdp_wm_key_sync(struct xrdp_wm *self, int device_flags, int key_flags)
 
 /*****************************************************************************/
 int APP_CC
+xrdp_wm_key_unicode(struct xrdp_wm *self, int device_flags, int unicode)
+{
+    int index;
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_noshift[index].chr)
+        {
+            xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            return 0;
+        }
+    }
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_shift[index].chr)
+        {
+            if (device_flags & KBD_FLAG_UP)
+            {
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                xrdp_wm_key(self, KBD_FLAG_UP, XR_RDP_SCAN_LSHIFT);
+            }
+            else
+            {
+                xrdp_wm_key(self, KBD_FLAG_DOWN, XR_RDP_SCAN_LSHIFT);
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            }
+            return 0;
+        }
+    }
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_altgr[index].chr)
+        {
+            if (device_flags & KBD_FLAG_UP)
+            {
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                xrdp_wm_key(self, KBD_FLAG_UP | KBD_FLAG_EXT,
+                            XR_RDP_SCAN_ALT);
+            }
+            else
+            {
+                xrdp_wm_key(self, KBD_FLAG_DOWN | KBD_FLAG_EXT,
+                            XR_RDP_SCAN_ALT);
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            }
+            return 0;
+        }
+    }
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_shiftaltgr[index].chr)
+        {
+            if (device_flags & KBD_FLAG_UP)
+            {
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                xrdp_wm_key(self, KBD_FLAG_UP | KBD_FLAG_EXT, XR_RDP_SCAN_ALT);
+                xrdp_wm_key(self, KBD_FLAG_UP, XR_RDP_SCAN_LSHIFT);
+            }
+            else
+            {
+                xrdp_wm_key(self, KBD_FLAG_DOWN, XR_RDP_SCAN_LSHIFT);
+                xrdp_wm_key(self, KBD_FLAG_DOWN | KBD_FLAG_EXT,
+                            XR_RDP_SCAN_ALT);
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            }
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+/*****************************************************************************/
+int APP_CC
 xrdp_wm_pu(struct xrdp_wm *self, struct xrdp_bitmap *control)
 {
     int x;
@@ -1720,6 +1766,9 @@ callback(long id, int msg, long param1, long param2, long param3, long param4)
             break;
         case 4: /* RDP_INPUT_SCANCODE */
             rv = xrdp_wm_key(wm, param3, param1);
+            break;
+        case 5: /* RDP_INPUT_UNICODE */
+            rv = xrdp_wm_key_unicode(wm, param3, param1);
             break;
         case 0x8001: /* RDP_INPUT_MOUSE */
             rv = xrdp_wm_process_input_mouse(wm, param3, param1, param2);
