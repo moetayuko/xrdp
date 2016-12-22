@@ -1,3 +1,6 @@
+EXTRA_DIST = \
+  xrdp_surface.c
+
 AM_CPPFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
@@ -18,6 +21,10 @@ endif
 if XRDP_NEUTRINORDP
 AM_CPPFLAGS += -DXRDP_NEUTRINORDP
 LIBXRDP_EXTRA_LIBS += $(FREERDP_LIBS)
+endif
+
+if XRDP_RFXCODEC
+AM_CPPFLAGS += -DXRDP_RFXCODEC
 endif
 
 if XRDP_TJPEG
