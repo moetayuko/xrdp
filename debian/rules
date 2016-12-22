@@ -1,11 +1,5 @@
 #!/usr/bin/make -f
 
-GIT ?= $(shell dpkg-parsechangelog -ldebian/changelog | perl -ne 'print $$1 if m{^Version:\s+[^+]+\+git([^-]+)};')
-VER ?= $(shell dpkg-parsechangelog -ldebian/changelog | perl -ne 'print $$1 if m{^Version:\s+([^+]+\+git[^-]+)};')
-
-LIBRFXCODEC_GIT ?= fb80d7d
-XORGXRDP_GIT ?= 575c0aa
-
 DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed
 DEB_BUILD_MAINT_OPTIONS=hardening=+all
 
@@ -95,27 +89,3 @@ override_dh_gencontrol:
 override_dh_clean:
 	dh_clean
 	chmod +x xorgxrdp/tests/xorg-test-run.sh
-
-get-orig-source:
-	sh -c '\
-		mkdir -p debian/tmp/get-orig-source; \
-		cd debian/tmp/get-orig-source; \
-		wget https://github.com/neutrinolabs/xrdp/archive/${GIT}.tar.gz; \
-		tar -xzf ${GIT}.tar.gz; \
-		rm ${GIT}.tar.gz; \
-		mv xrdp* xrdp-${VER}; \
-		rmdir xrdp-${VER}/librfxcodec xrdp-${VER}/xorgxrdp; \
-		wget https://github.com/neutrinolabs/librfxcodec/archive/${LIBRFXCODEC_GIT}.tar.gz; \
-		tar -xzf ${LIBRFXCODEC_GIT}.tar.gz; \
-		mv librfxcodec* xrdp-${VER}/librfxcodec; \
-		rm ${LIBRFXCODEC_GIT}.tar.gz; \
-		wget https://github.com/neutrinolabs/xorgxrdp/archive/${XORGXRDP_GIT}.tar.gz; \
-		tar -xzf ${XORGXRDP_GIT}.tar.gz; \
-		mv xorgxrdp* xrdp-${VER}/xorgxrdp; \
-		rm ${XORGXRDP_GIT}.tar.gz; \
-		rm -rf xrdp-${VER}/.git*; \
-		tar -caf xrdp_${VER}.orig.tar.xz --owner=root --group=root --mode=a+rX xrdp-${VER}; \
-		mv xrdp_${VER}.orig.tar.xz ../../../../; \
-		cd ../../../; \
-		rm -rf debian/tmp/; \
-	'

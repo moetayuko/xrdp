@@ -1,3 +1,12 @@
+xrdp (0.9.1-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+  * Replaced debian/rules get-orig-source with uscan.
+  * Re-enabled watch file.
+  * Turned into MUT package.
+
+ -- Dominik George <nik@naturalnet.de>  Thu, 22 Dec 2016 21:41:50 +0100
+
 xrdp (0.9.1~2016121126+git5171fa7-1) unstable; urgency=medium
 
   * New upstream commit picked.
