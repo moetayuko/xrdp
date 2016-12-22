@@ -3,11 +3,13 @@ xrdp (0.9.1-1) UNRELEASED; urgency=medium
   * New upstream release.
     + Now has an upstream changelog.
     + Enables xauth cookies to prevent unauthorised X server access.
+    + Enables libpainter for clients not supporting drawing orders.
+      + Fixes MS RDP client on Android and others.
   * Replaced debian/rules get-orig-source with uscan.
   * Re-enabled watch file.
   * Turned into MUT package.
 
- -- Dominik George <nik@naturalnet.de>  Thu, 22 Dec 2016 22:19:51 +0100
+ -- Dominik George <nik@naturalnet.de>  Thu, 22 Dec 2016 22:24:42 +0100
 
 xrdp (0.9.1~2016121126+git5171fa7-1) unstable; urgency=medium
 
