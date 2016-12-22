@@ -700,30 +700,15 @@ Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
 License: MirOS
 
-Files: .travis.yml
- xorgxrdp/.travis.yml
- sesman/chansrv/pcsc/dumps/*
+Files: sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
  librfxcodec/rfxcodec.pc.in
  librfxcodec/rfxcodec-uninstalled.pc.in
  pkgconfig/xrdp.pc.in
  pkgconfig/xrdp-uninstalled.pc.in
- xorg/X11R7.6/.gitignore
  xorg/X11R7.6/xkeyboard-config-2.0.patch
  keygen/openssl.conf
- fontdump/.gitignore
- librfxcodec/.gitignore
- m4/.gitignore
- pkgconfig/.gitignore
- sesman/chansrv/pcsc/.gitignore
- sesman/chansrv/pulse/.gitignore
- tests/.gitignore
- xorg/.gitignore
- xorg/X11R7.6/.gitignore
- xorgxrdp/.gitignore
- xorgxrdp/m4/.gitignore
- xorgxrdp/tests/.gitignore
 Copyright: None
 License: None
  Not copyrightable.
