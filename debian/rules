@@ -44,8 +44,7 @@ override_dh_auto_configure:
 	    --enable-fuse \
 	    --enable-rfxcodec \
 	    --enable-opus \
-	    --enable-painter \
-	    --enable-xrdpvr
+	    --enable-painter
 	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
 	cd librfxcodec && ./configure ${CONFIGURE_ARGS} \
 	    --disable-shared \
