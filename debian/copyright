@@ -96,6 +96,19 @@ Files: COPYING
  librfxcodec/tests/Makefile.am
  librfxcodec/tests/readme.txt
  librfxcodec/tests/rfxcodectest.c
+ libpainter/Makefile.am
+ libpainter/bootstrap
+ libpainter/configure.ac
+ libpainter/include/Makefile.am
+ libpainter/include/painter.h
+ libpainter/pkgconfig/Makefile.am
+ libpainter/readme.txt
+ libpainter/src/Makefile.am
+ libpainter/src/painter.c
+ libpainter/src/painter_utils.c
+ libpainter/src/painter_utils.h
+ libpainter/tests/Makefile.am
+ libpainter/tests/paintertest.c
  libxrdp/Makefile.am
  libxrdp/libxrdp.c
  libxrdp/libxrdp.h
@@ -355,6 +368,11 @@ Files: common/fifo.c
  xrdpapi/vrplayer.c
  xrdpvr/xrdpvr_internal.h
 Copyright: 2013, Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
+License: Apache-2.0
+
+Files: sesman/xauth.h
+ sesman/xauth.c
+Copyright: 2016 Emmanuel Blindauer
 License: Apache-2.0
 
 Files: librfxcodec/src/rfx_bitstream.h
@@ -680,6 +698,8 @@ Copyright: 2008 Lars Brinkhoff <lars@nocrew.org>
 License: GPL-3+~autoconf
 
 Files: m4/pkg.m4
+ librfxcodec/m4/pkg.m4
+ libpainter/m4/pkg.m4
 Copyright: 2004 Scott James Remnant <scott@netsplit.com>
  2012-2015 Dan Nicholson <dbn.lists@gmail.com>
 License: GPL-3+~autoconf
@@ -708,8 +728,37 @@ Files: compile
  xorgxrdp/config.sub
  xorgxrdp/ltmain.sh
  xorgxrdp/missing
+ xorgxrdp/test-driver
 Copyright: 1996-2013 Free Software Foundation, Inc.
 License: GPL-3~autoconf
+
+Files: configure
+ libpainter/configure
+ librfxcodec/configure
+ libpainter/configure
+ xorgxrdp/configure
+ m4/libtool.m4
+ m4/ltoptions.m4
+ m4/ltsugar.m4
+ m4/ltversion.m4
+ m4/lt~obsolete.m4
+ xorgxrdp/m4/libtool.m4
+ xorgxrdp/m4/ltoptions.m4
+ xorgxrdp/m4/ltsugar.m4
+ xorgxrdp/m4/ltversion.m4
+ xorgxrdp/m4/lt~obsolete.m4
+ librfxcodec/m4/libtool.m4
+ librfxcodec/m4/ltoptions.m4
+ librfxcodec/m4/ltsugar.m4
+ librfxcodec/m4/ltversion.m4
+ librfxcodec/m4/lt~obsolete.m4
+ libpainter/m4/libtool.m4
+ libpainter/m4/ltoptions.m4
+ libpainter/m4/ltsugar.m4
+ libpainter/m4/ltversion.m4
+ libpainter/m4/lt~obsolete.m4
+Copyright: 1996-2013 Free Software Foundation
+License: autoreconf-free
 
 Files: install-sh
  librfxcodec/install-sh
@@ -801,7 +850,7 @@ Files: sesman/chansrv/pcsc/dumps/*
  xup/Makefile.in
 Copyright: None
 License: None
- Not copyrightable.
+ Not copyrightable or generated.
 
 Files: common/pixman-region.c
 Copyright: 1987, 1988, 1989, 1998  The Open Group
@@ -1090,3 +1139,8 @@ License: FreeBSD
  The views and conclusions contained in the software and documentation are
  those of the authors and should not be interpreted as representing official
  policies, either expressed or implied, of the FreeBSD Project.
+
+License: autoreconf-free
+ This file is free software; the Free Software Foundation gives
+ unlimited permission to copy and/or distribute it, with or without
+ modifications, as long as this notice is preserved.
