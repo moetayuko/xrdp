@@ -72,7 +72,8 @@ override_dh_auto_install:
 	mv debian/xrdp/usr/lib/xorg debian/xorgxrdp/usr/lib/
 
 override_dh_installchangelogs:
-	dh_installchangelogs NEWS.md
+	dh_installchangelogs -pxrdp -- NEWS.md
+	dh_installchangelogs --remaining-packages
 
 override_dh_installinit:
 	dh_installinit --no-restart-on-upgrade
