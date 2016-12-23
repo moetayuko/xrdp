@@ -1,4 +1,4 @@
-xrdp (0.9.1-1) UNRELEASED; urgency=medium
+xrdp (0.9.1-1) unstable; urgency=medium
 
   [ Dominik George ]
 
@@ -19,7 +19,7 @@ xrdp (0.9.1-1) UNRELEASED; urgency=medium
 
   * xrdp Recommends fuse, so that remote drive sharing actually works.
 
- -- Dominik George <nik@naturalnet.de>  Fri, 23 Dec 2016 02:20:06 +0100
+ -- Dominik George <nik@naturalnet.de>  Fri, 23 Dec 2016 11:12:12 +0100
 
 xrdp (0.9.1~2016121126+git5171fa7-1) unstable; urgency=medium
 
