@@ -592,6 +592,8 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/xrdpkeyb/rdpKeyboard.c
  xorgxrdp/xrdpmouse/Makefile.am
  xorgxrdp/xrdpmouse/rdpMouse.c
+ README.md
+ NEWS.md
 Copyright: 2011-2016, Jay Sorg
 License: Expat
 
@@ -682,6 +684,40 @@ Copyright: 2004 Scott James Remnant <scott@netsplit.com>
  2012-2015 Dan Nicholson <dbn.lists@gmail.com>
 License: GPL-3+~autoconf
 
+Files: compile
+ depcomp
+ config.guess
+ config.sub
+ ltmain.sh
+ missing
+ librfxcodec/compile
+ librfxcodec/depcomp
+ librfxcodec/config.guess
+ librfxcodec/config.sub
+ librfxcodec/ltmain.sh
+ librfxcodec/missing
+ libpainter/compile
+ libpainter/depcomp
+ libpainter/config.guess
+ libpainter/config.sub
+ libpainter/ltmain.sh
+ libpainter/missing
+ xorgxrdp/compile
+ xorgxrdp/depcomp
+ xorgxrdp/config.guess
+ xorgxrdp/config.sub
+ xorgxrdp/ltmain.sh
+ xorgxrdp/missing
+Copyright: 1996-2013 Free Software Foundation, Inc.
+License: GPL-3~autoconf
+
+Files: install-sh
+ librfxcodec/install-sh
+ libpainter/install-sh
+ xorgxrdp/install-sh
+Copyright: 1994 X Consortium
+License: Expat
+
 Files: instfiles/rc.d/xrdp
 Copyright: metalefty
 License: FreeBSD
@@ -713,6 +749,56 @@ Files: sesman/chansrv/pcsc/dumps/*
  pkgconfig/xrdp-uninstalled.pc.in
  xorg/X11R7.6/xkeyboard-config-2.0.patch
  keygen/openssl.conf
+ Makefile.in
+ aclocal.m4
+ common/Makefile.in
+ config_ac-h.in
+ docs/Makefile.in
+ docs/man/Makefile.in
+ genkeymap/Makefile.in
+ instfiles/Makefile.in
+ instfiles/default/Makefile.in
+ instfiles/init.d/Makefile.in
+ instfiles/pam.d/Makefile.in
+ instfiles/pulse/Makefile.in
+ instfiles/rc.d/Makefile.in
+ keygen/Makefile.in
+ librfxcodec/Makefile.in
+ librfxcodec/aclocal.m4
+ libpainter/Makefile.in
+ libpainter/aclocal.m4
+ xorgxrdp/Makefile.in
+ xorgxrdp/aclocal.m4
+ libpainter/include/Makefile.in
+ libpainter/pkgconfig/Makefile.in
+ libpainter/pkgconfig/libpainter-uninstalled.pc.in
+ libpainter/pkgconfig/libpainter.pc.in
+ libpainter/src/Makefile.in
+ libpainter/tests/Makefile.in
+ librfxcodec/src/Makefile.in
+ librfxcodec/tests/Makefile.in
+ libxrdp/Makefile.in
+ mc/Makefile.in
+ neutrinordp/Makefile.in
+ pkgconfig/Makefile.in
+ rdp/Makefile.in
+ sesman/Makefile.in
+ sesman/chansrv/Makefile.in
+ sesman/libscp/Makefile.in
+ sesman/sessvc/Makefile.in
+ sesman/tools/Makefile.in
+ vnc/Makefile.in
+ xorgxrdp/Makefile.in
+ xorgxrdp/config_ac-h.in
+ xorgxrdp/module/Makefile.in
+ xorgxrdp/tests/Makefile.in
+ xorgxrdp/xrdpdev/Makefile.in
+ xorgxrdp/xrdpkeyb/Makefile.in
+ xorgxrdp/xrdpmouse/Makefile.in
+ xrdp/Makefile.in
+ xrdpapi/Makefile.in
+ xrdpvr/Makefile.in
+ xup/Makefile.in
 Copyright: None
 License: None
  Not copyrightable.
