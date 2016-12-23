@@ -10,7 +10,8 @@ Priority: optional
 Build-Depends:
  autoconf (>= 2.59),
  automake (>= 1.6),
- debhelper (>= 10),
+ debhelper (>= 9),
+ dh-systemd,
  libfuse-dev,
  libjpeg-dev,
  libopus-dev,
