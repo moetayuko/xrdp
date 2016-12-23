@@ -12,6 +12,8 @@ Build-Depends:
  automake (>= 1.6),
  debhelper (>= 9),
  dh-systemd,
+ libavcodec-dev,
+ libavformat-dev,
  libfuse-dev,
  libjpeg-dev,
  libopus-dev,
