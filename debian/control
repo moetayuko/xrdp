@@ -4,7 +4,7 @@ Uploaders:
  Dominik George <nik@naturalnet.de>,
  Andreas Tille <tille@debian.org>,
  Mike Gabriel <sunweaver@debian.org>,
- Thorsten Glaser <tg@mirbsd.de>
+ Thorsten Glaser <tg@mirbsd.de>,
 Section: net
 Priority: optional
 Build-Depends:
