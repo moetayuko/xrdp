@@ -43,7 +43,7 @@ while read -rp version; do
 
 		# Analyse git tree of that upstream tag
 		git ls-tree --name-only upstream/${version//\~/_} -- instfiles/ | \
-		    grep -o "km-.*.ini" | sort >"$temp2"
+		    grep -o 'km-.*\.ini' >"$temp2"
 
 		# Compare file lists and output rm_conffile directives
 		for file in $(comm -23 "$temp1" "$temp2"); do
