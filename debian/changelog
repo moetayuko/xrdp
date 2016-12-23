@@ -10,12 +10,13 @@ xrdp (0.9.1-1) UNRELEASED; urgency=medium
   * Replaced debian/rules get-orig-source with uscan.
   * Re-enabled watch file.
   * Turned into MUT package.
+  * Update list of keymap conffiles to be removed on upgrade. (Closes: #845701, #847844)
 
   [ Thorsten Glaser ]
 
   * xrdp Recommends fuse, so that remote drive sharing actually works.
 
- -- Dominik George <nik@naturalnet.de>  Thu, 22 Dec 2016 22:24:42 +0100
+ -- Dominik George <nik@naturalnet.de>  Fri, 23 Dec 2016 02:20:06 +0100
 
 xrdp (0.9.1~2016121126+git5171fa7-1) unstable; urgency=medium
 

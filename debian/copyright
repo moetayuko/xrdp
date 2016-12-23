@@ -695,6 +695,10 @@ Files: xorg/tests/xdemo/yosemite.bmp
 Copyright: 2015, 2016, mirabilos <m@mirbsd.org>
 License: MirOS
 
+Files: debian/generate-keymap-rm-conffile.sh
+Copyright: Dominik George <nik@naturalnet.de>
+License: Expat
+
 Files: debian/*
 Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
