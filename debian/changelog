@@ -10,7 +10,10 @@ xrdp (0.9.1-1) UNRELEASED; urgency=medium
   * Replaced debian/rules get-orig-source with uscan.
   * Re-enabled watch file.
   * Turned into MUT package.
-  * Update list of keymap conffiles to be removed on upgrade. (Closes: #845701, #847844)
+    + Incorporates xorgxrdp 0.2.0.
+  * Update list of keymap conffiles to be removed on upgrade.
+    (Closes: #845701, #847844)
+  * Move back to compat level 9 to allow easier backporting.
 
   [ Thorsten Glaser ]
 
