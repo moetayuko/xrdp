@@ -1,3 +1,10 @@
+xrdp (0.9.1-2) unstable; urgency=medium
+
+  * Do not ship initial cert.key generated during build.
+     + Makes build reproducible.
+
+ -- Dominik George <nik@naturalnet.de>  Sun, 01 Jan 2017 11:58:02 +0100
+
 xrdp (0.9.1-1) unstable; urgency=medium
 
   [ Dominik George ]
