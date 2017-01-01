@@ -1,3 +1,10 @@
+xrdp (0.6.1-2+deb8u1) jessie-security; urgency=high
+
+  * Security fix for CVE-2013-1430.
+    + Backported from 0.9.1.
+
+ -- Dominik George <nik@naturalnet.de>  Sun, 01 Jan 2017 20:43:07 +0100
+
 xrdp (0.6.1-2) unstable; urgency=medium
 
   [ Johannes Schauer ]

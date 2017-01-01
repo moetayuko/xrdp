@@ -5,3 +5,4 @@
 10-km-0414.patch
 xrdp-default-keymap.patch
 libtoolize_check.patch
+cve-2013-1430.patch
