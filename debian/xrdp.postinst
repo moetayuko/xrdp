@@ -45,12 +45,11 @@ configure)
 		chown xrdp /etc/xrdp/rsakeys.ini
 	)
 
-	# Generate snakeoil X509 certificate and key
+	# Generate/link snakeoil X509 certificate and key
 	test -e /etc/xrdp/cert.pem || (
-		umask 077
-		cd /etc/xrdp
-		openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365
-		chown xrdp cert.pem key.pem
+		make-ssl-cert generate-default-snakeoil
+		ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/xrdp/cert.pem
+		ln -s /etc/ssl/private/ssl-cert-snakeoil.key /etc/xrdp/key.pem
 	)
 
 	;;
