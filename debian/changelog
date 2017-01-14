@@ -1,10 +1,10 @@
-xrdp (0.9.1-3) UNRELEASED; urgency=medium
+xrdp (0.9.1-3) unstable; urgency=medium
 
   * Fix up last changelog entry.
   * Update bug-control.
     + Report status of xserver-xorg-legacy.
 
- -- Dominik George <nik@naturalnet.de>  Sun, 01 Jan 2017 21:57:06 +0100
+ -- Dominik George <nik@naturalnet.de>  Sun, 15 Jan 2017 00:30:44 +0100
 
 xrdp (0.9.1-2) unstable; urgency=medium
 
