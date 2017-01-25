@@ -6,3 +6,4 @@ fix_perms.diff
 shutup-daemon.diff
 sockpath.diff
 kfreebsd.diff
+lfs.diff
