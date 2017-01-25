@@ -1,5 +1,6 @@
 From: Thorsten Glaser <tg@mirbsd.org>
-Subject: Recognise GNU/kFreeBSD as FreeBSD variant
+Subject: Recognise GNU/kFreeBSD as FreeBSD variant in code,
+ but as a Linux for instfiles/ (init scripts and so on)
 
 --- a/common/os_calls.c
 +++ b/common/os_calls.c
@@ -14,6 +15,18 @@ Subject: Recognise GNU/kFreeBSD as FreeBSD variant
  #include <sys/ucred.h>
  #endif
  
+--- a/configure.ac
++++ b/configure.ac
+@@ -24,6 +24,9 @@ case $host_os in
+ 	*linux*)
+ 		linux=yes
+ 		;;
++	*kfreebsd*)
++		linux=yes # only used in instfiles/ so that’s ok for us for now
++		;;
+ 	*freebsd*)
+ 		freebsd=yes
+ 		;;
 --- a/librfxcodec/acinclude.m4
 +++ b/librfxcodec/acinclude.m4
 @@ -40,7 +40,7 @@ case "$host_os" in
