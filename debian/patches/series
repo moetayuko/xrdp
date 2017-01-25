@@ -6,3 +6,4 @@ nxstack.diff
 fix_perms.diff
 shutup-daemon.diff
 sockpath.diff
+kfreebsd.diff
