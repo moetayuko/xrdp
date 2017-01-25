@@ -8,7 +8,10 @@ xrdp (0.9.1-4) unstable; urgency=high
   * Remove patch to make stack not executable in *.asm files; upstrem
     fixed this already.
 
- -- Dominik George <nik@naturalnet.de>  Wed, 25 Jan 2017 15:17:52 +0100
+  [ Dominik George ]
+  * Update/minimise systemd service file patch.
+
+ -- Dominik George <nik@naturalnet.de>  Wed, 25 Jan 2017 15:39:19 +0100
 
 xrdp (0.9.1-3) unstable; urgency=medium
 

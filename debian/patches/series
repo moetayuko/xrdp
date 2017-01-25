@@ -1,8 +1,8 @@
 make-fixes.diff
 config.diff
 misc-fixes.diff
-systemd.diff
 fix_perms.diff
 shutup-daemon.diff
 sockpath.diff
 kfreebsd.diff
+systemd.diff
