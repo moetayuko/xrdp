@@ -2,7 +2,7 @@ From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Recognise GNU/kFreeBSD as FreeBSD variant in code,
  but as a Linux for instfiles/ (init scripts and so on)
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/645
-
+Reviewed-by: Dominik George <nik@naturalnet.de>
 --- a/common/os_calls.c
 +++ b/common/os_calls.c
 @@ -87,8 +87,8 @@ extern char **environ;
