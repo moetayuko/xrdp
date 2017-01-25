@@ -1,17 +1,6 @@
 From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Enable Large File Support on (at least) 32-bit Linux
 
---- a/common/pixman-region.c
-+++ b/common/pixman-region.c
-@@ -63,6 +63,8 @@
-  * PERFORMANCE OF THIS SOFTWARE.
-  */
- 
-+#include "arch.h"
-+
- #define PIXREGION_NIL(reg) ((reg)->data && !(reg)->data->numRects)
- /* not a region */
- #define PIXREGION_NAR(reg)      ((reg)->data == pixman_broken_data)
 --- a/configure.ac
 +++ b/configure.ac
 @@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
@@ -23,27 +12,12 @@ Subject: Enable Large File Support on (at least) 32-bit Linux
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_PROG_PKG_CONFIG
---- a/genkeymap/evdev-map.c
-+++ b/genkeymap/evdev-map.c
-@@ -22,6 +22,8 @@
-  * xfree86(base)->evdev keycode mapping
-  */
+@@ -320,4 +322,5 @@ AC_CONFIG_FILES([
+   xup/Makefile
+ ])
  
-+#include "config_ac.h"
-+
- int xfree86_to_evdev[137-8+1] = {
-     /* MDSW */ 203,
-     /* ESC */ 9,
---- a/genkeymap/genkeymap.c
-+++ b/genkeymap/genkeymap.c
-@@ -39,6 +39,7 @@
- #include <X11/Xutil.h>
- #include <X11/XKBlib.h>
- #include <locale.h>
-+#include "config_ac.h"
- 
- extern int xfree86_to_evdev[137-8];
- 
++CPPFLAGS="-include config_ac.h $CPPFLAGS"
+ AC_OUTPUT
 --- a/libpainter/configure.ac
 +++ b/libpainter/configure.ac
 @@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
@@ -55,6 +29,12 @@ Subject: Enable Large File Support on (at least) 32-bit Linux
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
+@@ -34,4 +36,5 @@ AC_CONFIG_FILES([
+   tests/Makefile
+ ])
+ 
++CPPFLAGS="-include config_ac.h $CPPFLAGS"
+ AC_OUTPUT
 --- a/librfxcodec/configure.ac
 +++ b/librfxcodec/configure.ac
 @@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([1.6 foreign])
@@ -66,36 +46,13 @@ Subject: Enable Large File Support on (at least) 32-bit Linux
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
---- a/sesman/chansrv/pcsc/xrdp_pcsc.c
-+++ b/sesman/chansrv/pcsc/xrdp_pcsc.c
-@@ -10,6 +10,7 @@
- #include <sys/socket.h>
- #include <sys/un.h>
- #include <sys/stat.h>
-+#include "arch.h"
+@@ -49,5 +51,6 @@ AC_CONFIG_FILES([Makefile
+                  rfxcodec-uninstalled.pc
+ ])
  
- #define PCSC_API
++CPPFLAGS="-include config_ac.h $CPPFLAGS"
+ AC_OUTPUT
  
---- a/sesman/tools/dis.c
-+++ b/sesman/tools/dis.c
-@@ -22,6 +22,7 @@
- #include <unistd.h>
- #include <sys/socket.h>
- #include <sys/un.h>
-+#include "arch.h"
- 
- int main(int argc, char **argv)
- {
---- a/sesman/tools/xcon.c
-+++ b/sesman/tools/xcon.c
-@@ -22,6 +22,7 @@
- #include <unistd.h>
- #include <sys/types.h>
- #include <X11/Xlib.h>
-+#include "arch.h"
- 
- Display *g_display = 0;
- int g_x_socket = 0;
 --- a/xorgxrdp/configure.ac
 +++ b/xorgxrdp/configure.ac
 @@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
@@ -107,33 +64,10 @@ Subject: Enable Large File Support on (at least) 32-bit Linux
  AC_C_CONST
  AC_PROG_LIBTOOL
  
---- a/xorgxrdp/module/rdp.h
-+++ b/xorgxrdp/module/rdp.h
-@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE
- #include <gcstruct.h>
- #include <mipointer.h>
- #include <randrstr.h>
-+#include <config_ac.h>
+@@ -72,5 +74,6 @@ AC_CONFIG_FILES([Makefile
+                  xrdpmouse/Makefile
+ ])
  
- #include "rdpPri.h"
- 
---- a/xorgxrdp/module/rdpReg.c
-+++ b/xorgxrdp/module/rdpReg.c
-@@ -33,6 +33,7 @@ to deal with regions changing in xorg ve
- #include <xf86.h>
- #include <xf86_OSproc.h>
- 
-+#include <config_ac.h>
- #include "rdpReg.h"
- 
- /*
---- a/xrdpvr/xrdpvr.c
-+++ b/xrdpvr/xrdpvr.c
-@@ -21,6 +21,7 @@
-  *
-  */
- 
-+#include "arch.h"
- #include "xrdpvr.h"
- #include "xrdpvr_internal.h"
++CPPFLAGS="-include config_ac.h $CPPFLAGS"
+ AC_OUTPUT
  
