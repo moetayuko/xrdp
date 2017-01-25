@@ -8,11 +8,13 @@ xrdp (0.9.1-4) unstable; urgency=high
   * Remove patch to make stack not executable in *.asm files; upstrem
     fixed this already.
   * Enable Large File Support, as pointed out by lintian.
+  * Disable assembly code on any-i386 for now, it must be ported
+    (partially rewritten) for PIC support.
 
   [ Dominik George ]
   * Update/minimise systemd service file patch.
 
- -- Dominik George <nik@naturalnet.de>  Wed, 25 Jan 2017 15:39:19 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Wed, 25 Jan 2017 16:44:44 +0100
 
 xrdp (0.9.1-3) unstable; urgency=medium
 
