@@ -33,12 +33,6 @@ esac
 
 # fixup conffiles after dpkg-maintscript-helper has run, for
 # upgrades from jessie and older jessie-backports
-if test -h /etc/pam.d/xrdp-sesman; then
-	rm -f /etc/pam.d/xrdp-sesman
-	if test -e /etc/pam.d/xrdp-sesman.dpkg-new; then
-		echo >&2 I: moving old xrdp PAM configuration file
-		mv -f /etc/pam.d/xrdp-sesman.dpkg-new /etc/pam.d/xrdp-sesman
-	fi
-fi
+(test -h /etc/pam.d/xrdp-sesman && rm -f /etc/pam.d/xrdp-sesman || :)
 
 exit 0
