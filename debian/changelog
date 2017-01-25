@@ -3,8 +3,10 @@ xrdp (0.9.1-4) unstable; urgency=high
   * Fix up PAM conffile handling for upgrades from jessie{,-backports}.
   * Don’t use FUSE on the Hurd, it does not support enough of it yet.
   * Add GNU/kFreeBSD support to NASM format detection autoconfigury.
+  * Remove patch to make stack not executable in *.asm files; upstrem
+    fixed this already.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Wed, 25 Jan 2017 11:39:33 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Wed, 25 Jan 2017 13:30:59 +0100
 
 xrdp (0.9.1-3) unstable; urgency=medium
 
