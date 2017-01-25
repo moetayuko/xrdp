@@ -14,8 +14,9 @@ xrdp (0.9.1-4) unstable; urgency=high
   [ Dominik George ]
   * Update/minimise systemd service file patch.
     + Also moves sockpath related part to sockpath patch.
+  * Switch back to compat level 10.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Wed, 25 Jan 2017 16:44:44 +0100
+ -- Dominik George <nik@naturalnet.de>  Wed, 25 Jan 2017 18:10:11 +0100
 
 xrdp (0.9.1-3) unstable; urgency=medium
 

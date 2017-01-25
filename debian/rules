@@ -59,7 +59,7 @@ CONFIGURE_ARGS+=	--disable-fuse
 endif
 
 %:
-	dh $@ --with systemd
+	dh $@
 
 override_dh_auto_configure:
 	./bootstrap
