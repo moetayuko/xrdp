@@ -12,7 +12,7 @@ Build-Depends:
  automake (>= 1.6),
  debhelper (>= 9),
  dh-systemd,
- libfuse-dev,
+ libfuse-dev [!hurd-any],
  libjpeg-dev,
  libopus-dev,
  libpam0g-dev,
@@ -42,7 +42,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
 Recommends:
- fuse,
+ fuse [!hurd-any],
  xorgxrdp,
 Suggests:
  guacamole,

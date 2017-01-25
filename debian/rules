@@ -31,6 +31,11 @@ ifeq (x32,${DEB_HOST_ARCH})
 CONFIGURE_ARGS+=	--without-simd
 endif
 
+ifeq (hurd,${DEB_HOST_ARCH_OS})
+# fuse_lowlevel.h is not yet usable
+CONFIGURE_ARGS+=	--disable-fuse
+endif
+
 %:
 	dh $@ --with systemd
 
@@ -38,20 +43,24 @@ override_dh_auto_configure:
 	./bootstrap
 	cd xorgxrdp && ./bootstrap
 	cd librfxcodec && ./bootstrap
-	./configure ${CONFIGURE_ARGS} \
+	./configure \
 	    --enable-ipv6 \
 	    --enable-jpeg \
 	    --enable-fuse \
 	    --enable-rfxcodec \
 	    --enable-opus \
-	    --enable-painter
-	cd xorgxrdp && ./configure ${CONFIGURE_ARGS}
-	cd librfxcodec && ./configure ${CONFIGURE_ARGS} \
+	    --enable-painter \
+	    ${CONFIGURE_ARGS}
+	cd xorgxrdp && ./configure \
+	    ${CONFIGURE_ARGS}
+	cd librfxcodec && ./configure \
 	    --disable-shared \
-	    --enable-static
-	cd libpainter && ./configure ${CONFIGURE_ARGS} \
+	    --enable-static \
+	    ${CONFIGURE_ARGS}
+	cd libpainter && ./configure \
 	    --disable-shared \
-	    --enable-static
+	    --enable-static \
+	    ${CONFIGURE_ARGS}
 	find . -name Makefile -print0 | \
 	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
