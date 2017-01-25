@@ -777,7 +777,8 @@ Files: xorg/tests/xdemo/yosemite.bmp
  debian/xrdp.init
  debian/xrdp.postinst
  debian/xrdp.postrm
-Copyright: 2015, 2016, mirabilos <m@mirbsd.org>
+ debian/xrdp.preinst
+Copyright: 2015, 2016, 2017 mirabilos <m@mirbsd.org>
 License: MirOS
 
 Files: debian/*
