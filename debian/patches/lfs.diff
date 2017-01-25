@@ -29,7 +29,7 @@ Subject: Enable Large File Support on (at least) 32-bit Linux
   * xfree86(base)->evdev keycode mapping
   */
  
-+#include "arch.h"
++#include "config_ac.h"
 +
  int xfree86_to_evdev[137-8+1] = {
      /* MDSW */ 203,
@@ -40,7 +40,7 @@ Subject: Enable Large File Support on (at least) 32-bit Linux
  #include <X11/Xutil.h>
  #include <X11/XKBlib.h>
  #include <locale.h>
-+#include "arch.h"
++#include "config_ac.h"
  
  extern int xfree86_to_evdev[137-8];
  
