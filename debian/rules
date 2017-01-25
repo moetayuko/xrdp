@@ -26,6 +26,28 @@ ifneq (${DEB_BUILD_GNU_TYPE},${DEB_HOST_GNU_TYPE})
 CONFIGURE_ARGS+=	--host=${DEB_HOST_GNU_TYPE}
 endif
 
+ifeq (i386,${DEB_HOST_ARCH_CPU})
+# The following files must be rewritten to use PIC if -DPIC is passed:
+# - librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
+# - librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
+# - xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
+# - xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
+# - xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
+# - xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
+# - xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
+# - xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
+# Documentation: http://www.nasm.us/doc/nasmdoc9.html#section-9.2
+# Unfortunately, this requires reserving the EBX register, which
+# is used extensively by this code; to avoid crashes or security
+# issues in xrdp, we disable the code on any-i386 for stretch and
+# will revisit this later and with upstream; amd64 isn’t affected
+# (as it uses RIP-relative addressing), x32 and other architectures
+# don’t use the assembly code at all.
+# When fixed, change Build-Depends’ nasm component to:
+# nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
+CONFIGURE_ARGS+=	--without-simd
+endif
+
 ifeq (x32,${DEB_HOST_ARCH})
 # autodetection fails on x32 (wrongly recognised as amd64)
 CONFIGURE_ARGS+=	--without-simd

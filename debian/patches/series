@@ -6,3 +6,4 @@ shutup-daemon.diff
 sockpath.diff
 kfreebsd.diff
 systemd.diff
+lfs.diff
