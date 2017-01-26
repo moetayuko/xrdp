@@ -1,5 +1,8 @@
 From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Convert i386 asm code to ELF PIC
+Forwarded: yes
+ https://github.com/neutrinolabs/librfxcodec/pull/17
+ https://github.com/neutrinolabs/xorgxrdp/pull/68
 
 --- a/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
 +++ b/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
