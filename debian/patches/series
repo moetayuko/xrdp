@@ -8,3 +8,4 @@ kfreebsd.diff
 systemd.diff
 lfs.diff
 i386-pic-asm-part1.diff
+i386-pic-asm-part2.diff
