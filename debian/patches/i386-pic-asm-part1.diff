@@ -1,0 +1,330 @@
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: Free the ebx register from use of the assembly code (WIP)
+
+--- a/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
++++ b/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
+@@ -324,7 +324,7 @@ loop1c:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
+@@ -395,7 +395,7 @@ loop1c:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+@@ -500,7 +500,7 @@ loop1c1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
+@@ -568,7 +568,7 @@ loop1c1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+@@ -767,7 +767,7 @@ loop1e:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
+@@ -842,14 +842,14 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
+@@ -924,7 +924,7 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+@@ -1029,7 +1029,7 @@ loop1e1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
+@@ -1101,14 +1101,14 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
+@@ -1180,7 +1180,7 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+--- a/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
++++ b/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
+@@ -300,7 +300,7 @@ loop1c:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
+@@ -359,7 +359,7 @@ loop1c:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+@@ -452,7 +452,7 @@ loop1c1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
+@@ -508,7 +508,7 @@ loop1c1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+@@ -695,7 +695,7 @@ loop1e:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
+@@ -758,14 +758,14 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
+@@ -828,7 +828,7 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+@@ -921,7 +921,7 @@ loop1e1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
+@@ -981,14 +981,14 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
+@@ -1048,7 +1048,7 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+--- a/xorgxrdp/module/rdpSimd.c
++++ b/xorgxrdp/module/rdpSimd.c
+@@ -98,8 +98,11 @@ rdpSimdInit(ScreenPtr pScreen, ScrnInfoP
+                "0x%8.8x cx 0x%8.8x dx 0x%8.8x", ax, bx, cx, dx));
+         if (dx & (1 << 26)) /* SSE 2 */
+         {
++#ifndef PIC
++	    /*XXX TODO: make these two PIC compatible */
+             dev->yv12_to_rgb32 = yv12_to_rgb32_x86_sse2;
+             dev->i420_to_rgb32 = i420_to_rgb32_x86_sse2;
++#endif
+             dev->yuy2_to_rgb32 = yuy2_to_rgb32_x86_sse2;
+             dev->uyvy_to_rgb32 = uyvy_to_rgb32_x86_sse2;
+             dev->a8r8g8b8_to_a8b8g8r8_box = a8r8g8b8_to_a8b8g8r8_box_x86_sse2;
+--- a/xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
++++ b/xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
+@@ -66,10 +66,10 @@ loop_y:
+ loop_xpre:
+     mov eax, esi         ; look for aligned
+     and eax, 0x0F        ; we can jump to next
+-    mov ebx, eax
++    mov ebp, eax
+     mov eax, edi
+     and eax, 0x0F
+-    or eax, ebx
++    or eax, ebp
+     cmp eax, 0
+     je done_loop_xpre
+     cmp ecx, 1
+@@ -78,14 +78,14 @@ loop_xpre:
+     lea esi, [esi + 4]
+     mov edx, eax         ; a and g
+     and edx, 0xFF00FF00
+-    mov ebx, eax         ; r
+-    and ebx, 0x00FF0000
+-    shr ebx, 16
+-    or edx, ebx
+-    mov ebx, eax         ; b
+-    and ebx, 0x000000FF
+-    shl ebx, 16
+-    or edx, ebx
++    mov ebp, eax         ; r
++    and ebp, 0x00FF0000
++    shr ebp, 16
++    or edx, ebp
++    mov ebp, eax         ; b
++    and ebp, 0x000000FF
++    shl ebp, 16
++    or edx, ebp
+     mov [edi], edx
+     lea edi, [edi + 4]
+     dec ecx
+@@ -145,14 +145,14 @@ loop_x:
+     lea esi, [esi + 4]
+     mov edx, eax         ; a and g
+     and edx, 0xFF00FF00
+-    mov ebx, eax         ; r
+-    and ebx, 0x00FF0000
+-    shr ebx, 16
+-    or edx, ebx
+-    mov ebx, eax         ; b
+-    and ebx, 0x000000FF
+-    shl ebx, 16
+-    or edx, ebx
++    mov ebp, eax         ; r
++    and ebp, 0x00FF0000
++    shr ebp, 16
++    or edx, ebp
++    mov ebp, eax         ; b
++    and ebp, 0x000000FF
++    shl ebp, 16
++    or edx, ebp
+     mov [edi], edx
+     lea edi, [edi + 4]
+     dec ecx
+--- a/xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
++++ b/xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
+@@ -88,8 +88,8 @@ PROC _a8r8g8b8_to_nv12_box_x86_sse2
+ 
+     pxor xmm7, xmm7
+ 
+-    mov ebx, LHEIGHT           ; ebx = height
+-    shr ebx, 1                 ; doing 2 lines at a time
++    mov ebp, LHEIGHT           ; ebp = height
++    shr ebp, 1                 ; doing 2 lines at a time
+ 
+ row_loop1:
+     mov esi, LS8               ; s8
+@@ -312,7 +312,7 @@ loop1:
+     add eax, LDST_UV_STRIDE    ; d8_uv += dst_stride_uv
+     mov LD8_UV, eax
+ 
+-    dec ebx
++    dec ebp
+     jnz row_loop1
+ 
+     mov eax, 0                 ; return value
+--- a/xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
++++ b/xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
+@@ -1,3 +1,4 @@
++;XXX TODO free ebx, then add PIC
+ ;
+ ;Copyright 2014 Jay Sorg
+ ;
+--- a/xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
++++ b/xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
+@@ -1,3 +1,4 @@
++;XXX TODO free ebx, then add PIC
+ ;
+ ;Copyright 2014 Jay Sorg
+ ;
