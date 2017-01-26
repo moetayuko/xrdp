@@ -1,8 +1,9 @@
 xrdp (0.9.1-5~exp1) experimental; urgency=low
 
-  * Port i386 assembly files to ELF PIC; re-enable SIMD on any-i386.
+  * Upload to experimental.
+  * Port x86 assembly files to ELF PIC; re-enable SIMD on any-i386.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Thu, 26 Jan 2017 19:53:21 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Thu, 26 Jan 2017 19:59:26 +0100
 
 xrdp (0.9.1-4) unstable; urgency=high
 

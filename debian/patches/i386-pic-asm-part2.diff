@@ -17,13 +17,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -478,13 +478,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -919,13 +919,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -978,13 +978,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -1251,13 +1251,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -1336,13 +1336,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -1421,13 +1421,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
@@ -1506,13 +1506,13 @@ Subject: Convert i386 asm code to ELF PIC
 +%ifdef PIC
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
-+.get_GOT:
-+	mov ebx,dword ptr [esp]
++..@get_GOT:
++	mov ebx,[esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
-+	call .get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-.get_GOT wrt ..gotpc
++	call ..@get_GOT
++	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
 +%endmacro
 +%else
 +%endif
