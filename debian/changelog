@@ -1,12 +1,40 @@
-xrdp (0.9.1-2~bpo8+1) jessie-backports; urgency=medium
+xrdp (0.9.1-4~bpo8+1) jessie-backports; urgency=medium
 
   * Rebuild for jessie-backports.
 
- -- Dominik George <nik@naturalnet.de>  Sun, 01 Jan 2017 17:41:48 +0100
+ -- Dominik George <nik@naturalnet.de>  Mon, 06 Feb 2017 21:58:02 +0100
+
+xrdp (0.9.1-4) unstable; urgency=high
+
+  [ Thorsten Glaser ]
+  * Fix up PAM conffile handling for upgrades from jessie{,-backports}.
+  * Fix build on non-linux architectures. (Closes: #831663)
+    + Don’t use FUSE on the Hurd, it does not support enough of it yet.
+    + Add GNU/kFreeBSD support to NASM format detection autoconfigury.
+  * Remove patch to make stack not executable in *.asm files; upstrem
+    fixed this already.
+  * Enable Large File Support, as pointed out by lintian.
+  * Disable assembly code on any-i386 for now, it must be ported
+    (partially rewritten) for PIC support.
+
+  [ Dominik George ]
+  * Update/minimise systemd service file patch.
+    + Also moves sockpath related part to sockpath patch.
+  * Switch back to compat level 10.
+
+ -- Dominik George <nik@naturalnet.de>  Wed, 25 Jan 2017 18:10:11 +0100
+
+xrdp (0.9.1-3) unstable; urgency=medium
+
+  * Fix up last changelog entry.
+  * Update bug-control.
+    + Report status of xserver-xorg-legacy.
+
+ -- Dominik George <nik@naturalnet.de>  Sun, 15 Jan 2017 00:30:44 +0100
 
 xrdp (0.9.1-2) unstable; urgency=medium
 
-  * Do not ship initial cert.key generated during build.
+  * Do not ship initial cert/key generated during build.
      + Makes build reproducible.
 
  -- Dominik George <nik@naturalnet.de>  Sun, 01 Jan 2017 11:58:02 +0100

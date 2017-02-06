@@ -1,5 +1,5 @@
 From: Thorsten Glaser <tg@mirbsd.org>
-Subject:: change location of the socket path to something less racy
+Subject: change location of the socket path to something less racy
  also, rely on the initscript to create it with correct permissions and ownership
 --- a/common/file_loc.h
 +++ b/common/file_loc.h
@@ -81,6 +81,20 @@ Subject:: change location of the socket path to something less racy
  UNIX socket used to communicate with the \fBxrdp\fP(8) session manager.
  
  .SH KNOWN ISSUES
+--- a/instfiles/xrdp.service
++++ b/instfiles/xrdp.service
+@@ -8,8 +8,11 @@ Type=forking
+ PIDFile=/var/run/xrdp.pid
+ EnvironmentFile=-/etc/sysconfig/xrdp
+ EnvironmentFile=-/etc/default/xrdp
++PermissionsStartOnly=true
++ExecStartPre=/bin/sh /usr/share/xrdp/socksetup
+ ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS
+ ExecStop=/usr/sbin/xrdp $XRDP_OPTIONS --kill
++ExecStopPost=/bin/rm -rf /var/run/xrdp/sockdir
+ 
+ [Install]
+ WantedBy=multi-user.target
 --- a/sesman/chansrv/pulse/module-xrdp-sink.c
 +++ b/sesman/chansrv/pulse/module-xrdp-sink.c
 @@ -84,7 +84,7 @@ PA_MODULE_USAGE(
