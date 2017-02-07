@@ -1,8 +1,6 @@
 From: Thorsten Glaser <tg@mirbsd.org>
-Subject: Convert i386 asm code to ELF PIC
-Forwarded: yes
- https://github.com/neutrinolabs/librfxcodec/pull/17
- https://github.com/neutrinolabs/xorgxrdp/pull/68
+Subject: Fix i386 assembly to be PIC safe (librfxcodec)
+Forwarded: https://github.com/neutrinolabs/librfxcodec/pull/17
 
 --- a/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
 +++ b/librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
@@ -21,14 +19,14 @@ Forwarded: yes
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
 +..@get_GOT:
-+	mov ebx,[esp]
++	mov ebx, [esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
 +	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
++%%getgot:
++	add ebx, _GLOBAL_OFFSET_TABLE_ + $$ - %%getgot wrt ..gotpc
 +%endmacro
-+%else
 +%endif
 +%else
 +; not ELF
@@ -109,6 +107,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -324,7 +348,7 @@ loop1c:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
 @@ -341,8 +365,8 @@ loop1c:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -142,6 +149,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -395,7 +419,7 @@ loop1c:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -436,8 +460,8 @@ loop1c1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -175,6 +191,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -500,7 +524,7 @@ loop1c1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
 @@ -514,8 +538,8 @@ loop1c1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -208,6 +233,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -568,7 +592,7 @@ loop1c1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -703,8 +727,8 @@ loop1e:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -241,6 +275,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -767,7 +791,7 @@ loop1e:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
 @@ -787,8 +811,8 @@ loop2e:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -274,6 +317,23 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -842,14 +866,14 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
 @@ -870,8 +894,8 @@ loop2e:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -307,6 +367,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -924,7 +948,7 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -965,8 +989,8 @@ loop1e1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -340,6 +409,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -1029,7 +1053,7 @@ loop1e1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
 @@ -1046,8 +1070,8 @@ loop2e1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -373,6 +451,23 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -1101,14 +1125,14 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
 @@ -1126,8 +1150,8 @@ loop2e1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -406,6 +501,15 @@ Forwarded: yes
      pslld xmm3, 16
      pslld xmm4, 16
      psrad xmm3, 16
+@@ -1180,7 +1204,7 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -1220,9 +1244,9 @@ loop1f:
      punpcklbw xmm1, xmm0
      punpcklbw xmm2, xmm0
@@ -482,14 +586,14 @@ Forwarded: yes
 +section .text
 +extern _GLOBAL_OFFSET_TABLE_
 +..@get_GOT:
-+	mov ebx,[esp]
++	mov ebx, [esp]
 +	ret
 +%define lsym(name) ebx + name wrt ..gotoff
 +%macro get_GOT 0
 +	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
++%%getgot:
++	add ebx, _GLOBAL_OFFSET_TABLE_ + $$ - %%getgot wrt ..gotpc
 +%endmacro
-+%else
 +%endif
 +%else
 +; not ELF
@@ -566,6 +670,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -300,7 +324,7 @@ loop1c:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
 @@ -317,15 +341,15 @@ loop1c:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -597,6 +710,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -359,7 +383,7 @@ loop1c:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -400,15 +424,15 @@ loop1c1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -628,6 +750,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -452,7 +476,7 @@ loop1c1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
 @@ -466,15 +490,15 @@ loop1c1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -659,6 +790,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -508,7 +532,7 @@ loop1c1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -643,15 +667,15 @@ loop1e:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -690,6 +830,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -695,7 +719,7 @@ loop1e:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
 @@ -715,15 +739,15 @@ loop2e:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -721,6 +870,23 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -758,14 +782,14 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa xmm6, xmm5                   ; out lo
+     paddw xmm6, LLO_ADD
 @@ -786,15 +810,15 @@ loop2e:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -752,6 +918,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -828,7 +852,7 @@ loop2e:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -869,15 +893,15 @@ loop1e1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -783,6 +958,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -921,7 +945,7 @@ loop1e1:
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
 @@ -938,15 +962,15 @@ loop2e1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -814,6 +998,23 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -981,14 +1005,14 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
+     paddw xmm5, xmm1
+ 
+     psrldq xmm2, 14
+-    movd ebx, xmm2                      ; save hi
++    movd ebp, xmm2                      ; save hi
+ 
+     movdqa [edx], xmm5                  ; out lo
+ 
 @@ -1006,15 +1030,15 @@ loop2e1:
      movdqa xmm2, [esi + 16]
      movdqa xmm6, xmm1
@@ -845,6 +1046,15 @@ Forwarded: yes
      packusdw xmm3, xmm4
      movdqa xmm4, xmm1
      movdqa xmm5, xmm2
+@@ -1048,7 +1072,7 @@ loop2e1:
+     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
+     movdqa xmm7, xmm5
+     pslldq xmm7, 2
+-    movd xmm6, ebx
++    movd xmm6, ebp
+     por xmm7, xmm6
+     paddw xmm5, xmm7
+     psraw xmm5, 1
 @@ -1088,9 +1112,9 @@ loop1f:
      punpcklbw xmm1, xmm0
      punpcklbw xmm2, xmm0
@@ -899,678 +1109,6 @@ Forwarded: yes
 @@ -1243,6 +1267,7 @@ PROC _rfxcodec_encode_dwt_shift_x86_sse4
      movdqu [esp], xmm0
      ; save registers
-     push ebx
-+    get_GOT
-     push esi
-     push edi
-     push ebp
---- a/xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
-+++ b/xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
-@@ -1,5 +1,6 @@
- ;
- ;Copyright 2014 Jay Sorg
-+;Copyright 2017 mirabilos
- ;
- ;Permission to use, copy, modify, distribute, and sell this software and its
- ;documentation for any purpose is hereby granted without fee, provided that
-@@ -22,7 +23,30 @@
- ;
- 
- %ifidn __OUTPUT_FORMAT__,elf
--SECTION .note.GNU-stack noalloc noexec nowrite progbits
-+section .note.GNU-stack noalloc noexec nowrite progbits
-+%ifdef PIC
-+section .text
-+extern _GLOBAL_OFFSET_TABLE_
-+..@get_GOT:
-+	mov ebx,[esp]
-+	ret
-+%define lsym(name) ebx + name wrt ..gotoff
-+%macro get_GOT 0
-+	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
-+%endmacro
-+%else
-+%endif
-+%else
-+; not ELF
-+%ifdef PIC
-+%error Position-Independent Code is currently only supported for ELF
-+%endif
-+%endif
-+%ifndef lsym
-+%define lsym(name) name
-+%macro get_GOT 0
-+%endmacro
- %endif
- 
- SECTION .data
-@@ -49,13 +73,14 @@ PROC a8r8g8b8_to_a8b8g8r8_box_x86_sse2
- PROC _a8r8g8b8_to_a8b8g8r8_box_x86_sse2
- %endif
-     push ebx
-+    get_GOT
-     push esi
-     push edi
-     push ebp
- 
--    movdqa xmm4, [c1]
--    movdqa xmm5, [c2]
--    movdqa xmm6, [c3]
-+    movdqa xmm4, [lsym(c1)]
-+    movdqa xmm5, [lsym(c2)]
-+    movdqa xmm6, [lsym(c3)]
- 
-     mov esi, [esp + 20]  ; src
-     mov edi, [esp + 28]  ; dst
---- a/xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
-+++ b/xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
-@@ -1,5 +1,6 @@
- ;
- ;Copyright 2015 Jay Sorg
-+;Copyright 2017 mirabilos
- ;
- ;Permission to use, copy, modify, distribute, and sell this software and its
- ;documentation for any purpose is hereby granted without fee, provided that
-@@ -26,7 +27,30 @@
- ;   height should be even and > 0
- 
- %ifidn __OUTPUT_FORMAT__,elf
--SECTION .note.GNU-stack noalloc noexec nowrite progbits
-+section .note.GNU-stack noalloc noexec nowrite progbits
-+%ifdef PIC
-+section .text
-+extern _GLOBAL_OFFSET_TABLE_
-+..@get_GOT:
-+	mov ebx,[esp]
-+	ret
-+%define lsym(name) ebx + name wrt ..gotoff
-+%macro get_GOT 0
-+	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
-+%endmacro
-+%else
-+%endif
-+%else
-+; not ELF
-+%ifdef PIC
-+%error Position-Independent Code is currently only supported for ELF
-+%endif
-+%endif
-+%ifndef lsym
-+%define lsym(name) name
-+%macro get_GOT 0
-+%endmacro
- %endif
- 
- SECTION .data
-@@ -81,6 +105,7 @@ PROC a8r8g8b8_to_nv12_box_x86_sse2
- PROC _a8r8g8b8_to_nv12_box_x86_sse2
- %endif
-     push ebx
-+    get_GOT
-     push esi
-     push edi
-     push ebp
-@@ -103,23 +128,23 @@ loop1:
-     ; first line
-     movdqu xmm0, [esi]         ; 4 pixels, 16 bytes
-     movdqa xmm1, xmm0          ; blue
--    pand xmm1, [cd255]         ; blue
-+    pand xmm1, [lsym(cd255)]   ; blue
-     movdqa xmm2, xmm0          ; green
-     psrld xmm2, 8              ; green
--    pand xmm2, [cd255]         ; green
-+    pand xmm2, [lsym(cd255)]   ; green
-     movdqa xmm3, xmm0          ; red
-     psrld xmm3, 16             ; red
--    pand xmm3, [cd255]         ; red
-+    pand xmm3, [lsym(cd255)]   ; red
- 
-     movdqu xmm0, [esi + 16]    ; 4 pixels, 16 bytes
-     movdqa xmm4, xmm0          ; blue
--    pand xmm4, [cd255]         ; blue
-+    pand xmm4, [lsym(cd255)]   ; blue
-     movdqa xmm5, xmm0          ; green
-     psrld xmm5, 8              ; green
--    pand xmm5, [cd255]         ; green
-+    pand xmm5, [lsym(cd255)]   ; green
-     movdqa xmm6, xmm0          ; red
-     psrld xmm6, 16             ; red
--    pand xmm6, [cd255]         ; red
-+    pand xmm6, [lsym(cd255)]   ; red
- 
-     packssdw xmm1, xmm4        ; xmm1 = 8 blues
-     packssdw xmm2, xmm5        ; xmm2 = 8 greens
-@@ -129,14 +154,14 @@ loop1:
-     movdqa xmm4, xmm1          ; blue
-     movdqa xmm5, xmm2          ; green
-     movdqa xmm6, xmm3          ; red
--    pmullw xmm4, [cw25]
--    pmullw xmm5, [cw129]
--    pmullw xmm6, [cw66]
-+    pmullw xmm4, [lsym(cw25)]
-+    pmullw xmm5, [lsym(cw129)]
-+    pmullw xmm6, [lsym(cw66)]
-     paddw xmm4, xmm5
-     paddw xmm4, xmm6
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     psrlw xmm4, 8
--    paddw xmm4, [cw16]
-+    paddw xmm4, [lsym(cw16)]
-     packuswb xmm4, xmm7
-     movq [edi], xmm4           ; out 8 bytes yyyyyyyy
- 
-@@ -144,14 +169,14 @@ loop1:
-     movdqa xmm4, xmm1          ; blue
-     movdqa xmm5, xmm2          ; green
-     movdqa xmm6, xmm3          ; red
--    pmullw xmm4, [cw112]
--    pmullw xmm5, [cw74]
--    pmullw xmm6, [cw38]
-+    pmullw xmm4, [lsym(cw112)]
-+    pmullw xmm5, [lsym(cw74)]
-+    pmullw xmm6, [lsym(cw38)]
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     psraw xmm4, 8
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     packuswb xmm4, xmm7
-     movq LU1, xmm4             ; save for later
- 
-@@ -159,14 +184,14 @@ loop1:
-     movdqa xmm6, xmm1          ; blue
-     movdqa xmm5, xmm2          ; green
-     movdqa xmm4, xmm3          ; red
--    pmullw xmm4, [cw112]
--    pmullw xmm5, [cw94]
--    pmullw xmm6, [cw18]
-+    pmullw xmm4, [lsym(cw112)]
-+    pmullw xmm5, [lsym(cw94)]
-+    pmullw xmm6, [lsym(cw18)]
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     psraw xmm4, 8
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     packuswb xmm4, xmm7
-     movq LV1, xmm4             ; save for later
- 
-@@ -177,23 +202,23 @@ loop1:
-     ; second line
-     movdqu xmm0, [esi]         ; 4 pixels, 16 bytes
-     movdqa xmm1, xmm0          ; blue
--    pand xmm1, [cd255]         ; blue
-+    pand xmm1, [lsym(cd255)]   ; blue
-     movdqa xmm2, xmm0          ; green
-     psrld xmm2, 8              ; green
--    pand xmm2, [cd255]         ; green
-+    pand xmm2, [lsym(cd255)]   ; green
-     movdqa xmm3, xmm0          ; red
-     psrld xmm3, 16             ; red
--    pand xmm3, [cd255]         ; red
-+    pand xmm3, [lsym(cd255)]   ; red
- 
-     movdqu xmm0, [esi + 16]    ; 4 pixels, 16 bytes
-     movdqa xmm4, xmm0          ; blue
--    pand xmm4, [cd255]         ; blue
-+    pand xmm4, [lsym(cd255)]   ; blue
-     movdqa xmm5, xmm0          ; green
-     psrld xmm5, 8              ; green
--    pand xmm5, [cd255]         ; green
-+    pand xmm5, [lsym(cd255)]   ; green
-     movdqa xmm6, xmm0          ; red
-     psrld xmm6, 16             ; red
--    pand xmm6, [cd255]         ; red
-+    pand xmm6, [lsym(cd255)]   ; red
- 
-     packssdw xmm1, xmm4        ; xmm1 = 8 blues
-     packssdw xmm2, xmm5        ; xmm2 = 8 greens
-@@ -203,14 +228,14 @@ loop1:
-     movdqa xmm4, xmm1          ; blue
-     movdqa xmm5, xmm2          ; green
-     movdqa xmm6, xmm3          ; red 
--    pmullw xmm4, [cw25]
--    pmullw xmm5, [cw129]
--    pmullw xmm6, [cw66]
-+    pmullw xmm4, [lsym(cw25)]
-+    pmullw xmm5, [lsym(cw129)]
-+    pmullw xmm6, [lsym(cw66)]
-     paddw xmm4, xmm5
-     paddw xmm4, xmm6
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     psrlw xmm4, 8
--    paddw xmm4, [cw16]
-+    paddw xmm4, [lsym(cw16)]
-     packuswb xmm4, xmm7
-     movq [edi], xmm4           ; out 8 bytes yyyyyyyy
- 
-@@ -218,14 +243,14 @@ loop1:
-     movdqa xmm4, xmm1          ; blue
-     movdqa xmm5, xmm2          ; green
-     movdqa xmm6, xmm3          ; red
--    pmullw xmm4, [cw112]
--    pmullw xmm5, [cw74]
--    pmullw xmm6, [cw38]
-+    pmullw xmm4, [lsym(cw112)]
-+    pmullw xmm5, [lsym(cw74)]
-+    pmullw xmm6, [lsym(cw38)]
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     psraw xmm4, 8
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     packuswb xmm4, xmm7
-     movq LU2, xmm4             ; save for later
- 
-@@ -233,48 +258,48 @@ loop1:
-     movdqa xmm6, xmm1          ; blue
-     movdqa xmm5, xmm2          ; green
-     movdqa xmm4, xmm3          ; red
--    pmullw xmm4, [cw112]
--    pmullw xmm5, [cw94]
--    pmullw xmm6, [cw18]
-+    pmullw xmm4, [lsym(cw112)]
-+    pmullw xmm5, [lsym(cw94)]
-+    pmullw xmm6, [lsym(cw18)]
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     psraw xmm4, 8
--    paddw xmm4, [cw128]
-+    paddw xmm4, [lsym(cw128)]
-     packuswb xmm4, xmm7
-     movq LV2, xmm4             ; save for later
- 
-     ; uv add and divide(average)
-     movq mm1, LU1              ; u from first line
-     movq mm3, mm1
--    pand mm1, [cw255]
-+    pand mm1, [lsym(cw255)]
-     psrlw mm3, 8
--    pand mm3, [cw255]
-+    pand mm3, [lsym(cw255)]
-     paddw mm1, mm3             ; add
-     movq mm2, LU2              ; u from second line
-     movq mm3, mm2
--    pand mm2, [cw255]
-+    pand mm2, [lsym(cw255)]
-     paddw mm1, mm2             ; add
-     psrlw mm3, 8
--    pand mm3, [cw255]
-+    pand mm3, [lsym(cw255)]
-     paddw mm1, mm3             ; add
--    paddw mm1, [cw2]           ; add 2
-+    paddw mm1, [lsym(cw2)]     ; add 2
-     psrlw mm1, 2               ; div 4
- 
-     movq mm2, LV1              ; v from first line
-     movq mm4, mm2
--    pand mm2, [cw255]
-+    pand mm2, [lsym(cw255)]
-     psrlw mm4, 8
--    pand mm4, [cw255]
-+    pand mm4, [lsym(cw255)]
-     paddw mm2, mm4             ; add
-     movq mm3, LV2              ; v from second line
-     movq mm4, mm3
--    pand mm3, [cw255]
-+    pand mm3, [lsym(cw255)]
-     paddw mm2, mm3             ; add
-     psrlw mm4, 8
--    pand mm4, [cw255]
-+    pand mm4, [lsym(cw255)]
-     paddw mm2, mm4             ; add
--    paddw mm2, [cw2]           ; add 2
-+    paddw mm2, [lsym(cw2)]     ; add 2
-     psrlw mm2, 2               ; div 4
- 
-     packuswb mm1, mm1
---- a/xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
-+++ b/xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
-@@ -1,5 +1,6 @@
- ;
- ;Copyright 2014 Jay Sorg
-+;Copyright 2017 mirabilos
- ;
- ;Permission to use, copy, modify, distribute, and sell this software and its
- ;documentation for any purpose is hereby granted without fee, provided that
-@@ -34,7 +35,30 @@
- ;   4096     9324     0
- 
- %ifidn __OUTPUT_FORMAT__,elf
--SECTION .note.GNU-stack noalloc noexec nowrite progbits
-+section .note.GNU-stack noalloc noexec nowrite progbits
-+%ifdef PIC
-+section .text
-+extern _GLOBAL_OFFSET_TABLE_
-+..@get_GOT:
-+	mov ebx,[esp]
-+	ret
-+%define lsym(name) ebx + name wrt ..gotoff
-+%macro get_GOT 0
-+	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
-+%endmacro
-+%else
-+%endif
-+%else
-+; not ELF
-+%ifdef PIC
-+%error Position-Independent Code is currently only supported for ELF
-+%endif
-+%endif
-+%ifndef lsym
-+%define lsym(name) name
-+%macro get_GOT 0
-+%endmacro
- %endif
- 
- SECTION .data
-@@ -61,7 +85,7 @@ do8_uv:
-     punpcklbw xmm1, xmm1
-     pxor xmm6, xmm6
-     punpcklbw xmm1, xmm6
--    movdqa xmm7, [c128]
-+    movdqa xmm7, [lsym(c128)]
-     psubw xmm1, xmm7
-     psllw xmm1, 4
- 
-@@ -82,22 +106,22 @@ do8:
-     punpcklbw xmm0, xmm6
- 
-     ; r = y + hiword(4669 * (v << 4))
--    movdqa xmm4, [c4669]
-+    movdqa xmm4, [lsym(c4669)]
-     pmulhw xmm4, xmm1
-     movdqa xmm3, xmm0
-     paddw xmm3, xmm4
- 
-     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
--    movdqa xmm5, [c1616]
-+    movdqa xmm5, [lsym(c1616)]
-     pmulhw xmm5, xmm2
--    movdqa xmm6, [c2378]
-+    movdqa xmm6, [lsym(c2378)]
-     pmulhw xmm6, xmm1
-     movdqa xmm4, xmm0
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
- 
-     ; b = y + hiword(9324 * (u << 4))
--    movdqa xmm6, [c9324]
-+    movdqa xmm6, [lsym(c9324)]
-     pmulhw xmm6, xmm2
-     movdqa xmm5, xmm0
-     paddw xmm5, xmm6
-@@ -129,6 +153,7 @@ PROC i420_to_rgb32_x86_sse2
- PROC _i420_to_rgb32_x86_sse2
- %endif
-     push ebx
-+    get_GOT
-     push esi
-     push edi
-     push ebp
---- a/xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
-+++ b/xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
-@@ -1,5 +1,6 @@
- ;
- ;Copyright 2014 Jay Sorg
-+;Copyright 2017 mirabilos
- ;
- ;Permission to use, copy, modify, distribute, and sell this software and its
- ;documentation for any purpose is hereby granted without fee, provided that
-@@ -34,7 +35,30 @@
- ;   4096     9324     0
- 
- %ifidn __OUTPUT_FORMAT__,elf
--SECTION .note.GNU-stack noalloc noexec nowrite progbits
-+section .note.GNU-stack noalloc noexec nowrite progbits
-+%ifdef PIC
-+section .text
-+extern _GLOBAL_OFFSET_TABLE_
-+..@get_GOT:
-+	mov ebx,[esp]
-+	ret
-+%define lsym(name) ebx + name wrt ..gotoff
-+%macro get_GOT 0
-+	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
-+%endmacro
-+%else
-+%endif
-+%else
-+; not ELF
-+%ifdef PIC
-+%error Position-Independent Code is currently only supported for ELF
-+%endif
-+%endif
-+%ifndef lsym
-+%define lsym(name) name
-+%macro get_GOT 0
-+%endmacro
- %endif
- 
- SECTION .data
-@@ -62,6 +86,7 @@ PROC uyvy_to_rgb32_x86_sse2
- PROC _uyvy_to_rgb32_x86_sse2
- %endif
-     push ebx
-+    get_GOT
-     push esi
-     push edi
-     push ebp
-@@ -76,7 +101,7 @@ PROC _uyvy_to_rgb32_x86_sse2
- 
-     mov ecx, eax
- 
--    movdqa xmm7, [c128]
-+    movdqa xmm7, [lsym(c128)]
- 
- loop1:
-     ; hi                                           lo
-@@ -113,22 +138,22 @@ loop1:
-     psllw xmm2, 4
- 
-     ; r = y + hiword(4669 * (v << 4))
--    movdqa xmm4, [c4669]
-+    movdqa xmm4, [lsym(c4669)]
-     pmulhw xmm4, xmm1
-     movdqa xmm3, xmm0
-     paddw xmm3, xmm4
- 
-     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
--    movdqa xmm5, [c1616]
-+    movdqa xmm5, [lsym(c1616)]
-     pmulhw xmm5, xmm2
--    movdqa xmm6, [c2378]
-+    movdqa xmm6, [lsym(c2378)]
-     pmulhw xmm6, xmm1
-     movdqa xmm4, xmm0
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
- 
-     ; b = y + hiword(9324 * (u << 4))
--    movdqa xmm6, [c9324]
-+    movdqa xmm6, [lsym(c9324)]
-     pmulhw xmm6, xmm2
-     movdqa xmm5, xmm0
-     paddw xmm5, xmm6
---- a/xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
-+++ b/xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
-@@ -1,5 +1,6 @@
- ;
- ;Copyright 2014 Jay Sorg
-+;Copyright 2017 mirabilos
- ;
- ;Permission to use, copy, modify, distribute, and sell this software and its
- ;documentation for any purpose is hereby granted without fee, provided that
-@@ -34,7 +35,30 @@
- ;   4096     9324     0
- 
- %ifidn __OUTPUT_FORMAT__,elf
--SECTION .note.GNU-stack noalloc noexec nowrite progbits
-+section .note.GNU-stack noalloc noexec nowrite progbits
-+%ifdef PIC
-+section .text
-+extern _GLOBAL_OFFSET_TABLE_
-+..@get_GOT:
-+	mov ebx,[esp]
-+	ret
-+%define lsym(name) ebx + name wrt ..gotoff
-+%macro get_GOT 0
-+	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
-+%endmacro
-+%else
-+%endif
-+%else
-+; not ELF
-+%ifdef PIC
-+%error Position-Independent Code is currently only supported for ELF
-+%endif
-+%endif
-+%ifndef lsym
-+%define lsym(name) name
-+%macro get_GOT 0
-+%endmacro
- %endif
- 
- SECTION .data
-@@ -62,6 +86,7 @@ PROC yuy2_to_rgb32_x86_sse2
- PROC _yuy2_to_rgb32_x86_sse2
- %endif
-     push ebx
-+    get_GOT
-     push esi
-     push edi
-     push ebp
-@@ -76,7 +101,7 @@ PROC _yuy2_to_rgb32_x86_sse2
- 
-     mov ecx, eax
- 
--    movdqa xmm7, [c128]
-+    movdqa xmm7, [lsym(c128)]
- 
- loop1:
-     ; hi                                           lo
-@@ -113,22 +138,22 @@ loop1:
-     psllw xmm2, 4
- 
-     ; r = y + hiword(4669 * (v << 4))
--    movdqa xmm4, [c4669]
-+    movdqa xmm4, [lsym(c4669)]
-     pmulhw xmm4, xmm1
-     movdqa xmm3, xmm0
-     paddw xmm3, xmm4
- 
-     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
--    movdqa xmm5, [c1616]
-+    movdqa xmm5, [lsym(c1616)]
-     pmulhw xmm5, xmm2
--    movdqa xmm6, [c2378]
-+    movdqa xmm6, [lsym(c2378)]
-     pmulhw xmm6, xmm1
-     movdqa xmm4, xmm0
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
- 
-     ; b = y + hiword(9324 * (u << 4))
--    movdqa xmm6, [c9324]
-+    movdqa xmm6, [lsym(c9324)]
-     pmulhw xmm6, xmm2
-     movdqa xmm5, xmm0
-     paddw xmm5, xmm6
---- a/xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
-+++ b/xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
-@@ -1,5 +1,6 @@
- ;
- ;Copyright 2014 Jay Sorg
-+;Copyright 2017 mirabilos
- ;
- ;Permission to use, copy, modify, distribute, and sell this software and its
- ;documentation for any purpose is hereby granted without fee, provided that
-@@ -34,7 +35,30 @@
- ;   4096     9324     0
- 
- %ifidn __OUTPUT_FORMAT__,elf
--SECTION .note.GNU-stack noalloc noexec nowrite progbits
-+section .note.GNU-stack noalloc noexec nowrite progbits
-+%ifdef PIC
-+section .text
-+extern _GLOBAL_OFFSET_TABLE_
-+..@get_GOT:
-+	mov ebx,[esp]
-+	ret
-+%define lsym(name) ebx + name wrt ..gotoff
-+%macro get_GOT 0
-+	call ..@get_GOT
-+	add ebx,_GLOBAL_OFFSET_TABLE_+$$-..@get_GOT wrt ..gotpc
-+%endmacro
-+%else
-+%endif
-+%else
-+; not ELF
-+%ifdef PIC
-+%error Position-Independent Code is currently only supported for ELF
-+%endif
-+%endif
-+%ifndef lsym
-+%define lsym(name) name
-+%macro get_GOT 0
-+%endmacro
- %endif
- 
- SECTION .data
-@@ -61,7 +85,7 @@ do8_uv:
-     punpcklbw xmm1, xmm1
-     pxor xmm6, xmm6
-     punpcklbw xmm1, xmm6
--    movdqa xmm7, [c128]
-+    movdqa xmm7, [lsym(c128)]
-     psubw xmm1, xmm7
-     psllw xmm1, 4
- 
-@@ -82,22 +106,22 @@ do8:
-     punpcklbw xmm0, xmm6
- 
-     ; r = y + hiword(4669 * (v << 4))
--    movdqa xmm4, [c4669]
-+    movdqa xmm4, [lsym(c4669)]
-     pmulhw xmm4, xmm2
-     movdqa xmm3, xmm0
-     paddw xmm3, xmm4
- 
-     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
--    movdqa xmm5, [c1616]
-+    movdqa xmm5, [lsym(c1616)]
-     pmulhw xmm5, xmm1
--    movdqa xmm6, [c2378]
-+    movdqa xmm6, [lsym(c2378)]
-     pmulhw xmm6, xmm2
-     movdqa xmm4, xmm0
-     psubw xmm4, xmm5
-     psubw xmm4, xmm6
- 
-     ; b = y + hiword(9324 * (u << 4))
--    movdqa xmm6, [c9324]
-+    movdqa xmm6, [lsym(c9324)]
-     pmulhw xmm6, xmm1
-     movdqa xmm5, xmm0
-     paddw xmm5, xmm6
-@@ -129,6 +153,7 @@ PROC yv12_to_rgb32_x86_sse2
- PROC _yv12_to_rgb32_x86_sse2
- %endif
      push ebx
 +    get_GOT
      push esi

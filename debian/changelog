@@ -1,3 +1,10 @@
+xrdp (0.9.1-5~exp2) experimental; urgency=medium
+
+  * Fix retrieving the address of the GOT (bug caused crashes);
+    spotted by Pavel Roskin (also, forwarded upstream).
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Tue, 07 Feb 2017 18:34:11 +0100
+
 xrdp (0.9.1-5~exp1) experimental; urgency=low
 
   * Upload to experimental.
