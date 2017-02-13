@@ -1,3 +1,9 @@
+xrdp (0.9.1-6) unstable; urgency=medium
+
+  * Fix japanese keyboard detection. (Closes: #854847)
+
+ -- Dominik George <nik@naturalnet.de>  Mon, 13 Feb 2017 21:09:43 +0100
+
 xrdp (0.9.1-5) unstable; urgency=medium
 
   * Ensure creation of /run directory. (Closes: #854548)
