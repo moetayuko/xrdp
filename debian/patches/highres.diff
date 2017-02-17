@@ -1,5 +1,10 @@
 From: Tim Fischer
-Subject: RFX fixes for large tile sets
+Origin: https://github.com/neutrinolabs/xrdp/pull/664
+Acked-by: Dominik George <nik@naturalnet.de>
+Subject: RFX fixes for large tile sets.
+ This patch disables the limitation of rects to use and then
+ dynamically calculates the size of the message from the
+ rects that are really used.
 Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=855387
 Bug: https://github.com/neutrinolabs/xrdp/issues/524
 --- a/xrdp/xrdp_encoder.c
