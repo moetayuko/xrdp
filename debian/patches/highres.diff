@@ -1,6 +1,6 @@
-From: Tim Fischer
-Origin: https://github.com/neutrinolabs/xrdp/pull/664
-Acked-by: Dominik George <nik@naturalnet.de>
+From: Dominik George <nik@naturalnet.de>
+Forwarded: https://github.com/neutrinolabs/xrdp/pull/664
+Acked-by: Thorsten Glaser <tg@mirbsd.de>
 Subject: RFX fixes for large tile sets.
  This patch disables the limitation of rects to use and then
  dynamically calculates the size of the message from the
