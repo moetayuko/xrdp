@@ -17,7 +17,7 @@ Bug: https://github.com/neutrinolabs/xrdp/issues/524
  
  #ifdef XRDP_RFXCODEC
  #include "rfxcodec_encode.h"
-@@ -320,21 +321,24 @@ process_enc_rfx(struct xrdp_encoder *sel
+@@ -320,21 +321,25 @@ process_enc_rfx(struct xrdp_encoder *sel
      mutex = self->mutex;
      event_processed = self->xrdp_encoder_event_processed;
  
@@ -28,7 +28,8 @@ Bug: https://github.com/neutrinolabs/xrdp/issues/524
 +    if ((enc->num_crects > (INT_MAX / sizeof(struct rfx_tile))) ||
 +        (enc->num_drects > (INT_MAX / sizeof(struct rfx_rect) -
 +                            sizeof(struct rfx_tile) * enc->num_crects -
-+                            256 - out_data_bytes))) {
++                            256 - out_data_bytes)) ||
++        (enc->num_crects < 0) || (enc->num_drects < 0)) {
          return 0;
      }
  
