@@ -1,3 +1,9 @@
+xrdp (0.9.1-7) UNRELEASED; urgency=medium
+
+  * Fix RFX with large tile sets, e.g. full HD displays. (Closes: #855387)
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 17 Feb 2017 13:21:12 +0100
+
 xrdp (0.9.1-6) unstable; urgency=medium
 
   * Fix japanese keyboard detection. (Closes: #854847)
