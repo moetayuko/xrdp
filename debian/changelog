@@ -1,8 +1,8 @@
-xrdp (0.9.1-7) UNRELEASED; urgency=medium
+xrdp (0.9.1-7) unstable; urgency=medium
 
   * Fix RFX with large tile sets, e.g. full HD displays. (Closes: #855387)
 
- -- Dominik George <nik@naturalnet.de>  Fri, 17 Feb 2017 13:21:12 +0100
+ -- Dominik George <nik@naturalnet.de>  Sat, 18 Feb 2017 16:46:17 +0100
 
 xrdp (0.9.1-6) unstable; urgency=medium
 
