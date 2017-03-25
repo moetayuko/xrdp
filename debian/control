@@ -20,7 +20,8 @@ Build-Depends:
  libx11-dev,
  libxfixes-dev,
  libxrandr-dev,
- nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
+# for now; see debian/rules for details
+ nasm [amd64 kfreebsd-amd64],
  openssl,
  pkg-config,
  systemd [linux-any],
