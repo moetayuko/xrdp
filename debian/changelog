@@ -3,12 +3,14 @@ xrdp (0.9.2~20170325-1~exp1) experimental; urgency=low
   * Upload to experimental.
   * Merge uploads from unstable.
   * Run libpainter/bootstrap as well.
-  * Update debian/copyright file for the new upstream snapshot.
+  * Update debian/copyright file for the new upstream snapshot
+    (only new files with notices, changed notices, big deletions;
+    the file delta from using a snapshot is ignored: 0.9.2 won’t have them).
   * Refresh patches; drop patches applied upstream.
   * Add assembly patches for relocation-safe data access.
   * Place missing log_end_msg in init script.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 22:18:16 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 22:43:55 +0100
 
 xrdp (0.9.1-7) unstable; urgency=medium
 
