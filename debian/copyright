@@ -42,13 +42,13 @@ Files: COPYING
  design.txt
  docs/Makefile.am
  docs/man/Makefile.am
- docs/man/sesman.ini.5
- docs/man/xrdp-chansrv.8
- docs/man/xrdp-dis.1
- docs/man/xrdp-sesadmin.8
- docs/man/xrdp-sesrun.8
- docs/man/xrdp-xcon.8
- docs/man/xrdp.ini.5
+ docs/man/sesman.ini.5.in
+ docs/man/xrdp-chansrv.8.in
+ docs/man/xrdp-dis.1.in
+ docs/man/xrdp-sesadmin.8.in
+ docs/man/xrdp-sesrun.8.in
+ docs/man/xrdp-xcon.8.in
+ docs/man/xrdp.ini.5.in
  faq-compile.txt
  faq-general.txt
  file-loc.txt
@@ -437,9 +437,9 @@ Files: sesman/tools/sesadmin.c
 Copyright: 2008, Simone Fedele
 License: GPL-2+
 
-Files: docs/man/xrdp.8
- docs/man/xrdp-genkeymap.8
- docs/man/xrdp-sesman.8
+Files: docs/man/xrdp.8.in
+ docs/man/xrdp-genkeymap.8.in
+ docs/man/xrdp-sesman.8.in
 Copyright: Jay Sorg
  Simone Fedele
 License: Apache-2.0
@@ -637,7 +637,7 @@ Copyright: 2004-2014, Jay Sorg
   1999-2008, Matthew Chapman
 License: Apache-2.0
 
-Files: docs/man/xrdp-keygen.8
+Files: docs/man/xrdp-keygen.8.in
 Copyright: 2007, 2008, Vincent Bernat <bernat@debian.org>
 License: GPL-2+
 
