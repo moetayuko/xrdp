@@ -2,6 +2,11 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: xrdp
 Upstream-Contact: Jay Sorg <jay.sorg@gmail.com>
 Source: https://github.com/neutrinolabs/xrdp
+ The repacked .orig.tar.xz was packed from the following commits:
+ - xrdp          1c70e4915fac837db146cd7cb024754318a4485a
+ - xorgxrdp      bcb10dbe2f1750379a70e240f79d6c770f608459
+ - librfxcodec   b051aba3ed52c5cb1b4a747d73aa063b5f8d9f1b
+ - libpainter    0cf49037d469862097c482f81c457fb2f58867c7
 
 Files: COPYING
  Makefile.am
@@ -42,7 +47,6 @@ Files: COPYING
  docs/man/xrdp-dis.1
  docs/man/xrdp-sesadmin.8
  docs/man/xrdp-sesrun.8
- docs/man/xrdp-sessvc.8
  docs/man/xrdp-xcon.8
  docs/man/xrdp.ini.5
  faq-compile.txt
@@ -91,11 +95,10 @@ Files: COPYING
  librfxcodec/src/rfxencode_alpha.h
  librfxcodec/src/rfxencode_dwt.h
  librfxcodec/src/x86/cpuid_x86.asm
- librfxcodec/src/x86/rfxcodec_encode_diff_rlgr1_x86_sse2.asm
- librfxcodec/src/x86/rfxcodec_encode_diff_rlgr3_x86_sse2.asm
  librfxcodec/tests/Makefile.am
  librfxcodec/tests/readme.txt
  librfxcodec/tests/rfxcodectest.c
+ librfxcodec/tests/rfxencode.c
  libpainter/Makefile.am
  libpainter/bootstrap
  libpainter/configure.ac
@@ -133,17 +136,6 @@ Files: COPYING
  neutrinordp/xrdp-neutrinordp.h
  pkgconfig/Makefile.am
  postinstall-pak
- rdp/Makefile.am
- rdp/rdp.c
- rdp/rdp.h
- rdp/rdp_bitmap.c
- rdp/rdp_iso.c
- rdp/rdp_lic.c
- rdp/rdp_mcs.c
- rdp/rdp_orders.c
- rdp/rdp_rdp.c
- rdp/rdp_sec.c
- rdp/rdp_tcp.c
  readme.txt
  sesman/Doxyfile
  sesman/Makefile.am
@@ -221,8 +213,6 @@ Files: COPYING
  sesman/sesman.h
  sesman/sesman.ini
  sesman/session.h
- sesman/sessvc/Makefile.am
- sesman/sessvc/sessvc.c
  sesman/sig.c
  sesman/sig.h
  sesman/startwm.sh
@@ -336,7 +326,7 @@ Files: COPYING
  xup/Makefile.am
  xup/xup.c
  xup/xup.h
-Copyright: 2004-2016, Jay Sorg <jay.sorg@gmail.com>
+Copyright: 2004-2017, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
 Files: instfiles/xrdp.sh
@@ -377,6 +367,8 @@ License: Apache-2.0
 
 Files: librfxcodec/src/rfx_bitstream.h
  librfxcodec/src/rfxconstants.h
+ librfxcodec/src/rfxencode_diff_rlgr1.h
+ librfxcodec/src/rfxencode_diff_rlgr3.h
  librfxcodec/src/rfxencode_differential.c
  librfxcodec/src/rfxencode_differential.h
  librfxcodec/src/rfxencode_quantization.h
@@ -388,13 +380,37 @@ Copyright: 2011, Vic Lee
 License: Apache-2.0
 
 Files: librfxcodec/src/rfxcompose.c
+ librfxcodec/src/rfxencode_diff_rlgr1.c
+ librfxcodec/src/rfxencode_diff_rlgr3.c
  librfxcodec/src/rfxencode_dwt.c
  librfxcodec/src/rfxencode_quantization.c
  librfxcodec/src/rfxencode_tile.c
  librfxcodec/src/rfxencode_tile.h
+ librfxcodec/src/amd64/rfxencode_tile_amd64.c
+ librfxcodec/src/x86/rfxencode_tile_x86.c
 Copyright: 2011, Vic Lee
-  2014-2015, Jay Sorg <jay.sorg@gmail.com>
+  2014-2017, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
+
+Files: librfxcodec/src/common.asm
+ xorgxrdp/module/common.asm
+Copyright: 2017, Pavel Roskin
+License: custom-old-MIT-OpenGroup-minus-no-endorsement-clause
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Files: common/ssl_calls.c
  common/ssl_calls.h
@@ -435,7 +451,7 @@ Files: sesman/chansrv/chansrv.c
  xorgxrdp/module/rdpCapture.c
  xorgxrdp/module/rdpCapture.h
 Copyright: 2014, Laxmikant Rashinkar
-  2014-2016, Jay Sorg
+  2014-2017, Jay Sorg
 License: Expat
 
 Files: librfxcodec/src/amd64/funcs_amd64.h
@@ -612,7 +628,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/xrdpmouse/rdpMouse.c
  README.md
  NEWS.md
-Copyright: 2011-2016, Jay Sorg
+Copyright: 2011-2017, Jay Sorg
 License: Expat
 
 Files: common/xrdp_constants.h
@@ -661,12 +677,16 @@ Copyright: 2003, Bitstream, Inc.
 License: Bitstream
 
 Files: m4/ax_append_flag.m4
+ libpainter/m4/ax_append_flag.m4
+ librfxcodec/m4/ax_append_flag.m4
  xorgxrdp/m4/ax_append_flag.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2011, Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_cflags_warn_all.m4
+ libpainter/m4/ax_cflags_warn_all.m4
+ librfxcodec/m4/ax_cflags_warn_all.m4
  xorgxrdp/m4/ax_cflags_warn_all.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2010, Rhys Ulerich <rhys.ulerich@gmail.com>
@@ -678,16 +698,22 @@ Copyright: 2013, Gabriele Svelto <gabriele.svelto@gmail.com>
 License: custom-historic
 
 Files: m4/ax_require_defined.m4
+ libpainter/m4/ax_require_defined.m4
+ librfxcodec/m4/ax_require_defined.m4
  xorgxrdp/m4/ax_require_defined.m4
 Copyright: 2014, Mike Frysinger <vapier@gentoo.org>
 License: custom-historic
 
 Files: m4/ax_append_compile_flags.m4
+ libpainter/m4/ax_append_compile_flags.m4
+ librfxcodec/m4/ax_append_compile_flags.m4
  xorgxrdp/m4/ax_append_compile_flags.m4
 Copyright: 2011 Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_check_compile_flag.m4
+ libpainter/m4/ax_check_compile_flag.m4
+ librfxcodec/m4/ax_check_compile_flag.m4
  xorgxrdp/m4/ax_check_compile_flag.m4
 Copyright: 2008 Guido U. Draheim <guidod@gmx.de>
  2011 Maarten Bosmans <mkbosmans@gmail.com>
@@ -835,7 +861,6 @@ Files: sesman/chansrv/pcsc/dumps/*
  sesman/Makefile.in
  sesman/chansrv/Makefile.in
  sesman/libscp/Makefile.in
- sesman/sessvc/Makefile.in
  sesman/tools/Makefile.in
  vnc/Makefile.in
  xorgxrdp/Makefile.in
