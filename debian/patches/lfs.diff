@@ -1,6 +1,7 @@
 From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Enable Large File Support on (at least) 32-bit Linux
 Forwarded: https://github.com/neutrinolabs/xrdp/issues/647
+ (but may need updating)
 Reviewed-by: Dominik George <nik@naturalnet.de>
 --- a/configure.ac
 +++ b/configure.ac
