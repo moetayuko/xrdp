@@ -1,0 +1,1622 @@
+--- a/xorgxrdp/module/amd64/Makefile.am
++++ b/xorgxrdp/module/amd64/Makefile.am
+@@ -1,3 +1,5 @@
++NAFLAGS += -DASM_ARCH_AMD64
++
+ ASMSOURCES = \
+   a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm \
+   a8r8g8b8_to_nv12_box_amd64_sse2.asm \
+--- a/xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
++++ b/xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
+@@ -23,14 +23,11 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c1 times 4 dd 0xFF00FF00
+ c2 times 4 dd 0x00FF0000
+ c3 times 4 dd 0x000000FF
+ 
+-section .text
+-
+ ;The first six integer or pointer arguments are passed in registers
+ ; RDI, RSI, RDX, RCX, R8, and R9
+ 
+@@ -45,9 +42,9 @@ PROC a8r8g8b8_to_a8b8g8r8_box_amd64_sse2
+     push rbx
+     push rbp
+ 
+-    movdqa xmm4, [rel c1]
+-    movdqa xmm5, [rel c2]
+-    movdqa xmm6, [rel c3]
++    movdqa xmm4, [lsym(c1)]
++    movdqa xmm5, [lsym(c2)]
++    movdqa xmm6, [lsym(c3)]
+ 
+     ; local vars
+     ; long src_stride
+@@ -97,7 +94,7 @@ loop_xpre:
+     mov [rdi], edx
+     lea rdi, [rdi + 4]
+     dec rcx
+-    jmp loop_xpre;
++    jmp loop_xpre
+ done_loop_xpre:
+ 
+ ; A R G B A R G B A R G B A R G B to
+@@ -139,7 +136,7 @@ loop_x8:
+     lea rdi, [rdi + 16]
+     sub rcx, 4
+ 
+-    jmp loop_x8;
++    jmp loop_x8
+ done_loop_x8:
+ 
+ loop_x:
+@@ -160,7 +157,7 @@ loop_x:
+     mov [rdi], edx
+     lea rdi, [rdi + 4]
+     dec rcx
+-    jmp loop_x;
++    jmp loop_x
+ done_loop_x:
+ 
+     mov rsi, [rsp + 32] ; src
+@@ -181,5 +178,3 @@ done_loop_x:
+     pop rbp
+     pop rbx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
++++ b/xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
+@@ -27,10 +27,7 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-
+-    align 16
+-
++PREPARE_RODATA
+     cd255  times 4 dd 255
+ 
+     cw255  times 8 dw 255
+@@ -46,8 +43,6 @@ section .data
+     cw18   times 8 dw 18
+     cw2    times 8 dw 2
+ 
+-section .text
+-
+ %define LS8            [rsp +   0] ; s8
+ %define LSRC_STRIDE    [rsp +   8] ; src_stride
+ %define LD8_Y          [rsp +  16] ; d8_y
+@@ -99,23 +94,23 @@ loop1:
+     ; first line
+     movdqu xmm0, [rsi]         ; 4 pixels, 16 bytes
+     movdqa xmm1, xmm0          ; blue
+-    pand xmm1, [rel cd255]     ; blue
++    pand xmm1, [lsym(cd255)]   ; blue
+     movdqa xmm2, xmm0          ; green
+     psrld xmm2, 8              ; green
+-    pand xmm2, [rel cd255]     ; green
++    pand xmm2, [lsym(cd255)]   ; green
+     movdqa xmm3, xmm0          ; red
+     psrld xmm3, 16             ; red
+-    pand xmm3, [rel cd255]     ; red
++    pand xmm3, [lsym(cd255)]   ; red
+ 
+     movdqu xmm0, [rsi + 16]    ; 4 pixels, 16 bytes
+     movdqa xmm4, xmm0          ; blue
+-    pand xmm4, [rel cd255]     ; blue
++    pand xmm4, [lsym(cd255)]   ; blue
+     movdqa xmm5, xmm0          ; green
+     psrld xmm5, 8              ; green
+-    pand xmm5, [rel cd255]     ; green
++    pand xmm5, [lsym(cd255)]   ; green
+     movdqa xmm6, xmm0          ; red
+     psrld xmm6, 16             ; red
+-    pand xmm6, [rel cd255]     ; red
++    pand xmm6, [lsym(cd255)]   ; red
+ 
+     packssdw xmm1, xmm4        ; xmm1 = 8 blues
+     packssdw xmm2, xmm5        ; xmm2 = 8 greens
+@@ -125,14 +120,14 @@ loop1:
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm6, xmm3          ; red
+-    pmullw xmm4, [rel cw25]
+-    pmullw xmm5, [rel cw129]
+-    pmullw xmm6, [rel cw66]
++    pmullw xmm4, [lsym(cw25)]
++    pmullw xmm5, [lsym(cw129)]
++    pmullw xmm6, [lsym(cw66)]
+     paddw xmm4, xmm5
+     paddw xmm4, xmm6
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     psrlw xmm4, 8
+-    paddw xmm4, [rel cw16]
++    paddw xmm4, [lsym(cw16)]
+     packuswb xmm4, xmm7
+     movq [rdi], xmm4           ; out 8 bytes yyyyyyyy
+ 
+@@ -140,14 +135,14 @@ loop1:
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm6, xmm3          ; red
+-    pmullw xmm4, [rel cw112]
+-    pmullw xmm5, [rel cw74]
+-    pmullw xmm6, [rel cw38]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw74)]
++    pmullw xmm6, [lsym(cw38)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LU1, xmm4             ; save for later
+ 
+@@ -155,14 +150,14 @@ loop1:
+     movdqa xmm6, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm4, xmm3          ; red
+-    pmullw xmm4, [rel cw112]
+-    pmullw xmm5, [rel cw94]
+-    pmullw xmm6, [rel cw18]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw94)]
++    pmullw xmm6, [lsym(cw18)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LV1, xmm4             ; save for later
+ 
+@@ -173,23 +168,23 @@ loop1:
+     ; second line
+     movdqu xmm0, [rsi]         ; 4 pixels, 16 bytes
+     movdqa xmm1, xmm0          ; blue
+-    pand xmm1, [rel cd255]     ; blue
++    pand xmm1, [lsym(cd255)]   ; blue
+     movdqa xmm2, xmm0          ; green
+     psrld xmm2, 8              ; green
+-    pand xmm2, [rel cd255]     ; green
++    pand xmm2, [lsym(cd255)]   ; green
+     movdqa xmm3, xmm0          ; red
+     psrld xmm3, 16             ; red
+-    pand xmm3, [rel cd255]     ; red
++    pand xmm3, [lsym(cd255)]   ; red
+ 
+     movdqu xmm0, [rsi + 16]    ; 4 pixels, 16 bytes
+     movdqa xmm4, xmm0          ; blue
+-    pand xmm4, [rel cd255]     ; blue
++    pand xmm4, [lsym(cd255)]   ; blue
+     movdqa xmm5, xmm0          ; green
+     psrld xmm5, 8              ; green
+-    pand xmm5, [rel cd255]     ; green
++    pand xmm5, [lsym(cd255)]   ; green
+     movdqa xmm6, xmm0          ; red
+     psrld xmm6, 16             ; red
+-    pand xmm6, [rel cd255]     ; red
++    pand xmm6, [lsym(cd255)]   ; red
+ 
+     packssdw xmm1, xmm4        ; xmm1 = 8 blues
+     packssdw xmm2, xmm5        ; xmm2 = 8 greens
+@@ -198,15 +193,15 @@ loop1:
+     ; _Y = (( 66 * _R + 129 * _G +  25 * _B + 128) >> 8) +  16;
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+-    movdqa xmm6, xmm3          ; red 
+-    pmullw xmm4, [rel cw25]
+-    pmullw xmm5, [rel cw129]
+-    pmullw xmm6, [rel cw66]
++    movdqa xmm6, xmm3          ; red
++    pmullw xmm4, [lsym(cw25)]
++    pmullw xmm5, [lsym(cw129)]
++    pmullw xmm6, [lsym(cw66)]
+     paddw xmm4, xmm5
+     paddw xmm4, xmm6
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     psrlw xmm4, 8
+-    paddw xmm4, [rel cw16]
++    paddw xmm4, [lsym(cw16)]
+     packuswb xmm4, xmm7
+     movq [rdi], xmm4           ; out 8 bytes yyyyyyyy
+ 
+@@ -214,14 +209,14 @@ loop1:
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm6, xmm3          ; red
+-    pmullw xmm4, [rel cw112]
+-    pmullw xmm5, [rel cw74]
+-    pmullw xmm6, [rel cw38]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw74)]
++    pmullw xmm6, [lsym(cw38)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LU2, xmm4             ; save for later
+ 
+@@ -229,48 +224,48 @@ loop1:
+     movdqa xmm6, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm4, xmm3          ; red
+-    pmullw xmm4, [rel cw112]
+-    pmullw xmm5, [rel cw94]
+-    pmullw xmm6, [rel cw18]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw94)]
++    pmullw xmm6, [lsym(cw18)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [rel cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LV2, xmm4             ; save for later
+ 
+     ; uv add and divide(average)
+     movq mm1, LU1              ; u from first line
+     movq mm3, mm1
+-    pand mm1, [rel cw255]
++    pand mm1, [lsym(cw255)]
+     psrlw mm3, 8
+-    pand mm3, [rel cw255]
++    pand mm3, [lsym(cw255)]
+     paddw mm1, mm3             ; add
+     movq mm2, LU2              ; u from second line
+     movq mm3, mm2
+-    pand mm2, [rel cw255]
++    pand mm2, [lsym(cw255)]
+     paddw mm1, mm2             ; add
+     psrlw mm3, 8
+-    pand mm3, [rel cw255]
++    pand mm3, [lsym(cw255)]
+     paddw mm1, mm3             ; add
+-    paddw mm1, [rel cw2]       ; add 2
++    paddw mm1, [lsym(cw2)]     ; add 2
+     psrlw mm1, 2               ; div 4
+ 
+     movq mm2, LV1              ; v from first line
+     movq mm4, mm2
+-    pand mm2, [rel cw255]
++    pand mm2, [lsym(cw255)]
+     psrlw mm4, 8
+-    pand mm4, [rel cw255]
++    pand mm4, [lsym(cw255)]
+     paddw mm2, mm4             ; add
+     movq mm3, LV2              ; v from second line
+     movq mm4, mm3
+-    pand mm3, [rel cw255]
++    pand mm3, [lsym(cw255)]
+     paddw mm2, mm3             ; add
+     psrlw mm4, 8
+-    pand mm4, [rel cw255]
++    pand mm4, [lsym(cw255)]
+     paddw mm2, mm4             ; add
+-    paddw mm2, [rel cw2]       ; add 2
++    paddw mm2, [lsym(cw2)]     ; add 2
+     psrlw mm2, 2               ; div 4
+ 
+     packuswb mm1, mm1
+@@ -316,5 +311,3 @@ loop1:
+     pop rbp
+     pop rbx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/amd64/cpuid_amd64.asm
++++ b/xorgxrdp/module/amd64/cpuid_amd64.asm
+@@ -23,8 +23,6 @@
+ 
+ %include "common.asm"
+ 
+-section .text
+-
+ ;The first six integer or pointer arguments are passed in registers
+ ;RDI, RSI, RDX, RCX, R8, and R9
+ 
+@@ -55,5 +53,3 @@ PROC cpuid_amd64
+     ; restore registers
+     pop rbx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/amd64/i420_to_rgb32_amd64_sse2.asm
++++ b/xorgxrdp/module/amd64/i420_to_rgb32_amd64_sse2.asm
+@@ -35,16 +35,13 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ do8_uv:
+ 
+     ; v
+@@ -53,7 +50,7 @@ do8_uv:
+     punpcklbw xmm1, xmm1
+     pxor xmm6, xmm6
+     punpcklbw xmm1, xmm6
+-    movdqa xmm7, [rel c128]
++    movdqa xmm7, [lsym(c128)]
+     psubw xmm1, xmm7
+     psllw xmm1, 4
+ 
+@@ -74,22 +71,22 @@ do8:
+     punpcklbw xmm0, xmm6
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [rel c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm1
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [rel c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm2
+-    movdqa xmm6, [rel c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm1
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [rel c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm2
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -110,7 +107,7 @@ do8:
+     movdqa [rdi], xmm4
+     lea rdi, [rdi + 16]
+ 
+-    ret;
++    ret
+ 
+ ;The first six integer or pointer arguments are passed in registers
+ ; RDI, RSI, RDX, RCX, R8, and R9
+@@ -235,6 +232,3 @@ loop_x:
+     pop rbp
+     pop rbx
+     ret
+-    align 16
+-
+-
+--- a/xorgxrdp/module/amd64/uyvy_to_rgb32_amd64_sse2.asm
++++ b/xorgxrdp/module/amd64/uyvy_to_rgb32_amd64_sse2.asm
+@@ -35,16 +35,13 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ ;The first six integer or pointer arguments are passed in registers
+ ; RDI, RSI, RDX, RCX, R8, and R9
+ 
+@@ -62,7 +59,7 @@ PROC uyvy_to_rgb32_amd64_sse2
+ 
+     mov rcx, rax
+ 
+-    movdqa xmm7, [rel c128]
++    movdqa xmm7, [lsym(c128)]
+ 
+ loop1:
+     ; hi                                           lo
+@@ -99,22 +96,22 @@ loop1:
+     psllw xmm2, 4
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [rel c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm1
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [rel c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm2
+-    movdqa xmm6, [rel c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm1
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [rel c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm2
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -146,5 +143,3 @@ loop1:
+     pop rbp
+     pop rbx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/amd64/yuy2_to_rgb32_amd64_sse2.asm
++++ b/xorgxrdp/module/amd64/yuy2_to_rgb32_amd64_sse2.asm
+@@ -35,16 +35,13 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ ;The first six integer or pointer arguments are passed in registers
+ ; RDI, RSI, RDX, RCX, R8, and R9
+ 
+@@ -62,7 +59,7 @@ PROC yuy2_to_rgb32_amd64_sse2
+ 
+     mov rcx, rax
+ 
+-    movdqa xmm7, [rel c128]
++    movdqa xmm7, [lsym(c128)]
+ 
+ loop1:
+     ; hi                                           lo
+@@ -99,22 +96,22 @@ loop1:
+     psllw xmm2, 4
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [rel c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm1
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [rel c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm2
+-    movdqa xmm6, [rel c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm1
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [rel c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm2
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -146,5 +143,3 @@ loop1:
+     pop rbp
+     pop rbx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/amd64/yv12_to_rgb32_amd64_sse2.asm
++++ b/xorgxrdp/module/amd64/yv12_to_rgb32_amd64_sse2.asm
+@@ -35,16 +35,13 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ do8_uv:
+ 
+     ; u
+@@ -53,7 +50,7 @@ do8_uv:
+     punpcklbw xmm1, xmm1
+     pxor xmm6, xmm6
+     punpcklbw xmm1, xmm6
+-    movdqa xmm7, [rel c128]
++    movdqa xmm7, [lsym(c128)]
+     psubw xmm1, xmm7
+     psllw xmm1, 4
+ 
+@@ -74,22 +71,22 @@ do8:
+     punpcklbw xmm0, xmm6
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [rel c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm2
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [rel c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm1
+-    movdqa xmm6, [rel c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm2
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [rel c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm1
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -110,7 +107,7 @@ do8:
+     movdqa [rdi], xmm4
+     lea rdi, [rdi + 16]
+ 
+-    ret;
++    ret
+ 
+ ;The first six integer or pointer arguments are passed in registers
+ ; RDI, RSI, RDX, RCX, R8, and R9
+@@ -239,6 +236,3 @@ loop_x:
+     pop rsi
+     pop rbx
+     ret
+-    align 16
+-
+-
+--- a/xorgxrdp/module/common.asm
++++ b/xorgxrdp/module/common.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2017 Pavel Roskin
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -49,3 +50,49 @@ section .note.GNU-stack noalloc noexec n
+     _%1:
+ %endif
+ %endmacro
++
++; Macros for relative access to local data
++%undef lsym
++
++%ifdef ASM_ARCH_AMD64
++; amd64; don't define or call RETRIEVE_RODATA
++%define lsym(name) rel name
++; default case for PREPARE_RODATA
++%endif
++
++%ifdef ASM_ARCH_I386
++%ifdef PIC
++; i386 PIC
++%macro PREPARE_RODATA 0
++section .text
++..@get_caller_address:
++	mov ebx, [esp]
++	ret
++align 16
++..@rodata_begin:
++%endmacro
++%macro RETRIEVE_RODATA 0
++	call ..@get_caller_address
++%%the_caller_address:
++	sub ebx, %%the_caller_address - ..@rodata_begin
++%endmacro
++%define lsym(name) ebx + name - ..@rodata_begin
++%else
++; i386 non-PIC; default case for lsym, RETRIEVE_RODATA and PREPARE_RODATA
++%endif
++%endif
++
++%ifndef lsym
++%macro RETRIEVE_RODATA 0
++%endmacro
++%define lsym(name) name
++%endif
++
++%ifnmacro PREPARE_RODATA
++%macro PREPARE_RODATA 0
++section .text
++align 16
++%endmacro
++%endif
++
++section .text
+--- a/xorgxrdp/module/x86/Makefile.am
++++ b/xorgxrdp/module/x86/Makefile.am
+@@ -1,3 +1,5 @@
++NAFLAGS += -DASM_ARCH_I386
++
+ ASMSOURCES = \
+   a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm \
+   a8r8g8b8_to_nv12_box_x86_sse2.asm \
+--- a/xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
++++ b/xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2014 Jay Sorg
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -23,27 +24,25 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c1 times 4 dd 0xFF00FF00
+ c2 times 4 dd 0x00FF0000
+ c3 times 4 dd 0x000000FF
+ 
+-section .text
+-
+ ;int
+ ;a8r8g8b8_to_a8b8g8r8_box_x86_sse2(const char *s8, int src_stride,
+ ;                                  char *d8, int dst_stride,
+ ;                                  int width, int height);
+ PROC a8r8g8b8_to_a8b8g8r8_box_x86_sse2
+     push ebx
++    RETRIEVE_RODATA
+     push esi
+     push edi
+     push ebp
+ 
+-    movdqa xmm4, [c1]
+-    movdqa xmm5, [c2]
+-    movdqa xmm6, [c3]
++    movdqa xmm4, [lsym(c1)]
++    movdqa xmm5, [lsym(c2)]
++    movdqa xmm6, [lsym(c3)]
+ 
+     mov esi, [esp + 20]  ; src
+     mov edi, [esp + 28]  ; dst
+@@ -54,10 +53,10 @@ loop_y:
+ loop_xpre:
+     mov eax, esi         ; look for aligned
+     and eax, 0x0F        ; we can jump to next
+-    mov ebx, eax
++    mov ebp, eax
+     mov eax, edi
+     and eax, 0x0F
+-    or eax, ebx
++    or eax, ebp
+     cmp eax, 0
+     je done_loop_xpre
+     cmp ecx, 1
+@@ -66,18 +65,18 @@ loop_xpre:
+     lea esi, [esi + 4]
+     mov edx, eax         ; a and g
+     and edx, 0xFF00FF00
+-    mov ebx, eax         ; r
+-    and ebx, 0x00FF0000
+-    shr ebx, 16
+-    or edx, ebx
+-    mov ebx, eax         ; b
+-    and ebx, 0x000000FF
+-    shl ebx, 16
+-    or edx, ebx
++    mov ebp, eax         ; r
++    and ebp, 0x00FF0000
++    shr ebp, 16
++    or edx, ebp
++    mov ebp, eax         ; b
++    and ebp, 0x000000FF
++    shl ebp, 16
++    or edx, ebp
+     mov [edi], edx
+     lea edi, [edi + 4]
+     dec ecx
+-    jmp loop_xpre;
++    jmp loop_xpre
+ done_loop_xpre:
+ 
+     prefetchnta [esi]
+@@ -123,7 +122,7 @@ loop_x8:
+     lea edi, [edi + 16]
+     sub ecx, 4
+ 
+-    jmp loop_x8;
++    jmp loop_x8
+ done_loop_x8:
+ 
+ loop_x:
+@@ -133,18 +132,18 @@ loop_x:
+     lea esi, [esi + 4]
+     mov edx, eax         ; a and g
+     and edx, 0xFF00FF00
+-    mov ebx, eax         ; r
+-    and ebx, 0x00FF0000
+-    shr ebx, 16
+-    or edx, ebx
+-    mov ebx, eax         ; b
+-    and ebx, 0x000000FF
+-    shl ebx, 16
+-    or edx, ebx
++    mov ebp, eax         ; r
++    and ebp, 0x00FF0000
++    shr ebp, 16
++    or edx, ebp
++    mov ebp, eax         ; b
++    and ebp, 0x000000FF
++    shl ebp, 16
++    or edx, ebp
+     mov [edi], edx
+     lea edi, [edi + 4]
+     dec ecx
+-    jmp loop_x;
++    jmp loop_x
+ done_loop_x:
+ 
+     mov esi, [esp + 20]
+@@ -166,5 +165,3 @@ done_loop_x:
+     pop esi
+     pop ebx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
++++ b/xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2015 Jay Sorg
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -27,10 +28,7 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-
+-    align 16
+-
++PREPARE_RODATA
+     cd255  times 4 dd 255
+ 
+     cw255  times 8 dw 255
+@@ -46,8 +44,6 @@ section .data
+     cw18   times 8 dw 18
+     cw2    times 8 dw 2
+ 
+-section .text
+-
+ %define LU1            [esp +  0] ; first line U, 8 bytes
+ %define LV1            [esp +  8] ; first line V, 8 bytes
+ %define LU2            [esp + 16] ; second line U, 8 bytes
+@@ -69,6 +65,7 @@ section .text
+ ;                              int width, int height);
+ PROC a8r8g8b8_to_nv12_box_x86_sse2
+     push ebx
++    RETRIEVE_RODATA
+     push esi
+     push edi
+     push ebp
+@@ -76,8 +73,8 @@ PROC a8r8g8b8_to_nv12_box_x86_sse2
+ 
+     pxor xmm7, xmm7
+ 
+-    mov ebx, LHEIGHT           ; ebx = height
+-    shr ebx, 1                 ; doing 2 lines at a time
++    mov ebp, LHEIGHT           ; ebp = height
++    shr ebp, 1                 ; doing 2 lines at a time
+ 
+ row_loop1:
+     mov esi, LS8               ; s8
+@@ -91,23 +88,23 @@ loop1:
+     ; first line
+     movdqu xmm0, [esi]         ; 4 pixels, 16 bytes
+     movdqa xmm1, xmm0          ; blue
+-    pand xmm1, [cd255]         ; blue
++    pand xmm1, [lsym(cd255)]   ; blue
+     movdqa xmm2, xmm0          ; green
+     psrld xmm2, 8              ; green
+-    pand xmm2, [cd255]         ; green
++    pand xmm2, [lsym(cd255)]   ; green
+     movdqa xmm3, xmm0          ; red
+     psrld xmm3, 16             ; red
+-    pand xmm3, [cd255]         ; red
++    pand xmm3, [lsym(cd255)]   ; red
+ 
+     movdqu xmm0, [esi + 16]    ; 4 pixels, 16 bytes
+     movdqa xmm4, xmm0          ; blue
+-    pand xmm4, [cd255]         ; blue
++    pand xmm4, [lsym(cd255)]   ; blue
+     movdqa xmm5, xmm0          ; green
+     psrld xmm5, 8              ; green
+-    pand xmm5, [cd255]         ; green
++    pand xmm5, [lsym(cd255)]   ; green
+     movdqa xmm6, xmm0          ; red
+     psrld xmm6, 16             ; red
+-    pand xmm6, [cd255]         ; red
++    pand xmm6, [lsym(cd255)]   ; red
+ 
+     packssdw xmm1, xmm4        ; xmm1 = 8 blues
+     packssdw xmm2, xmm5        ; xmm2 = 8 greens
+@@ -117,14 +114,14 @@ loop1:
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm6, xmm3          ; red
+-    pmullw xmm4, [cw25]
+-    pmullw xmm5, [cw129]
+-    pmullw xmm6, [cw66]
++    pmullw xmm4, [lsym(cw25)]
++    pmullw xmm5, [lsym(cw129)]
++    pmullw xmm6, [lsym(cw66)]
+     paddw xmm4, xmm5
+     paddw xmm4, xmm6
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     psrlw xmm4, 8
+-    paddw xmm4, [cw16]
++    paddw xmm4, [lsym(cw16)]
+     packuswb xmm4, xmm7
+     movq [edi], xmm4           ; out 8 bytes yyyyyyyy
+ 
+@@ -132,14 +129,14 @@ loop1:
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm6, xmm3          ; red
+-    pmullw xmm4, [cw112]
+-    pmullw xmm5, [cw74]
+-    pmullw xmm6, [cw38]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw74)]
++    pmullw xmm6, [lsym(cw38)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LU1, xmm4             ; save for later
+ 
+@@ -147,14 +144,14 @@ loop1:
+     movdqa xmm6, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm4, xmm3          ; red
+-    pmullw xmm4, [cw112]
+-    pmullw xmm5, [cw94]
+-    pmullw xmm6, [cw18]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw94)]
++    pmullw xmm6, [lsym(cw18)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LV1, xmm4             ; save for later
+ 
+@@ -165,23 +162,23 @@ loop1:
+     ; second line
+     movdqu xmm0, [esi]         ; 4 pixels, 16 bytes
+     movdqa xmm1, xmm0          ; blue
+-    pand xmm1, [cd255]         ; blue
++    pand xmm1, [lsym(cd255)]   ; blue
+     movdqa xmm2, xmm0          ; green
+     psrld xmm2, 8              ; green
+-    pand xmm2, [cd255]         ; green
++    pand xmm2, [lsym(cd255)]   ; green
+     movdqa xmm3, xmm0          ; red
+     psrld xmm3, 16             ; red
+-    pand xmm3, [cd255]         ; red
++    pand xmm3, [lsym(cd255)]   ; red
+ 
+     movdqu xmm0, [esi + 16]    ; 4 pixels, 16 bytes
+     movdqa xmm4, xmm0          ; blue
+-    pand xmm4, [cd255]         ; blue
++    pand xmm4, [lsym(cd255)]   ; blue
+     movdqa xmm5, xmm0          ; green
+     psrld xmm5, 8              ; green
+-    pand xmm5, [cd255]         ; green
++    pand xmm5, [lsym(cd255)]   ; green
+     movdqa xmm6, xmm0          ; red
+     psrld xmm6, 16             ; red
+-    pand xmm6, [cd255]         ; red
++    pand xmm6, [lsym(cd255)]   ; red
+ 
+     packssdw xmm1, xmm4        ; xmm1 = 8 blues
+     packssdw xmm2, xmm5        ; xmm2 = 8 greens
+@@ -190,15 +187,15 @@ loop1:
+     ; _Y = (( 66 * _R + 129 * _G +  25 * _B + 128) >> 8) +  16;
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+-    movdqa xmm6, xmm3          ; red 
+-    pmullw xmm4, [cw25]
+-    pmullw xmm5, [cw129]
+-    pmullw xmm6, [cw66]
++    movdqa xmm6, xmm3          ; red
++    pmullw xmm4, [lsym(cw25)]
++    pmullw xmm5, [lsym(cw129)]
++    pmullw xmm6, [lsym(cw66)]
+     paddw xmm4, xmm5
+     paddw xmm4, xmm6
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     psrlw xmm4, 8
+-    paddw xmm4, [cw16]
++    paddw xmm4, [lsym(cw16)]
+     packuswb xmm4, xmm7
+     movq [edi], xmm4           ; out 8 bytes yyyyyyyy
+ 
+@@ -206,14 +203,14 @@ loop1:
+     movdqa xmm4, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm6, xmm3          ; red
+-    pmullw xmm4, [cw112]
+-    pmullw xmm5, [cw74]
+-    pmullw xmm6, [cw38]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw74)]
++    pmullw xmm6, [lsym(cw38)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LU2, xmm4             ; save for later
+ 
+@@ -221,48 +218,48 @@ loop1:
+     movdqa xmm6, xmm1          ; blue
+     movdqa xmm5, xmm2          ; green
+     movdqa xmm4, xmm3          ; red
+-    pmullw xmm4, [cw112]
+-    pmullw xmm5, [cw94]
+-    pmullw xmm6, [cw18]
++    pmullw xmm4, [lsym(cw112)]
++    pmullw xmm5, [lsym(cw94)]
++    pmullw xmm6, [lsym(cw18)]
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     psraw xmm4, 8
+-    paddw xmm4, [cw128]
++    paddw xmm4, [lsym(cw128)]
+     packuswb xmm4, xmm7
+     movq LV2, xmm4             ; save for later
+ 
+     ; uv add and divide(average)
+     movq mm1, LU1              ; u from first line
+     movq mm3, mm1
+-    pand mm1, [cw255]
++    pand mm1, [lsym(cw255)]
+     psrlw mm3, 8
+-    pand mm3, [cw255]
++    pand mm3, [lsym(cw255)]
+     paddw mm1, mm3             ; add
+     movq mm2, LU2              ; u from second line
+     movq mm3, mm2
+-    pand mm2, [cw255]
++    pand mm2, [lsym(cw255)]
+     paddw mm1, mm2             ; add
+     psrlw mm3, 8
+-    pand mm3, [cw255]
++    pand mm3, [lsym(cw255)]
+     paddw mm1, mm3             ; add
+-    paddw mm1, [cw2]           ; add 2
++    paddw mm1, [lsym(cw2)]     ; add 2
+     psrlw mm1, 2               ; div 4
+ 
+     movq mm2, LV1              ; v from first line
+     movq mm4, mm2
+-    pand mm2, [cw255]
++    pand mm2, [lsym(cw255)]
+     psrlw mm4, 8
+-    pand mm4, [cw255]
++    pand mm4, [lsym(cw255)]
+     paddw mm2, mm4             ; add
+     movq mm3, LV2              ; v from second line
+     movq mm4, mm3
+-    pand mm3, [cw255]
++    pand mm3, [lsym(cw255)]
+     paddw mm2, mm3             ; add
+     psrlw mm4, 8
+-    pand mm4, [cw255]
++    pand mm4, [lsym(cw255)]
+     paddw mm2, mm4             ; add
+-    paddw mm2, [cw2]           ; add 2
++    paddw mm2, [lsym(cw2)]     ; add 2
+     psrlw mm2, 2               ; div 4
+ 
+     packuswb mm1, mm1
+@@ -300,7 +297,7 @@ loop1:
+     add eax, LDST_UV_STRIDE    ; d8_uv += dst_stride_uv
+     mov LD8_UV, eax
+ 
+-    dec ebx
++    dec ebp
+     jnz row_loop1
+ 
+     mov eax, 0                 ; return value
+@@ -310,5 +307,3 @@ loop1:
+     pop esi
+     pop ebx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/x86/cpuid_x86.asm
++++ b/xorgxrdp/module/x86/cpuid_x86.asm
+@@ -23,8 +23,6 @@
+ 
+ %include "common.asm"
+ 
+-section .text
+-
+ ;int
+ ;cpuid_x86(int eax_in, int ecx_in, int *eax, int *ebx, int *ecx, int *edx)
+ 
+@@ -53,5 +51,3 @@ PROC cpuid_x86
+     pop ecx
+     pop ebx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
++++ b/xorgxrdp/module/x86/i420_to_rgb32_x86_sse2.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2014 Jay Sorg
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -35,25 +36,22 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ do8_uv:
+ 
+     ; v
+-    movd xmm1, [ebx]     ; 4 at a time
+-    lea ebx, [ebx + 4]
++    movd xmm1, [ebp]     ; 4 at a time
++    lea ebp, [ebp + 4]
+     punpcklbw xmm1, xmm1
+     pxor xmm6, xmm6
+     punpcklbw xmm1, xmm6
+-    movdqa xmm7, [c128]
++    movdqa xmm7, [lsym(c128)]
+     psubw xmm1, xmm7
+     psllw xmm1, 4
+ 
+@@ -74,22 +72,22 @@ do8:
+     punpcklbw xmm0, xmm6
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm1
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm2
+-    movdqa xmm6, [c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm1
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm2
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -110,13 +108,14 @@ do8:
+     movdqa [edi], xmm4
+     lea edi, [edi + 16]
+ 
+-    ret;
++    ret
+ 
+ ;int
+ ;i420_to_rgb32_x86_sse2(unsigned char *yuvs, int width, int height, int *rgbs)
+ 
+ PROC i420_to_rgb32_x86_sse2
+     push ebx
++    RETRIEVE_RODATA
+     push esi
+     push edi
+     push ebp
+@@ -132,9 +131,6 @@ PROC i420_to_rgb32_x86_sse2
+ 
+     mov esi, [esp + 20] ; y
+ 
+-    mov ebx, esi        ; u = y + width * height
+-    add ebx, eax
+-
+     ; local vars
+     ; char* yptr1
+     ; char* yptr2
+@@ -144,13 +140,18 @@ PROC i420_to_rgb32_x86_sse2
+     ; int* rgbs2
+     ; int width
+     sub esp, 28         ; local vars, 28 bytes
++
++    push ebp            ; must come after the above line
++    mov ebp, esi        ; u = y + width * height
++    add ebp, eax
++
+     mov [esp + 0], esi  ; save y1
+     add esi, edx
+     mov [esp + 4], esi  ; save y2
+-    mov [esp + 8], ebx  ; save u
++    mov [esp + 8], ebp  ; save u
+     shr eax, 2
+-    add ebx, eax        ; v = u + (width * height / 4)
+-    mov [esp + 12], ebx ; save v
++    add ebp, eax        ; v = u + (width * height / 4)
++    mov [esp + 12], ebp ; save v
+ 
+     mov [esp + 16], edi ; save rgbs1
+     mov eax, edx
+@@ -173,7 +174,7 @@ loop_y:
+ loop_x:
+ 
+     mov esi, [esp + 0]  ; y1
+-    mov ebx, [esp + 8]  ; u
++    mov ebp, [esp + 8]  ; u
+     mov edx, [esp + 12] ; v
+     mov edi, [esp + 16] ; rgbs1
+ 
+@@ -190,7 +191,7 @@ loop_x:
+     call do8
+ 
+     mov [esp + 4], esi  ; y2
+-    mov [esp + 8], ebx  ; u
++    mov [esp + 8], ebp  ; u
+     mov [esp + 12], edx ; v
+     mov [esp + 20], edi ; rgbs2
+ 
+@@ -202,30 +203,33 @@ loop_x:
+ 
+     ; update y1 and 2
+     mov eax, [esp + 0]
+-    mov ebx, edx
+-    add eax, ebx
++    mov ebp, edx
++    add eax, ebp
+     mov [esp + 0], eax
+ 
+     mov eax, [esp + 4]
+-    add eax, ebx
++    add eax, ebp
+     mov [esp + 4], eax
+ 
+     ; update rgb1 and 2
+     mov eax, [esp + 16]
+-    mov ebx, edx
+-    shl ebx, 2
+-    add eax, ebx
++    mov ebp, edx
++    shl ebp, 2
++    add eax, ebp
+     mov [esp + 16], eax
+ 
+     mov eax, [esp + 20]
+-    add eax, ebx
++    add eax, ebp
+     mov [esp + 20], eax
+ 
++    pop ebp
+     mov ecx, ebp
+     dec ecx             ; height
+     mov ebp, ecx
++    push ebp
+     jnz loop_y
+ 
++    pop ebp
+     add esp, 28
+ 
+     mov eax, 0
+@@ -234,6 +238,3 @@ loop_x:
+     pop esi
+     pop ebx
+     ret
+-    align 16
+-
+-
+--- a/xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
++++ b/xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2014 Jay Sorg
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -35,21 +36,19 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ ;int
+ ;uyvy_to_rgb32_amd64_sse2(unsigned char *yuvs, int width, int height, int *rgbs)
+ 
+ PROC uyvy_to_rgb32_x86_sse2
+     push ebx
++    RETRIEVE_RODATA
+     push esi
+     push edi
+     push ebp
+@@ -64,7 +63,7 @@ PROC uyvy_to_rgb32_x86_sse2
+ 
+     mov ecx, eax
+ 
+-    movdqa xmm7, [c128]
++    movdqa xmm7, [lsym(c128)]
+ 
+ loop1:
+     ; hi                                           lo
+@@ -101,22 +100,22 @@ loop1:
+     psllw xmm2, 4
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm1
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm2
+-    movdqa xmm6, [c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm1
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm2
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -150,5 +149,3 @@ loop1:
+     pop esi
+     pop ebx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
++++ b/xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2014 Jay Sorg
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -35,21 +36,19 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ ;int
+ ;yuy2_to_rgb32_amd64_sse2(unsigned char *yuvs, int width, int height, int *rgbs)
+ 
+ PROC yuy2_to_rgb32_x86_sse2
+     push ebx
++    RETRIEVE_RODATA
+     push esi
+     push edi
+     push ebp
+@@ -64,7 +63,7 @@ PROC yuy2_to_rgb32_x86_sse2
+ 
+     mov ecx, eax
+ 
+-    movdqa xmm7, [c128]
++    movdqa xmm7, [lsym(c128)]
+ 
+ loop1:
+     ; hi                                           lo
+@@ -101,22 +100,22 @@ loop1:
+     psllw xmm2, 4
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm1
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm2
+-    movdqa xmm6, [c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm1
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm2
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -150,5 +149,3 @@ loop1:
+     pop esi
+     pop ebx
+     ret
+-    align 16
+-
+--- a/xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
++++ b/xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
+@@ -1,5 +1,6 @@
+ ;
+ ;Copyright 2014 Jay Sorg
++;Copyright 2017 mirabilos
+ ;
+ ;Permission to use, copy, modify, distribute, and sell this software and its
+ ;documentation for any purpose is hereby granted without fee, provided that
+@@ -35,25 +36,22 @@
+ 
+ %include "common.asm"
+ 
+-section .data
+-align 16
++PREPARE_RODATA
+ c128 times 8 dw 128
+ c4669 times 8 dw 4669
+ c1616 times 8 dw 1616
+ c2378 times 8 dw 2378
+ c9324 times 8 dw 9324
+ 
+-section .text
+-
+ do8_uv:
+ 
+     ; u
+-    movd xmm1, [ebx]     ; 4 at a time
+-    lea ebx, [ebx + 4]
++    movd xmm1, [ebp]     ; 4 at a time
++    lea ebp, [ebp + 4]
+     punpcklbw xmm1, xmm1
+     pxor xmm6, xmm6
+     punpcklbw xmm1, xmm6
+-    movdqa xmm7, [c128]
++    movdqa xmm7, [lsym(c128)]
+     psubw xmm1, xmm7
+     psllw xmm1, 4
+ 
+@@ -74,22 +72,22 @@ do8:
+     punpcklbw xmm0, xmm6
+ 
+     ; r = y + hiword(4669 * (v << 4))
+-    movdqa xmm4, [c4669]
++    movdqa xmm4, [lsym(c4669)]
+     pmulhw xmm4, xmm2
+     movdqa xmm3, xmm0
+     paddw xmm3, xmm4
+ 
+     ; g = y - hiword(1616 * (u << 4)) - hiword(2378 * (v << 4))
+-    movdqa xmm5, [c1616]
++    movdqa xmm5, [lsym(c1616)]
+     pmulhw xmm5, xmm1
+-    movdqa xmm6, [c2378]
++    movdqa xmm6, [lsym(c2378)]
+     pmulhw xmm6, xmm2
+     movdqa xmm4, xmm0
+     psubw xmm4, xmm5
+     psubw xmm4, xmm6
+ 
+     ; b = y + hiword(9324 * (u << 4))
+-    movdqa xmm6, [c9324]
++    movdqa xmm6, [lsym(c9324)]
+     pmulhw xmm6, xmm1
+     movdqa xmm5, xmm0
+     paddw xmm5, xmm6
+@@ -110,13 +108,14 @@ do8:
+     movdqa [edi], xmm4
+     lea edi, [edi + 16]
+ 
+-    ret;
++    ret
+ 
+ ;int
+ ;yv12_to_rgb32_x86_sse2(unsigned char *yuvs, int width, int height, int *rgbs)
+ 
+ PROC yv12_to_rgb32_x86_sse2
+     push ebx
++    RETRIEVE_RODATA
+     push esi
+     push edi
+     push ebp
+@@ -132,9 +131,6 @@ PROC yv12_to_rgb32_x86_sse2
+ 
+     mov esi, [esp + 20] ; y
+ 
+-    mov ebx, esi        ; u = y + width * height
+-    add ebx, eax
+-
+     ; local vars
+     ; char* yptr1
+     ; char* yptr2
+@@ -144,13 +140,18 @@ PROC yv12_to_rgb32_x86_sse2
+     ; int* rgbs2
+     ; int width
+     sub esp, 28         ; local vars, 28 bytes
++
++    push ebp            ; must come after the above line
++    mov ebp, esi        ; u = y + width * height
++    add ebp, eax
++
+     mov [esp + 0], esi  ; save y1
+     add esi, edx
+     mov [esp + 4], esi  ; save y2
+-    mov [esp + 8], ebx  ; save u
++    mov [esp + 8], ebp  ; save u
+     shr eax, 2
+-    add ebx, eax        ; v = u + (width * height / 4)
+-    mov [esp + 12], ebx ; save v
++    add ebp, eax        ; v = u + (width * height / 4)
++    mov [esp + 12], ebp ; save v
+ 
+     mov [esp + 16], edi ; save rgbs1
+     mov eax, edx
+@@ -173,7 +174,7 @@ loop_y:
+ loop_x:
+ 
+     mov esi, [esp + 0]  ; y1
+-    mov ebx, [esp + 8]  ; u
++    mov ebp, [esp + 8]  ; u
+     mov edx, [esp + 12] ; v
+     mov edi, [esp + 16] ; rgbs1
+ 
+@@ -190,7 +191,7 @@ loop_x:
+     call do8
+ 
+     mov [esp + 4], esi  ; y2
+-    mov [esp + 8], ebx  ; u
++    mov [esp + 8], ebp  ; u
+     mov [esp + 12], edx ; v
+     mov [esp + 20], edi ; rgbs2
+ 
+@@ -202,30 +203,33 @@ loop_x:
+ 
+     ; update y1 and 2
+     mov eax, [esp + 0]
+-    mov ebx, edx
+-    add eax, ebx
++    mov ebp, edx
++    add eax, ebp
+     mov [esp + 0], eax
+ 
+     mov eax, [esp + 4]
+-    add eax, ebx
++    add eax, ebp
+     mov [esp + 4], eax
+ 
+     ; update rgb1 and 2
+     mov eax, [esp + 16]
+-    mov ebx, edx
+-    shl ebx, 2
+-    add eax, ebx
++    mov ebp, edx
++    shl ebp, 2
++    add eax, ebp
+     mov [esp + 16], eax
+ 
+     mov eax, [esp + 20]
+-    add eax, ebx
++    add eax, ebp
+     mov [esp + 20], eax
+ 
++    pop ebp
+     mov ecx, ebp
+     dec ecx             ; height
+     mov ebp, ecx
++    push ebp
+     jnz loop_y
+ 
++    pop ebp
+     add esp, 28
+ 
+     mov eax, 0
+@@ -234,6 +238,3 @@ loop_x:
+     pop esi
+     pop ebx
+     ret
+-    align 16
+-
+-
