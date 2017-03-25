@@ -5,8 +5,9 @@ xrdp (0.9.2~20170325-1~exp1) experimental; urgency=low
   * Run libpainter/bootstrap as well.
   * Update debian/copyright file for the new upstream snapshot.
   * Refresh patches; drop patches applied upstream.
+  * Add assembly patches for relocation-safe data access.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 19:15:31 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 21:55:25 +0100
 
 xrdp (0.9.1-7) unstable; urgency=medium
 
