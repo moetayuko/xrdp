@@ -2,8 +2,9 @@ xrdp (0.9.1-8~exp1) experimental; urgency=low
 
   * Upload to experimental.
   * Merge uploads from unstable.
+  * Run libpainter/bootstrap as well.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 17:20:42 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 17:36:18 +0100
 
 xrdp (0.9.1-7) unstable; urgency=medium
 
