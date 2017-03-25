@@ -1,3 +1,7 @@
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: Make assembly use PIC/PIE-safe data access
+Forwarded: https://github.com/neutrinolabs/librfxcodec/pull/17
+
 --- a/librfxcodec/src/amd64/Makefile.am
 +++ b/librfxcodec/src/amd64/Makefile.am
 @@ -1,3 +1,5 @@
