@@ -4,7 +4,5 @@ misc-fixes.diff
 fix_perms.diff
 shutup-daemon.diff
 sockpath.diff
-kfreebsd.diff
 systemd.diff
 lfs.diff
-highres.diff

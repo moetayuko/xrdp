@@ -3,15 +3,7 @@ From: Dominik George <nik@naturalnet.de>
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
-@@ -1,12 +1,14 @@
- [Unit]
- Description=xrdp session manager
--After=syslog.target network.target
-+Documentation=man:xrdp-sesman(8) man:sesman.ini(5)
-+After=network.target
- StopWhenUnneeded=true
--BindTo=xrdp.service
-+BindsTo=xrdp.service
+@@ -7,7 +7,8 @@ BindsTo=xrdp.service
  
  [Service]
  Type=forking
@@ -23,13 +15,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
  ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
 --- a/instfiles/xrdp.service
 +++ b/instfiles/xrdp.service
-@@ -1,13 +1,17 @@
- [Unit]
- Description=xrdp daemon
-+Documentation=man:xrdp(8) man:xrdp.ini(5)
- Requires=xrdp-sesman.service
--After=syslog.target network.target xrdp-sesman.service
-+After=network.target xrdp-sesman.service
+@@ -6,9 +6,12 @@ After=network.target xrdp-sesman.service
  
  [Service]
  Type=forking
