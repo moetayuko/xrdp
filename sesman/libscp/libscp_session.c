@@ -24,6 +24,10 @@
  *
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
 #include "libscp_session.h"
 
 #include <sys/types.h>
@@ -34,7 +38,7 @@
 
 /*******************************************************************/
 struct SCP_SESSION *
-scp_session_create()
+scp_session_create(void)
 {
     struct SCP_SESSION *s;
 

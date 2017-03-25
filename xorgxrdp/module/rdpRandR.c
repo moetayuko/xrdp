@@ -1,5 +1,5 @@
 /*
-Copyright 2011-2016 Jay Sorg
+Copyright 2011-2017 Jay Sorg
 
 Permission to use, copy, modify, distribute, and sell this software and its
 documentation for any purpose is hereby granted without fee, provided that
@@ -20,6 +20,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 RandR draw calls
 
 */
+
+#if defined(HAVE_CONFIG_H)
+#include "config_ac.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,7 +120,7 @@ rdpRRScreenSetSize(ScreenPtr pScreen, CARD16 width, CARD16 height,
     pScreen->mmWidth = mmWidth;
     pScreen->mmHeight = mmHeight;
     screenPixmap = pScreen->GetScreenPixmap(pScreen);
-    g_free(dev->pfbMemory_alloc);
+    free(dev->pfbMemory_alloc);
     dev->pfbMemory_alloc = g_new0(char, dev->sizeInBytes + 16);
     dev->pfbMemory = (char *) RDPALIGN(dev->pfbMemory_alloc, 16);
     if (screenPixmap != 0)
@@ -269,7 +273,8 @@ rdpRRGetPanning(ScreenPtr pScreen, RRCrtcPtr crtc, BoxPtr totalArea,
     BoxRec totalAreaRect;
     BoxRec trackingAreaRect;
 
-    LLOGLN(0, ("rdpRRGetPanning: %p", crtc));
+    LLOGLN(10, ("rdpRRGetPanning: totalArea %p trackingArea %p border %p",
+                totalArea, trackingArea, border));
 
     if (!g_panning)
     {
