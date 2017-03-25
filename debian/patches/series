@@ -7,5 +7,5 @@ sockpath.diff
 kfreebsd.diff
 systemd.diff
 lfs.diff
-i386-asm-librfxcodec.diff
-i386-asm-xorgxrdp.diff
+kb_jp.diff
+highres.diff

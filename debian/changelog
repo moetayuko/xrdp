@@ -1,3 +1,28 @@
+xrdp (0.9.1-8~exp1) experimental; urgency=low
+
+  * Upload to experimental.
+  * Merge uploads from unstable.
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 25 Mar 2017 17:20:42 +0100
+
+xrdp (0.9.1-7) unstable; urgency=medium
+
+  * Fix RFX with large tile sets, e.g. full HD displays. (Closes: #855387)
+
+ -- Dominik George <nik@naturalnet.de>  Sat, 18 Feb 2017 16:46:17 +0100
+
+xrdp (0.9.1-6) unstable; urgency=medium
+
+  * Fix japanese keyboard detection. (Closes: #854847)
+
+ -- Dominik George <nik@naturalnet.de>  Mon, 13 Feb 2017 21:09:43 +0100
+
+xrdp (0.9.1-5) unstable; urgency=medium
+
+  * Ensure creation of /run directory. (Closes: #854548)
+
+ -- Dominik George <nik@naturalnet.de>  Thu, 09 Feb 2017 12:47:36 +0100
+
 xrdp (0.9.1-5~exp2) experimental; urgency=medium
 
   * Fix retrieving the address of the GOT (bug caused crashes);
