@@ -1,5 +1,5 @@
 /*
-Copyright 2005-2016 Jay Sorg
+Copyright 2005-2017 Jay Sorg
 
 Permission to use, copy, modify, distribute, and sell this software and its
 documentation for any purpose is hereby granted without fee, provided that
@@ -20,6 +20,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Client connection to xrdp
 
 */
+
+#if defined(HAVE_CONFIG_H)
+#include "config_ac.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -239,7 +243,8 @@ rdpDeferredDisconnectCallback(OsTimerPtr timer, CARD32 now, pointer arg)
     lnow_ms = GetTimeInMillis();
     if (lnow_ms - dev->disconnect_time_ms > dev->disconnect_timeout_s * 1000)
     {
-        LLOGLN(0, ("rdpDeferredDisconnectCallback: exit X11rdp"));
+        LLOGLN(0, ("rdpDeferredDisconnectCallback: "
+                   "disconnect timeout exceeded, exiting"));
         kill(getpid(), SIGTERM);
         return 0;
     }
@@ -261,7 +266,8 @@ rdpClientConDisconnect(rdpPtr dev, rdpClientCon *clientCon)
     {
         if (dev->disconnect_scheduled == FALSE)
         {
-            LLOGLN(0, ("rdpClientConDisconnect: starting g_dis_timer"));
+            LLOGLN(0, ("rdpClientConDisconnect: starting g_dis_timer, "
+                       "exit after %d seconds", dev->disconnect_timeout_s));
             dev->disconnectTimer = TimerSet(dev->disconnectTimer, 0, 1000 * 10,
                                             rdpDeferredDisconnectCallback, dev);
             dev->disconnect_scheduled = TRUE;
@@ -284,7 +290,7 @@ rdpClientConDisconnect(rdpPtr dev, rdpClientCon *clientCon)
             }
         }
     }
-    g_free(clientCon->osBitmaps);
+    free(clientCon->osBitmaps);
 
     plcli = NULL;
     pcli = dev->clientConHead;
@@ -327,7 +333,7 @@ rdpClientConDisconnect(rdpPtr dev, rdpClientCon *clientCon)
     }
     free_stream(clientCon->out_s);
     free_stream(clientCon->in_s);
-    g_free(clientCon);
+    free(clientCon);
     return 0;
 }
 
@@ -394,8 +400,9 @@ rdpClientConSendMsg(rdpPtr dev, rdpClientCon *clientCon)
 
         if (len > s->size)
         {
-            LLOGLN(0, ("rdpClientConSendMsg: overrun error len %d count %d",
-                   len, clientCon->count));
+            LLOGLN(0, ("rdpClientConSendMsg: overrun error len, %d "
+                       "stream size %d, client count %d",
+                       len, s->size, clientCon->count));
         }
 
         s_pop_layer(s, iso_hdr);
@@ -826,9 +833,9 @@ rdpClientConProcessMsgClientInfo(rdpPtr dev, rdpClientCon *clientCon)
         if (clientCon->client_info.offscreen_cache_entries > 0)
         {
             clientCon->maxOsBitmaps = clientCon->client_info.offscreen_cache_entries;
-            g_free(clientCon->osBitmaps);
-            clientCon->osBitmaps = (struct rdpup_os_bitmap *)
-                        g_new0(struct rdpup_os_bitmap, clientCon->maxOsBitmaps);
+            free(clientCon->osBitmaps);
+            clientCon->osBitmaps = g_new0(struct rdpup_os_bitmap,
+                                          clientCon->maxOsBitmaps);
         }
     }
 
@@ -1165,18 +1172,21 @@ int
 rdpClientConInit(rdpPtr dev)
 {
     int i;
+    char *ptext;
+    const char *socket_dir;
 
-    if (!g_directory_exist("/tmp/.xrdp"))
+    socket_dir = g_socket_dir();
+    if (!g_directory_exist(socket_dir))
     {
-        if (!g_create_dir("/tmp/.xrdp"))
+        if (!g_create_dir(socket_dir))
         {
-            if (!g_directory_exist("/tmp/.xrdp"))
+            if (!g_directory_exist(socket_dir))
             {
-                LLOGLN(0, ("rdpup_init: g_create_dir failed"));
+                LLOGLN(0, ("rdpup_init: g_create_dir(%s) failed", socket_dir));
                 return 0;
             }
         }
-        g_chmod_hex("/tmp/.xrdp", 0x1777);
+        g_chmod_hex(socket_dir, 0x1777);
     }
     i = atoi(display);
     if (i < 1)
@@ -1184,7 +1194,7 @@ rdpClientConInit(rdpPtr dev)
         LLOGLN(0, ("rdpClientConInit: can not run at display < 1"));
         return 0;
     }
-    g_sprintf(dev->uds_data, "/tmp/.xrdp/xrdp_display_%s", display);
+    g_sprintf(dev->uds_data, "%s/xrdp_display_%s", socket_dir, display);
     if (dev->listen_sck == 0)
     {
         unlink(dev->uds_data);
@@ -1197,6 +1207,36 @@ rdpClientConInit(rdpPtr dev)
         g_sck_listen(dev->listen_sck);
         rdpClientConAddEnabledDevice(dev->pScreen, dev->listen_sck);
     }
+
+    ptext = getenv("XRDP_SESMAN_MAX_DISC_TIME");
+    if (ptext != 0)
+    {
+        i = atoi(ptext);
+        if (i > 0)
+        {
+            dev->do_kill_disconnected = 1;
+            dev->disconnect_timeout_s = atoi(ptext);
+        }
+    }
+    ptext = getenv("XRDP_SESMAN_KILL_DISCONNECTED");
+    if (ptext != 0)
+    {
+        i = atoi(ptext);
+        if (i != 0)
+        {
+            dev->do_kill_disconnected = 1;
+        }
+    }
+
+    if (dev->do_kill_disconnected && (dev->disconnect_timeout_s < 60))
+    {
+        dev->disconnect_timeout_s = 60;
+    }
+
+    LLOGLN(0, ("rdpClientConInit: kill disconnected [%d] timeout [%d] sec\n",
+               dev->do_kill_disconnected, dev->disconnect_timeout_s));
+
+
     return 0;
 }
 
@@ -2124,13 +2164,73 @@ rdpClientConSendPaintRectShmEx(rdpPtr dev, rdpClientCon *clientCon,
 }
 
 /******************************************************************************/
+/* this is called to capture a rect from the screen, if in a multi monitor
+   session, this will get called for each monitor, if no monitor info
+   from the client, the rect will be a band of less than MAX_CAPTURE_PIXELS
+   pixels
+   after the capture, it sends the info to xrdp
+   returns error */
+static int
+rdpCapRect(rdpClientCon *clientCon, BoxPtr cap_rect, struct image_data *id)
+{
+    RegionPtr cap_dirty;
+    BoxRec rect;
+    BoxPtr rects;
+    int num_rects;
+
+    cap_dirty = rdpRegionCreate(cap_rect, 0);
+    LLOGLN(10, ("rdpCapRect: cap_rect x1 %d y1 %d x2 %d y2 %d",
+               cap_rect->x1, cap_rect->y1, cap_rect->x2, cap_rect->y2));
+    rdpRegionIntersect(cap_dirty, cap_dirty, clientCon->dirtyRegion);
+    num_rects = REGION_NUM_RECTS(cap_dirty);
+    if (num_rects > 0)
+    {
+        if (num_rects > MAX_CAPTURE_RECTS)
+        {
+            /* the dirty region is too complex, just get a rect that
+               covers the whole region */
+            rect = *rdpRegionExtents(cap_dirty);
+            rdpRegionDestroy(cap_dirty);
+            cap_dirty = rdpRegionCreate(&rect, 0);
+        }
+        rects = 0;
+        num_rects = 0;
+        LLOGLN(10, ("rdpCapRect: capture_code %d",
+                    clientCon->client_info.capture_code));
+        if (rdpCapture(clientCon, cap_dirty, &rects, &num_rects, id))
+        {
+            LLOGLN(10, ("rdpCapRect: num_rects %d", num_rects));
+            rdpClientConSendPaintRectShmEx(clientCon->dev, clientCon, id,
+                                           cap_dirty, rects, num_rects);
+            free(rects);
+        }
+        else
+        {
+            LLOGLN(0, ("rdpCapRect: rdpCapture failed"));
+        }
+    }
+    rdpRegionSubtract(clientCon->dirtyRegion, clientCon->dirtyRegion,
+                      cap_dirty);
+    rdpRegionDestroy(cap_dirty);
+    return 0;
+}
+
+/******************************************************************************/
 static CARD32
 rdpDeferredUpdateCallback(OsTimerPtr timer, CARD32 now, pointer arg)
 {
     rdpClientCon *clientCon;
-    BoxPtr rects;
-    int num_rects;
     struct image_data id;
+    int index;
+    int monitor_index;
+    int monitor_count;
+    int band_index;
+    int band_count;
+    int band_height;
+    BoxRec cap_rect;
+    BoxRec dirty_extents;
+    int de_width;
+    int de_height;
 
     LLOGLN(10, ("rdpDeferredUpdateCallback:"));
     clientCon = (rdpClientCon *) arg;
@@ -2139,7 +2239,7 @@ rdpDeferredUpdateCallback(OsTimerPtr timer, CARD32 now, pointer arg)
         /* do not allow captures until we have the client_info */
         clientCon->client_info.size == 0)
     {
-        LLOGLN(0, ("rdpDeferredUpdateCallback: reschedule rect_id %d "
+        LLOGLN(10, ("rdpDeferredUpdateCallback: reschedule rect_id %d "
                "rect_id_ack %d",
                clientCon->rect_id, clientCon->rect_id_ack));
         clientCon->updateTimer = TimerSet(clientCon->updateTimer, 0, 40,
@@ -2157,30 +2257,92 @@ rdpDeferredUpdateCallback(OsTimerPtr timer, CARD32 now, pointer arg)
            clientCon->rdp_width, clientCon->rdp_height, clientCon->rdp_Bpp,
            id.width, id.height));
     clientCon->updateScheduled = FALSE;
-    rects = 0;
-    num_rects = 0;
-    LLOGLN(10, ("rdpDeferredUpdateCallback: capture_code %d",
-           clientCon->client_info.capture_code));
-    if (rdpCapture(clientCon, clientCon->dirtyRegion, &rects, &num_rects,
-                   id.pixels, clientCon->cap_left, clientCon->cap_top,
-                   id.width, id.height,
-                   id.lineBytes, XRDP_a8r8g8b8, id.shmem_pixels,
-                   clientCon->cap_width, clientCon->cap_height,
-                   clientCon->cap_stride_bytes,
-                   clientCon->rdp_format, clientCon->client_info.capture_code))
+    if (clientCon->dev->monitorCount < 1)
     {
-        LLOGLN(10, ("rdpDeferredUpdateCallback: num_rects %d", num_rects));
-        rdpClientConSendPaintRectShmEx(clientCon->dev, clientCon, &id,
-                                       clientCon->dirtyRegion,
-                                       rects, num_rects);
-        g_free(rects);
+        dirty_extents = *rdpRegionExtents(clientCon->dirtyRegion);
+        dirty_extents.x1 = RDPMAX(dirty_extents.x1, 0);
+        dirty_extents.y1 = RDPMAX(dirty_extents.y1, 0);
+        dirty_extents.x2 = RDPMIN(dirty_extents.x2, clientCon->rdp_width);
+        dirty_extents.y2 = RDPMIN(dirty_extents.y2, clientCon->rdp_height);
+        LLOGLN(10, ("rdpDeferredUpdateCallback: dirty_extents %d %d %d %d",
+               dirty_extents.x1, dirty_extents.y1,
+               dirty_extents.x2, dirty_extents.y2));
+        de_width = dirty_extents.x2 - dirty_extents.x1;
+        de_height = dirty_extents.y2 - dirty_extents.y1;
+        if ((de_width > 0) && (de_height > 0))
+        {
+            band_height = MAX_CAPTURE_PIXELS / de_width;
+            band_index = 0;
+            band_count = (de_width * de_height / MAX_CAPTURE_PIXELS) + 1;
+            LLOGLN(10, ("rdpDeferredUpdateCallback: band_index %d "
+                   "band_count %d", band_index, band_count));
+            while (band_index < band_count)
+            {
+                if (clientCon->rect_id > clientCon->rect_id_ack)
+                {
+                    LLOGLN(10, ("rdpDeferredUpdateCallback: reschedule "
+                           "rect_id %d rect_id_ack %d",
+                           clientCon->rect_id, clientCon->rect_id_ack));
+                    break;
+                }
+                index = (clientCon->rect_id + band_index) % band_count;
+                cap_rect.x1 = dirty_extents.x1;
+                cap_rect.y1 = dirty_extents.y1 + index * band_height;
+                cap_rect.x2 = dirty_extents.x2;
+                cap_rect.y2 = RDPMIN(cap_rect.y1 + band_height,
+                                     dirty_extents.y2);
+                rdpCapRect(clientCon, &cap_rect, &id);
+                band_index++;
+            }
+            if (band_index == band_count)
+            {
+                /* gone through all bands, nothing changed */
+                rdpRegionDestroy(clientCon->dirtyRegion);
+                clientCon->dirtyRegion = rdpRegionCreate(NullBox, 0);
+            }
+        }
+        else
+        {
+            /* nothing changed in visible area */
+            rdpRegionDestroy(clientCon->dirtyRegion);
+            clientCon->dirtyRegion = rdpRegionCreate(NullBox, 0);
+        }
     }
     else
     {
-        LLOGLN(0, ("rdpDeferredUpdateCallback: rdpCapture failed"));
+        monitor_index = 0;
+        monitor_count = clientCon->dev->monitorCount;
+        while (monitor_index < monitor_count)
+        {
+            if (clientCon->rect_id > clientCon->rect_id_ack)
+            {
+                LLOGLN(10, ("rdpDeferredUpdateCallback: reschedule rect_id %d "
+                       "rect_id_ack %d",
+                       clientCon->rect_id, clientCon->rect_id_ack));
+                break;
+            }
+            index = (clientCon->rect_id + monitor_index) % monitor_count;
+            cap_rect.x1 = clientCon->dev->minfo[index].left;
+            cap_rect.y1 = clientCon->dev->minfo[index].top;
+            cap_rect.x2 = clientCon->dev->minfo[index].right + 1;
+            cap_rect.y2 = clientCon->dev->minfo[index].bottom + 1;
+            rdpCapRect(clientCon, &cap_rect, &id);
+            monitor_index++;
+        }
+        if (monitor_index == monitor_count)
+        {
+            /* gone through all monitors, nothing changed */
+            rdpRegionDestroy(clientCon->dirtyRegion);
+            clientCon->dirtyRegion = rdpRegionCreate(NullBox, 0);
+        }
     }
-    rdpRegionDestroy(clientCon->dirtyRegion);
-    clientCon->dirtyRegion = rdpRegionCreate(NullBox, 0);
+    if (rdpRegionNotEmpty(clientCon->dirtyRegion))
+    {
+        clientCon->updateTimer = TimerSet(clientCon->updateTimer, 0, 40,
+                                          rdpDeferredUpdateCallback,
+                                          clientCon);
+        clientCon->updateScheduled = TRUE;
+    }
     return 0;
 }
 
@@ -2190,7 +2352,6 @@ rdpClientConAddDirtyScreenReg(rdpPtr dev, rdpClientCon *clientCon,
                               RegionPtr reg)
 {
     LLOGLN(10, ("rdpClientConAddDirtyScreenReg:"));
-
     rdpRegionUnion(clientCon->dirtyRegion, clientCon->dirtyRegion, reg);
     if (clientCon->updateScheduled == FALSE)
     {

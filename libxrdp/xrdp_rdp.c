@@ -18,6 +18,11 @@
  * rdp layer
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
+#include <openssl/ssl.h>
 #include "libxrdp.h"
 #include "log.h"
 
@@ -35,15 +40,18 @@
 #define FASTPATH_FRAG_SIZE (16 * 1024 - 128)
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_read_config(struct xrdp_client_info *client_info)
 {
     int index = 0;
     struct list *items = (struct list *)NULL;
     struct list *values = (struct list *)NULL;
-    char *item = (char *)NULL;
-    char *value = (char *)NULL;
+    char *item = NULL;
+    char *value = NULL;
     char cfg_file[256];
+    char *p = NULL;
+    char *tmp = NULL;
+    int tmp_length = 0;
 
     /* initialize (zero out) local variables: */
     g_memset(cfg_file, 0, sizeof(char) * 256);
@@ -105,8 +113,8 @@ xrdp_rdp_read_config(struct xrdp_client_info *client_info)
         }
         else if (g_strcasecmp(item, "allow_channels") == 0)
         {
-            client_info->channel_code = g_text2bool(value);
-            if (client_info->channel_code == 0)
+            client_info->channels_allowed = g_text2bool(value);
+            if (client_info->channels_allowed == 0)
             {
                 log_message(LOG_LEVEL_DEBUG,"Info - All channels are disabled");
             }
@@ -160,13 +168,55 @@ xrdp_rdp_read_config(struct xrdp_client_info *client_info)
                 client_info->use_fast_path = 0;
             }
         }
-        else if (g_strcasecmp(item, "disableSSLv3") == 0)
+        else if (g_strcasecmp(item, "ssl_protocols") == 0)
         {
-            client_info->disableSSLv3 = g_text2bool(value);
+            /* put leading/trailing comma to properly detect "TLSv1" without regex */
+            tmp_length = g_strlen(value) + 3;
+            tmp = g_new(char, tmp_length);
+            g_snprintf(tmp, tmp_length, "%s%s%s", ",", value, ",");
+            /* to accept space after comma */
+            while ((p = (char *) g_strchr(tmp, ' ')) != NULL)
+            {
+                *p = ',';
+            }
+
+            /* disable all protocols first, enable later */
+            client_info->ssl_protocols =
+                SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2;
+
+            if (g_pos(tmp, ",TLSv1.2,") >= 0)
+            {
+                log_message(LOG_LEVEL_DEBUG, "TLSv1.2 enabled");
+                client_info->ssl_protocols &= ~SSL_OP_NO_TLSv1_2;
+            }
+            if (g_pos(tmp, ",TLSv1.1,") >= 0)
+            {
+                log_message(LOG_LEVEL_DEBUG, "TLSv1.1 enabled");
+                client_info->ssl_protocols &= ~SSL_OP_NO_TLSv1_1;
+            }
+            if (g_pos(tmp, ",TLSv1,") >= 0)
+            {
+                log_message(LOG_LEVEL_DEBUG, "TLSv1 enabled");
+                client_info->ssl_protocols &= ~SSL_OP_NO_TLSv1;
+            }
+            if (g_pos(tmp, ",SSLv3,") >= 0)
+            {
+                log_message(LOG_LEVEL_DEBUG, "SSLv3 enabled");
+                client_info->ssl_protocols &= ~SSL_OP_NO_SSLv3;
+            }
+
+            if (client_info->ssl_protocols ==
+                (SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2))
+            {
+                log_message(LOG_LEVEL_WARNING, "No SSL/TLS protocols enabled. "
+                            "At least one protocol should be enabled to accept "
+                            "TLS connections.");
+            }
+            g_free(tmp);
         }
         else if (g_strcasecmp(item, "tls_ciphers") == 0)
         {
-            g_strcpy(client_info->tls_ciphers, value);
+            client_info->tls_ciphers = g_strdup(value);
         }
         else if (g_strcasecmp(item, "security_layer") == 0)
         {
@@ -307,7 +357,7 @@ xrdp_rdp_detect_cpu(void)
 #endif
 
 /*****************************************************************************/
-struct xrdp_rdp *APP_CC
+struct xrdp_rdp *
 xrdp_rdp_create(struct xrdp_session *session, struct trans *trans)
 {
     struct xrdp_rdp *self = (struct xrdp_rdp *)NULL;
@@ -342,7 +392,7 @@ xrdp_rdp_create(struct xrdp_session *session, struct trans *trans)
 }
 
 /*****************************************************************************/
-void APP_CC
+void
 xrdp_rdp_delete(struct xrdp_rdp *self)
 {
     if (self == 0)
@@ -355,11 +405,12 @@ xrdp_rdp_delete(struct xrdp_rdp *self)
 #if defined(XRDP_NEUTRINORDP)
     rfx_context_free((RFX_CONTEXT *)(self->rfx_enc));
 #endif
+    g_free(self->client_info.tls_ciphers);
     g_free(self);
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_init(struct xrdp_rdp *self, struct stream *s)
 {
     if (xrdp_sec_init(self->sec_layer, s) != 0)
@@ -372,7 +423,7 @@ xrdp_rdp_init(struct xrdp_rdp *self, struct stream *s)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_init_data(struct xrdp_rdp *self, struct stream *s)
 {
     if (xrdp_sec_init(self->sec_layer, s) != 0)
@@ -386,7 +437,7 @@ xrdp_rdp_init_data(struct xrdp_rdp *self, struct stream *s)
 
 /*****************************************************************************/
 /* returns error */
-int APP_CC
+int
 xrdp_rdp_recv(struct xrdp_rdp *self, struct stream *s, int *code)
 {
     int error = 0;
@@ -485,7 +536,7 @@ xrdp_rdp_recv(struct xrdp_rdp *self, struct stream *s, int *code)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_send(struct xrdp_rdp *self, struct stream *s, int pdu_type)
 {
     int len = 0;
@@ -508,7 +559,7 @@ xrdp_rdp_send(struct xrdp_rdp *self, struct stream *s, int pdu_type)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_send_data(struct xrdp_rdp *self, struct stream *s,
                    int data_pdu_type)
 {
@@ -597,7 +648,7 @@ xrdp_rdp_send_data(struct xrdp_rdp *self, struct stream *s,
 
 /*****************************************************************************/
 /* returns the fastpath rdp byte count */
-int APP_CC
+int
 xrdp_rdp_get_fastpath_bytes(struct xrdp_rdp *self)
 {
     if (self->client_info.rdp_compression)
@@ -608,7 +659,7 @@ xrdp_rdp_get_fastpath_bytes(struct xrdp_rdp *self)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_init_fastpath(struct xrdp_rdp *self, struct stream *s)
 {
     if (xrdp_sec_init_fastpath(self->sec_layer, s) != 0)
@@ -630,7 +681,7 @@ xrdp_rdp_init_fastpath(struct xrdp_rdp *self, struct stream *s)
 /* returns error */
 /* 2.2.9.1.2.1 Fast-Path Update (TS_FP_UPDATE)
  * http://msdn.microsoft.com/en-us/library/cc240622.aspx */
-int APP_CC
+int
 xrdp_rdp_send_fastpath(struct xrdp_rdp *self, struct stream *s,
                        int data_pdu_type)
 {
@@ -755,7 +806,7 @@ xrdp_rdp_send_fastpath(struct xrdp_rdp *self, struct stream *s,
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_send_data_update_sync(struct xrdp_rdp *self)
 {
     struct stream *s = (struct stream *)NULL;
@@ -782,9 +833,9 @@ xrdp_rdp_send_data_update_sync(struct xrdp_rdp *self)
             return 1;
         }
         out_uint16_le(s, RDP_UPDATE_SYNCHRONIZE);
+        out_uint16_le(s, 0); /* pad */
     }
 
-    out_uint16_le(s, 0); /* pad */
     s_mark_end(s);
 
     if (self->client_info.use_fast_path & 1) /* fastpath output supported */
@@ -813,9 +864,12 @@ xrdp_rdp_send_data_update_sync(struct xrdp_rdp *self)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_incoming(struct xrdp_rdp *self)
 {
+    struct xrdp_iso *iso;
+    iso = self->sec_layer->mcs_layer->iso_layer;
+
     DEBUG(("in xrdp_rdp_incoming"));
 
     if (xrdp_sec_incoming(self->sec_layer) != 0)
@@ -825,17 +879,36 @@ xrdp_rdp_incoming(struct xrdp_rdp *self)
     self->mcs_channel = self->sec_layer->mcs_layer->userid +
                         MCS_USERCHANNEL_BASE;
     DEBUG(("out xrdp_rdp_incoming mcs channel %d", self->mcs_channel));
-    g_strncpy(self->client_info.client_addr,
-              self->sec_layer->mcs_layer->iso_layer->trans->addr,
+    g_strncpy(self->client_info.client_addr, iso->trans->addr,
               sizeof(self->client_info.client_addr) - 1);
-    g_strncpy(self->client_info.client_port,
-              self->sec_layer->mcs_layer->iso_layer->trans->port,
+    g_strncpy(self->client_info.client_port, iso->trans->port,
               sizeof(self->client_info.client_port) - 1);
+
+    /* log TLS version and cipher of TLS connections */
+    if (iso->selectedProtocol > PROTOCOL_RDP)
+    {
+        log_message(LOG_LEVEL_INFO,
+                    "TLS connection established from %s port %s: %s with cipher %s",
+                    self->client_info.client_addr,
+                    self->client_info.client_port,
+                    iso->trans->ssl_protocol,
+                    iso->trans->cipher_name);
+    }
+    /* log non-TLS connections */
+    else
+    {
+        log_message(LOG_LEVEL_INFO,
+                    "Non-TLS connection established from %s port %s: "
+                    "encrypted with standard RDP security",
+                    self->client_info.client_addr,
+                    self->client_info.client_port);
+    }
+
     return 0;
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_process_data_pointer(struct xrdp_rdp *self, struct stream *s)
 {
     return 0;
@@ -843,7 +916,7 @@ xrdp_rdp_process_data_pointer(struct xrdp_rdp *self, struct stream *s)
 
 /*****************************************************************************/
 /* RDP_DATA_PDU_INPUT */
-static int APP_CC
+static int
 xrdp_rdp_process_data_input(struct xrdp_rdp *self, struct stream *s)
 {
     int num_events;
@@ -894,7 +967,7 @@ xrdp_rdp_process_data_input(struct xrdp_rdp *self, struct stream *s)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_send_synchronise(struct xrdp_rdp *self)
 {
     struct stream *s;
@@ -923,7 +996,7 @@ xrdp_rdp_send_synchronise(struct xrdp_rdp *self)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_send_control(struct xrdp_rdp *self, int action)
 {
     struct stream *s;
@@ -953,7 +1026,7 @@ xrdp_rdp_send_control(struct xrdp_rdp *self, int action)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_process_data_control(struct xrdp_rdp *self, struct stream *s)
 {
     int action;
@@ -982,7 +1055,7 @@ xrdp_rdp_process_data_control(struct xrdp_rdp *self, struct stream *s)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_process_data_sync(struct xrdp_rdp *self)
 {
     DEBUG(("xrdp_rdp_process_data_sync"));
@@ -990,7 +1063,7 @@ xrdp_rdp_process_data_sync(struct xrdp_rdp *self)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_process_screen_update(struct xrdp_rdp *self, struct stream *s)
 {
     int left;
@@ -1017,7 +1090,7 @@ xrdp_rdp_process_screen_update(struct xrdp_rdp *self, struct stream *s)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_send_fontmap(struct xrdp_rdp *self)
 {
     struct stream *s;
@@ -1049,7 +1122,7 @@ xrdp_rdp_send_fontmap(struct xrdp_rdp *self)
 }
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_process_data_font(struct xrdp_rdp *self, struct stream *s)
 {
     int seq;
@@ -1079,7 +1152,7 @@ xrdp_rdp_process_data_font(struct xrdp_rdp *self, struct stream *s)
 
 /*****************************************************************************/
 /* sent 37 pdu */
-static int APP_CC
+static int
 xrdp_rdp_send_disconnect_query_response(struct xrdp_rdp *self)
 {
     struct stream *s;
@@ -1108,7 +1181,7 @@ xrdp_rdp_send_disconnect_query_response(struct xrdp_rdp *self)
 #if 0 /* not used */
 /*****************************************************************************/
 /* sent RDP_DATA_PDU_DISCONNECT 47 pdu */
-static int APP_CC
+static int
 xrdp_rdp_send_disconnect_reason(struct xrdp_rdp *self, int reason)
 {
     struct stream *s;
@@ -1137,7 +1210,7 @@ xrdp_rdp_send_disconnect_reason(struct xrdp_rdp *self, int reason)
 #endif
 
 /*****************************************************************************/
-static int APP_CC
+static int
 xrdp_rdp_process_frame_ack(struct xrdp_rdp *self, struct stream *s)
 {
     int frame_id;
@@ -1156,7 +1229,7 @@ xrdp_rdp_process_frame_ack(struct xrdp_rdp *self, struct stream *s)
 
 /*****************************************************************************/
 /* RDP_PDU_DATA */
-int APP_CC
+int
 xrdp_rdp_process_data(struct xrdp_rdp *self, struct stream *s)
 {
     int data_type;
@@ -1211,7 +1284,7 @@ xrdp_rdp_process_data(struct xrdp_rdp *self, struct stream *s)
     return 0;
 }
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_disconnect(struct xrdp_rdp *self)
 {
     int rv;
@@ -1223,7 +1296,7 @@ xrdp_rdp_disconnect(struct xrdp_rdp *self)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xrdp_rdp_send_deactivate(struct xrdp_rdp *self)
 {
     struct stream *s;
@@ -1252,3 +1325,43 @@ xrdp_rdp_send_deactivate(struct xrdp_rdp *self)
     DEBUG(("out xrdp_rdp_send_deactivate"));
     return 0;
 }
+
+/*****************************************************************************/
+int
+xrdp_rdp_send_session_info(struct xrdp_rdp *self, const char *data,
+                           int data_bytes)
+{
+    struct stream *s;
+
+    LLOGLN(0, ("xrdp_rdp_send_session_info: data_bytes %d", data_bytes));
+    make_stream(s);
+    init_stream(s, 8192);
+
+    if (xrdp_rdp_init_data(self, s) != 0)
+    {
+        free_stream(s);
+        return 1;
+    }
+
+    if (s_check_rem_out(s, data_bytes))
+    {
+        out_uint8a(s, data, data_bytes); 
+    }
+    else
+    {
+        free_stream(s);
+        return 1;
+    }
+
+    s_mark_end(s);
+
+    if (xrdp_rdp_send_data(self, s, RDP_DATA_PDU_LOGON) != 0)
+    {
+        free_stream(s);
+        return 1;
+    }
+
+    free_stream(s);
+    return 0;
+}
+
