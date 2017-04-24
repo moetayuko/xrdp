@@ -236,7 +236,7 @@ xrdp_orders_check(struct xrdp_orders *self, int max_size)
     size = (int)(self->out_s->p - self->order_count_ptr);
     if (size < 0)
     {
-        g_writeln("error in xrdp_orders_check, size too small, its %d", size);
+        g_writeln("error in xrdp_orders_check, size too small: %d bytes", size);
         return 1;
     }
     if (size > max_packet_size)
@@ -244,7 +244,7 @@ xrdp_orders_check(struct xrdp_orders *self, int max_size)
         /* this suggests someone calls this function without passing the
            correct max_size so we end up putting more into the buffer
            than we indicate we can */
-        g_writeln("error in xrdp_orders_check, size too big, its %d", size);
+        g_writeln("error in xrdp_orders_check, size too big: %d bytes", size);
         /* We where getting called with size already greater than
            max_packet_size
            Which I suspect was because the sending of text did not include
@@ -507,7 +507,7 @@ xrdp_orders_rect(struct xrdp_orders *self, int x, int y, int cx, int cy,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (x < rect->left || y < rect->top ||
                 x + cx > rect->right || y + cy > rect->bottom)
         {
@@ -678,7 +678,7 @@ xrdp_orders_screen_blt(struct xrdp_orders *self, int x, int y,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (x < rect->left || y < rect->top ||
                 x + cx > rect->right || y + cy > rect->bottom)
         {
@@ -870,7 +870,7 @@ xrdp_orders_pat_blt(struct xrdp_orders *self, int x, int y,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (x < rect->left || y < rect->top ||
                 x + cx > rect->right || y + cy > rect->bottom)
         {
@@ -1087,7 +1087,7 @@ xrdp_orders_dest_blt(struct xrdp_orders *self, int x, int y,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (x < rect->left || y < rect->top ||
                 x + cx > rect->right || y + cy > rect->bottom)
         {
@@ -1258,7 +1258,7 @@ xrdp_orders_line(struct xrdp_orders *self, int mix_mode,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (MIN(endx, startx) < rect->left ||
                 MIN(endy, starty) < rect->top ||
                 MAX(endx, startx) >= rect->right ||
@@ -1460,7 +1460,7 @@ xrdp_orders_mem_blt(struct xrdp_orders *self, int cache_id,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (x < rect->left || y < rect->top ||
                 x + cx > rect->right || y + cy > rect->bottom)
         {
@@ -1667,7 +1667,7 @@ xrdp_orders_composite_blt(struct xrdp_orders* self, int srcidx, int srcformat,
     self->orders_state.last_order = RDP_ORDER_COMPOSITE;
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if (dstx < rect->left || dsty < rect->top ||
             dstx + width > rect->right || dsty + height > rect->bottom)
         {
@@ -1999,7 +1999,7 @@ xrdp_orders_text(struct xrdp_orders *self,
 
     if (rect != 0)
     {
-        /* if clip is present, still check if its needed */
+        /* if clip is present, still check if it's needed */
         if ((box_right - box_left > 1 &&
                 (box_left < rect->left ||
                  box_top < rect->top ||
@@ -2235,6 +2235,11 @@ xrdp_orders_send_raw_bitmap(struct xrdp_orders *self,
 
     Bpp = (bpp + 7) / 8;
     bufsize = (width + e) * height * Bpp;
+    while (bufsize + 16 > MAX_ORDERS_SIZE)
+    {
+        height--;
+        bufsize = (width + e) * height * Bpp;
+    }
     if (xrdp_orders_check(self, bufsize + 16) != 0)
     {
         return 1;
@@ -2254,33 +2259,58 @@ xrdp_orders_send_raw_bitmap(struct xrdp_orders *self,
     out_uint16_le(self->out_s, bufsize);
     out_uint16_le(self->out_s, cache_idx);
 
-    for (i = height - 1; i >= 0; i--)
+    if (Bpp == 4)
     {
-        for (j = 0; j < width; j++)
+        for (i = height - 1; i >= 0; i--)
         {
-            if (Bpp == 3)
+            for (j = 0; j < width; j++)
+            {
+                pixel = GETPIXEL32(data, j, i, width);
+                out_uint8(self->out_s, pixel);
+                out_uint8(self->out_s, pixel >> 8);
+                out_uint8(self->out_s, pixel >> 16);
+                out_uint8(self->out_s, pixel >> 24);
+            }
+            out_uint8s(self->out_s, Bpp * e);
+        }
+    }
+    else if (Bpp == 3)
+    {
+        for (i = height - 1; i >= 0; i--)
+        {
+            for (j = 0; j < width; j++)
             {
                 pixel = GETPIXEL32(data, j, i, width);
                 out_uint8(self->out_s, pixel);
                 out_uint8(self->out_s, pixel >> 8);
                 out_uint8(self->out_s, pixel >> 16);
             }
-            else if (Bpp == 2)
+            out_uint8s(self->out_s, Bpp * e);
+        }
+    }
+    else if (Bpp == 2)
+    {
+        for (i = height - 1; i >= 0; i--)
+        {
+            for (j = 0; j < width; j++)
             {
                 pixel = GETPIXEL16(data, j, i, width);
                 out_uint8(self->out_s, pixel);
                 out_uint8(self->out_s, pixel >> 8);
             }
-            else if (Bpp == 1)
+            out_uint8s(self->out_s, Bpp * e);
+        }
+    }
+    else if (Bpp == 1)
+    {
+        for (i = height - 1; i >= 0; i--)
+        {
+            for (j = 0; j < width; j++)
             {
                 pixel = GETPIXEL8(data, j, i, width);
                 out_uint8(self->out_s, pixel);
             }
-        }
-
-        for (j = 0; j < e; j++)
-        {
-            out_uint8s(self->out_s, Bpp);
+            out_uint8s(self->out_s, Bpp * e);
         }
     }
 
@@ -2334,20 +2364,19 @@ xrdp_orders_send_bitmap(struct xrdp_orders *self,
     if (bpp > 24)
     {
         lines_sending = xrdp_bitmap32_compress(data, width, height, s,
-                                               bpp, 16384,
+                                               bpp, MAX_ORDERS_SIZE,
                                                i - 1, temp_s, e, 0x10);
     }
     else
     {
-        lines_sending = xrdp_bitmap_compress(data, width, height, s, bpp, 16384,
+        lines_sending = xrdp_bitmap_compress(data, width, height, s,
+                                             bpp, MAX_ORDERS_SIZE,
                                              i - 1, temp_s, e);
     }
 
     if (lines_sending != height)
     {
-        g_writeln("error in xrdp_orders_send_bitmap, lines_sending(%d) != \
-height(%d)", lines_sending, height);
-        return 1;
+        height = lines_sending;
     }
 
     bufsize = (int)(s->p - p);
@@ -2458,6 +2487,7 @@ xrdp_orders_send_raw_bitmap2(struct xrdp_orders *self,
     int pixel = 0;
     int e = 0;
 
+    g_writeln("xrdp_orders_send_raw_bitmap2:");
     if (width > 64)
     {
         g_writeln("error, width > 64");
@@ -2479,6 +2509,11 @@ xrdp_orders_send_raw_bitmap2(struct xrdp_orders *self,
 
     Bpp = (bpp + 7) / 8;
     bufsize = (width + e) * height * Bpp;
+    while (bufsize + 14 > MAX_ORDERS_SIZE)
+    {
+        height--;
+        bufsize = (width + e) * height * Bpp;
+    }
     if (xrdp_orders_check(self, bufsize + 14) != 0)
     {
         return 1;
@@ -2499,7 +2534,22 @@ xrdp_orders_send_raw_bitmap2(struct xrdp_orders *self,
     i = cache_idx & 0xff;
     out_uint8(self->out_s, i);
 
-    if (1 && Bpp == 3)
+    if (Bpp == 4)
+    {
+        for (i = height - 1; i >= 0; i--)
+        {
+            for (j = 0; j < width; j++)
+            {
+                pixel = GETPIXEL32(data, j, i, width);
+                out_uint8(self->out_s, pixel);
+                out_uint8(self->out_s, pixel >> 8);
+                out_uint8(self->out_s, pixel >> 16);
+                out_uint8(self->out_s, pixel >> 24);
+            }
+            out_uint8s(self->out_s, Bpp * e);
+        }
+    }
+    else if (Bpp == 3)
     {
         for (i = height - 1; i >= 0; i--)
         {
@@ -2510,43 +2560,33 @@ xrdp_orders_send_raw_bitmap2(struct xrdp_orders *self,
                 out_uint8(self->out_s, pixel >> 8);
                 out_uint8(self->out_s, pixel >> 16);
             }
-            for (j = 0; j < e; j++)
-            {
-                out_uint8s(self->out_s, Bpp);
-            }
+            out_uint8s(self->out_s, Bpp * e);
         }
     }
-    else
+    else if (Bpp == 2)
     {
-    for (i = height - 1; i >= 0; i--)
-    {
-        for (j = 0; j < width; j++)
+        for (i = height - 1; i >= 0; i--)
         {
-            if (Bpp == 3)
-            {
-                pixel = GETPIXEL32(data, j, i, width);
-                out_uint8(self->out_s, pixel);
-                out_uint8(self->out_s, pixel >> 8);
-                out_uint8(self->out_s, pixel >> 16);
-            }
-            else if (Bpp == 2)
+            for (j = 0; j < width; j++)
             {
                 pixel = GETPIXEL16(data, j, i, width);
                 out_uint8(self->out_s, pixel);
                 out_uint8(self->out_s, pixel >> 8);
             }
-            else if (Bpp == 1)
+            out_uint8s(self->out_s, Bpp * e);
+        }
+    }
+    else if (Bpp == 1)
+    {
+        for (i = height - 1; i >= 0; i--)
+        {
+            for (j = 0; j < width; j++)
             {
                 pixel = GETPIXEL8(data, j, i, width);
                 out_uint8(self->out_s, pixel);
             }
+            out_uint8s(self->out_s, Bpp * e);
         }
-
-        for (j = 0; j < e; j++)
-        {
-            out_uint8s(self->out_s, Bpp);
-        }
-    }
     }
 
     return 0;
@@ -2599,20 +2639,19 @@ xrdp_orders_send_bitmap2(struct xrdp_orders *self,
     if (bpp > 24)
     {
         lines_sending = xrdp_bitmap32_compress(data, width, height, s,
-                                               bpp, 16384,
+                                               bpp, MAX_ORDERS_SIZE,
                                                i - 1, temp_s, e, 0x10);
     }
     else
     {
-        lines_sending = xrdp_bitmap_compress(data, width, height, s, bpp, 16384,
+        lines_sending = xrdp_bitmap_compress(data, width, height, s,
+                                             bpp, MAX_ORDERS_SIZE,
                                              i - 1, temp_s, e);
     }
 
     if (lines_sending != height)
     {
-        g_writeln("error in xrdp_orders_send_bitmap2, lines_sending(%d) != \
-height(%d)", lines_sending, height);
-        return 1;
+        height = lines_sending;
     }
 
     bufsize = (int)(s->p - p);

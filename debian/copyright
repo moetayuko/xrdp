@@ -25,6 +25,7 @@ Files: COPYING
  common/os_calls.h
  common/parse.h
  common/rail.h
+ common/pixman-region.h
  common/thread_calls.c
  common/thread_calls.h
  common/trans.c
@@ -47,7 +48,6 @@ Files: COPYING
  faq-compile.txt
  faq-general.txt
  file-loc.txt
- fontdump/.gitignore
  fontdump/Makefile
  fontdump/fontdump.c
  genkeymap/Makefile.am
@@ -70,7 +70,6 @@ Files: COPYING
  instfiles/xrdp.service
  keygen/Makefile.am
  keygen/keygen.c
- librfxcodec/.gitignore
  librfxcodec/Makefile.am
  librfxcodec/acinclude.m4
  librfxcodec/bootstrap
@@ -97,6 +96,19 @@ Files: COPYING
  librfxcodec/tests/Makefile.am
  librfxcodec/tests/readme.txt
  librfxcodec/tests/rfxcodectest.c
+ libpainter/Makefile.am
+ libpainter/bootstrap
+ libpainter/configure.ac
+ libpainter/include/Makefile.am
+ libpainter/include/painter.h
+ libpainter/pkgconfig/Makefile.am
+ libpainter/readme.txt
+ libpainter/src/Makefile.am
+ libpainter/src/painter.c
+ libpainter/src/painter_utils.c
+ libpainter/src/painter_utils.h
+ libpainter/tests/Makefile.am
+ libpainter/tests/paintertest.c
  libxrdp/Makefile.am
  libxrdp/libxrdp.c
  libxrdp/libxrdp.h
@@ -111,7 +123,6 @@ Files: COPYING
  libxrdp/xrdp_orders_rail.h
  libxrdp/xrdp_rdp.c
  libxrdp/xrdp_sec.c
- m4/.gitignore
  mc/Makefile.am
  mc/mc.c
  mc/mc.h
@@ -120,8 +131,8 @@ Files: COPYING
  neutrinordp/xrdp-color.h
  neutrinordp/xrdp-neutrinordp.c
  neutrinordp/xrdp-neutrinordp.h
+ pkgconfig/Makefile.am
  postinstall-pak
- prog_std.txt
  rdp/Makefile.am
  rdp/rdp.c
  rdp/rdp.h
@@ -144,7 +155,6 @@ Files: COPYING
  sesman/chansrv/clipboard_common.h
  sesman/chansrv/clipboard_file.c
  sesman/chansrv/clipboard_file.h
- sesman/chansrv/pcsc/.gitignore
  sesman/chansrv/pcsc/Makefile
  sesman/chansrv/pcsc/wrapper/Makefile
  sesman/chansrv/pcsc/wrapper/winscard-func-names.txt
@@ -152,7 +162,6 @@ Files: COPYING
  sesman/chansrv/pcsc/wrapper/winscard.c
  sesman/chansrv/pcsc/wrapper/winscard.def
  sesman/chansrv/pcsc/xrdp_pcsc.c
- sesman/chansrv/pulse/.gitignore
  sesman/chansrv/pulse/Makefile
  sesman/chansrv/pulse/module-xrdp-sink-symdef.h
  sesman/chansrv/pulse/module-xrdp-sink.c
@@ -239,7 +248,6 @@ Files: COPYING
  tcutils/tcutils.pro.user
  tcutils/utils.cpp
  tcutils/utils.h
- tests/.gitignore
  tests/gtcp_proxy/Makefile
  tests/gtcp_proxy/README.txt
  tests/gtcp_proxy/gtcp.c
@@ -277,7 +285,6 @@ Files: COPYING
  vrplayer/playvideo.cpp
  vrplayer/playvideo.h
  vrplayer/vrplayer.pro
- xorg/.gitignore
  xorg/X11R7.6/cleanx.sh
  xorg/X11R7.6/libXext-1.2.0.patch
  xorg/X11R7.6/rdp/Makefile
@@ -292,6 +299,8 @@ Files: COPYING
  xorg/tests/randr/trandr.c
  xorg/tests/xdemo/Makefile
  xorg/tests/xdemo/README.txt
+ xorgxrdp/tests/Makefile.am
+ xorgxrdp/tests/xorg-test-run.sh
  xrdp/Makefile.am
  xrdp/ad24b.bmp
  xrdp/ad256.bmp
@@ -359,6 +368,11 @@ Files: common/fifo.c
  xrdpapi/vrplayer.c
  xrdpvr/xrdpvr_internal.h
 Copyright: 2013, Laxmikant Rashinkar <LK.Rashinkar@gmail.com>
+License: Apache-2.0
+
+Files: sesman/xauth.h
+ sesman/xauth.c
+Copyright: 2016 Emmanuel Blindauer
 License: Apache-2.0
 
 Files: librfxcodec/src/rfx_bitstream.h
@@ -490,7 +504,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorg/X11R7.6/rdp/rdprandr.h
  xorg/X11R7.6/rdp/rdpup.c
  xorg/X11R7.6/rdp/rdpxv.c
- xorgxrdp/.gitignore
+ xorgxrdp/COPYING
  xorgxrdp/Makefile.am
  xorgxrdp/acinclude.m4
  xorgxrdp/bootstrap
@@ -586,8 +600,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/x86/uyvy_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
- xorgxrdp/readme.txt
- xorgxrdp/test-in-home.sh
+ xorgxrdp/README.md
  xorgxrdp/tests/yuv2rgb/Makefile
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
  xorgxrdp/xrdpdev/Makefile.am
@@ -597,7 +610,9 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/xrdpkeyb/rdpKeyboard.c
  xorgxrdp/xrdpmouse/Makefile.am
  xorgxrdp/xrdpmouse/rdpMouse.c
-Copyright: 2011-2015, Jay Sorg
+ README.md
+ NEWS.md
+Copyright: 2011-2016, Jay Sorg
 License: Expat
 
 Files: common/xrdp_constants.h
@@ -646,22 +661,111 @@ Copyright: 2003, Bitstream, Inc.
 License: Bitstream
 
 Files: m4/ax_append_flag.m4
+ xorgxrdp/m4/ax_append_flag.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2011, Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_cflags_warn_all.m4
+ xorgxrdp/m4/ax_cflags_warn_all.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2010, Rhys Ulerich <rhys.ulerich@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_gcc_func_attribute.m4
+ xorgxrdp/m4/ax_gcc_func_attribute.m4
 Copyright: 2013, Gabriele Svelto <gabriele.svelto@gmail.com>
 License: custom-historic
 
 Files: m4/ax_require_defined.m4
+ xorgxrdp/m4/ax_require_defined.m4
 Copyright: 2014, Mike Frysinger <vapier@gentoo.org>
 License: custom-historic
+
+Files: m4/ax_append_compile_flags.m4
+ xorgxrdp/m4/ax_append_compile_flags.m4
+Copyright: 2011 Maarten Bosmans <mkbosmans@gmail.com>
+License: GPL-3+~autoconf
+
+Files: m4/ax_check_compile_flag.m4
+ xorgxrdp/m4/ax_check_compile_flag.m4
+Copyright: 2008 Guido U. Draheim <guidod@gmx.de>
+ 2011 Maarten Bosmans <mkbosmans@gmail.com>
+License: GPL-3+~autoconf
+
+Files: m4/ax_type_socklen_t.m4
+Copyright: 2008 Lars Brinkhoff <lars@nocrew.org>
+License: GPL-3+~autoconf
+
+Files: m4/pkg.m4
+ librfxcodec/m4/pkg.m4
+ libpainter/m4/pkg.m4
+Copyright: 2004 Scott James Remnant <scott@netsplit.com>
+ 2012-2015 Dan Nicholson <dbn.lists@gmail.com>
+License: GPL-3+~autoconf
+
+Files: compile
+ depcomp
+ config.guess
+ config.sub
+ ltmain.sh
+ missing
+ librfxcodec/compile
+ librfxcodec/depcomp
+ librfxcodec/config.guess
+ librfxcodec/config.sub
+ librfxcodec/ltmain.sh
+ librfxcodec/missing
+ libpainter/compile
+ libpainter/depcomp
+ libpainter/config.guess
+ libpainter/config.sub
+ libpainter/ltmain.sh
+ libpainter/missing
+ xorgxrdp/compile
+ xorgxrdp/depcomp
+ xorgxrdp/config.guess
+ xorgxrdp/config.sub
+ xorgxrdp/ltmain.sh
+ xorgxrdp/missing
+ xorgxrdp/test-driver
+Copyright: 1996-2013 Free Software Foundation, Inc.
+License: GPL-3+~autoconf
+
+Files: configure
+ libpainter/configure
+ librfxcodec/configure
+ libpainter/configure
+ xorgxrdp/configure
+ m4/libtool.m4
+ m4/ltoptions.m4
+ m4/ltsugar.m4
+ m4/ltversion.m4
+ m4/lt~obsolete.m4
+ xorgxrdp/m4/libtool.m4
+ xorgxrdp/m4/ltoptions.m4
+ xorgxrdp/m4/ltsugar.m4
+ xorgxrdp/m4/ltversion.m4
+ xorgxrdp/m4/lt~obsolete.m4
+ librfxcodec/m4/libtool.m4
+ librfxcodec/m4/ltoptions.m4
+ librfxcodec/m4/ltsugar.m4
+ librfxcodec/m4/ltversion.m4
+ librfxcodec/m4/lt~obsolete.m4
+ libpainter/m4/libtool.m4
+ libpainter/m4/ltoptions.m4
+ libpainter/m4/ltsugar.m4
+ libpainter/m4/ltversion.m4
+ libpainter/m4/lt~obsolete.m4
+Copyright: 1996-2013 Free Software Foundation
+License: autoreconf-free
+
+Files: install-sh
+ librfxcodec/install-sh
+ libpainter/install-sh
+ xorgxrdp/install-sh
+Copyright: 1994 X Consortium
+License: Expat
 
 Files: instfiles/rc.d/xrdp
 Copyright: metalefty
@@ -673,7 +777,8 @@ Files: xorg/tests/xdemo/yosemite.bmp
  debian/xrdp.init
  debian/xrdp.postinst
  debian/xrdp.postrm
-Copyright: 2015, 2016, mirabilos <m@mirbsd.org>
+ debian/xrdp.preinst
+Copyright: 2015, 2016, 2017 mirabilos <m@mirbsd.org>
 License: MirOS
 
 Files: debian/*
@@ -681,21 +786,173 @@ Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
 License: MirOS
 
-Files: debian/patches/keymap-default.diff
-Copyright: Dag-Erling Smørgrav
- Petter Reinholdtsen
-License: Apache-2.0
-
-Files: debian/patches/keymap-fallback.diff
-Copyright: Vincent Bernat
- Thorsten Glaser <tg@mirbsd.org>
-License: Apache-2.0
+Files: debian/generate-keymap-rm-conffile.sh
+Copyright: Dominik George <nik@naturalnet.de>
+License: Expat
 
 Files: sesman/chansrv/pcsc/dumps/*
+ instfiles/keymap-names.txt
  instfiles/km-*.ini
+ librfxcodec/rfxcodec.pc.in
+ librfxcodec/rfxcodec-uninstalled.pc.in
+ pkgconfig/xrdp.pc.in
+ pkgconfig/xrdp-uninstalled.pc.in
+ xorg/X11R7.6/xkeyboard-config-2.0.patch
+ keygen/openssl.conf
+ Makefile.in
+ aclocal.m4
+ common/Makefile.in
+ config_ac-h.in
+ docs/Makefile.in
+ docs/man/Makefile.in
+ genkeymap/Makefile.in
+ instfiles/Makefile.in
+ instfiles/default/Makefile.in
+ instfiles/init.d/Makefile.in
+ instfiles/pam.d/Makefile.in
+ instfiles/pulse/Makefile.in
+ instfiles/rc.d/Makefile.in
+ keygen/Makefile.in
+ librfxcodec/Makefile.in
+ librfxcodec/aclocal.m4
+ libpainter/Makefile.in
+ libpainter/aclocal.m4
+ xorgxrdp/Makefile.in
+ xorgxrdp/aclocal.m4
+ libpainter/include/Makefile.in
+ libpainter/pkgconfig/Makefile.in
+ libpainter/pkgconfig/libpainter-uninstalled.pc.in
+ libpainter/pkgconfig/libpainter.pc.in
+ libpainter/src/Makefile.in
+ libpainter/tests/Makefile.in
+ librfxcodec/src/Makefile.in
+ librfxcodec/tests/Makefile.in
+ libxrdp/Makefile.in
+ mc/Makefile.in
+ neutrinordp/Makefile.in
+ pkgconfig/Makefile.in
+ rdp/Makefile.in
+ sesman/Makefile.in
+ sesman/chansrv/Makefile.in
+ sesman/libscp/Makefile.in
+ sesman/sessvc/Makefile.in
+ sesman/tools/Makefile.in
+ vnc/Makefile.in
+ xorgxrdp/Makefile.in
+ xorgxrdp/config_ac-h.in
+ xorgxrdp/module/Makefile.in
+ xorgxrdp/tests/Makefile.in
+ xorgxrdp/xrdpdev/Makefile.in
+ xorgxrdp/xrdpkeyb/Makefile.in
+ xorgxrdp/xrdpmouse/Makefile.in
+ xrdp/Makefile.in
+ xrdpapi/Makefile.in
+ xrdpvr/Makefile.in
+ xup/Makefile.in
+ libpainter/config_ac-h.in
+ librfxcodec/config_ac-h.in
+ fontdump/.gitignore
+ m4/.gitignore
+ sesman/chansrv/pcsc/.gitignore
+ sesman/chansrv/pulse/.gitignore
+ tests/.gitignore
+ xorg/.gitignore
+ xorg/X11R7.6/.gitignore
+ xorgxrdp/m4/.gitignore
 Copyright: None
 License: None
- Not copyrightable as these files are pure data dumps.
+ Not copyrightable or generated.
+
+Files: common/pixman-region.c
+Copyright: 1987, 1988, 1989, 1998  The Open Group
+ 1987, 1988, 1989 by Digital Equipment Corporation, Maynard, Massachusetts.
+ 1998 Keith Packard
+License: custom-old-MIT
+ Copyright 1987, 1988, 1989, 1998  The Open Group
+ .
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ .
+ Except as contained in this notice, the name of The Open Group shall not be
+ used in advertising or otherwise to promote the sale, use or other dealings
+ in this Software without prior written authorization from The Open Group.
+ .
+ Copyright 1987, 1988, 1989 by
+ Digital Equipment Corporation, Maynard, Massachusetts.
+ .
+                    All Rights Reserved
+ .
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for any purpose and without fee is hereby granted,
+ provided that the above copyright notice appear in all copies and that
+ both that copyright notice and this permission notice appear in
+ supporting documentation, and that the name of Digital not be
+ used in advertising or publicity pertaining to distribution of the
+ software without specific, written prior permission.
+ .
+ DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+ ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
+ DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
+ ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+ WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+ SOFTWARE.
+ .
+ Copyright © 1998 Keith Packard
+ .
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation, and that the name of Keith Packard not be used in
+ advertising or publicity pertaining to distribution of the software without
+ specific, written prior permission.  Keith Packard makes no
+ representations about the suitability of this software for any purpose.  It
+ is provided "as is" without express or implied warranty.
+ .
+ KEITH PACKARD DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+ EVENT SHALL KEITH PACKARD BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ PERFORMANCE OF THIS SOFTWARE.
+
+Files: common/pixman-region16.c
+Copyright: 2008 Author: Soren Sandmann <sandmann@redhat.com>
+ RedHat Inc.
+License: custom-old-MIT-2
+ Permission to use, copy, modify, distribute, and sell this software
+ and its documentation for any purpose is hereby granted without
+ fee, provided that the above copyright notice appear in all copies
+ and that both that copyright notice and this permission notice
+ appear in supporting documentation, and that the name of
+ Red Hat, Inc. not be used in advertising or publicity pertaining to
+ distribution of the software without specific, written prior
+ permission. Red Hat, Inc. makes no representations about the
+ suitability of this software for any purpose.  It is provided "as
+ is" without express or implied warranty.
+ .
+ RED HAT, INC. DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+ SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS, IN NO EVENT SHALL RED HAT, INC. BE LIABLE FOR ANY SPECIAL,
+ INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+ RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+ OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -712,7 +969,7 @@ License: Apache-2.0
  .
  On Debian systems, the complete text of the licence can be found in
  `/usr/share/common-licenses/Apache-2.0`.
- 
+
 License: GPL-2+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -893,3 +1150,8 @@ License: FreeBSD
  The views and conclusions contained in the software and documentation are
  those of the authors and should not be interpreted as representing official
  policies, either expressed or implied, of the FreeBSD Project.
+
+License: autoreconf-free
+ This file is free software; the Free Software Foundation gives
+ unlimited permission to copy and/or distribute it, with or without
+ modifications, as long as this notice is preserved.

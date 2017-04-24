@@ -1,6 +1,0 @@
-Upstream does not provide tarballs and not even proper git tags.
-
-The source is obtained from git commits that were verified to work. You
-can use the following command to get an orig tarball:
-
- $ make -f debian/rules get-orig-source

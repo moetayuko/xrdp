@@ -1,6 +1,11 @@
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif
 
 section .data
     const1 times 8 dw 1
+
+section .text
 
 %macro PROC 1
     align 16

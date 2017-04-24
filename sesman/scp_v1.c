@@ -31,7 +31,7 @@
 
 extern struct config_sesman *g_cfg; /* in sesman.c */
 
-static void parseCommonStates(enum SCP_SERVER_STATES_E e, char *f);
+static void parseCommonStates(enum SCP_SERVER_STATES_E e, const char *f);
 
 /******************************************************************************/
 void DEFAULT_CC
@@ -77,7 +77,6 @@ scp_v1_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
             default:
                 /* we check the other errors */
                 parseCommonStates(e, "scp_v1s_list_sessions()");
-                scp_session_destroy(s);
                 return;
                 //break;
         }
@@ -88,7 +87,6 @@ scp_v1_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
         scp_v1s_deny_connection(c, "Login failed");
         log_message( LOG_LEVEL_INFO,
                      "Login failed for user %s. Connection terminated", s->username);
-        scp_session_destroy(s);
         return;
     }
 
@@ -98,7 +96,6 @@ scp_v1_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
         scp_v1s_deny_connection(c, "Access to Terminal Server not allowed.");
         log_message(LOG_LEVEL_INFO,
                     "User %s not allowed on TS. Connection terminated", s->username);
-        scp_session_destroy(s);
         return;
     }
 
@@ -125,16 +122,12 @@ scp_v1_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
         if (SCP_SESSION_TYPE_XVNC == s->type)
         {
             log_message(LOG_LEVEL_INFO, "starting Xvnc session...");
-            display = session_start(s->width, s->height, s->bpp, s->username,
-                                    s->password, data, SESMAN_SESSION_TYPE_XVNC,
-                                    s->domain, s->program, s->directory, s->client_ip);
+            display = session_start(data, SESMAN_SESSION_TYPE_XVNC, s);
         }
         else
         {
             log_message(LOG_LEVEL_INFO, "starting X11rdp session...");
-            display = session_start(s->width, s->height, s->bpp, s->username,
-                                    s->password, data, SESMAN_SESSION_TYPE_XRDP,
-                                    s->domain, s->program, s->directory, s->client_ip);
+            display = session_start(data, SESMAN_SESSION_TYPE_XRDP, s);
         }
 
         e = scp_v1s_connect_new_session(c, display);
@@ -204,12 +197,11 @@ scp_v1_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
     }
 
     /* cleanup */
-    scp_session_destroy(s);
     auth_end(data);
     g_free(slist);
 }
 
-static void parseCommonStates(enum SCP_SERVER_STATES_E e, char *f)
+static void parseCommonStates(enum SCP_SERVER_STATES_E e, const char *f)
 {
     switch (e)
     {

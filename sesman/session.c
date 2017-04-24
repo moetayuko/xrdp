@@ -29,8 +29,22 @@
  *
  */
 
+#if defined(HAVE_CONFIG_H)
+#include "config_ac.h"
+#endif
+
+#ifdef HAVE_SYS_PRCTL_H
+#include <sys/prctl.h>
+#endif
+
 #include "sesman.h"
 #include "libscp_types.h"
+#include "xauth.h"
+
+#ifndef PR_SET_NO_NEW_PRIVS
+#define PR_SET_NO_NEW_PRIVS 38
+#endif
+
 
 extern unsigned char g_fixedkey[8];
 extern struct config_sesman *g_cfg; /* in sesman.c */
@@ -77,7 +91,8 @@ dumpItemsToString(struct list *self, char *outstr, int len)
 
 /******************************************************************************/
 struct session_item *DEFAULT_CC
-session_get_bydata(char *name, int width, int height, int bpp, int type, char *client_ip)
+session_get_bydata(const char *name, int width, int height, int bpp, int type,
+                   const char *client_ip)
 {
     struct session_chain *tmp;
     enum SESMAN_CFG_SESS_POLICY policy = g_cfg->sess.policy;
@@ -89,7 +104,9 @@ session_get_bydata(char *name, int width, int height, int bpp, int type, char *c
     {
         case SCP_SESSION_TYPE_XVNC: /* 0 */
             type = SESMAN_SESSION_TYPE_XVNC; /* 2 */
-            policy |= SESMAN_CFG_SESS_POLICY_D;  /* Xvnc cannot resize */
+            /* Xvnc cannot resize */
+            policy = (enum SESMAN_CFG_SESS_POLICY)
+                     (policy | SESMAN_CFG_SESS_POLICY_D);
             break;
         case SCP_SESSION_TYPE_XRDP: /* 1 */
             type = SESMAN_SESSION_TYPE_XRDP; /* 1 */
@@ -284,8 +301,11 @@ session_start_sessvc(int xpid, int wmpid, long data, char *username, int display
     list_add_item(sessvc_params, (tintptr)g_strdup(wmpid_str));
     list_add_item(sessvc_params, 0); /* mandatory */
 
-    env_set_user(username, 0, display,
-                 g_cfg->session_variables1, g_cfg->session_variables2);
+    env_set_user(username,
+                 0,
+                 display,
+                 g_cfg->session_variables1,
+                 g_cfg->session_variables2);
 
     /* executing sessvc */
     g_execvp(exe_path, ((char **)sessvc_params->items));
@@ -402,9 +422,7 @@ wait_for_xserver(int display)
 /******************************************************************************/
 /* called with the main thread */
 static int APP_CC
-session_start_fork(int width, int height, int bpp, char *username,
-                   char *password, tbus data, tui8 type, char *domain,
-                   char *program, char *directory, char *client_ip)
+session_start_fork(tbus data, tui8 type, struct SCP_SESSION *s)
 {
     int display = 0;
     int pid = 0;
@@ -412,19 +430,19 @@ session_start_fork(int width, int height, int bpp, char *username,
     int pampid = 0;
     int xpid = 0;
     int i = 0;
-    char *xserver; /* absolute/relative path to Xorg/X11rdp/Xvnc */
     char geometry[32];
     char depth[32];
     char screen[32]; /* display number */
     char text[256];
-    char passwd_file[256];
-    char *pfile;
+    char execvpparams[2048];
+    char *xserver; /* absolute/relative path to Xorg/X11rdp/Xvnc */
+    char *passwd_file;
     char **pp1 = (char **)NULL;
     struct session_chain *temp = (struct session_chain *)NULL;
     struct list *xserver_params = (struct list *)NULL;
-    time_t ltime;
     struct tm stime;
-    char execvpparams[2048];
+    time_t ltime;
+    char authfile[256]; /* The filename for storing xauth informations */
 
     /* initialize (zero out) local variables: */
     g_memset(&ltime, 0, sizeof(time_t));
@@ -433,13 +451,14 @@ session_start_fork(int width, int height, int bpp, char *username,
     g_memset(depth, 0, sizeof(char) * 32);
     g_memset(screen, 0, sizeof(char) * 32);
     g_memset(text, 0, sizeof(char) * 256);
-    g_memset(passwd_file, 0, sizeof(char) * 256);
+
+    passwd_file = 0;
 
     /* check to limit concurrent sessions */
     if (g_session_count >= g_cfg->sess.max_sessions)
     {
         log_message(LOG_LEVEL_INFO, "max concurrent session limit "
-                    "exceeded. login for user %s denied", username);
+                    "exceeded. login for user %s denied", s->username);
         return 0;
     }
 
@@ -448,7 +467,7 @@ session_start_fork(int width, int height, int bpp, char *username,
     if (temp == 0)
     {
         log_message(LOG_LEVEL_ERROR, "cannot create new chain "
-                    "element - user %s", username);
+                    "element - user %s", s->username);
         return 0;
     }
 
@@ -458,7 +477,7 @@ session_start_fork(int width, int height, int bpp, char *username,
     {
         g_free(temp);
         log_message(LOG_LEVEL_ERROR, "cannot create new session "
-                    "item - user %s", username);
+                    "item - user %s", s->username);
         return 0;
     }
 
@@ -479,10 +498,10 @@ session_start_fork(int width, int height, int bpp, char *username,
     }
     else if (pid == 0)
     {
-        g_tcp_close(g_term_event);
+        g_delete_wait_obj(g_term_event);
         g_tcp_close(g_sck);
-        g_sprintf(geometry, "%dx%d", width, height);
-        g_sprintf(depth, "%d", bpp);
+        g_sprintf(geometry, "%dx%d", s->width, s->height);
+        g_sprintf(depth, "%d", s->bpp);
         g_sprintf(screen, ":%d", display);
 #ifdef __FreeBSD__
         /*
@@ -511,10 +530,10 @@ session_start_fork(int width, int height, int bpp, char *username,
                             "setsid failed - pid %d", g_getpid());
             }
 
-            if (g_setlogin(username) < 0)
+            if (g_setlogin(s->username) < 0)
             {
                 log_message(LOG_LEVEL_ERROR,
-                            "setlogin failed for user %s - pid %d", username,
+                            "setlogin failed for user %s - pid %d", s->username,
                             g_getpid());
             }
         }
@@ -537,27 +556,29 @@ session_start_fork(int width, int height, int bpp, char *username,
             }
             else if (pampid == 0)
             {
-                env_set_user(username, 0, display,
+                env_set_user(s->username,
+                             0,
+                             display,
                              g_cfg->session_variables1,
                              g_cfg->session_variables2);
                 if (x_server_running(display))
                 {
                     auth_set_env(data);
-                    if (directory != 0)
+                    if (s->directory != 0)
                     {
-                        if (directory[0] != 0)
+                        if (s->directory[0] != 0)
                         {
-                            g_set_current_dir(directory);
+                            g_set_current_dir(s->directory);
                         }
                     }
-                    if (program != 0)
+                    if (s->program != 0)
                     {
-                        if (program[0] != 0)
+                        if (s->program[0] != 0)
                         {
-                            g_execlp3(program, program, 0);
+                            g_execlp3(s->program, s->program, 0);
                             log_message(LOG_LEVEL_ALWAYS,
                                         "error starting program %s for user %s - pid %d",
-                                        program, username, g_getpid());
+                                        s->program, s->username, g_getpid());
                         }
                     }
                     /* try to execute user window manager if enabled */
@@ -568,7 +589,7 @@ session_start_fork(int width, int height, int bpp, char *username,
                         {
                             g_execlp3(text, g_cfg->user_wm, 0);
                             log_message(LOG_LEVEL_ALWAYS, "error starting user "
-                                        "wm for user %s - pid %d", username, g_getpid());
+                                        "wm for user %s - pid %d", s->username, g_getpid());
                             /* logging parameters */
                             log_message(LOG_LEVEL_DEBUG, "errno: %d, "
                                         "description: %s", g_get_errno(), g_get_strerror());
@@ -586,7 +607,7 @@ session_start_fork(int width, int height, int bpp, char *username,
                     g_execlp3(text, g_cfg->default_wm, 0);
 
                     log_message(LOG_LEVEL_ALWAYS, "error starting default "
-                                 "wm for user %s - pid %d", username, g_getpid());
+                                 "wm for user %s - pid %d", s->username, g_getpid());
                     /* logging parameters */
                     log_message(LOG_LEVEL_DEBUG, "errno: %d, description: "
                                 "%s", g_get_errno(), g_get_strerror());
@@ -601,7 +622,7 @@ session_start_fork(int width, int height, int bpp, char *username,
 
                     /* should not get here */
                     log_message(LOG_LEVEL_ALWAYS, "error starting xterm "
-                                "for user %s - pid %d", username, g_getpid());
+                                "for user %s - pid %d", s->username, g_getpid());
                     /* logging parameters */
                     log_message(LOG_LEVEL_DEBUG, "errno: %d, description: "
                                 "%s", g_get_errno(), g_get_strerror());
@@ -632,14 +653,23 @@ session_start_fork(int width, int height, int bpp, char *username,
             }
             else if (xpid == 0) /* child */
             {
-                pfile = 0;
                 if (type == SESMAN_SESSION_TYPE_XVNC)
                 {
-                    pfile = passwd_file;
+                    env_set_user(s->username,
+                                 &passwd_file,
+                                 display,
+                                 g_cfg->session_variables1,
+                                 g_cfg->session_variables2);
                 }
-                env_set_user(username, pfile, display,
-                             g_cfg->session_variables1,
-                             g_cfg->session_variables2);
+                else
+                {
+                    env_set_user(s->username,
+                                 0,
+                                 display,
+                                 g_cfg->session_variables1,
+                                 g_cfg->session_variables2);
+                }
+
 
                 g_snprintf(text, 255, "%d", g_cfg->sess.max_idle_time);
                 g_setenv("XRDP_SESMAN_MAX_IDLE_TIME", text, 1);
@@ -648,21 +678,53 @@ session_start_fork(int width, int height, int bpp, char *username,
                 g_snprintf(text, 255, "%d", g_cfg->sess.kill_disconnected);
                 g_setenv("XRDP_SESMAN_KILL_DISCONNECTED", text, 1);
 
+                /* prepare the Xauthority stuff */
+                if (g_getenv("XAUTHORITY") != NULL)
+                {
+                    g_snprintf(authfile, 255, "%s", g_getenv("XAUTHORITY"));
+                }
+                else
+                {
+                    g_snprintf(authfile, 255, "%s", ".Xauthority");
+                }
+
+                /* Add the entry in XAUTHORITY file or exit if error */
+                if (add_xauth_cookie(display, authfile) != 0)
+                {
+                    g_exit(1);
+                }
+
                 if (type == SESMAN_SESSION_TYPE_XORG)
                 {
+#ifdef HAVE_SYS_PRCTL_H
+                    /*
+                     * Make sure Xorg doesn't run setuid root. Root access is not
+                     * needed. Xorg can fail when run as root and the user has no
+                     * console permissions.
+                     * PR_SET_NO_NEW_PRIVS requires Linux kernel 3.5 and newer.
+                     */
+                    if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0)
+                    {
+                        log_message(LOG_LEVEL_WARNING,
+                                    "Failed to disable setuid on X server: %s",
+                                    g_get_strerror());
+                    }
+#endif
+
                     xserver_params = list_create();
                     xserver_params->auto_free = 1;
 
                     /* get path of Xorg from config */
                     xserver = g_strdup((const char *)list_get_item(g_cfg->xorg_params, 0));
-                    list_remove_item(g_cfg->xorg_params, 0);
 
                     /* these are the must have parameters */
                     list_add_item(xserver_params, (tintptr) g_strdup(xserver));
                     list_add_item(xserver_params, (tintptr) g_strdup(screen));
+                    list_add_item(xserver_params, (tintptr) g_strdup("-auth"));
+                    list_add_item(xserver_params, (tintptr) g_strdup(authfile));
 
                     /* additional parameters from sesman.ini file */
-                    list_append_list_strdup(g_cfg->xorg_params, xserver_params, 0);
+                    list_append_list_strdup(g_cfg->xorg_params, xserver_params, 1);
 
                     /* make sure it ends with a zero */
                     list_add_item(xserver_params, 0);
@@ -672,10 +734,10 @@ session_start_fork(int width, int height, int bpp, char *username,
                     log_message(LOG_LEVEL_INFO, "%s", dumpItemsToString(xserver_params, execvpparams, 2048));
 
                     /* some args are passed via env vars */
-                    g_sprintf(geometry, "%d", width);
+                    g_sprintf(geometry, "%d", s->width);
                     g_setenv("XRDP_START_WIDTH", geometry, 1);
 
-                    g_sprintf(geometry, "%d", height);
+                    g_sprintf(geometry, "%d", s->height);
                     g_setenv("XRDP_START_HEIGHT", geometry, 1);
 
                     /* fire up Xorg */
@@ -683,17 +745,20 @@ session_start_fork(int width, int height, int bpp, char *username,
                 }
                 else if (type == SESMAN_SESSION_TYPE_XVNC)
                 {
-                    env_check_password_file(passwd_file, password);
+                    char guid_str[64];
+                    g_bytes_to_hexstr(s->guid, 16, guid_str, 64);
+                    env_check_password_file(passwd_file, guid_str);
                     xserver_params = list_create();
                     xserver_params->auto_free = 1;
 
                     /* get path of Xvnc from config */
                     xserver = g_strdup((const char *)list_get_item(g_cfg->vnc_params, 0));
-                    list_remove_item(g_cfg->vnc_params, 0);
 
                     /* these are the must have parameters */
                     list_add_item(xserver_params, (tintptr)g_strdup(xserver));
                     list_add_item(xserver_params, (tintptr)g_strdup(screen));
+                    list_add_item(xserver_params, (tintptr)g_strdup("-auth"));
+                    list_add_item(xserver_params, (tintptr)g_strdup(authfile));
                     list_add_item(xserver_params, (tintptr)g_strdup("-geometry"));
                     list_add_item(xserver_params, (tintptr)g_strdup(geometry));
                     list_add_item(xserver_params, (tintptr)g_strdup("-depth"));
@@ -701,10 +766,12 @@ session_start_fork(int width, int height, int bpp, char *username,
                     list_add_item(xserver_params, (tintptr)g_strdup("-rfbauth"));
                     list_add_item(xserver_params, (tintptr)g_strdup(passwd_file));
 
+                    g_free(passwd_file);
+
                     /* additional parameters from sesman.ini file */
                     //config_read_xserver_params(SESMAN_SESSION_TYPE_XVNC,
                     //                           xserver_params);
-                    list_append_list_strdup(g_cfg->vnc_params, xserver_params, 0);
+                    list_append_list_strdup(g_cfg->vnc_params, xserver_params, 1);
 
                     /* make sure it ends with a zero */
                     list_add_item(xserver_params, 0);
@@ -719,11 +786,12 @@ session_start_fork(int width, int height, int bpp, char *username,
 
                     /* get path of X11rdp from config */
                     xserver = g_strdup((const char *)list_get_item(g_cfg->rdp_params, 0));
-                    list_remove_item(g_cfg->rdp_params, 0);
 
                     /* these are the must have parameters */
                     list_add_item(xserver_params, (tintptr)g_strdup(xserver));
                     list_add_item(xserver_params, (tintptr)g_strdup(screen));
+                    list_add_item(xserver_params, (tintptr)g_strdup("-auth"));
+                    list_add_item(xserver_params, (tintptr)g_strdup(authfile));
                     list_add_item(xserver_params, (tintptr)g_strdup("-geometry"));
                     list_add_item(xserver_params, (tintptr)g_strdup(geometry));
                     list_add_item(xserver_params, (tintptr)g_strdup("-depth"));
@@ -732,7 +800,7 @@ session_start_fork(int width, int height, int bpp, char *username,
                     /* additional parameters from sesman.ini file */
                     //config_read_xserver_params(SESMAN_SESSION_TYPE_XRDP,
                     //                           xserver_params);
-                    list_append_list_strdup(g_cfg->rdp_params, xserver_params, 0);
+                    list_append_list_strdup(g_cfg->rdp_params, xserver_params, 1);
 
                     /* make sure it ends with a zero */
                     list_add_item(xserver_params, 0);
@@ -743,13 +811,13 @@ session_start_fork(int width, int height, int bpp, char *username,
                 else
                 {
                     log_message(LOG_LEVEL_ALWAYS, "bad session type - "
-                                "user %s - pid %d", username, g_getpid());
+                                "user %s - pid %d", s->username, g_getpid());
                     g_exit(1);
                 }
 
                 /* should not get here */
                 log_message(LOG_LEVEL_ALWAYS, "error starting X server "
-                            "- user %s - pid %d", username, g_getpid());
+                            "- user %s - pid %d", s->username, g_getpid());
 
                 /* logging parameters */
                 log_message(LOG_LEVEL_DEBUG, "errno: %d, description: "
@@ -774,7 +842,7 @@ session_start_fork(int width, int height, int bpp, char *username,
                 g_snprintf(text, 255, ":%d.0", display);
                 g_setenv("DISPLAY", text, 1);
                 /* new style waiting for clients */
-                session_start_sessvc(xpid, wmpid, data, username, display);
+                session_start_sessvc(xpid, wmpid, data, s->username, display);
             }
         }
     }
@@ -782,12 +850,13 @@ session_start_fork(int width, int height, int bpp, char *username,
     {
         temp->item->pid = pid;
         temp->item->display = display;
-        temp->item->width = width;
-        temp->item->height = height;
-        temp->item->bpp = bpp;
+        temp->item->width = s->width;
+        temp->item->height = s->height;
+        temp->item->bpp = s->bpp;
         temp->item->data = data;
-        g_strncpy(temp->item->client_ip, client_ip, 255);   /* store client ip data */
-        g_strncpy(temp->item->name, username, 255);
+        g_strncpy(temp->item->client_ip, s->client_ip, 255);   /* store client ip data */
+        g_strncpy(temp->item->name, s->username, 255);
+        g_memcpy(temp->item->guid, s->guid, 16);
 
         ltime = g_time1();
         localtime_r(&ltime, &stime);
@@ -829,8 +898,11 @@ session_reconnect_fork(int display, char *username)
     }
     else if (pid == 0)
     {
-        env_set_user(username, 0, display,
-                     g_cfg->session_variables1, g_cfg->session_variables2);
+        env_set_user(username,
+                     0,
+                     display,
+                     g_cfg->session_variables1,
+                     g_cfg->session_variables2);
         g_snprintf(text, 255, "%s/%s", XRDP_CFG_PATH, "reconnectwm.sh");
 
         if (g_file_exist(text))
@@ -848,13 +920,9 @@ session_reconnect_fork(int display, char *username)
 /* called by a worker thread, ask the main thread to call session_sync_start
    and wait till done */
 int DEFAULT_CC
-session_start(int width, int height, int bpp, char *username, char *password,
-              long data, tui8 type, char *domain, char *program,
-              char *directory, char *client_ip)
+session_start(long data, tui8 type, struct SCP_SESSION *s)
 {
-    return session_start_fork(width, height, bpp, username,
-                              password, data, type, domain,
-                              program, directory, client_ip);
+    return session_start_fork(data, type, s);
 }
 
 /******************************************************************************/
@@ -959,11 +1027,11 @@ session_get_bypid(int pid)
     struct session_chain *tmp;
     struct session_item *dummy;
 
-    dummy = g_malloc(sizeof(struct session_item), 1);
+    dummy = g_new0(struct session_item, 1);
 
     if (0 == dummy)
     {
-        log_message(LOG_LEVEL_ERROR, "internal error", pid);
+        log_message(LOG_LEVEL_ERROR, "session_get_bypid: out of memory");
         return 0;
     }
 
@@ -995,7 +1063,7 @@ session_get_bypid(int pid)
 
 /******************************************************************************/
 struct SCP_DISCONNECTED_SESSION *
-session_get_byuser(char *user, int *cnt, unsigned char flags)
+session_get_byuser(const char *user, int *cnt, unsigned char flags)
 {
     struct session_chain *tmp;
     struct SCP_DISCONNECTED_SESSION *sess;
@@ -1033,7 +1101,7 @@ session_get_byuser(char *user, int *cnt, unsigned char flags)
     }
 
     /* malloc() an array of disconnected sessions */
-    sess = g_malloc(count *sizeof(struct SCP_DISCONNECTED_SESSION), 1);
+    sess = g_new0(struct SCP_DISCONNECTED_SESSION, count);
 
     if (sess == 0)
     {

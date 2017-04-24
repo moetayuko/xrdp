@@ -48,7 +48,10 @@ int main(int argc, char **argv)
     char text[256];
     char *displayname = NULL;
     char *outfname;
-    char *sections[8] = {"noshift", "shift", "altgr", "shiftaltgr", "capslock", "capslockaltgr", "shiftcapslock", "shiftcapslockaltgr"};
+    const char *sections[8] = {
+        "noshift", "shift", "altgr", "shiftaltgr",
+        "capslock", "capslockaltgr", "shiftcapslock", "shiftcapslockaltgr"
+    };
     int states[8] = {0, 1, 0x80, 0x81, 2, 0x82, 3, 0x83};
     int i;
     int idx;
@@ -70,7 +73,7 @@ int main(int argc, char **argv)
     if (argc != 2)
     {
         fprintf(stderr, "Usage: %s out_filename\n", programname);
-        fprintf(stderr, "Example: %s /etc/xrdp/km-0409.ini\n", programname);
+        fprintf(stderr, "Example: %s /etc/xrdp/km-00000409.ini\n", programname);
         return 1;
     }
 

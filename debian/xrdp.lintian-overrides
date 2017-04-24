@@ -1,6 +1,3 @@
-# there is none
-xrdp: no-upstream-changelog
-
 # debhelper-generated
 xrdp: postinst-has-useless-call-to-ldconfig
 xrdp: package-has-unnecessary-activation-of-ldconfig-trigger

@@ -21,6 +21,10 @@
 ;amd64 SSE2
 ;
 
+%ifidn __OUTPUT_FORMAT__,elf64
+SECTION .note.GNU-stack noalloc noexec nowrite progbits
+%endif
+
 SECTION .data
 align 16
 c1 times 4 dd 0xFF00FF00
@@ -38,14 +42,18 @@ SECTION .text
 ;The first six integer or pointer arguments are passed in registers
 ; RDI, RSI, RDX, RCX, R8, and R9
 
-; s8 and d8 do not need to be alighed but they should match
+; s8 and d8 do not need to be aligned but they should match
 ; in the lsb nibble, ie. s8 & 0xf == d8 & 0xf
 ; if not, it won't make use of the simd
 ;int
 ;a8r8g8b8_to_a8b8g8r8_box_amd64_sse2(char *s8, int src_stride,
 ;                                    char *d8, int dst_stride,
 ;                                    int width, int height);
+%ifidn __OUTPUT_FORMAT__,elf64
 PROC a8r8g8b8_to_a8b8g8r8_box_amd64_sse2
+%else
+PROC _a8r8g8b8_to_a8b8g8r8_box_amd64_sse2
+%endif
     push rbx
     push rbp
 

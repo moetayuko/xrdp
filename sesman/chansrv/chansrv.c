@@ -55,7 +55,7 @@ static tbus g_thread_done_event = 0;
 
 static int g_use_unix_socket = 0;
 
-static char g_xrdpapi_magic[12] =
+static const unsigned char g_xrdpapi_magic[12] =
 { 0x78, 0x32, 0x10, 0x67, 0x00, 0x92, 0x30, 0x56, 0xff, 0xd8, 0xa9, 0x1f };
 
 int g_display_num = 0;
@@ -97,7 +97,7 @@ add_timeout(int msoffset, void (*callback)(void *data), void *data)
 
     LOG(10, ("add_timeout:"));
     now = g_time3();
-    tobj = g_malloc(sizeof(struct timeout_obj), 1);
+    tobj = g_new0(struct timeout_obj, 1);
     tobj->mstime = now + msoffset;
     tobj->callback = callback;
     tobj->data = data;
@@ -734,8 +734,7 @@ process_message(void)
                 rv = process_message_channel_data_response(s);
                 break;
             default:
-                LOGM((LOG_LEVEL_ERROR, "process_message: error in process_message ",
-                      "unknown msg %d", id));
+                LOGM((LOG_LEVEL_ERROR, "process_message: unknown msg %d", id));
                 break;
         }
 
@@ -1388,22 +1387,60 @@ read_ini(void)
 }
 
 /*****************************************************************************/
-static char* APP_CC
-get_log_path()
+static int APP_CC
+get_log_path(char *path, int bytes)
 {
-    char* log_path = 0;
+    char* log_path;
+    int rv;
 
+    rv = 1;
     log_path = g_getenv("CHANSRV_LOG_PATH");
     if (log_path == 0)
     {
-        log_path = g_getenv("HOME");
+        log_path = g_getenv("XDG_DATA_HOME");
+        if (log_path != 0)
+        {
+            g_snprintf(path, bytes, "%s%s", log_path, "/xrdp");
+            if (g_directory_exist(path) || (g_mkdir(path) == 0))
+            {
+                rv = 0;
+            }
+        }
     }
-    return log_path;
+    else
+    {
+        g_snprintf(path, bytes, "%s", log_path);
+        if (g_directory_exist(path) || (g_mkdir(path) == 0))
+        {
+            rv = 0;
+        }
+    }
+    if (rv != 0)
+    {
+        log_path = g_getenv("HOME");
+        if (log_path != 0)
+        {
+            g_snprintf(path, bytes, "%s%s", log_path, "/.local");
+            if (g_directory_exist(path) || (g_mkdir(path) == 0))
+            {
+                g_snprintf(path, bytes, "%s%s", log_path, "/.local/share");
+                if (g_directory_exist(path) || (g_mkdir(path) == 0))
+                {
+                    g_snprintf(path, bytes, "%s%s", log_path, "/.local/share/xrdp");
+                    if (g_directory_exist(path) || (g_mkdir(path) == 0))
+                    {
+                        rv = 0;
+                    }
+                }
+            }
+        }
+    }
+    return rv;
 }
 
 /*****************************************************************************/
-static unsigned int APP_CC
-get_log_level(const char* level_str, unsigned int default_level)
+static enum logLevels APP_CC
+get_log_level(const char* level_str, enum logLevels default_level)
 {
     static const char* levels[] = {
         "LOG_LEVEL_ALWAYS",
@@ -1422,7 +1459,7 @@ get_log_level(const char* level_str, unsigned int default_level)
     {
         if (g_strcasecmp(levels[i], level_str) == 0)
         {
-            return i;
+            return (enum logLevels) i;
         }
     }
     return default_level;
@@ -1462,17 +1499,17 @@ main(int argc, char **argv)
     tbus waiters[4];
     int pid = 0;
     char text[256];
-    char* log_path;
+    char log_path[256];
     char *display_text;
     char log_file[256];
     enum logReturns error;
     struct log_config logconfig;
-    unsigned int log_level;
+    enum logLevels log_level;
 
     g_init("xrdp-chansrv"); /* os_calls */
 
-    log_path = get_log_path();
-    if (log_path == 0)
+    log_path[255] = 0;
+    if (get_log_path(log_path, 255) != 0)
     {
         g_writeln("error reading CHANSRV_LOG_PATH and HOME environment variable");
         g_deinit();
@@ -1499,7 +1536,7 @@ main(int argc, char **argv)
     logconfig.fd = -1;
     logconfig.log_level = log_level;
     logconfig.enable_syslog = 0;
-    logconfig.syslog_level = 0;
+    logconfig.syslog_level = LOG_LEVEL_ALWAYS;
     error = log_start_from_param(&logconfig);
 
     if (error != LOG_STARTUP_OK)
@@ -1629,7 +1666,8 @@ struct_from_dvc_chan_id(tui32 dvc_chan_id)
 
     for (i = 0; i < MAX_DVC_CHANNELS; i++)
     {
-        if (g_dvc_channels[i]->dvc_chan_id == dvc_chan_id)
+        if (g_dvc_channels[i]->dvc_chan_id >= 0 &&
+            (tui32) g_dvc_channels[i]->dvc_chan_id == dvc_chan_id)
         {
             return g_dvc_channels[i];
         }
@@ -1645,7 +1683,8 @@ remove_struct_with_chan_id(tui32 dvc_chan_id)
 
     for (i = 0; i < MAX_DVC_CHANNELS; i++)
     {
-        if (g_dvc_channels[i]->dvc_chan_id == dvc_chan_id)
+        if (g_dvc_channels[i]->dvc_chan_id >= 0 &&
+            (tui32) g_dvc_channels[i]->dvc_chan_id == dvc_chan_id)
         {
             g_dvc_channels[i] = NULL;
             return 0;

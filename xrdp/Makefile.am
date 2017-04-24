@@ -1,18 +1,7 @@
-EXTRA_INCLUDES =
-EXTRA_LIBS =
-EXTRA_FLAGS =
-
-if XRDP_DEBUG
-EXTRA_DEFINES = -DXRDP_DEBUG
-else
-EXTRA_DEFINES = -DXRDP_NODEBUG
-endif
-
-if XRDP_RFXCODEC
-EXTRA_DEFINES += -DXRDP_RFXCODEC
-EXTRA_INCLUDES += -I$(top_srcdir)/librfxcodec/include
-EXTRA_LIBS += $(top_srcdir)/librfxcodec/src/librfxencode.a
-endif
+EXTRA_DIST = \
+  czech.txt \
+  rdp-scan-codes.txt \
+  xrdpwin.c
 
 AM_CPPFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
@@ -20,11 +9,35 @@ AM_CPPFLAGS = \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -DXRDP_MODULE_PATH=\"${moduledir}\" \
-  $(EXTRA_DEFINES) \
   -I$(top_builddir) \
   -I$(top_srcdir)/common \
-  -I$(top_srcdir)/libxrdp \
-  $(EXTRA_INCLUDES)
+  -I$(top_srcdir)/libxrdp
+
+XRDP_EXTRA_LIBS =
+
+if XRDP_DEBUG
+AM_CPPFLAGS += -DXRDP_DEBUG
+else
+AM_CPPFLAGS += -DXRDP_NODEBUG
+endif
+
+if XRDP_RFXCODEC
+AM_CPPFLAGS += -DXRDP_RFXCODEC
+AM_CPPFLAGS += -I$(top_srcdir)/librfxcodec/include
+XRDP_EXTRA_LIBS += $(top_builddir)/librfxcodec/src/.libs/librfxencode.a
+endif
+
+if XRDP_PIXMAN
+AM_CPPFLAGS += -DXRDP_PIXMAN
+AM_CPPFLAGS += $(PIXMAN_CFLAGS)
+XRDP_EXTRA_LIBS += $(PIXMAN_LIBS)
+endif
+
+if XRDP_PAINTER
+AM_CPPFLAGS += -DXRDP_PAINTER
+AM_CPPFLAGS += -I$(top_srcdir)/libpainter/include
+XRDP_EXTRA_LIBS += $(top_builddir)/libpainter/src/.libs/libpainter.a
+endif
 
 sbin_PROGRAMS = \
   xrdp
@@ -51,10 +64,7 @@ xrdp_SOURCES = \
 xrdp_LDADD = \
   $(top_builddir)/common/libcommon.la \
   $(top_builddir)/libxrdp/libxrdp.la \
-  $(EXTRA_LIBS)
-
-xrdp_LDFLAGS = \
-  $(EXTRA_FLAGS)
+  $(XRDP_EXTRA_LIBS)
 
 xrdpsysconfdir=$(sysconfdir)/xrdp
 

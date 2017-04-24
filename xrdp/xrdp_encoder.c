@@ -42,8 +42,10 @@
 /*****************************************************************************/
 static int
 process_enc_jpg(struct xrdp_encoder *self, XRDP_ENC_DATA *enc);
+#ifdef XRDP_RFXCODEC
 static int
 process_enc_rfx(struct xrdp_encoder *self, XRDP_ENC_DATA *enc);
+#endif
 static int
 process_enc_h264(struct xrdp_encoder *self, XRDP_ENC_DATA *enc);
 
@@ -52,15 +54,17 @@ struct xrdp_encoder *APP_CC
 xrdp_encoder_create(struct xrdp_mm *mm)
 {
     struct xrdp_encoder *self;
+    struct xrdp_client_info *client_info;
     char buf[1024];
     int pid;
 
-    if (mm->wm->client_info->mcs_connection_type != 6) /* LAN */
+    client_info = mm->wm->client_info;
+
+    if (client_info->mcs_connection_type != 6) /* LAN */
     {
         return 0;
     }
-
-    if (mm->wm->client_info->bpp < 24)
+    if (client_info->bpp < 24)
     {
         return 0;
     }
@@ -68,39 +72,38 @@ xrdp_encoder_create(struct xrdp_mm *mm)
     self = (struct xrdp_encoder *)g_malloc(sizeof(struct xrdp_encoder), 1);
     self->mm = mm;
 
-    if (mm->wm->client_info->jpeg_codec_id != 0)
+    if (client_info->jpeg_codec_id != 0)
     {
         LLOGLN(0, ("xrdp_encoder_create: starting jpeg codec session"));
-        self->codec_id = mm->wm->client_info->jpeg_codec_id;
+        self->codec_id = client_info->jpeg_codec_id;
         self->in_codec_mode = 1;
-        self->codec_quality = mm->wm->client_info->jpeg_prop[0];
-        mm->wm->client_info->capture_code = 0;
-        mm->wm->client_info->capture_format =
+        self->codec_quality = client_info->jpeg_prop[0];
+        client_info->capture_code = 0;
+        client_info->capture_format =
             /* XRDP_a8b8g8r8 */
             (32 << 24) | (3 << 16) | (8 << 12) | (8 << 8) | (8 << 4) | 8;
         self->process_enc = process_enc_jpg;
     }
-    else if (mm->wm->client_info->rfx_codec_id != 0)
+#ifdef XRDP_RFXCODEC
+    else if (client_info->rfx_codec_id != 0)
     {
         LLOGLN(0, ("xrdp_encoder_create: starting rfx codec session"));
-        self->codec_id = mm->wm->client_info->rfx_codec_id;
+        self->codec_id = client_info->rfx_codec_id;
         self->in_codec_mode = 1;
-        mm->wm->client_info->capture_code = 2;
+        client_info->capture_code = 2;
         self->process_enc = process_enc_rfx;
-#ifdef XRDP_RFXCODEC
-        self->codec_handle =
-            rfxcodec_encode_create(mm->wm->screen->width,
-                                   mm->wm->screen->height,
-                                   RFX_FORMAT_YUV, 0);
-#endif
+        self->codec_handle = rfxcodec_encode_create(mm->wm->screen->width,
+                                                    mm->wm->screen->height,
+                                                    RFX_FORMAT_YUV, 0);
     }
-    else if (mm->wm->client_info->h264_codec_id != 0)
+#endif
+    else if (client_info->h264_codec_id != 0)
     {
         LLOGLN(0, ("xrdp_encoder_create: starting h264 codec session"));
-        self->codec_id = mm->wm->client_info->h264_codec_id;
+        self->codec_id = client_info->h264_codec_id;
         self->in_codec_mode = 1;
-        mm->wm->client_info->capture_code = 3;
-        mm->wm->client_info->capture_format =
+        client_info->capture_code = 3;
+        client_info->capture_format =
             /* XRDP_nv12 */
             (12 << 24) | (64 << 16) | (0 << 12) | (0 << 8) | (0 << 4) | 0;
         self->process_enc = process_enc_h264;
@@ -167,7 +170,7 @@ xrdp_encoder_delete(struct xrdp_encoder *self)
     {
         while (!fifo_is_empty(fifo))
         {
-            enc = fifo_remove_item(fifo);
+            enc = (XRDP_ENC_DATA *) fifo_remove_item(fifo);
             if (enc == 0)
             {
                 continue;
@@ -185,7 +188,7 @@ xrdp_encoder_delete(struct xrdp_encoder *self)
     {
         while (!fifo_is_empty(fifo))
         {
-            enc_done = fifo_remove_item(fifo);
+            enc_done = (XRDP_ENC_DATA_DONE *) fifo_remove_item(fifo);
             if (enc_done == 0)
             {
                 continue;
@@ -289,7 +292,6 @@ process_enc_jpg(struct xrdp_encoder *self, XRDP_ENC_DATA *enc)
 }
 
 #ifdef XRDP_RFXCODEC
-
 /*****************************************************************************/
 /* called from encoder thread */
 static int
@@ -392,17 +394,6 @@ process_enc_rfx(struct xrdp_encoder *self, XRDP_ENC_DATA *enc)
 
     return 0;
 }
-
-#else
-
-/*****************************************************************************/
-/* called from encoder thread */
-static int
-process_enc_rfx(struct xrdp_encoder *self, XRDP_ENC_DATA *enc)
-{
-    return 0;
-}
-
 #endif
 
 /*****************************************************************************/

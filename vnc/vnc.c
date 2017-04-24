@@ -49,15 +49,37 @@ lib_send_copy(struct vnc *v, struct stream *s)
 
 /******************************************************************************/
 /* taken from vncauth.c */
-void DEFAULT_CC
-rfbEncryptBytes(char *bytes, char *passwd)
+/* performing the des3 crypt on the password so it can not be seen
+   on the wire
+   'bytes' in, contains 16 bytes server random
+           out, random and 'passwd' conbined */
+static void APP_CC
+rfbEncryptBytes(char *bytes, const char *passwd)
 {
     char key[24];
+    void *des;
+    int len;
+
+    /* key is simply password padded with nulls */
+    g_memset(key, 0, sizeof(key));
+    len = MIN(g_strlen(passwd), 8);
+    g_mirror_memcpy(key, passwd, len);
+    des = ssl_des3_encrypt_info_create(key, 0);
+    ssl_des3_encrypt(des, 8, bytes, bytes);
+    ssl_des3_info_delete(des);
+    des = ssl_des3_encrypt_info_create(key, 0);
+    ssl_des3_encrypt(des, 8, bytes + 8, bytes + 8);
+    ssl_des3_info_delete(des);
+}
+
+/******************************************************************************/
+/* sha1 hash 'passwd', create a string from the hash and call rfbEncryptBytes */
+static void APP_CC
+rfbHashEncryptBytes(char *bytes, const char *passwd)
+{
     char passwd_hash[20];
     char passwd_hash_text[40];
-    void *des;
     void *sha1;
-    int len;
     int passwd_bytes;
 
     /* create password hash from password */
@@ -72,18 +94,7 @@ rfbEncryptBytes(char *bytes, char *passwd)
                (tui8)passwd_hash[0], (tui8)passwd_hash[1],
                (tui8)passwd_hash[2], (tui8)passwd_hash[3]);
     passwd_hash_text[39] = 0;
-    passwd = passwd_hash_text;
-
-    /* key is simply password padded with nulls */
-    g_memset(key, 0, sizeof(key));
-    len = MIN(g_strlen(passwd), 8);
-    g_mirror_memcpy(key, passwd, len);
-    des = ssl_des3_encrypt_info_create(key, 0);
-    ssl_des3_encrypt(des, 8, bytes, bytes);
-    ssl_des3_info_delete(des);
-    des = ssl_des3_encrypt_info_create(key, 0);
-    ssl_des3_encrypt(des, 8, bytes + 8, bytes + 8);
-    ssl_des3_info_delete(des);
+    rfbEncryptBytes(bytes, passwd_hash_text);
 }
 
 /******************************************************************************/
@@ -233,7 +244,7 @@ lib_process_channel_data(struct vnc *v, int chanid, int flags, int size,
     }
     else
     {
-        log_message(LOG_LEVEL_DEBUG, "lib_process_channel_data: unknown chanid:",
+        log_message(LOG_LEVEL_DEBUG, "lib_process_channel_data: unknown chanid: "
                     "%d :(v->clip_chanid) %d", chanid, v->clip_chanid);
     }
 
@@ -587,7 +598,7 @@ lib_framebuffer_update(struct vnc *v)
     int cy;
     int srcx;
     int srcy;
-    int encoding;
+    unsigned int encoding;
     int Bpp;
     int pixel;
     int r;
@@ -1083,7 +1094,16 @@ lib_mod_connect(struct vnc *v)
                 if (error == 0)
                 {
                     init_stream(s, 8192);
-                    rfbEncryptBytes(s->data, v->password);
+                    if (v->got_guid)
+                    {
+                        char guid_str[64];
+                        g_bytes_to_hexstr(v->guid, 16, guid_str, 64);
+                        rfbHashEncryptBytes(s->data, guid_str);
+                    }
+                    else
+                    {
+                        rfbEncryptBytes(s->data, v->password);
+                    }
                     s->p += 16;
                     s_mark_end(s);
                     error = trans_force_write_s(v->trans, s);
@@ -1268,7 +1288,7 @@ lib_mod_connect(struct vnc *v)
             out_uint8(pixel_format, 0); /* blue shift */
             out_uint8s(pixel_format, 3); /* pad */
         }
-        else if (v->mod_bpp == 24)
+        else if (v->mod_bpp == 24 || v->mod_bpp == 32)
         {
             out_uint8(pixel_format, 32); /* bits per pixel */
             out_uint8(pixel_format, 24); /* depth */
@@ -1396,7 +1416,7 @@ lib_mod_end(struct vnc *v)
 
 /******************************************************************************/
 int DEFAULT_CC
-lib_mod_set_param(struct vnc *v, char *name, char *value)
+lib_mod_set_param(struct vnc *v, const char *name, char *value)
 {
     if (g_strcasecmp(name, "username") == 0)
     {
@@ -1421,6 +1441,11 @@ lib_mod_set_param(struct vnc *v, char *name, char *value)
     else if (g_strcasecmp(name, "delay_ms") == 0)
     {
         v->delay_ms = g_atoi(value);
+    }
+    else if (g_strcasecmp(name, "guid") == 0)
+    {
+        v->got_guid = 1;
+        g_memcpy(v->guid, value, 16);
     }
 
     return 0;
@@ -1465,7 +1490,7 @@ lib_mod_check_wait_objs(struct vnc *v)
 }
 
 /******************************************************************************/
-struct vnc *EXPORT_CC
+tintptr EXPORT_CC
 mod_init(void)
 {
     struct vnc *v;
@@ -1474,7 +1499,7 @@ mod_init(void)
     /* set client functions */
     v->size = sizeof(struct vnc);
     v->version = CURRENT_MOD_VER;
-    v->handle = (long)v;
+    v->handle = (tintptr) v;
     v->mod_connect = lib_mod_connect;
     v->mod_start = lib_mod_start;
     v->mod_event = lib_mod_event;
@@ -1483,13 +1508,14 @@ mod_init(void)
     v->mod_set_param = lib_mod_set_param;
     v->mod_get_wait_objs = lib_mod_get_wait_objs;
     v->mod_check_wait_objs = lib_mod_check_wait_objs;
-    return v;
+    return (tintptr) v;
 }
 
 /******************************************************************************/
 int EXPORT_CC
-mod_exit(struct vnc *v)
+mod_exit(tintptr handle)
 {
+    struct vnc *v = (struct vnc *) handle;
     log_message(LOG_LEVEL_DEBUG, "VNC mod_exit");
 
     if (v == 0)

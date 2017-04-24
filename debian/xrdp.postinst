@@ -38,13 +38,20 @@ configure)
 		rm -f /etc/xrdp/rsakeys.ini
 	fi
 
-	# generate a (512-bit, but that doesn't matter here
-	# because the RDP4 crypto is MITMable anyway)
+	# Generate snakeoil RDP security keys
 	test -e /etc/xrdp/rsakeys.ini || (
 		umask 077
 		xrdp-keygen xrdp auto
 		chown xrdp /etc/xrdp/rsakeys.ini
 	)
+
+	# Generate/link snakeoil X509 certificate and key
+	test -e /etc/xrdp/cert.pem || (
+		make-ssl-cert generate-default-snakeoil
+		ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/xrdp/cert.pem
+		ln -s /etc/ssl/private/ssl-cert-snakeoil.key /etc/xrdp/key.pem
+	)
+
 	;;
 
 abort-upgrade|abort-remove|abort-deconfigure)

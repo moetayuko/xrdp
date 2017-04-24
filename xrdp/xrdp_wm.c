@@ -18,6 +18,8 @@
  * simple window manager
  */
 
+#include <stdarg.h>
+#include <stdio.h>
 #include "xrdp.h"
 #include "log.h"
 
@@ -45,7 +47,7 @@ xrdp_wm_create(struct xrdp_process *owner,
     pid = g_getpid();
     g_snprintf(event_name, 255, "xrdp_%8.8x_wm_login_mode_event_%8.8x",
                pid, owner->session_id);
-    log_message(LOG_LEVEL_DEBUG,event_name);
+    log_message(LOG_LEVEL_DEBUG, "%s", event_name);
     self->login_mode_event = g_create_wait_obj(event_name);
     self->painter = xrdp_painter_create(self, self->session);
     self->cache = xrdp_cache_create(self, self->session, self->client_info);
@@ -60,7 +62,7 @@ xrdp_wm_create(struct xrdp_process *owner,
     self->current_surface_index = 0xffff; /* screen */
 
     /* to store configuration from xrdp.ini */
-    self->xrdp_config = g_malloc(sizeof(struct xrdp_config), 1);
+    self->xrdp_config = g_new0(struct xrdp_config, 1);
 
     return self;
 }
@@ -546,7 +548,7 @@ xrdp_wm_init(struct xrdp_wm *self)
     struct list *names;
     struct list *values;
     char *q;
-    char *r;
+    const char *r;
     char param[256];
     char section_name[256];
     char cfg_file[256];
@@ -581,7 +583,8 @@ xrdp_wm_init(struct xrdp_wm *self)
                 /* if autorun is configured in xrdp.ini, we enforce that module to be loaded */
                 g_strncpy(section_name, autorun_name, 255);
             }
-            else if (self->session->client_info->domain[0] != '_')
+            else if (self->session->client_info->domain[0] != '\0' &&
+                     self->session->client_info->domain[0] != '_')
             {
                 /* domain names that starts with '_' are reserved for IP/DNS to
                  * simplify for the user in a proxy setup */
@@ -677,9 +680,9 @@ xrdp_wm_init(struct xrdp_wm *self)
             else
             {
                 /* requested module name not found in xrdp.ini */
-                g_writeln("   xrdp_wm_init: file_read_section returned non-zero, requested section not found in xrdp.ini");
-                xrdp_wm_log_msg(self, "ERROR: The requested xrdp module not found in xrdp.ini,"
-                                      " falling back to login window");
+                xrdp_wm_log_msg(self, LOG_LEVEL_ERROR,
+                                "Section \"%s\" not configured in xrdp.ini",
+                                section_name);
             }
 
             list_delete(names);
@@ -832,44 +835,6 @@ xrdp_wm_xor_pat(struct xrdp_wm *self, int x, int y, int cx, int cy)
 }
 
 /*****************************************************************************/
-/* this don't are about nothing, just copy the bits */
-/* no clipping rects, no windows in the way, nothing */
-static int APP_CC
-xrdp_wm_bitblt(struct xrdp_wm *self,
-               struct xrdp_bitmap *dst, int dx, int dy,
-               struct xrdp_bitmap *src, int sx, int sy,
-               int sw, int sh, int rop)
-{
-    //  int i;
-    //  int line_size;
-    //  int Bpp;
-    //  char* s;
-    //  char* d;
-
-    //  if (sw <= 0 || sh <= 0)
-    //    return 0;
-    if (self->screen == dst && self->screen == src)
-    {
-        /* send a screen blt */
-        //    Bpp = (dst->bpp + 7) / 8;
-        //    line_size = sw * Bpp;
-        //    s = src->data + (sy * src->width + sx) * Bpp;
-        //    d = dst->data + (dy * dst->width + dx) * Bpp;
-        //    for (i = 0; i < sh; i++)
-        //    {
-        //      //g_memcpy(d, s, line_size);
-        //      s += src->width * Bpp;
-        //      d += dst->width * Bpp;
-        //    }
-        libxrdp_orders_init(self->session);
-        libxrdp_orders_screen_blt(self->session, dx, dy, sw, sh, sx, sy, rop, 0);
-        libxrdp_orders_send(self->session);
-    }
-
-    return 0;
-}
-
-/*****************************************************************************/
 /* return true if rect is totally exposed going in reverse z order */
 /* from wnd up */
 static int APP_CC
@@ -932,6 +897,7 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
 
     MAKERECT(rect1, wnd->left, wnd->top, wnd->width, wnd->height);
 
+    self->painter->clip_children = 0;
     if (xrdp_wm_is_rect_vis(self, wnd, &rect1))
     {
         rect2 = rect1;
@@ -939,10 +905,13 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
 
         if (xrdp_wm_is_rect_vis(self, wnd, &rect2))
         {
-            /* if both src and dst are unobscured, we can do a bitblt move */
-            xrdp_wm_bitblt(self, self->screen, wnd->left + dx, wnd->top + dy,
-                           self->screen, wnd->left, wnd->top,
-                           wnd->width, wnd->height, 0xcc);
+            xrdp_painter_begin_update(self->painter);
+            xrdp_painter_copy(self->painter, self->screen, self->screen,
+                              wnd->left + dx, wnd->top + dy,
+                              wnd->width, wnd->height,
+                              wnd->left, wnd->top);
+            xrdp_painter_end_update(self->painter);
+
             wnd->left += dx;
             wnd->top += dy;
             r = xrdp_region_create(self);
@@ -957,9 +926,11 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
             }
 
             xrdp_region_delete(r);
+            self->painter->clip_children = 1;
             return 0;
         }
     }
+    self->painter->clip_children = 1;
 
     wnd->left += dx;
     wnd->top += dy;
@@ -967,6 +938,7 @@ xrdp_wm_move_window(struct xrdp_wm *self, struct xrdp_bitmap *wnd,
     xrdp_bitmap_invalidate(wnd, 0);
     return 0;
 }
+
 
 /*****************************************************************************/
 static int APP_CC
@@ -1524,6 +1496,83 @@ xrdp_wm_key_sync(struct xrdp_wm *self, int device_flags, int key_flags)
 
 /*****************************************************************************/
 int APP_CC
+xrdp_wm_key_unicode(struct xrdp_wm *self, int device_flags, int unicode)
+{
+    int index;
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_noshift[index].chr)
+        {
+            xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            return 0;
+        }
+    }
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_shift[index].chr)
+        {
+            if (device_flags & KBD_FLAG_UP)
+            {
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                xrdp_wm_key(self, KBD_FLAG_UP, XR_RDP_SCAN_LSHIFT);
+            }
+            else
+            {
+                xrdp_wm_key(self, KBD_FLAG_DOWN, XR_RDP_SCAN_LSHIFT);
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            }
+            return 0;
+        }
+    }
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_altgr[index].chr)
+        {
+            if (device_flags & KBD_FLAG_UP)
+            {
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                xrdp_wm_key(self, KBD_FLAG_UP | KBD_FLAG_EXT,
+                            XR_RDP_SCAN_ALT);
+            }
+            else
+            {
+                xrdp_wm_key(self, KBD_FLAG_DOWN | KBD_FLAG_EXT,
+                            XR_RDP_SCAN_ALT);
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            }
+            return 0;
+        }
+    }
+
+    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    {
+        if (unicode == self->keymap.keys_shiftaltgr[index].chr)
+        {
+            if (device_flags & KBD_FLAG_UP)
+            {
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                xrdp_wm_key(self, KBD_FLAG_UP | KBD_FLAG_EXT, XR_RDP_SCAN_ALT);
+                xrdp_wm_key(self, KBD_FLAG_UP, XR_RDP_SCAN_LSHIFT);
+            }
+            else
+            {
+                xrdp_wm_key(self, KBD_FLAG_DOWN, XR_RDP_SCAN_LSHIFT);
+                xrdp_wm_key(self, KBD_FLAG_DOWN | KBD_FLAG_EXT,
+                            XR_RDP_SCAN_ALT);
+                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            }
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+/*****************************************************************************/
+int APP_CC
 xrdp_wm_pu(struct xrdp_wm *self, struct xrdp_bitmap *control)
 {
     int x;
@@ -1718,6 +1767,9 @@ callback(long id, int msg, long param1, long param2, long param3, long param4)
         case 4: /* RDP_INPUT_SCANCODE */
             rv = xrdp_wm_key(wm, param3, param1);
             break;
+        case 5: /* RDP_INPUT_UNICODE */
+            rv = xrdp_wm_key_unicode(wm, param3, param1);
+            break;
         case 0x8001: /* RDP_INPUT_MOUSE */
             rv = xrdp_wm_process_input_mouse(wm, param3, param1, param2);
             break;
@@ -1725,8 +1777,8 @@ callback(long id, int msg, long param1, long param2, long param3, long param4)
             rv = xrdp_wm_process_input_mousex(wm, param3, param1, param2);
             break;
         case 0x4444: /* invalidate, this is not from RDP_DATA_PDU_INPUT */
-            /* like the rest, its from RDP_PDU_DATA with code 33 */
-            /* its the rdp client asking for a screen update */
+            /* like the rest, it's from RDP_PDU_DATA with code 33 */
+            /* it's the rdp client asking for a screen update */
             MAKERECT(rect, param1, param2, param3, param4);
             rv = xrdp_bitmap_invalidate(wm->screen, &rect);
             break;
@@ -1857,22 +1909,21 @@ xrdp_wm_log_wnd_notify(struct xrdp_bitmap *wnd,
     return 0;
 }
 
-void add_string_to_logwindow(char *msg, struct list *log)
+static void
+add_string_to_logwindow(const char *msg, struct list *log)
 {
-
-    char *new_part_message;
-    char *current_pointer = msg ;
-    int processedlen = 0;
+    const char *new_part_message;
+    const char *current_pointer = msg;
+    int len_done = 0;
 
     do
     {
-        new_part_message = g_strndup(current_pointer, LOG_WINDOW_CHAR_PER_LINE) ;
-        g_writeln("%s",new_part_message);
-        list_add_item(log, (long)new_part_message);
-        processedlen = processedlen + g_strlen(new_part_message);
-        current_pointer = current_pointer + g_strlen(new_part_message) ;
-    }
-    while ((processedlen < g_strlen(msg)) && (processedlen < DEFAULT_STRING_LEN));
+        new_part_message = g_strndup(current_pointer, LOG_WINDOW_CHAR_PER_LINE);
+        g_writeln("%s", new_part_message);
+        list_add_item(log, (tintptr) new_part_message);
+        len_done += g_strlen(new_part_message);
+        current_pointer += g_strlen(new_part_message);
+    } while ((len_done < g_strlen(msg)) && (len_done < DEFAULT_STRING_LEN));
 }
 
 /*****************************************************************************/
@@ -1966,8 +2017,17 @@ xrdp_wm_show_log(struct xrdp_wm *self)
 
 /*****************************************************************************/
 int APP_CC
-xrdp_wm_log_msg(struct xrdp_wm *self, char *msg)
+xrdp_wm_log_msg(struct xrdp_wm *self, enum logLevels loglevel,
+                const char *fmt, ...)
 {
+    va_list ap;
+    char msg[256];
+
+    va_start(ap, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
+
+    log_message(loglevel, "xrdp_wm_log_msg: %s", msg);
     add_string_to_logwindow(msg, self->log);
     return 0;
 }

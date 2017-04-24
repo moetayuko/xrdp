@@ -1,40 +1,19 @@
-# DP: recurse into xorgxrdp/ as well (make into proper configure option?)
-# DP: also, actually install keymaps shipped (should be upstreamed)
-
+From: Thorsten Glaser <tg@mirbsd.org>
+Subject: Build system fixes
+ recurse into xorgxrdp/ as well (make into proper configure option?)
+ also, actually install keymaps shipped
+Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -24,6 +24,7 @@ SUBDIRS = \
-   mc \
-   $(NEUTRINORDPDIR) \
-   libxrdp \
-+  librfxcodec \
-   xrdp \
-   sesman \
-   keygen \
-@@ -31,4 +32,5 @@ SUBDIRS = \
-   instfiles \
+@@ -65,4 +65,5 @@ SUBDIRS = \
    genkeymap \
    xrdpapi \
+   pkgconfig \
 +  xorgxrdp \
    $(XRDPVRDIR)
---- a/common/Makefile.am
-+++ b/common/Makefile.am
-@@ -38,7 +38,12 @@ libcommon_la_SOURCES = \
-   xrdp_constants.h \
-   xrdp_rail.h
- 
-+if NEED_LIBDL
-+EXTRA_LIBDL = -ldl
-+endif
-+
- libcommon_la_LIBADD = \
-+  $(EXTRA_LIBDL) \
-   -lcrypto \
-   -lssl \
-   -lpthread
 --- a/configure.ac
 +++ b/configure.ac
-@@ -227,6 +227,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
+@@ -264,6 +264,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
    [AC_MSG_ERROR([please install libxrandr-dev or libXrandr-devel])],
    [#include <X11/Xlib.h>])
  
@@ -51,28 +30,24 @@
  AC_SUBST([moduledir], '${libdir}/xrdp')
 --- a/xrdp/Makefile.am
 +++ b/xrdp/Makefile.am
-@@ -11,7 +11,7 @@ endif
+@@ -24,7 +24,7 @@ endif
  if XRDP_RFXCODEC
- EXTRA_DEFINES += -DXRDP_RFXCODEC
- EXTRA_INCLUDES += -I$(top_srcdir)/librfxcodec/include
--EXTRA_LIBS += $(top_srcdir)/librfxcodec/src/librfxencode.a
-+EXTRA_LIBS += $(top_srcdir)/librfxcodec/src/librfxencode.la
+ AM_CPPFLAGS += -DXRDP_RFXCODEC
+ AM_CPPFLAGS += -I$(top_srcdir)/librfxcodec/include
+-XRDP_EXTRA_LIBS += $(top_builddir)/librfxcodec/src/.libs/librfxencode.a
++XRDP_EXTRA_LIBS += $(top_builddir)/librfxcodec/src/.libs/librfxencode.la
  endif
  
- AM_CPPFLAGS = \
+ if XRDP_PIXMAN
 --- a/xrdpapi/Makefile.am
 +++ b/xrdpapi/Makefile.am
-@@ -4,6 +4,7 @@ EXTRA_LIBS =
- EXTRA_FLAGS =
- 
- AM_CPPFLAGS = \
-+  -I$(top_srcdir)/common \
-   $(EXTRA_DEFINES) \
-   $(EXTRA_INCLUDES)
- 
-@@ -18,4 +19,5 @@ libxrdpapi_la_LDFLAGS = \
-   $(EXTRA_FLAGS)
- 
- libxrdpapi_la_LIBADD = \
-+  $(top_builddir)/common/libcommon.la \
-   $(EXTRA_LIBS)
+@@ -9,3 +9,9 @@ module_LTLIBRARIES = \
+ libxrdpapi_la_SOURCES = \
+   xrdpapi.c \
+   xrdpapi.h
++
++AM_CPPFLAGS = \
++  -I$(top_srcdir)/common
++
++libxrdpapi_la_LIBADD = \
++  $(top_builddir)/common/libcommon.la

@@ -4,16 +4,12 @@ AC_PREREQ(2.59)
 AC_INIT([rfxcodec], [0.1.0], [jay.sorg@gmail.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
+AC_CONFIG_MACRO_DIR([m4])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_PROG_CC
 AC_C_CONST
 AC_PROG_LIBTOOL
-
-AM_CONDITIONAL(GOT_PREFIX, test "x${prefix}" != "xNONE"])
-
-if test "x${prefix}" = "xNONE" ; then
-sysconfdir="/etc";
-fi
+PKG_INSTALLDIR
 
 # SIMD is optional
 AC_ARG_WITH([simd],
@@ -49,6 +45,8 @@ AM_CONDITIONAL(WITH_SIMD_X86, [test x$simd_arch = xi386])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile
+                 rfxcodec.pc
+                 rfxcodec-uninstalled.pc
 ])
 
 AC_OUTPUT
