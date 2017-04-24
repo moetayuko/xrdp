@@ -1,6 +1,6 @@
 xrdp (0.9.1-8) unstable; urgency=medium
 
-  * Fix CVE-2017-6967. (Closes: #858143)
+  * Fix CVE-2017-6967. (Closes: #858143, #855536)
 
  -- Dominik George <nik@naturalnet.de>  Mon, 24 Apr 2017 20:14:36 +0200
 
