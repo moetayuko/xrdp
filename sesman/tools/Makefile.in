@@ -78,6 +78,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
 bin_PROGRAMS = xrdp-sesrun$(EXEEXT) xrdp-sesadmin$(EXEEXT) \
 	xrdp-dis$(EXEEXT)
 noinst_PROGRAMS = xrdp-sestest$(EXEEXT) xrdp-xcon$(EXEEXT)
@@ -246,6 +247,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL = @OPENSSL@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
@@ -257,6 +259,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PAM_RULES = @PAM_RULES@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PIXMAN_CFLAGS = @PIXMAN_CFLAGS@
 PIXMAN_LIBS = @PIXMAN_LIBS@
@@ -324,6 +327,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -332,15 +336,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-  -DXRDP_SBIN_PATH=\"${sbindir}\" \
-  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
-  -I$(top_srcdir)/common \
-  -I$(top_srcdir)/sesman/libscp \
-  -I$(top_srcdir)/sesman
-
+AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+	-DXRDP_SBIN_PATH=\"${sbindir}\" \
+	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
+	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
+	-I$(top_srcdir)/sesman/libscp -I$(top_srcdir)/sesman \
+	$(am__append_1)
 AM_CFLAGS = $(X_CFLAGS)
 xrdp_sesrun_SOURCES = \
   config.c \

@@ -6,8 +6,13 @@ AM_CPPFLAGS = \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\" \
   -I$(top_srcdir)/common \
   -I$(top_srcdir)/sesman/libscp
+
+if XRDP_DEBUG
+AM_CPPFLAGS += -DXRDP_DEBUG
+endif
 
 if SESMAN_NOPAM
 AUTH_C = verify_user.c
@@ -15,7 +20,7 @@ AUTH_LIB = -lcrypt
 else
 if SESMAN_BSD
 AUTH_C = verify_user_bsd.c
-AUTH_LIB = 
+AUTH_LIB =
 else
 if SESMAN_PAMUSERPASS
 AUTH_C = verify_user_pam_userpass.c
@@ -78,5 +83,4 @@ dist_sesmansysconf_SCRIPTS = \
 SUBDIRS = \
   libscp \
   tools \
-  sessvc \
   chansrv

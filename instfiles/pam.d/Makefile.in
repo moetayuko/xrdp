@@ -199,6 +199,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL = @OPENSSL@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
@@ -210,6 +211,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PAM_RULES = @PAM_RULES@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PIXMAN_CFLAGS = @PIXMAN_CFLAGS@
 PIXMAN_LIBS = @PIXMAN_LIBS@
@@ -277,6 +279,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -285,11 +288,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-EXTRA_DIST = \
-  xrdp-sesman.common \
-  xrdp-sesman.other \
-  xrdp-sesman.password-auth
+PAM_FILES = \
+  xrdp-sesman.debian \
+  xrdp-sesman.redhat \
+  xrdp-sesman.suse \
+  xrdp-sesman.unix
 
+EXTRA_DIST = $(PAM_FILES) mkpamrules
 CLEANFILES = xrdp-sesman
 @SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@PAMFILE = xrdp-sesman
 @SESMAN_KERBEROS_TRUE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@PAMFILE = 
@@ -515,17 +520,8 @@ uninstall-am: uninstall-pamdDATA
 	ps ps-am tags-am uninstall uninstall-am uninstall-pamdDATA
 
 
-xrdp-sesman:
-	if test -e /etc/pam.d/password-auth; then \
-	  pamrules=xrdp-sesman.password-auth; \
-	else \
-	  if test -e /etc/pam.d/common-auth; then \
-	    pamrules=xrdp-sesman.common; \
-	  else \
-	    pamrules=xrdp-sesman.other; \
-	  fi; \
-	fi; \
-	$(LN_S) $(srcdir)/$$pamrules $@
+xrdp-sesman: mkpamrules
+	$(srcdir)/mkpamrules $(PAM_RULES) $(srcdir) $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

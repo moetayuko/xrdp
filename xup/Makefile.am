@@ -5,6 +5,10 @@ AM_CPPFLAGS = \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -I$(top_srcdir)/common
 
+if XRDP_DEBUG
+AM_CPPFLAGS += -DXRDP_DEBUG
+endif
+
 module_LTLIBRARIES = \
   libxup.la
 
@@ -14,3 +18,5 @@ libxup_la_SOURCES = \
 
 libxup_la_LIBADD = \
   $(top_builddir)/common/libcommon.la
+
+libxup_la_LDFLAGS = -avoid-version -module

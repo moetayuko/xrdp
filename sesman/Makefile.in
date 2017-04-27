@@ -80,6 +80,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
 sbin_PROGRAMS = xrdp-sesman$(EXEEXT)
 subdir = sesman
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -313,6 +314,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL = @OPENSSL@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
@@ -324,6 +326,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PAM_RULES = @PAM_RULES@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PIXMAN_CFLAGS = @PIXMAN_CFLAGS@
 PIXMAN_LIBS = @PIXMAN_LIBS@
@@ -391,6 +394,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -402,14 +406,12 @@ top_srcdir = @top_srcdir@
 EXTRA_DIST = \
   Doxyfile
 
-AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-  -DXRDP_SBIN_PATH=\"${sbindir}\" \
-  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
-  -I$(top_srcdir)/common \
-  -I$(top_srcdir)/sesman/libscp
-
+AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+	-DXRDP_SBIN_PATH=\"${sbindir}\" \
+	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
+	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
+	-I$(top_srcdir)/sesman/libscp $(am__append_1)
 @SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@AUTH_C = verify_user_pam.c
 @SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@AUTH_C = verify_user_kerberos.c
 @SESMAN_BSD_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_TRUE@AUTH_C = verify_user_pam_userpass.c
@@ -462,7 +464,6 @@ dist_sesmansysconf_SCRIPTS = \
 SUBDIRS = \
   libscp \
   tools \
-  sessvc \
   chansrv
 
 all: all-recursive

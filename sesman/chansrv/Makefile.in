@@ -78,12 +78,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_FUSE_TRUE@am__append_1 = -DXRDP_FUSE $(FUSE_CFLAGS)
-@XRDP_FUSE_TRUE@am__append_2 = $(FUSE_LIBS)
-@XRDP_OPUS_TRUE@am__append_3 = -DXRDP_OPUS
-@XRDP_OPUS_TRUE@am__append_4 = -lopus
-@XRDP_MP3LAME_TRUE@am__append_5 = -DXRDP_MP3LAME
-@XRDP_MP3LAME_TRUE@am__append_6 = -lmp3lame
+@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
+@XRDP_FUSE_TRUE@am__append_2 = -DXRDP_FUSE $(FUSE_CFLAGS)
+@XRDP_FUSE_TRUE@am__append_3 = $(FUSE_LIBS)
+@XRDP_OPUS_TRUE@am__append_4 = -DXRDP_OPUS
+@XRDP_OPUS_TRUE@am__append_5 = -lopus
+@XRDP_MP3LAME_TRUE@am__append_6 = -DXRDP_MP3LAME
+@XRDP_MP3LAME_TRUE@am__append_7 = -lmp3lame
 sbin_PROGRAMS = xrdp-chansrv$(EXEEXT)
 subdir = sesman/chansrv
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -241,6 +242,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL = @OPENSSL@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
@@ -252,6 +254,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PAM_RULES = @PAM_RULES@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PIXMAN_CFLAGS = @PIXMAN_CFLAGS@
 PIXMAN_LIBS = @PIXMAN_LIBS@
@@ -319,6 +322,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -337,9 +341,10 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_SBIN_PATH=\"${sbindir}\" \
 	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
 	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-I$(top_srcdir)/common $(am__append_1) $(am__append_3) \
-	$(am__append_5)
-CHANSRV_EXTRA_LIBS = $(am__append_2) $(am__append_4) $(am__append_6)
+	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
+	$(am__append_1) $(am__append_2) $(am__append_4) \
+	$(am__append_6)
+CHANSRV_EXTRA_LIBS = $(am__append_3) $(am__append_5) $(am__append_7)
 AM_CFLAGS = $(X_CFLAGS)
 xrdp_chansrv_SOURCES = \
   chansrv.c \

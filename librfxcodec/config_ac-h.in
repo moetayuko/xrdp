@@ -55,14 +55,17 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* Use x86_64 SIMD instructions */
+#undef RFX_USE_ACCEL_AMD64
+
+/* Use x86 SIMD instructions */
+#undef RFX_USE_ACCEL_X86
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Version number of package */
 #undef VERSION
-
-/* Use accelerated SIMD routines. */
-#undef WITH_SIMD
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

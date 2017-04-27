@@ -79,7 +79,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
-@XRDP_DEBUG_FALSE@am__append_2 = -DXRDP_NODEBUG
 subdir = neutrinordp
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -139,6 +138,10 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+libxrdpneutrinordp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(libxrdpneutrinordp_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -251,6 +254,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL = @OPENSSL@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
@@ -262,6 +266,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PAM_RULES = @PAM_RULES@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PIXMAN_CFLAGS = @PIXMAN_CFLAGS@
 PIXMAN_LIBS = @PIXMAN_LIBS@
@@ -329,6 +334,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -341,8 +347,7 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_SBIN_PATH=\"${sbindir}\" \
 	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
 	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-I$(top_srcdir)/common $(FREERDP_CFLAGS) $(am__append_1) \
-	$(am__append_2)
+	-I$(top_srcdir)/common $(FREERDP_CFLAGS) $(am__append_1)
 module_LTLIBRARIES = \
   libxrdpneutrinordp.la
 
@@ -356,6 +361,7 @@ libxrdpneutrinordp_la_LIBADD = \
   $(top_builddir)/common/libcommon.la \
   $(FREERDP_LIBS)
 
+libxrdpneutrinordp_la_LDFLAGS = -avoid-version -module
 all: all-am
 
 .SUFFIXES:
@@ -427,7 +433,7 @@ clean-moduleLTLIBRARIES:
 	}
 
 libxrdpneutrinordp.la: $(libxrdpneutrinordp_la_OBJECTS) $(libxrdpneutrinordp_la_DEPENDENCIES) $(EXTRA_libxrdpneutrinordp_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK) -rpath $(moduledir) $(libxrdpneutrinordp_la_OBJECTS) $(libxrdpneutrinordp_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libxrdpneutrinordp_la_LINK) -rpath $(moduledir) $(libxrdpneutrinordp_la_OBJECTS) $(libxrdpneutrinordp_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

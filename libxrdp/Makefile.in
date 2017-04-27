@@ -79,15 +79,14 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
-@XRDP_DEBUG_FALSE@am__append_2 = -DXRDP_NODEBUG
-@XRDP_NEUTRINORDP_TRUE@am__append_3 = -DXRDP_NEUTRINORDP
-@XRDP_NEUTRINORDP_TRUE@am__append_4 = $(FREERDP_LIBS)
-@XRDP_RFXCODEC_TRUE@am__append_5 = -DXRDP_RFXCODEC
-@XRDP_TJPEG_TRUE@am__append_6 = -DXRDP_JPEG -DXRDP_TJPEG @TurboJpegIncDir@
-@XRDP_TJPEG_TRUE@am__append_7 = @TurboJpegLibDir@
-@XRDP_TJPEG_TRUE@am__append_8 = -lturbojpeg
-@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_9 = -DXRDP_JPEG
-@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_10 = -ljpeg
+@XRDP_NEUTRINORDP_TRUE@am__append_2 = -DXRDP_NEUTRINORDP
+@XRDP_NEUTRINORDP_TRUE@am__append_3 = $(FREERDP_LIBS)
+@XRDP_RFXCODEC_TRUE@am__append_4 = -DXRDP_RFXCODEC
+@XRDP_TJPEG_TRUE@am__append_5 = -DXRDP_JPEG -DXRDP_TJPEG @TurboJpegIncDir@
+@XRDP_TJPEG_TRUE@am__append_6 = @TurboJpegLibDir@
+@XRDP_TJPEG_TRUE@am__append_7 = -lturbojpeg
+@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_8 = -DXRDP_JPEG
+@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_9 = -ljpeg
 subdir = libxrdp
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -266,6 +265,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENSSL = @OPENSSL@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 OTOOL = @OTOOL@
@@ -277,6 +277,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
+PAM_RULES = @PAM_RULES@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PIXMAN_CFLAGS = @PIXMAN_CFLAGS@
 PIXMAN_LIBS = @PIXMAN_LIBS@
@@ -344,6 +345,7 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
@@ -360,10 +362,10 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
 	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
 	-I$(top_srcdir)/common $(am__append_1) $(am__append_2) \
-	$(am__append_3) $(am__append_5) $(am__append_6) \
-	$(am__append_9)
-AM_LDFLAGS = $(am__append_7)
-LIBXRDP_EXTRA_LIBS = $(am__append_4) $(am__append_8) $(am__append_10)
+	$(am__append_4) $(am__append_5) $(am__append_8)
+AM_CFLAGS = $(OPENSSL_CFLAGS)
+AM_LDFLAGS = $(am__append_6)
+LIBXRDP_EXTRA_LIBS = $(am__append_3) $(am__append_7) $(am__append_9)
 module_LTLIBRARIES = \
   libxrdp.la
 
