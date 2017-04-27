@@ -1,4 +1,4 @@
-xrdp (0.9.1-9) unstable; urgency=medium
+xrdp (0.9.1-9) UNRELEASED; urgency=high
 
   * Revisit incomplete fix for CVE-2017-6967. (Closes: #858143)
 
