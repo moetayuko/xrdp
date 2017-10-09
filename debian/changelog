@@ -8,6 +8,7 @@ xrdp (0.9.4-1) unstable; urgency=medium
     + FreeBSD patch is not needed anymore, applied upstream.
     + Socket path patch is not needed anymore, made configurable upstream.
     + CVE-2017-6967 patch is not needed anymore, applied upstream.
+  * Update to policy version 4.1.1 (no changes needed).
 
  -- Dominik George <nik@naturalnet.de>  Mon, 09 Oct 2017 17:08:48 +0200
 

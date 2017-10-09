@@ -28,7 +28,7 @@ Build-Depends:
  x11-utils,
  xserver-xorg-core,
  xserver-xorg-dev,
-Standards-Version: 3.9.8
+Standards-Version: 4.1.1
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-remote/xrdp.git
 Vcs-Git: https://anonscm.debian.org/git/pkg-remote/xrdp.git
 Homepage: http://xrdp.sourceforge.net
