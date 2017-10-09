@@ -41,13 +41,10 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
  if XRDP_PIXMAN
 --- a/xrdpapi/Makefile.am
 +++ b/xrdpapi/Makefile.am
-@@ -13,3 +13,9 @@ module_LTLIBRARIES = \
+@@ -13,3 +13,6 @@ module_LTLIBRARIES = \
  libxrdpapi_la_SOURCES = \
    xrdpapi.c \
    xrdpapi.h
-+
-+AM_CPPFLAGS = \
-+  -I$(top_srcdir)/common
 +
 +libxrdpapi_la_LIBADD = \
 +  $(top_builddir)/common/libcommon.la
