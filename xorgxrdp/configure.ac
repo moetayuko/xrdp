@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.65)
-AC_INIT([xorgxrdp], [0.2.0], [xrdp-devel@googlegroups.com])
+AC_INIT([xorgxrdp], [0.2.4], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.11 foreign parallel-tests])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
@@ -66,7 +66,10 @@ AM_CONDITIONAL(WITH_SIMD_X86, [test x$simd_arch = xi386])
 
 AC_CONFIG_FILES([Makefile
                  module/Makefile
+                 module/amd64/Makefile
+                 module/x86/Makefile
                  tests/Makefile
+                 tests/yuv2rgb/Makefile
                  xrdpdev/Makefile
                  xrdpkeyb/Makefile
                  xrdpmouse/Makefile

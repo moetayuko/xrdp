@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -DXRDP_MODULE_PATH=\"${moduledir}\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\" \
   -I$(top_builddir) \
   -I$(top_srcdir)/common \
   -I$(top_srcdir)/libxrdp
@@ -17,8 +18,6 @@ XRDP_EXTRA_LIBS =
 
 if XRDP_DEBUG
 AM_CPPFLAGS += -DXRDP_DEBUG
-else
-AM_CPPFLAGS += -DXRDP_NODEBUG
 endif
 
 if XRDP_RFXCODEC

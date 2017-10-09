@@ -1,5 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
-AM_DISTCHECK_CONFIGURE_FLAGS = --without-systemdsystemunitdir
+AM_DISTCHECK_CONFIGURE_FLAGS = \
+  --without-systemdsystemunitdir \
+  --enable-strict-locations
 
 EXTRA_DIST = \
   COPYING \
@@ -17,7 +19,6 @@ EXTRA_DIST = \
   install.txt \
   m4 \
   postinstall-pak \
-  readme.txt \
   tcutils \
   tests \
   vrplayer \
@@ -50,7 +51,6 @@ endif
 SUBDIRS = \
   common \
   vnc \
-  rdp \
   xup \
   mc \
   $(NEUTRINORDPDIR) \
