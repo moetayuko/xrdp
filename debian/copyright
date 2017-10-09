@@ -32,19 +32,20 @@ Files: COPYING
  common/trans.h
  common/xrdp_client_info.h
  common/xrdp_rail.h
+ common/xrdp_sockets.h
  configure.ac
  description-pak
  design.txt
  docs/Makefile.am
  docs/man/Makefile.am
- docs/man/sesman.ini.5
- docs/man/xrdp-chansrv.8
- docs/man/xrdp-dis.1
- docs/man/xrdp-sesadmin.8
- docs/man/xrdp-sesrun.8
- docs/man/xrdp-sessvc.8
- docs/man/xrdp-xcon.8
- docs/man/xrdp.ini.5
+ docs/man/sesman.ini.5.in
+ docs/man/xrdp-chansrv.8.in
+ docs/man/xrdp-dis.1.in
+ docs/man/xrdp-sesadmin.8.in
+ docs/man/xrdp-sesrun.8.in
+ docs/man/xrdp-sessvc.8.in
+ docs/man/xrdp-xcon.8.in
+ docs/man/xrdp.ini.5.in
  faq-compile.txt
  faq-general.txt
  file-loc.txt
@@ -60,25 +61,33 @@ Files: COPYING
  instfiles/init.d/Makefile.am
  instfiles/init.d/xrdp
  instfiles/pam.d/Makefile.am
- instfiles/pam.d/xrdp-sesman.common
- instfiles/pam.d/xrdp-sesman.other
- instfiles/pam.d/xrdp-sesman.password-auth
+ instfiles/pam.d/mkpamrules
+ instfiles/pam.d/xrdp-sesman.debian
+ instfiles/pam.d/xrdp-sesman.freebsd
+ instfiles/pam.d/xrdp-sesman.redhat
+ instfiles/pam.d/xrdp-sesman.suse
+ instfiles/pam.d/xrdp-sesman.unix
  instfiles/pulse/Makefile.am
  instfiles/pulse/default.pa
  instfiles/rc.d/Makefile.am
- instfiles/xrdp-sesman.service
- instfiles/xrdp.service
+ instfiles/xrdp-sesman.service.in
+ instfiles/xrdp.service.in
  keygen/Makefile.am
  keygen/keygen.c
  librfxcodec/Makefile.am
  librfxcodec/acinclude.m4
  librfxcodec/bootstrap
  librfxcodec/configure.ac
+ librfxcodec/include/Makefile.am
+ librfxcodec/include/Makefile.in
  librfxcodec/include/rfxcodec_common.h
  librfxcodec/include/rfxcodec_decode.h
  librfxcodec/include/rfxcodec_encode.h
+ librfxcodec/m4/nsam.m4
  librfxcodec/readme.txt
  librfxcodec/src/Makefile.am
+ librfxcodec/src/amd64/Makefile.am
+ librfxcodec/src/amd64/Makefile.in
  librfxcodec/src/amd64/cpuid_amd64.asm
  librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr1_amd64_sse2.asm
  librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr3_amd64_sse2.asm
@@ -90,19 +99,25 @@ Files: COPYING
  librfxcodec/src/rfxencode_alpha.c
  librfxcodec/src/rfxencode_alpha.h
  librfxcodec/src/rfxencode_dwt.h
+ librfxcodec/src/x86/Makefile.am
+ librfxcodec/src/x86/Makefile.in
  librfxcodec/src/x86/cpuid_x86.asm
  librfxcodec/src/x86/rfxcodec_encode_diff_rlgr1_x86_sse2.asm
  librfxcodec/src/x86/rfxcodec_encode_diff_rlgr3_x86_sse2.asm
  librfxcodec/tests/Makefile.am
  librfxcodec/tests/readme.txt
  librfxcodec/tests/rfxcodectest.c
+ librfxcodec/tests/rfxencode.c
  libpainter/Makefile.am
  libpainter/bootstrap
  libpainter/configure.ac
  libpainter/include/Makefile.am
  libpainter/include/painter.h
  libpainter/pkgconfig/Makefile.am
- libpainter/readme.txt
+ libpainter/README
+ libpainter/AUTHORS
+ libpainter/ChangeLog
+ libpainter/NEWS
  libpainter/src/Makefile.am
  libpainter/src/painter.c
  libpainter/src/painter_utils.c
@@ -225,6 +240,7 @@ Files: COPYING
  sesman/sessvc/sessvc.c
  sesman/sig.c
  sesman/sig.h
+ sesman/reconnectwm.sh
  sesman/startwm.sh
  sesman/tools/Makefile.am
  sesman/tools/config.c
@@ -287,6 +303,10 @@ Files: COPYING
  vrplayer/vrplayer.pro
  xorg/X11R7.6/cleanx.sh
  xorg/X11R7.6/libXext-1.2.0.patch
+ xorg/X11R7.6/Mesa-7.10.3.patch
+ xorg/X11R7.6/libpciaccess-0.12.0.patch
+ xorg/X11R7.6/pixman-0.30.0.patch
+ xorg/X11R7.6/xorg-server-1.9.3.patch
  xorg/X11R7.6/rdp/Makefile
  xorg/X11R7.6/x11_file_list.txt
  xorg/debuild/debX11rdp.sh
@@ -336,7 +356,7 @@ Files: COPYING
  xup/Makefile.am
  xup/xup.c
  xup/xup.h
-Copyright: 2004-2016, Jay Sorg <jay.sorg@gmail.com>
+Copyright: 2004-2017, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
 Files: instfiles/xrdp.sh
@@ -387,11 +407,18 @@ Files: librfxcodec/src/rfx_bitstream.h
 Copyright: 2011, Vic Lee
 License: Apache-2.0
 
-Files: librfxcodec/src/rfxcompose.c
+Files: librfxcodec/src/rfxencode_compose.c
+ librfxcodec/src/rfxencode_compose.h
  librfxcodec/src/rfxencode_dwt.c
  librfxcodec/src/rfxencode_quantization.c
+ librfxcodec/src/rfxencode_diff_rlgr1.c
+ librfxcodec/src/rfxencode_diff_rlgr1.h
+ librfxcodec/src/rfxencode_diff_rlgr3.c
+ librfxcodec/src/rfxencode_diff_rlgr3.h
  librfxcodec/src/rfxencode_tile.c
  librfxcodec/src/rfxencode_tile.h
+ librfxcodec/src/amd64/rfxencode_tile_amd64.c
+ librfxcodec/src/x86/rfxencode_tile_x86.c
 Copyright: 2011, Vic Lee
   2014-2015, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
@@ -421,9 +448,9 @@ Files: sesman/tools/sesadmin.c
 Copyright: 2008, Simone Fedele
 License: GPL-2+
 
-Files: docs/man/xrdp.8
- docs/man/xrdp-genkeymap.8
- docs/man/xrdp-sesman.8
+Files: docs/man/xrdp.8.in
+ docs/man/xrdp-genkeymap.8.in
+ docs/man/xrdp-sesman.8.in
 Copyright: Jay Sorg
  Simone Fedele
 License: Apache-2.0
@@ -438,7 +465,8 @@ Copyright: 2014, Laxmikant Rashinkar
   2014-2016, Jay Sorg
 License: Expat
 
-Files: librfxcodec/src/amd64/funcs_amd64.h
+Files: librfxcodec/m4/nasm.m4
+ librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm
  librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm
  librfxcodec/src/x86/funcs_x86.h
@@ -446,6 +474,7 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
  xorg/X11R7.6/rdp/gcops.h
  xorg/X11R7.6/rdp/rdp.h
+ xorg/X11R7.6/rdp/rdp.h~
  xorg/X11R7.6/rdp/rdpComposite.c
  xorg/X11R7.6/rdp/rdpCopyArea.c
  xorg/X11R7.6/rdp/rdpCopyArea.h
@@ -509,7 +538,10 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/acinclude.m4
  xorgxrdp/bootstrap
  xorgxrdp/configure.ac
+ xorgxrdp/m4/nasm.m4
  xorgxrdp/module/Makefile.am
+ xorgxrdp/module/amd64/Makefile.am
+ xorgxrdp/module/amd64/Makefile.in
  xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
  xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
  xorgxrdp/module/amd64/cpuid_amd64.asm
@@ -592,6 +624,8 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/rdpTrapezoids.h
  xorgxrdp/module/rdpXv.c
  xorgxrdp/module/rdpXv.h
+ xorgxrdp/module/x86/Makefile.am
+ xorgxrdp/module/x86/Makefile.in
  xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
  xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
  xorgxrdp/module/x86/cpuid_x86.asm
@@ -602,7 +636,10 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
  xorgxrdp/README.md
  xorgxrdp/tests/yuv2rgb/Makefile
+ xorgxrdp/tests/yuv2rgb/Makefile.am
+ xorgxrdp/tests/yuv2rgb/Makefile.in
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
+ xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.sh
  xorgxrdp/xrdpdev/Makefile.am
  xorgxrdp/xrdpdev/xorg.conf
  xorgxrdp/xrdpdev/xrdpdev.c
@@ -615,13 +652,19 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
 Copyright: 2011-2016, Jay Sorg
 License: Expat
 
+Files: librfxcodec/src/common.asm
+ xorgxrdp/module/common.asm
+Copyright: 2017 Pavel Roskin
+ 2017 mirabilos
+License: Expat
+
 Files: common/xrdp_constants.h
 Copyright: 2004-2014, Jay Sorg
   2012, Kevin Zhou
   1999-2008, Matthew Chapman
 License: Apache-2.0
 
-Files: docs/man/xrdp-keygen.8
+Files: docs/man/xrdp-keygen.8.in
 Copyright: 2007, 2008, Vincent Bernat <bernat@debian.org>
 License: GPL-2+
 
@@ -630,6 +673,11 @@ Copyright: 1995, Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
   2000-2001, Markus Friedl
   2011-2015, Koichiro Iwao, Kyushu Institute of Technology
   2004-2015, Jay Sorg
+License: Apache-2.0
+
+Files: common/base64.h
+ common/base64.c
+Copyright: Koichiro Iwao 2017
 License: Apache-2.0
 
 Files: libxrdp/xrdp_surface.c
@@ -661,12 +709,16 @@ Copyright: 2003, Bitstream, Inc.
 License: Bitstream
 
 Files: m4/ax_append_flag.m4
+ libpainter/m4/ax_append_flag.m4
+ librfxcodec/m4/ax_append_flag.m4
  xorgxrdp/m4/ax_append_flag.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2011, Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_cflags_warn_all.m4
+ libpainter/m4/ax_cflags_warn_all.m4
+ librfxcodec/m4/ax_cflags_warn_all.m4
  xorgxrdp/m4/ax_cflags_warn_all.m4
 Copyright: 2008, Guido U. Draheim <guidod@gmx.de>
  2010, Rhys Ulerich <rhys.ulerich@gmail.com>
@@ -678,16 +730,22 @@ Copyright: 2013, Gabriele Svelto <gabriele.svelto@gmail.com>
 License: custom-historic
 
 Files: m4/ax_require_defined.m4
+ libpainter/m4/ax_require_defined.m4
+ librfxcodec/m4/ax_require_defined.m4
  xorgxrdp/m4/ax_require_defined.m4
 Copyright: 2014, Mike Frysinger <vapier@gentoo.org>
 License: custom-historic
 
 Files: m4/ax_append_compile_flags.m4
+ libpainter/m4/ax_append_compile_flags.m4
+ librfxcodec/m4/ax_append_compile_flags.m4
  xorgxrdp/m4/ax_append_compile_flags.m4
 Copyright: 2011 Maarten Bosmans <mkbosmans@gmail.com>
 License: GPL-3+~autoconf
 
 Files: m4/ax_check_compile_flag.m4
+ libpainter/m4/ax_check_compile_flag.m4
+ librfxcodec/m4/ax_check_compile_flag.m4
  xorgxrdp/m4/ax_check_compile_flag.m4
 Copyright: 2008 Guido U. Draheim <guidod@gmx.de>
  2011 Maarten Bosmans <mkbosmans@gmail.com>
@@ -858,6 +916,7 @@ Files: sesman/chansrv/pcsc/dumps/*
  tests/.gitignore
  xorg/.gitignore
  xorg/X11R7.6/.gitignore
+ xorg/X11R7.6/rdp/.gitignore
  xorgxrdp/m4/.gitignore
 Copyright: None
 License: None
