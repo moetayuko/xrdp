@@ -24,16 +24,21 @@
  *
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
+#include <grp.h>
+
 #include "list.h"
 #include "sesman.h"
-#include "grp.h"
 #include "ssl_calls.h"
 
 extern unsigned char g_fixedkey[8]; /* in sesman.c */
 extern struct config_sesman *g_cfg;  /* in sesman.c */
 
 /******************************************************************************/
-int DEFAULT_CC
+int
 env_check_password_file(const char *filename, const char *passwd)
 {
     char encryptedPasswd[16];
@@ -64,7 +69,7 @@ env_check_password_file(const char *filename, const char *passwd)
     g_strncpy(encryptedPasswd, passwd, 8);
     g_memset(key, 0, sizeof(key));
     g_mirror_memcpy(key, g_fixedkey, 8);
-    des = ssl_des3_encrypt_info_create(key, 0); 
+    des = ssl_des3_encrypt_info_create(key, 0);
     ssl_des3_encrypt(des, 8, encryptedPasswd, encryptedPasswd);
     ssl_des3_info_delete(des);
     fd = g_file_open_ex(filename, 0, 1, 1, 1);
@@ -82,7 +87,7 @@ env_check_password_file(const char *filename, const char *passwd)
 
 /******************************************************************************/
 /*  its the responsibility of the caller to free passwd_file                  */
-int DEFAULT_CC
+int
 env_set_user(const char *username, char **passwd_file, int display,
              const struct list *env_names, const struct list *env_values)
 {
@@ -119,7 +124,7 @@ env_set_user(const char *username, char **passwd_file, int display,
             error = g_setuid(uid);
         }
 
-        g_mk_temp_dir(0);
+        g_mk_socket_path(0);
 
         if (error == 0)
         {
@@ -127,6 +132,7 @@ env_set_user(const char *username, char **passwd_file, int display,
             g_setenv("SHELL", pw_shell, 1);
             g_setenv("PATH", "/sbin:/bin:/usr/bin:/usr/local/bin", 1);
             g_setenv("USER", username, 1);
+            g_setenv("LOGNAME", username, 1);
             g_sprintf(text, "%d", uid);
             g_setenv("UID", text, 1);
             g_setenv("HOME", pw_dir, 1);
@@ -134,6 +140,8 @@ env_set_user(const char *username, char **passwd_file, int display,
             g_sprintf(text, ":%d.0", display);
             g_setenv("DISPLAY", text, 1);
             g_setenv("XRDP_SESSION", "1", 1);
+            /* XRDP_SOCKET_PATH should be set even here, chansrv uses this */
+            g_setenv("XRDP_SOCKET_PATH", XRDP_SOCKET_PATH, 1);
             if ((env_names != 0) && (env_values != 0) &&
                 (env_names->count == env_values->count))
             {

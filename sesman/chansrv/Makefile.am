@@ -9,13 +9,23 @@ AM_CPPFLAGS = \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\" \
   -I$(top_srcdir)/common
+
+if XRDP_DEBUG
+AM_CPPFLAGS += -DXRDP_DEBUG
+endif
 
 CHANSRV_EXTRA_LIBS =
 
 if XRDP_FUSE
 AM_CPPFLAGS += -DXRDP_FUSE $(FUSE_CFLAGS)
 CHANSRV_EXTRA_LIBS += $(FUSE_LIBS)
+endif
+
+if XRDP_FDK_AAC
+AM_CPPFLAGS += -DXRDP_FDK_AAC $(FDKAAC_CFLAGS)
+CHANSRV_EXTRA_LIBS += $(FDKAAC_LIBS)
 endif
 
 if XRDP_OPUS

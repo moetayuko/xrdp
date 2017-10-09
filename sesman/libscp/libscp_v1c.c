@@ -24,6 +24,10 @@
  *
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
 #include "libscp_v1c.h"
 
 #include <stdlib.h>
@@ -135,13 +139,6 @@ scp_v1c_resend_credentials(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
     /* wait for response */
     return _scp_v1c_check_response(c, s);
 }
-
-/* 021 */
-enum SCP_CLIENT_STATES_E
-scp_v1c_pwd_change(struct SCP_CONNECTION *c, char *newpass);
-/* 022 */
-enum SCP_CLIENT_STATES_E
-scp_v1c_pwd_change_cancel(struct SCP_CONNECTION *c);
 
 /* 041 */
 enum SCP_CLIENT_STATES_E

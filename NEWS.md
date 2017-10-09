@@ -1,3 +1,89 @@
+# Release notes for xrdp v0.9.4 (2017/09/28)
+
+## New features
+  * Accept prefill credentials in base64 form #153 #811
+  * Indroduce AAC encoder to audio redirection (requires Windows 10 client)
+
+## Bugfixes
+  * Fix ocasional SEGV in drive redirection #838
+  * Fix client's IP addresses in xrdp-sesman.log are always logged as `0.0.0.0` #878 #882
+  * Fix `ls_background_image` didn't accept full path #776 #853
+  * Fix misuse of hidelogwindow #414 #876
+  * Fix WTSVirtualChannelWrite return code #859
+  * Fix no longer needed socket files remained in the socket dir #812 #831
+  * Make creating socket path a bit more robust #823
+
+## Other changes
+  * Add Belgian keyboard #858
+  * Add a PAM file for FreeBSD #824
+  * Several refactorings and cosmetic changes
+
+## Known issues
+  * Windows 10 (1703) shows black blank screen in RemoteFX mode
+   * This issue is already fixed at Insider Preview build 16273
+
+# Release notes for xrdp v0.9.3.1 (2017/08/16)
+
+This release fixes a trivial packaging issue #848 occurred in v0.9.3.  The issue only affects systemd systems.  This release is principally for distro packagers or users who compile & install xrdp from source.
+
+Users who running xrdp on these systems don't need to upgrade from v0.9.3 to v0.9.3.1.
+
+* Linux systems without systemd
+* non-Linux systems such as BSD operating systems
+
+# Release notes for xrdp v0.9.3 (2017/07/15)
+
+## New features
+  * Log user-friendly messages when certificate/privkey is inaccessible
+
+## Bugfixes
+  * Now sesman sets mandatory LOGNAME environment variable #725
+  * Now sesman ensures socket directory present #801
+  * Exit with failure status if port already in use #644
+  * Eliminate some hard coded paths
+  * Fix glitches with IPv4 struct initialization #803
+  * Fix some keyboard layout integration (UK, Spanish)
+  * Fix handle OS when IPv6 disabled #714
+  * Fix issues around systemd session #778
+  * Fix protocol error when 32 bit color and non RemoteFX session #737 #804
+  * Fix sesadmin shows error when no sessions #797
+  * Fix TLS spins 100% CPU #728
+  * Fix Xvnc backend disconnects when some data copied to clipboard #755
+  * Pick up the first section if given section(domain) doesn't match anything #750
+
+## Other changes
+  * Change xrdp-chansrv log path to include display number
+  * Optimize startwm.sh for SUSE
+  * Several cleanups and optimizations
+
+## Known issues
+  * Windows 10 (1703) shows black blank screen in RemoteFX mode
+
+-----------------------
+
+# Release notes for xrdp v0.9.2 (2017/03/30)
+## New features
+  * RemoteFX codec support is now enabled by default.
+  * Bitmap updates support is now enabled by default.
+  * TLS ciphers suites and version is now logged.
+  * Connected computer name is now logged.
+  * Switched to Xorg (xorgxrdp) as the default backend now.
+  * Miscellaneous RemoteFX codec mode improvements.
+  * Socket directory is configurable at the compile time.
+
+## Bugfixes
+  * Parallels client for MacOS / iOS can now connect (audio redirection must be disabled on client or xrdp server though).
+  * MS RDP client for iOS can now connect using TLS security layer.
+  * MS RDP client for Android can now connect to xrdp.
+  * Large resolutions (4K) can be used with RemoteFX graphics.
+  * Multiple RemoteApps can be opened throguh NeutrinoRDP proxy.
+  * tls_ciphers in xrdp.ini is not limited to 63 chars anymore, it's variable-length.
+  * Fixed an issue where tls_ciphers were ignored and rdp security layer could be used instead.
+  * Kill disconnected sessions feature is working with Xorg (xorgxrdp) backend.
+  * Miscellaneous code cleanup and memory issues fixes.
+
+-----------------------
+
 # Release notes for xrdp v0.9.1 (2016/12/21)
 ## New features
   * New xorgxrdp backend using existing Xorg with additional modules

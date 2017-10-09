@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/neutrinolabs/xorgxrdp.svg?branch=devel)](https://travis-ci.org/neutrinolabs/xorgxrdp)
 
-*Current Version:* 0.2.0
+*Current Version:* 0.2.4
 
 # xorgxrdp
 
@@ -13,6 +13,8 @@ a location where the existing Xorg installation would pick them.
 
 xorgxrdp is to be used together with [xrdp](https://github.com/neutrinolabs/xrdp)
 and X.Org Server. It is pretty useless using xorgxrdp alone.
+
+![xorgxrdp overview](https://github.com/neutrinolabs/xorgxrdp/raw/gh-pages/docs/xorgxrdp_overview.png)
 
 ## Features
 
