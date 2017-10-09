@@ -14,7 +14,6 @@ Files: COPYING
  common/defines.h
  common/file.c
  common/file.h
- common/file_loc.h
  common/list.c
  common/list.h
  common/list16.c
@@ -43,8 +42,6 @@ Files: COPYING
  docs/man/xrdp-dis.1.in
  docs/man/xrdp-sesadmin.8.in
  docs/man/xrdp-sesrun.8.in
- docs/man/xrdp-sessvc.8.in
- docs/man/xrdp-xcon.8.in
  docs/man/xrdp.ini.5.in
  faq-compile.txt
  faq-general.txt
@@ -75,35 +72,26 @@ Files: COPYING
  keygen/Makefile.am
  keygen/keygen.c
  librfxcodec/Makefile.am
- librfxcodec/acinclude.m4
  librfxcodec/bootstrap
  librfxcodec/configure.ac
  librfxcodec/include/Makefile.am
- librfxcodec/include/Makefile.in
  librfxcodec/include/rfxcodec_common.h
  librfxcodec/include/rfxcodec_decode.h
  librfxcodec/include/rfxcodec_encode.h
- librfxcodec/m4/nsam.m4
+ librfxcodec/m4/nasm.m4
  librfxcodec/readme.txt
  librfxcodec/src/Makefile.am
  librfxcodec/src/amd64/Makefile.am
- librfxcodec/src/amd64/Makefile.in
  librfxcodec/src/amd64/cpuid_amd64.asm
- librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr1_amd64_sse2.asm
- librfxcodec/src/amd64/rfxcodec_encode_diff_rlgr3_amd64_sse2.asm
  librfxcodec/src/nasm_lt.sh
  librfxcodec/src/rfxcommon.h
- librfxcodec/src/rfxcompose.h
  librfxcodec/src/rfxencode.c
  librfxcodec/src/rfxencode.h
  librfxcodec/src/rfxencode_alpha.c
  librfxcodec/src/rfxencode_alpha.h
  librfxcodec/src/rfxencode_dwt.h
  librfxcodec/src/x86/Makefile.am
- librfxcodec/src/x86/Makefile.in
  librfxcodec/src/x86/cpuid_x86.asm
- librfxcodec/src/x86/rfxcodec_encode_diff_rlgr1_x86_sse2.asm
- librfxcodec/src/x86/rfxcodec_encode_diff_rlgr3_x86_sse2.asm
  librfxcodec/tests/Makefile.am
  librfxcodec/tests/readme.txt
  librfxcodec/tests/rfxcodectest.c
@@ -148,18 +136,6 @@ Files: COPYING
  neutrinordp/xrdp-neutrinordp.h
  pkgconfig/Makefile.am
  postinstall-pak
- rdp/Makefile.am
- rdp/rdp.c
- rdp/rdp.h
- rdp/rdp_bitmap.c
- rdp/rdp_iso.c
- rdp/rdp_lic.c
- rdp/rdp_mcs.c
- rdp/rdp_orders.c
- rdp/rdp_rdp.c
- rdp/rdp_sec.c
- rdp/rdp_tcp.c
- readme.txt
  sesman/Doxyfile
  sesman/Makefile.am
  sesman/access.c
@@ -236,8 +212,6 @@ Files: COPYING
  sesman/sesman.h
  sesman/sesman.ini
  sesman/session.h
- sesman/sessvc/Makefile.am
- sesman/sessvc/sessvc.c
  sesman/sig.c
  sesman/sig.h
  sesman/reconnectwm.sh
@@ -465,8 +439,7 @@ Copyright: 2014, Laxmikant Rashinkar
   2014-2016, Jay Sorg
 License: Expat
 
-Files: librfxcodec/m4/nasm.m4
- librfxcodec/src/amd64/funcs_amd64.h
+Files: librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse2.asm
  librfxcodec/src/amd64/rfxcodec_encode_dwt_shift_amd64_sse41.asm
  librfxcodec/src/x86/funcs_x86.h
@@ -535,13 +508,11 @@ Files: librfxcodec/m4/nasm.m4
  xorg/X11R7.6/rdp/rdpxv.c
  xorgxrdp/COPYING
  xorgxrdp/Makefile.am
- xorgxrdp/acinclude.m4
  xorgxrdp/bootstrap
  xorgxrdp/configure.ac
  xorgxrdp/m4/nasm.m4
  xorgxrdp/module/Makefile.am
  xorgxrdp/module/amd64/Makefile.am
- xorgxrdp/module/amd64/Makefile.in
  xorgxrdp/module/amd64/a8r8g8b8_to_a8b8g8r8_box_amd64_sse2.asm
  xorgxrdp/module/amd64/a8r8g8b8_to_nv12_box_amd64_sse2.asm
  xorgxrdp/module/amd64/cpuid_amd64.asm
@@ -625,7 +596,6 @@ Files: librfxcodec/m4/nasm.m4
  xorgxrdp/module/rdpXv.c
  xorgxrdp/module/rdpXv.h
  xorgxrdp/module/x86/Makefile.am
- xorgxrdp/module/x86/Makefile.in
  xorgxrdp/module/x86/a8r8g8b8_to_a8b8g8r8_box_x86_sse2.asm
  xorgxrdp/module/x86/a8r8g8b8_to_nv12_box_x86_sse2.asm
  xorgxrdp/module/x86/cpuid_x86.asm
@@ -635,9 +605,7 @@ Files: librfxcodec/m4/nasm.m4
  xorgxrdp/module/x86/yuy2_to_rgb32_x86_sse2.asm
  xorgxrdp/module/x86/yv12_to_rgb32_x86_sse2.asm
  xorgxrdp/README.md
- xorgxrdp/tests/yuv2rgb/Makefile
  xorgxrdp/tests/yuv2rgb/Makefile.am
- xorgxrdp/tests/yuv2rgb/Makefile.in
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.c
  xorgxrdp/tests/yuv2rgb/yuv2rgb_speed.sh
  xorgxrdp/xrdpdev/Makefile.am
@@ -889,11 +857,9 @@ Files: sesman/chansrv/pcsc/dumps/*
  mc/Makefile.in
  neutrinordp/Makefile.in
  pkgconfig/Makefile.in
- rdp/Makefile.in
  sesman/Makefile.in
  sesman/chansrv/Makefile.in
  sesman/libscp/Makefile.in
- sesman/sessvc/Makefile.in
  sesman/tools/Makefile.in
  vnc/Makefile.in
  xorgxrdp/Makefile.in
@@ -918,6 +884,12 @@ Files: sesman/chansrv/pcsc/dumps/*
  xorg/X11R7.6/.gitignore
  xorg/X11R7.6/rdp/.gitignore
  xorgxrdp/m4/.gitignore
+ xorgxrdp/module/amd64/Makefile.in
+ librfxcodec/include/Makefile.in
+ librfxcodec/src/amd64/Makefile.in
+ librfxcodec/src/x86/Makefile.in
+ xorgxrdp/module/x86/Makefile.in
+ xorgxrdp/tests/yuv2rgb/Makefile.in
 Copyright: None
 License: None
  Not copyrightable or generated.
