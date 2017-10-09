@@ -1,8 +1,9 @@
 xrdp (0.9.4-1) unstable; urgency=medium
 
-  * New upstream versio. (Closes: #876976, #858098, #864230, #867494)
+  * New upstream version. (Closes: #876976, #858098, #864230, #867494)
     + Includes xorgxrdo 0.2.4.
     + Refreshed patches.
+    + Updated d/copyright.
     + Japanese keybaord patch is not needed anymore, applied upstream.
     + High resolution RFX patch is not needed anymore, applied upstream.
     + FreeBSD patch is not needed anymore, applied upstream.
@@ -10,7 +11,7 @@ xrdp (0.9.4-1) unstable; urgency=medium
     + CVE-2017-6967 patch is not needed anymore, applied upstream.
   * Update to policy version 4.1.1 (no changes needed).
 
- -- Dominik George <nik@naturalnet.de>  Mon, 09 Oct 2017 17:08:48 +0200
+ -- Dominik George <nik@naturalnet.de>  Mon, 09 Oct 2017 19:00:08 +0200
 
 xrdp (0.9.1-9) unstable; urgency=high
 
