@@ -2,7 +2,7 @@ From: Dominik George <nik@naturalnet.de>
 Subject: Use xorgxrdp instead of x11rdp
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -61,12 +61,13 @@ LogLevel=DEBUG
+@@ -54,12 +54,13 @@ LogLevel=DEBUG
  EnableSyslog=1
  SyslogLevel=DEBUG
  
@@ -20,7 +20,7 @@ Subject: Use xorgxrdp instead of x11rdp
  
  [Xvnc]
  param=Xvnc
-@@ -77,16 +78,6 @@ param=-localhost
+@@ -70,16 +71,6 @@ param=-localhost
  param=-dpi
  param=96
  
@@ -37,22 +37,3 @@ Subject: Use xorgxrdp instead of x11rdp
  [Chansrv]
  ; drive redirection, defaults to xrdp_client if not set
  FuseMountName=thinclient_drives
---- a/xrdp/xrdp.ini
-+++ b/xrdp/xrdp.ini
-@@ -147,16 +147,6 @@ tcutils=true
- ; Session types
- ;
- 
--[X11rdp]
--name=X11rdp
--lib=libxup.so
--username=ask
--password=ask
--ip=127.0.0.1
--port=-1
--xserverbpp=24
--code=10
--
- [Xorg]
- name=Xorg
- lib=libxup.so

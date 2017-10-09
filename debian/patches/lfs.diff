@@ -12,8 +12,8 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
 +AC_FUNC_FSEEKO
  AC_C_CONST
  AC_PROG_LIBTOOL
- PKG_PROG_PKG_CONFIG
-@@ -320,4 +322,5 @@ AC_CONFIG_FILES([
+ 
+@@ -361,4 +363,5 @@ AC_CONFIG_FILES([
    xup/Makefile
  ])
  
@@ -30,7 +30,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
-@@ -34,4 +36,5 @@ AC_CONFIG_FILES([
+@@ -31,4 +33,5 @@ AC_CONFIG_FILES([
    tests/Makefile
  ])
  
@@ -40,14 +40,14 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
 +++ b/librfxcodec/configure.ac
 @@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([1.6 foreign])
  AC_CONFIG_MACRO_DIR([m4])
- m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
+ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
  AC_PROG_CC
 +AC_SYS_LARGEFILE
 +AC_FUNC_FSEEKO
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
-@@ -49,5 +51,6 @@ AC_CONFIG_FILES([Makefile
+@@ -53,5 +55,6 @@ AC_CONFIG_FILES([Makefile
                   rfxcodec-uninstalled.pc
  ])
  
@@ -65,7 +65,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  
-@@ -72,5 +74,6 @@ AC_CONFIG_FILES([Makefile
+@@ -75,5 +77,6 @@ AC_CONFIG_FILES([Makefile
                   xrdpmouse/Makefile
  ])
  

@@ -4,7 +4,7 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
  https://github.com/neutrinolabs/xrdp/pull/467
 --- a/xorgxrdp/xrdpkeyb/rdpKeyboard.c
 +++ b/xorgxrdp/xrdpkeyb/rdpKeyboard.c
-@@ -534,7 +534,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
+@@ -538,7 +538,7 @@ rdpInputKeyboard(rdpPtr dev, int msg, lo
  }
  
  /******************************************************************************/
@@ -13,15 +13,15 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/17
  rdpkeybDeviceInit(DeviceIntPtr pDevice, KeySymsPtr pKeySyms, CARD8 *pModMap)
  {
      int i;
-@@ -565,7 +565,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
+@@ -569,7 +569,7 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
      if (pKeySyms->map == 0)
      {
          LLOGLN(0, ("rdpkeybDeviceInit: out of memory"));
 -        exit(1);
 +        return 1;
      }
-     else
-     {
+ 
+     for (i = 0; i < MAP_LENGTH * GLYPHS_PER_KEY; i++)
 @@ -581,6 +581,8 @@ rdpkeybDeviceInit(DeviceIntPtr pDevice,
      {
          pKeySyms->map[i] = g_kbdMap[i];

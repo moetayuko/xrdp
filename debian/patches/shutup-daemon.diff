@@ -2,7 +2,7 @@ From: Thorsten Glaser <tg@mirbsd.org>
 Subject: don’t spit on the console when starting
 --- a/common/log.c
 +++ b/common/log.c
-@@ -383,11 +383,6 @@ internal_config_read_logging(int file, s
+@@ -387,11 +387,6 @@ internal_config_read_logging(int file, s
      /* try to create path if not exist */
      g_create_path(lc->log_file);
  
@@ -16,7 +16,7 @@ Subject: don’t spit on the console when starting
  
 --- a/sesman/sesman.c
 +++ b/sesman/sesman.c
-@@ -149,6 +149,12 @@ main(int argc, char **argv)
+@@ -209,6 +209,12 @@ main(int argc, char **argv)
  
      if (1 == argc)
      {
@@ -31,11 +31,11 @@ Subject: don’t spit on the console when starting
          daemon = 1;
 --- a/xrdp/xrdp.c
 +++ b/xrdp/xrdp.c
-@@ -544,7 +544,6 @@ main(int argc, char **argv)
- 
-         if (0 != pid)
-         {
--            g_writeln("process %d started ok", pid);
+@@ -560,7 +560,6 @@ main(int argc, char **argv)
+                    or systemd cannot detect xrdp daemon couldn't start properly */
+                 g_exit(1);
+             }
+-            g_writeln("daemon process %d started ok", pid);
              /* exit, this is the main process */
              g_deinit();
              g_exit(0);

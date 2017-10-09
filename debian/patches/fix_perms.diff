@@ -8,42 +8,42 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
  https://github.com/neutrinolabs/xrdp/pull/464
 --- a/common/os_calls.c
 +++ b/common/os_calls.c
-@@ -122,7 +122,7 @@ g_mk_temp_dir(const char *app_name)
+@@ -124,7 +124,7 @@ g_mk_socket_path(const char *app_name)
                  return 1;
              }
          }
--        g_chmod_hex("/tmp/.xrdp", 0x1777);
-+        g_chmod_hex("/tmp/.xrdp", 0x3777);
+-        g_chmod_hex(XRDP_SOCKET_PATH, 0x1777);
++        g_chmod_hex(XRDP_SOCKET_PATH, 0x3777);
      }
      return 0;
  }
 --- a/xorg/X11R7.6/rdp/rdpup.c
 +++ b/xorg/X11R7.6/rdp/rdpup.c
-@@ -1242,7 +1242,7 @@ rdpup_init(void)
+@@ -1245,7 +1245,7 @@ rdpup_init(void)
              return 0;
          }
  
--        g_chmod_hex("/tmp/.xrdp", 0x1777);
-+        g_chmod_hex("/tmp/.xrdp", 0x3777);
+-        g_chmod_hex(socket_dir, 0x1777);
++        g_chmod_hex(socket_dir, 0x3777);
      }
  
      i = atoi(display);
 --- a/xorgxrdp/module/rdpClientCon.c
 +++ b/xorgxrdp/module/rdpClientCon.c
-@@ -1176,7 +1176,7 @@ rdpClientConInit(rdpPtr dev)
+@@ -1217,7 +1217,7 @@ rdpClientConInit(rdpPtr dev)
                  return 0;
              }
          }
--        g_chmod_hex("/tmp/.xrdp", 0x1777);
-+        g_chmod_hex("/tmp/.xrdp", 0x3777);
+-        g_chmod_hex(socket_dir, 0x1777);
++        g_chmod_hex(socket_dir, 0x3777);
      }
      i = atoi(display);
      if (i < 1)
-@@ -1195,6 +1195,7 @@ rdpClientConInit(rdpPtr dev)
+@@ -1238,6 +1238,7 @@ rdpClientConInit(rdpPtr dev)
              return 1;
          }
          g_sck_listen(dev->listen_sck);
 +        g_chmod_hex(dev->uds_data, 0x0660);
          rdpClientConAddEnabledDevice(dev->pScreen, dev->listen_sck);
      }
-     return 0;
+ 

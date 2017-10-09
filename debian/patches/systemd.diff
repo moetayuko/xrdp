@@ -1,45 +1,33 @@
 Subject: Fixes to systemd service files
 From: Dominik George <nik@naturalnet.de>
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
---- a/instfiles/xrdp-sesman.service
-+++ b/instfiles/xrdp-sesman.service
-@@ -1,12 +1,14 @@
- [Unit]
- Description=xrdp session manager
--After=syslog.target network.target
-+Documentation=man:xrdp-sesman(8) man:sesman.ini(5)
-+After=network.target
- StopWhenUnneeded=true
--BindTo=xrdp.service
-+BindsTo=xrdp.service
+--- a/instfiles/xrdp-sesman.service.in
++++ b/instfiles/xrdp-sesman.service.in
+@@ -7,7 +7,8 @@ BindsTo=xrdp.service
  
  [Service]
  Type=forking
--PIDFile=/var/run/xrdp-sesman.pid
-+PIDFile=/run/xrdp/xrdp-sesman.pid
+-PIDFile=@localstatedir@/run/xrdp-sesman.pid
++PIDFile=@localstatedir@/run/xrdp/xrdp-sesman.pid
 +RuntimeDirectory=xrdp
- EnvironmentFile=-/etc/sysconfig/xrdp
- EnvironmentFile=-/etc/default/xrdp
- ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
---- a/instfiles/xrdp.service
-+++ b/instfiles/xrdp.service
-@@ -1,13 +1,17 @@
- [Unit]
- Description=xrdp daemon
-+Documentation=man:xrdp(8) man:xrdp.ini(5)
- Requires=xrdp-sesman.service
--After=syslog.target network.target xrdp-sesman.service
-+After=network.target xrdp-sesman.service
+ EnvironmentFile=-@sysconfdir@/sysconfig/xrdp
+ EnvironmentFile=-@sysconfdir@/default/xrdp
+ ExecStart=@sbindir@/xrdp-sesman $SESMAN_OPTIONS
+--- a/instfiles/xrdp.service.in
++++ b/instfiles/xrdp.service.in
+@@ -6,9 +6,14 @@ After=network.target xrdp-sesman.service
  
  [Service]
  Type=forking
--PIDFile=/var/run/xrdp.pid
-+PIDFile=/run/xrdp/xrdp.pid
+-PIDFile=@localstatedir@/run/xrdp.pid
++PIDFile=@localstatedir@/run/xrdp/xrdp.pid
 +RuntimeDirectory=xrdp
- EnvironmentFile=-/etc/sysconfig/xrdp
- EnvironmentFile=-/etc/default/xrdp
+ EnvironmentFile=-@sysconfdir@/sysconfig/xrdp
+ EnvironmentFile=-@sysconfdir@/default/xrdp
 +User=xrdp
 +Group=xrdp
- PermissionsStartOnly=true
- ExecStartPre=/bin/sh /usr/share/xrdp/socksetup
- ExecStart=/usr/sbin/xrdp $XRDP_OPTIONS
++PermissionsStartOnly=true
++ExecStartPre=/bin/sh /usr/share/xrdp/socksetup
+ ExecStart=@sbindir@/xrdp $XRDP_OPTIONS
+ ExecStop=@sbindir@/xrdp $XRDP_OPTIONS --kill
+ 

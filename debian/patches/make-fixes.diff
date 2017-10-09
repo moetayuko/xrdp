@@ -13,7 +13,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
    $(XRDPVRDIR)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -264,6 +264,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
+@@ -305,6 +305,14 @@ AC_CHECK_HEADER([X11/extensions/Xrandr.h
    [AC_MSG_ERROR([please install libxrandr-dev or libXrandr-devel])],
    [#include <X11/Xlib.h>])
  
@@ -30,7 +30,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
  AC_SUBST([moduledir], '${libdir}/xrdp')
 --- a/xrdp/Makefile.am
 +++ b/xrdp/Makefile.am
-@@ -24,7 +24,7 @@ endif
+@@ -23,7 +23,7 @@ endif
  if XRDP_RFXCODEC
  AM_CPPFLAGS += -DXRDP_RFXCODEC
  AM_CPPFLAGS += -I$(top_srcdir)/librfxcodec/include
@@ -41,7 +41,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
  if XRDP_PIXMAN
 --- a/xrdpapi/Makefile.am
 +++ b/xrdpapi/Makefile.am
-@@ -9,3 +9,9 @@ module_LTLIBRARIES = \
+@@ -13,3 +13,9 @@ module_LTLIBRARIES = \
  libxrdpapi_la_SOURCES = \
    xrdpapi.c \
    xrdpapi.h
