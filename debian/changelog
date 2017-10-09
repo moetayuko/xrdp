@@ -1,6 +1,7 @@
 xrdp (0.9.4-1) unstable; urgency=medium
 
-  * New upstream versio.
+  * New upstream versio. (Closes: #876976, #858098, #864230, #867494)
+    + Includes xorgxrdo 0.2.4.
     + Refreshed patches.
     + Japanese keybaord patch is not needed anymore, applied upstream.
     + High resolution RFX patch is not needed anymore, applied upstream.
