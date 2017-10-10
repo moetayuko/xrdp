@@ -3,7 +3,7 @@ From: Dominik George <nik@naturalnet.de>
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
 --- a/instfiles/xrdp-sesman.service
 +++ b/instfiles/xrdp-sesman.service
-@@ -1,12 +1,13 @@
+@@ -1,12 +1,14 @@
  [Unit]
  Description=xrdp session manager
 -After=syslog.target network.target
@@ -17,12 +17,13 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
  Type=forking
 -PIDFile=/var/run/xrdp-sesman.pid
 +PIDFile=/run/xrdp/xrdp-sesman.pid
++RuntimeDirectory=xrdp
  EnvironmentFile=-/etc/sysconfig/xrdp
  EnvironmentFile=-/etc/default/xrdp
  ExecStart=/usr/sbin/xrdp-sesman $SESMAN_OPTIONS
 --- a/instfiles/xrdp.service
 +++ b/instfiles/xrdp.service
-@@ -1,13 +1,16 @@
+@@ -1,13 +1,17 @@
  [Unit]
  Description=xrdp daemon
 +Documentation=man:xrdp(8) man:xrdp.ini(5)
@@ -34,6 +35,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
  Type=forking
 -PIDFile=/var/run/xrdp.pid
 +PIDFile=/run/xrdp/xrdp.pid
++RuntimeDirectory=xrdp
  EnvironmentFile=-/etc/sysconfig/xrdp
  EnvironmentFile=-/etc/default/xrdp
 +User=xrdp
