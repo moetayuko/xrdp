@@ -1,3 +1,9 @@
+xrdp (0.9.1-9~bpo8+1) jessie-backports; urgency=high
+
+  * Rebuild for jessie-backports.
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Tue, 10 Oct 2017 20:06:22 +0200
+
 xrdp (0.9.1-9) unstable; urgency=high
 
   * Revisit incomplete fix for CVE-2017-6967. (Closes: #858143)
