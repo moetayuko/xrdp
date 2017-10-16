@@ -1,3 +1,9 @@
+xrdp (0.9.4-1~bpo9+1) stretch-backports; urgency=medium
+
+  * Rebuild for stretch-backports.
+
+ -- Dominik George <nik@naturalnet.de>  Mon, 16 Oct 2017 10:35:52 +0200
+
 xrdp (0.9.4-1) unstable; urgency=medium
 
   * New upstream version. (Closes: #876976, #858098, #864230, #867494)
