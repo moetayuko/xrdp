@@ -1,3 +1,11 @@
+xrdp (0.9.1-9+deb9u1) stable; urgency=medium
+
+  * Fix high CPU load on SSL shutdown. (Closes: #876976)
+    + xrdp could in some situations cause permanent high load on a
+      system if an SSL shutdown got into an endless loop.
+
+ -- Dominik George <nik@naturalnet.de>  Wed, 18 Oct 2017 11:56:31 +0200
+
 xrdp (0.9.1-9) unstable; urgency=high
 
   * Revisit incomplete fix for CVE-2017-6967. (Closes: #858143)

@@ -10,3 +10,4 @@ lfs.diff
 kb_jp.diff
 highres.diff
 cve-2017-6967.diff
+fix-876976.patch

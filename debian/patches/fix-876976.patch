@@ -1,0 +1,16 @@
+From: Jay Sorg <jay.sorg@gmail.com>
+Origin: https://github.com/neutrinolabs/xrdp/commit/2c96908ea500880c71d3593dd2b2b5b5275bdbf5
+Subject: if SSL_shutdown fails, only call one more time
+Bug: https://github.com/neutrinolabs/xrdp/issues/872
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=876976
+--- a/common/ssl_calls.c
++++ b/common/ssl_calls.c
+@@ -754,7 +754,7 @@ ssl_tls_disconnect(struct ssl_tls *self)
+         return 0;
+     }
+     status = SSL_shutdown(self->ssl);
+-    while (status != 1)
++    if (status != 1)
+     {
+         status = SSL_shutdown(self->ssl);
+         if (status <= 0)
