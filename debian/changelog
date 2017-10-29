@@ -1,4 +1,4 @@
-xrdp (0.9.1-9+deb9u1) stable; urgency=medium
+xrdp (0.9.1-9+deb9u1) stretch; urgency=medium
 
   * Fix high CPU load on SSL shutdown. (Closes: #876976)
     + xrdp could in some situations cause permanent high load on a
