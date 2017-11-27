@@ -6,3 +6,4 @@
 alt-gr-fix.patch
 keycode-fix.patch
 CVE-2017-6967.patch
+CVE-2017-16927.patch

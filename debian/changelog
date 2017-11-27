@@ -1,3 +1,14 @@
+xrdp (0.5.0-2+deb7u2) wheezy-security; urgency=high
+
+  * Non-maintainer upload by the Debian LTS team.
+  * Fix CVE-2017-16927: The scp_v0s_accept function in
+    sesman/libscp/libscp_v0.c in the session manager in xrdp uses an untrusted
+    integer as a write length, which allows local users to cause a denial of
+    service (buffer overflow and application crash) or possibly have
+    unspecified other impact via a crafted input stream.
+
+ -- Lucas Kanashiro <kanashiro@debian.org>  Mon, 27 Nov 2017 16:57:57 -0200
+
 xrdp (0.5.0-2+deb7u1) wheezy-security; urgency=high
 
   * Non-maintainer upload by the LTS team.
