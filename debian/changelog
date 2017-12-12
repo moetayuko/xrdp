@@ -1,3 +1,11 @@
+xrdp (0.5.0-2+deb7u3) wheezy-security; urgency=high
+
+  * Non-maintainer upload by the Debian LTS team.
+  * Fix regression added by CVE-2017-16927 patch. Thanks for Frank Richter for
+    the report and the patch.
+
+ -- Lucas Kanashiro <kanashiro@debian.org>  Tue, 12 Dec 2017 11:42:09 -0200
+
 xrdp (0.5.0-2+deb7u2) wheezy-security; urgency=high
 
   * Non-maintainer upload by the Debian LTS team.
