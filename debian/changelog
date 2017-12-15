@@ -1,3 +1,9 @@
+xrdp (0.9.1-9+deb9u2) stretch-security; urgency=high
+
+  * Fix CVE-2017-16927. (Closes: #882463)
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 02:05:40 +0100
+
 xrdp (0.9.1-9+deb9u1) stretch; urgency=medium
 
   * Fix high CPU load on SSL shutdown. (Closes: #876976)
