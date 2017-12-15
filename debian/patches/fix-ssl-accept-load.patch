@@ -2,7 +2,7 @@ From: jsorg71
 Subject: Avoid 100% CPU load on ssl_tls_accept
 Origin: https://github.com/neutrinolabs/xrdp/commit/a9eb21e6d73d94989dc0fa221824b0625b37b7aa.diff
 Bug: https://github.com/neutrinolabs/xrdp/issues/954
-Bug-Debian: xxx
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=884453
 --- a/common/ssl_calls.c
 +++ b/common/ssl_calls.c
 @@ -651,6 +651,15 @@ ssl_tls_accept(struct ssl_tls *self, lon
