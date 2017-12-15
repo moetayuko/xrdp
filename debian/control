@@ -45,6 +45,7 @@ Recommends:
  xorgxrdp,
 Suggests:
  guacamole,
+ xrdp-pulseaudio-installer
 Description: Remote Desktop Protocol (RDP) server
  xrdp offers a graphical login to a remote client using
  RDP (the Remote Desktop Protocol). xrdp can connect to
@@ -76,3 +77,15 @@ Description: Remote Desktop Protocol (RDP) modules for X.org
  operation, most standard X11 fonts and tools need to be installed;
  the Recommended xorg metapackage is a superset of what’s actually
  needed but will do.
+
+Package: xrdp-pulseaudio-installer
+Architecture: all
+Depends: ${misc:Depends}, pulseaudio
+Description: Remote Desktop Protocol (RDP) server - PulseAudio module installer
+ xrdp offers a graphical login to a remote client using
+ RDP (the Remote Desktop Protocol). xrdp can connect to
+ a locally created X.org session with the xorgxrdp drivers,
+ to a VNC X11 server, and forward to another RDP server.
+ .
+ This package contains a utility to build the PulseAudio modules
+ needed to use the RDP sound channel from the X session.
