@@ -79,7 +79,7 @@ Description: Remote Desktop Protocol (RDP) modules for X.org
  needed but will do.
 
 Package: xrdp-pulseaudio-installer
-Architecture: all
+Architecture: any
 Depends:
  ${misc:Depends},
  build-essential,
