@@ -18,14 +18,14 @@ fi
 TMP=$(mktemp -d)
 PULSE_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' pulseaudio)"
 XRDP_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' xrdp)"
-sudo apt -q update
+apt -q update
 
 # Get sources and build dependencies:
-sudo apt -q install dpkg-dev
+apt -q install dpkg-dev
 
 cd $TMP
 apt -q source pulseaudio xrdp
-sudo apt -q build-dep pulseaudio xrdp
+apt -q build-dep pulseaudio xrdp
 
 # For pulseaudio 'configure' is all what is needed:
 cd pulseaudio-$PULSE_UPSTREAM_VERSION/
@@ -40,8 +40,8 @@ PULSE_DIR = $TMP/pulseaudio-$PULSE_UPSTREAM_VERSION" Makefile
 make
 
 # Copy modules to Pulseaudio modules directory, adjust rights.
-sudo cp *.so /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/
-sudo chmod 644 /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/module-xrdp*
+cp *.so /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/
+chmod 644 /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/module-xrdp*
 
 # Restart xrdp, now with sound enabled.
-sudo service xrdp restart
+service xrdp restart
