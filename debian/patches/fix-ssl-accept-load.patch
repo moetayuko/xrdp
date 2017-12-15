@@ -5,7 +5,16 @@ Bug: https://github.com/neutrinolabs/xrdp/issues/954
 Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=884453
 --- a/common/ssl_calls.c
 +++ b/common/ssl_calls.c
-@@ -726,6 +726,15 @@ ssl_tls_accept(struct ssl_tls *self, int
+@@ -34,6 +34,8 @@
+ #include "ssl_calls.h"
+ #include "trans.h"
+ 
++#define SSL_WANT_READ_WRITE_TIMEOUT 100
++
+ #if defined(OPENSSL_VERSION_NUMBER) && (OPENSSL_VERSION_NUMBER >= 0x0090800f)
+ #undef OLD_RSA_GEN1
+ #else
+@@ -726,6 +728,15 @@ ssl_tls_accept(struct ssl_tls *self, int
               *     SSL_ERROR_WANT_READ
               *     SSL_ERROR_WANT_WRITE
               */
