@@ -4,7 +4,9 @@ xrdp (0.9.4-3) UNRELEASED; urgency=high
     (Closes: #884453)
   * Source /etc/profile in startwm. (Closes: #882246)
     + Thanks to Wolfgang Schweer!
-  * Add script to build PulseAudio modules.
+  * Add package to build PulseAudio modules.
+    + Thanks to Wolfgang Schweer for the initial idea!
+  * Update README.Debian.
 
  -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 11:31:14 +0100
 
