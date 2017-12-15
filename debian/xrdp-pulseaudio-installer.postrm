@@ -3,3 +3,5 @@
 set -e
 
 rm -rf /var/lib/xrdp-pulseaudio-installer
+
+#DEBHELPER#
