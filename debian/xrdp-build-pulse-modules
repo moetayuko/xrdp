@@ -22,8 +22,13 @@ tmp=$(mktemp -d); cd "$tmp"
 pulseaudio_version=$(dpkg-query -W -f='${source:Version}' pulseaudio)
 pulseaudio_upstream_version=$(dpkg-query -W -f='${source:Upstream-Version}' pulseaudio)
 
-# FIXME determine automagically
-mirror="http://ftp.debian.org/debian/"
+# Determine mirror
+if test -x /usr/bin/apt ; then
+	mirror=$(apt show "pulseaudio=$pulseaudio_version" 2>/dev/null | awk '/^APT-Sources: / { print $2; exit }')
+fi
+if test "x$mirror" = x; then
+	mirror="http://ftp.debian.org/debian/"
+fi
 
 # Download source packages
 dget "${mirror}pool/main/p/pulseaudio/pulseaudio_${pulseaudio_version}.dsc"
