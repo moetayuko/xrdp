@@ -83,6 +83,7 @@ Architecture: all
 Depends:
  ${misc:Depends},
  build-essential,
+ devscripts,
  pulseaudio,
  # These must match the build dependencies of the pulseaudio package
  # They have been stable for at least two years, though
