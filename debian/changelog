@@ -7,6 +7,7 @@ xrdp (0.9.4-3) UNRELEASED; urgency=high
   * Add package to build PulseAudio modules.
     + Thanks to Wolfgang Schweer for the initial idea!
   * Update README.Debian.
+  * Update bug report instructions.
 
  -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 11:31:14 +0100
 
