@@ -1,8 +1,10 @@
 xrdp (0.9.4-4) unstable; urgency=high
 
   * Fix (possibly exploitable) high CPU load in ssl_tls_accept.
+  * Source /etc/profile in startwm. (Closes: #882246)
+    + Thanks to Wolfgang Schweer!
 
- -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 11:24:55 +0100
+ -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 11:31:14 +0100
 
 xrdp (0.9.4-3) unstable; urgency=high
 
