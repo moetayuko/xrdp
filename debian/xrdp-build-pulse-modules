@@ -29,7 +29,7 @@ mirror="http://ftp.debian.org/debian/"
 dget "${mirror}pool/main/p/pulseaudio/pulseaudio_${pulseaudio_version}.dsc"
 
 # Configure pulseaudio source
-cd "pulseaduio-$pulseaudio_upstream_version"
+cd "pulseaudio-$pulseaudio_upstream_version"
 ./configure
 cd -
 
