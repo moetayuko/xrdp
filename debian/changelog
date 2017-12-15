@@ -3,6 +3,8 @@ xrdp (0.9.4-2) unstable; urgency=high
   [ Dominik George ]
   * Fix typo in previous changelog.
   * Fix CVE-2017-16927. (Closes: #882463)
+  * Bump Standards-Version.
+    + No changes needed.
 
   [ Thorsten Glaser ]
   * Place missing log_end_msg in init script.
