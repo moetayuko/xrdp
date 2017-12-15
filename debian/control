@@ -85,8 +85,8 @@ Depends:
  build-essential,
  devscripts,
  pulseaudio,
- # These must match the build dependencies of the pulseaudio package
- # They have been stable for at least two years, though
+# These must match the build dependencies of the pulseaudio package
+# They have been stable for at least two years, though
  libasound2-dev (>= 1.0.24) [linux-any],
  libasyncns-dev,
  libavahi-client-dev,
