@@ -42,6 +42,3 @@ make
 # Copy modules to Pulseaudio modules directory, adjust rights.
 cp *.so /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/
 chmod 644 /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/module-xrdp*
-
-# Restart xrdp, now with sound enabled.
-service xrdp restart
