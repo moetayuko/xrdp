@@ -80,7 +80,7 @@ Description: Remote Desktop Protocol (RDP) modules for X.org
 
 Package: xrdp-pulseaudio-installer
 Architecture: all
-Depends: ${misc:Depends}, pulseaudio
+Depends: ${misc:Depends}, pulseaudio, xrdp
 Description: Remote Desktop Protocol (RDP) server - PulseAudio module installer
  xrdp offers a graphical login to a remote client using
  RDP (the Remote Desktop Protocol). xrdp can connect to

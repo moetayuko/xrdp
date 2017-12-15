@@ -1,44 +1,46 @@
-#!/bin/bash
-#
+#!/bin/sh
+#-
 # Script to compile / recompile xrdp PulseAudio modules.
 # The caller needs to be root or a member of the sudo group.
 # Also, /etc/apt/sources.list must contain a valid deb-src line.
 #
-# (C) Wolfgang Schweer <wschweer@arcor.de> Nov 15 2017
+# © 2017 Wolfgang Schweer <wschweer@arcor.de>
+# © 2017 Dominik George <nik@naturalnet.de>
 #
 # Published under the "GPL v2 or any later version" license.
+#-
+# This script downloads the Debian source package for pulseaudio
+# corresponding to the installed binary version, then builds the PulseAudio
+# module for xrdp and installs it.
 
 set -e
 
-if [[ $UID -ne 0 ]] ; then 
-	echo "ERROR: You need to be root."
-	exit 1
-fi
+# Get an empty temporary directory
+tmp=$(mktemp -d); cd "$tmp"
 
-TMP=$(mktemp -d)
-PULSE_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' pulseaudio)"
-XRDP_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' xrdp)"
-apt -q update
+# Determine versions of pulseaudio and xrdp
+pulseaudio_version=$(dpkg-query -W -f='${source:Version}' pulseaudio)
+pulseaudio_upstream_version=$(dpkg-query -W -f='${source:Upstream-Version}' pulseaudio)
 
-# Get sources and build dependencies:
-apt -q install dpkg-dev
+# FIXME determine automagically
+mirror="http://ftp.debian.org/debian/"
 
-cd $TMP
-apt -q source pulseaudio xrdp
-apt -q build-dep pulseaudio xrdp
+# Download source packages
+dget "${mirror}pool/main/p/pulseaudio/pulseaudio_${pulseaudio_version}.dsc"
 
-# For pulseaudio 'configure' is all what is needed:
-cd pulseaudio-$PULSE_UPSTREAM_VERSION/
+# Configure pulseaudio source
+cd "pulseaduio-$pulseaudio_upstream_version"
 ./configure
+cd -
 
-# Adjust pulseaudio modules Makefile (needs absolute path)
-# and build the pulseaudio modules.
-cd $TMP/xrdp-$XRDP_UPSTREAM_VERSION/sesman/chansrv/pulse/
-sed -i 's/^PULSE/#PULSE/' Makefile
-sed -i "/#PULSE_DIR/a \
-PULSE_DIR = $TMP/pulseaudio-$PULSE_UPSTREAM_VERSION" Makefile
-make
+# Build PulseAudio module
+cd "/usr/src/xrdp-pulse"
+make PULSE_DIR="$tmp/pulseaduio-$pulseaudio_upstream_version"
 
-# Copy modules to Pulseaudio modules directory, adjust rights.
-cp *.so /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/
-chmod 644 /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/module-xrdp*
+# Install modules to Pulseaudio modules directory
+install -t "/usr/lib/pulse-$pulseaudio_upstream_version/modules/" -m 644 *.so
+
+# Clean up
+make clean
+cd /
+rm -rf "$tmp"

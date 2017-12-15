@@ -812,6 +812,7 @@ License: Expat
 
 Files: debian/xrdp-build-pulse-modules
 Copyright: 2017 Wolfgang Schweer <wschweer@arcor.de>
+ 2017 Dominik George <nik@naturalnet.de>
 License: GPL-2+
 
 Files: sesman/chansrv/pcsc/dumps/*
