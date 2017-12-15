@@ -1,4 +1,4 @@
-xrdp (0.9.1-9+deb9u2) stretch-security; urgency=high
+xrdp (0.9.1-9+deb9u2) stretch; urgency=medium
 
   * Fix CVE-2017-16927. (Closes: #882463)
 
