@@ -38,7 +38,7 @@ cd "/usr/src/xrdp-pulse"
 make PULSE_DIR="$tmp/pulseaduio-$pulseaudio_upstream_version"
 
 # Install modules to Pulseaudio modules directory
-install -t "/usr/lib/pulse-$pulseaudio_upstream_version/modules/" -m 644 *.so
+install -t "/usr/local/lib/xrdp-pulse" -D -m 644 *.so
 
 # Clean up
 make clean
