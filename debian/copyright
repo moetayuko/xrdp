@@ -816,6 +816,10 @@ Files: debian/generate-keymap-rm-conffile.sh
 Copyright: Dominik George <nik@naturalnet.de>
 License: Expat
 
+Files: debian/xrdp-build-pulse-modules
+Copyright: 2017 Wolfgang Schweer <wschweer@arcor.de>
+License: GPL-2+
+
 Files: sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini

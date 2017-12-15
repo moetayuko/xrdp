@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# Script to compile / recompile xrdp PulseAudio modules.
+# The caller needs to be root or a member of the sudo group.
+# Also, /etc/apt/sources.list must contain a valid deb-src line.
+#
+# (C) Wolfgang Schweer <wschweer@arcor.de> Nov 15 2017
+#
+# Published under the "GPL v2 or any later version" license.
+
+set -e
+
+if [[ $UID -ne 0 ]] ; then 
+    if ! groups | egrep -q sudo ; then
+        echo "ERROR: You need to be root or a sudo group member."
+        exit 1
+    fi
+fi
+
+if ! egrep -q  ^deb-src /etc/apt/sources.list ; then
+    echo "ERROR: Make sure /etc/apt/sources.list contains a deb-src line."
+    exit 1
+fi
+
+TMP=$(mktemp -d)
+PULSE_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' pulseaudio)"
+XRDP_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' xrdp)"
+sudo apt -q update
+
+# Get sources and build dependencies:
+sudo apt -q install dpkg-dev
+
+cd $TMP
+apt -q source pulseaudio xrdp
+sudo apt -q build-dep pulseaudio xrdp
+
+# For pulseaudio 'configure' is all what is needed:
+cd pulseaudio-$PULSE_UPSTREAM_VERSION/
+./configure
+
+# Adjust pulseaudio modules Makefile (needs absolute path)
+# and build the pulseaudio modules.
+cd $TMP/xrdp-$XRDP_UPSTREAM_VERSION/sesman/chansrv/pulse/
+sed -i 's/^PULSE/#PULSE/' Makefile
+sed -i "/#PULSE_DIR/a \
+PULSE_DIR = $TMP/pulseaudio-$PULSE_UPSTREAM_VERSION" Makefile
+make
+
+# Copy modules to Pulseaudio modules directory, adjust rights.
+sudo cp *.so /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/
+sudo chmod 644 /usr/lib/pulse-$PULSE_UPSTREAM_VERSION/modules/module-xrdp*
+
+# Restart xrdp, now with sound enabled.
+sudo service xrdp restart
