@@ -1,4 +1,16 @@
-* Note about VNC-related bugs *
+General notes
+-------------
+
+We receive a lot of (duplicate) bug reports about local system
+configuration. Please make absolutely sure to read the documentation in
+/usr/share/doc/xrdp before filing a bug report. Reports that are answered by
+documentation in the package are ignored.
+
+If your bug is related to the X server not starting or audio not working,
+you most probably should read through README.Debian (again).
+
+Note about VNC-related bugs
+---------------------------
 
 By default, xrdp can use one of two backends: Firstly, the xorgxrdp
 backend that uses native X.org code to access an X server; secondly, a
