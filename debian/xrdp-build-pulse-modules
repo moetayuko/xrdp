@@ -17,11 +17,6 @@ if [[ $UID -ne 0 ]] ; then
     fi
 fi
 
-if ! egrep -q  ^deb-src /etc/apt/sources.list ; then
-    echo "ERROR: Make sure /etc/apt/sources.list contains a deb-src line."
-    exit 1
-fi
-
 TMP=$(mktemp -d)
 PULSE_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' pulseaudio)"
 XRDP_UPSTREAM_VERSION="$(dpkg-query -W -f='${source:Upstream-Version}' xrdp)"
