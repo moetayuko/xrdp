@@ -5,3 +5,4 @@ fix_perms.diff
 shutup-daemon.diff
 systemd.diff
 lfs.diff
+cve-2017-16927.patch
