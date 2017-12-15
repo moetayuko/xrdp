@@ -798,12 +798,6 @@ Copyright: metalefty
 License: FreeBSD
 
 Files: xorg/tests/xdemo/yosemite.bmp
- debian/patches/*
- debian/rules
- debian/xrdp.init
- debian/xrdp.postinst
- debian/xrdp.postrm
- debian/xrdp.preinst
 Copyright: 2015, 2016, 2017 mirabilos <m@mirbsd.org>
 License: MirOS
 
