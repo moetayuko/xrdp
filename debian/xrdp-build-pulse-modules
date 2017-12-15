@@ -34,7 +34,7 @@ cd "pulseaudio-$pulseaudio_upstream_version"
 cd -
 
 # Build PulseAudio module
-cd "/usr/src/xrdp-pulse"
+cd "/usr/src/xrdp-pulseaudio-installer"
 make PULSE_DIR="$tmp/pulseaudio-$pulseaudio_upstream_version"
 
 # Install modules to Pulseaudio modules directory
