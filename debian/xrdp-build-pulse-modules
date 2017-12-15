@@ -11,10 +11,8 @@
 set -e
 
 if [[ $UID -ne 0 ]] ; then 
-    if ! groups | egrep -q sudo ; then
-        echo "ERROR: You need to be root or a sudo group member."
-        exit 1
-    fi
+	echo "ERROR: You need to be root."
+	exit 1
 fi
 
 TMP=$(mktemp -d)
