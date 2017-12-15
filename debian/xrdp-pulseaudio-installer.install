@@ -1,2 +1,3 @@
 debian/xrdp-build-pulse-modules usr/sbin
+common/xrdp_sockets.h usr/src/xrdp-pulse
 sesman/chansrv/pulse/* usr/src/xrdp-pulse
