@@ -1,4 +1,4 @@
-xrdp (0.9.4-3) unstable; urgency=high
+xrdp (0.9.4-4) unstable; urgency=high
 
   * Fix (possibly exploitable) high CPU load in ssl_tls_accept.
     (Closes: #884453)
@@ -9,7 +9,15 @@ xrdp (0.9.4-3) unstable; urgency=high
   * Update README.Debian.
   * Update bug report instructions.
 
- -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 18:53:28 +0100
+ -- Dominik George <nik@portux.lan.naturalnet.de>  Wed, 20 Dec 2017 19:57:05 +0100
+
+xrdp (0.9.4-3) unstable; urgency=high
+
+  * Fix regression introduced by last upload. (Closes: #884702)
+    + Upstream's patch for CVE-2017-16927 turned out to be broken.
+      Thanks to Willem Mulder for reporting.
+
+ -- Dominik George <nik@naturalnet.de>  Wed, 20 Dec 2017 19:40:16 +0100
 
 xrdp (0.9.4-2) unstable; urgency=high
 
