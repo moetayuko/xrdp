@@ -9,7 +9,7 @@ xrdp (0.9.4-4) unstable; urgency=high
   * Update README.Debian.
   * Update bug report instructions.
 
- -- Dominik George <nik@portux.lan.naturalnet.de>  Wed, 20 Dec 2017 19:57:05 +0100
+ -- Dominik George <nik@naturalnet.de>  Thu, 21 Dec 2017 19:33:54 +0100
 
 xrdp (0.9.4-3) unstable; urgency=high
 

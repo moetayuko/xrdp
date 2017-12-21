@@ -13,7 +13,7 @@
 # corresponding to the installed binary version, then builds the PulseAudio
 # module for xrdp and installs it.
 
-set -e
+set -ex
 
 # Get an empty temporary directory
 tmp=$(mktemp -d); cd "$tmp"
@@ -24,14 +24,17 @@ pulseaudio_upstream_version=$(dpkg-query -W -f='${source:Upstream-Version}' puls
 
 # Determine mirror
 if test -x /usr/bin/apt ; then
-	mirror=$(apt show "pulseaudio=$pulseaudio_version" 2>/dev/null | awk '/^APT-Sources: / { print $2; exit }')
+	set -- $(apt show "pulseaudio=$pulseaudio_version" 2>/dev/null)
+	mirror=$2
+	suite=${3#*/}
 fi
 if test "x$mirror" = x; then
 	mirror="http://ftp.debian.org/debian/"
+	suite=main
 fi
 
 # Download source packages
-dget "${mirror}pool/main/p/pulseaudio/pulseaudio_${pulseaudio_version}.dsc"
+dget "$mirror/pool/$suite/p/pulseaudio/pulseaudio_$pulseaudio_version.dsc"
 
 # Configure pulseaudio source
 cd "pulseaudio-$pulseaudio_upstream_version"
