@@ -23,18 +23,6 @@ they are logged in through xrdp, to start their own X server. Please
 note that xserver-xorg-legacy may cause its own issues, so keep an eye
 on X.org being suid root and the like.
 
-Audio
------
-
-The PulseAudio module can currently not be packaged correctly due to a lack
-of headers in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
-
-You can install the xrdp-pulseaudio-installer package, which pulls in all
-the build dependencies and contains a script that downloads the PulseAudio
-source, builds the modules and installs them locally.
-
-After installing the package, run xrdp-build-pulse-modules as root.
-
 xrdpvr
 ------
 
