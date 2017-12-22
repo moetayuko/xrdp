@@ -4,8 +4,6 @@ xrdp (0.9.4-4) unstable; urgency=high
     (Closes: #884453)
   * Source /etc/profile in startwm. (Closes: #882246)
     + Thanks to Wolfgang Schweer!
-  * Add package to build PulseAudio modules.
-    + Thanks to Wolfgang Schweer for the initial idea!
   * Update README.Debian.
   * Update bug report instructions.
 
