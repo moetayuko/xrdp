@@ -9,7 +9,7 @@ xrdp (0.9.4-5) unstable; urgency=medium
   * Fix typos.
   * Upload separately from the previous version targetting NEW.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 16:55:52 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 17:09:14 +0100
 
 xrdp (0.9.4-4) unstable; urgency=high
 
@@ -24,8 +24,9 @@ xrdp (0.9.4-4) unstable; urgency=high
   [ Thorsten Glaser ]
   * Allow user profile to override /etc/default/locale.
   * Upload to unstable, next upload is likely to idle in NEW for a bit.
+  * Disable asm code for i386: xorgxrdp v0.2.4 does not contain the fix.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 16:46:21 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 17:06:00 +0100
 
 xrdp (0.9.4-3) unstable; urgency=high
 
