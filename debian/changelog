@@ -1,5 +1,6 @@
 xrdp (0.9.4-4) unstable; urgency=high
 
+  [ Dominik George ]
   * Fix (possibly exploitable) high CPU load in ssl_tls_accept.
     (Closes: #884453)
   * Source /etc/profile in startwm. (Closes: #882246)
@@ -7,7 +8,11 @@ xrdp (0.9.4-4) unstable; urgency=high
   * Update README.Debian.
   * Update bug report instructions.
 
- -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 11:31:14 +0100
+  [ Thorsten Glaser ]
+  * Allow user profile to override /etc/default/locale.
+  * Upload to unstable, next upload is likely to idle in NEW for a bit.
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 16:46:21 +0100
 
 xrdp (0.9.4-3) unstable; urgency=high
 
