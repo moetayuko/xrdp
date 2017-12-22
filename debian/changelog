@@ -1,10 +1,15 @@
 xrdp (0.9.4-5) unstable; urgency=medium
 
+  [ Dominik George ]
   * Add package to build PulseAudio modules.
     + Thanks to Wolfgang Schweer for the initial idea!
   * Update README.Debian.
 
- -- Dominik George <nik@naturalnet.de>  Thu, 21 Dec 2017 19:33:54 +0100
+  [ Thorsten Glaser ]
+  * Fix typos.
+  * Upload separately from the previous version targetting NEW.
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 16:55:52 +0100
 
 xrdp (0.9.4-4) unstable; urgency=high
 
