@@ -154,6 +154,8 @@ Files: COPYING
  sesman/chansrv/pcsc/wrapper/winscard.def
  sesman/chansrv/pcsc/xrdp_pcsc.c
  sesman/chansrv/pulse/Makefile
+ sesman/chansrv/pulse/README.md
+ sesman/chansrv/pulse/README.md~
  sesman/chansrv/pulse/module-xrdp-sink-symdef.h
  sesman/chansrv/pulse/module-xrdp-sink.c
  sesman/chansrv/pulse/module-xrdp-source-symdef.h
@@ -389,12 +391,14 @@ Files: librfxcodec/src/rfxencode_compose.c
  librfxcodec/src/rfxencode_diff_rlgr1.h
  librfxcodec/src/rfxencode_diff_rlgr3.c
  librfxcodec/src/rfxencode_diff_rlgr3.h
+ librfxcodec/src/rfxencode_rgb_to_yuv.c
+ librfxcodec/src/rfxencode_rgb_to_yuv.h
  librfxcodec/src/rfxencode_tile.c
  librfxcodec/src/rfxencode_tile.h
  librfxcodec/src/amd64/rfxencode_tile_amd64.c
  librfxcodec/src/x86/rfxencode_tile_x86.c
 Copyright: 2011, Vic Lee
-  2014-2015, Jay Sorg <jay.sorg@gmail.com>
+  2014-2017, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
 Files: common/ssl_calls.c
