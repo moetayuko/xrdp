@@ -143,11 +143,11 @@ LTLIBRARIES = $(module_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libcommon_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am__libcommon_la_SOURCES_DIST = arch.h base64.h base64.c crc16.h \
-	defines.h fifo.c fifo.h file.c file.h list.c list.h list16.c \
-	list16.h log.c log.h os_calls.c os_calls.h parse.h rail.h \
-	ssl_calls.c ssl_calls.h thread_calls.c thread_calls.h trans.c \
-	trans.h pixman-region16.c pixman-region.h
+am__libcommon_la_SOURCES_DIST = arch.h base64.h base64.c defines.h \
+	fifo.c fifo.h file.c file.h list.c list.h list16.c list16.h \
+	log.c log.h os_calls.c os_calls.h parse.h rail.h ssl_calls.c \
+	ssl_calls.h thread_calls.c thread_calls.h trans.c trans.h \
+	pixman-region16.c pixman-region.h
 @XRDP_PIXMAN_FALSE@am__objects_1 = pixman-region16.lo
 am_libcommon_la_OBJECTS = base64.lo fifo.lo file.lo list.lo list16.lo \
 	log.lo os_calls.lo ssl_calls.lo thread_calls.lo trans.lo \
@@ -386,7 +386,6 @@ libcommon_la_SOURCES = \
   arch.h \
   base64.h \
   base64.c \
-  crc16.h \
   defines.h \
   fifo.c \
   fifo.h \
