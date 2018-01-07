@@ -22,7 +22,7 @@ You can install the xrdp-pulseaudio-installer package, which pulls in all
 the build dependencies and contains a script that downloads the PulseAudio
 source, builds the modules and installs them locally.
 
-Adter installing the package, run xrdp-build-pulse-modules as root.
+After installing the package, run xrdp-build-pulse-modules as root.
 
 xrdpvr
 ------
