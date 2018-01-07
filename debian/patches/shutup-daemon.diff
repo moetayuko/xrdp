@@ -2,7 +2,7 @@ From: Thorsten Glaser <tg@mirbsd.org>
 Subject: don’t spit on the console when starting
 --- a/common/log.c
 +++ b/common/log.c
-@@ -387,11 +387,6 @@ internal_config_read_logging(int file, s
+@@ -393,11 +393,6 @@ internal_config_read_logging(int file, s
      /* try to create path if not exist */
      g_create_path(lc->log_file);
  

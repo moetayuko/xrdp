@@ -1,3 +1,11 @@
+xrdp (0.9.5-1) unstable; urgency=medium
+
+  * New upstream version.
+    + Remove patches applied upstream.
+    + Refresh other patches.
+
+ -- Dominik George <nik@naturalnet.de>  Sun, 07 Jan 2018 16:04:02 +0100
+
 xrdp (0.9.4-4) unstable; urgency=high
 
   * Fix (possibly exploitable) high CPU load in ssl_tls_accept.

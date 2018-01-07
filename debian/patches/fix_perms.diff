@@ -8,7 +8,7 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
  https://github.com/neutrinolabs/xrdp/pull/464
 --- a/common/os_calls.c
 +++ b/common/os_calls.c
-@@ -124,7 +124,7 @@ g_mk_socket_path(const char *app_name)
+@@ -127,7 +127,7 @@ g_mk_socket_path(const char *app_name)
                  return 1;
              }
          }
@@ -30,20 +30,12 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
      i = atoi(display);
 --- a/xorgxrdp/module/rdpClientCon.c
 +++ b/xorgxrdp/module/rdpClientCon.c
-@@ -1217,7 +1217,7 @@ rdpClientConInit(rdpPtr dev)
+@@ -1219,7 +1219,7 @@ rdpClientConInit(rdpPtr dev)
                  return 0;
              }
          }
 -        g_chmod_hex(socket_dir, 0x1777);
 +        g_chmod_hex(socket_dir, 0x3777);
      }
-     i = atoi(display);
-     if (i < 1)
-@@ -1238,6 +1238,7 @@ rdpClientConInit(rdpPtr dev)
-             return 1;
-         }
-         g_sck_listen(dev->listen_sck);
-+        g_chmod_hex(dev->uds_data, 0x0660);
-         rdpClientConAddEnabledDevice(dev->pScreen, dev->listen_sck);
-     }
  
+     errno = 0;
