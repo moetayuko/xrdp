@@ -10,7 +10,6 @@ Files: COPYING
  coding_style.md
  common/Makefile.am
  common/arch.h
- common/crc16.h
  common/defines.h
  common/file.c
  common/file.h
@@ -159,8 +158,6 @@ Files: COPYING
  sesman/chansrv/pulse/module-xrdp-sink-symdef.h
  sesman/chansrv/pulse/module-xrdp-sink.c
  sesman/chansrv/pulse/module-xrdp-source-symdef.h
- sesman/chansrv/pulse/pulse-notes.txt
- sesman/chansrv/pulse/pulse-notes.ubuntu.txt
  sesman/chansrv/rail.c
  sesman/chansrv/rail.h
  sesman/chansrv/smartcard_pcsc.c
