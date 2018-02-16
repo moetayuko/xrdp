@@ -2,8 +2,12 @@ xrdp (0.9.5-2) unstable; urgency=medium
 
   * Enable vsock.
     + Requested by Craig White and Justin Terry from Microsoft.
+  * Fix lintian issues.
+    + Use HTTPS copyright format URL.
+    + Move source{.,/}lintian-overrides.
+    + Replace dh_systemd_start with dh_installsystemd call.
 
- -- Dominik George <nik@naturalnet.de>  Fri, 16 Feb 2018 15:10:42 +0100
+ -- Dominik George <nik@naturalnet.de>  Fri, 16 Feb 2018 16:42:50 +0100
 
 xrdp (0.9.5-1) unstable; urgency=medium
 
