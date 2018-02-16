@@ -1,5 +1,11 @@
 xrdp (0.9.5-2) unstable; urgency=medium
 
+  [ Thorsten Glaser ]
+
+  * Re-enable asm code for i386, the fixed upstream is included now.
+
+  [ Dominik George ]
+
   * Enable vsock.
     + Requested by Craig White and Justin Terry from Microsoft.
   * Fix lintian issues.
