@@ -1,16 +1,6 @@
 From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Build system fixes
- recurse into xorgxrdp/ as well (make into proper configure option?)
- also, actually install keymaps shipped
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -65,4 +65,5 @@ SUBDIRS = \
-   genkeymap \
-   xrdpapi \
-   pkgconfig \
-+  xorgxrdp \
-   $(XRDPVRDIR)
 --- a/xrdp/Makefile.am
 +++ b/xrdp/Makefile.am
 @@ -23,7 +23,7 @@ endif

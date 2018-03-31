@@ -28,14 +28,3 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
      }
  
      i = atoi(display);
---- a/xorgxrdp/module/rdpClientCon.c
-+++ b/xorgxrdp/module/rdpClientCon.c
-@@ -1219,7 +1219,7 @@ rdpClientConInit(rdpPtr dev)
-                 return 0;
-             }
-         }
--        g_chmod_hex(socket_dir, 0x1777);
-+        g_chmod_hex(socket_dir, 0x3777);
-     }
- 
-     errno = 0;

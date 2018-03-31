@@ -54,21 +54,3 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
 +CPPFLAGS="-include config_ac.h $CPPFLAGS"
  AC_OUTPUT
  
---- a/xorgxrdp/configure.ac
-+++ b/xorgxrdp/configure.ac
-@@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
- AM_INIT_AUTOMAKE([1.11 foreign parallel-tests])
- m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
- AC_PROG_CC
-+AC_SYS_LARGEFILE
-+AC_FUNC_FSEEKO
- AC_C_CONST
- AC_PROG_LIBTOOL
- 
-@@ -75,5 +77,6 @@ AC_CONFIG_FILES([Makefile
-                  xrdpmouse/Makefile
- ])
- 
-+CPPFLAGS="-include config_ac.h $CPPFLAGS"
- AC_OUTPUT
- 
