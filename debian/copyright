@@ -60,6 +60,7 @@ Files: COPYING
  instfiles/pam.d/mkpamrules
  instfiles/pam.d/xrdp-sesman.debian
  instfiles/pam.d/xrdp-sesman.freebsd
+ instfiles/pam.d/xrdp-sesman.macos
  instfiles/pam.d/xrdp-sesman.redhat
  instfiles/pam.d/xrdp-sesman.suse
  instfiles/pam.d/xrdp-sesman.unix
@@ -154,7 +155,6 @@ Files: COPYING
  sesman/chansrv/pcsc/xrdp_pcsc.c
  sesman/chansrv/pulse/Makefile
  sesman/chansrv/pulse/README.md
- sesman/chansrv/pulse/README.md~
  sesman/chansrv/pulse/module-xrdp-sink-symdef.h
  sesman/chansrv/pulse/module-xrdp-sink.c
  sesman/chansrv/pulse/module-xrdp-source-symdef.h
@@ -444,7 +444,6 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
  xorg/X11R7.6/rdp/gcops.h
  xorg/X11R7.6/rdp/rdp.h
- xorg/X11R7.6/rdp/rdp.h~
  xorg/X11R7.6/rdp/rdpComposite.c
  xorg/X11R7.6/rdp/rdpCopyArea.c
  xorg/X11R7.6/rdp/rdpCopyArea.h
