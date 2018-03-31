@@ -1,7 +1,7 @@
 Source: xrdp
 Maintainer: Debian Remote Maintainers <debian-remote@lists.debian.org>
 Uploaders:
- Dominik George <nik@naturalnet.de>,
+ Dominik George <natureshadow@debian.org>,
  Andreas Tille <tille@debian.org>,
  Mike Gabriel <sunweaver@debian.org>,
  Thorsten Glaser <tg@mirbsd.de>,

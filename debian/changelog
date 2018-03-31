@@ -5,8 +5,9 @@ xrdp (0.9.6-1) unstable; urgency=medium
     * Change team mailing list in Maintainer field.
   * New upstream release.
   * Split xorgxrdp out into separate source package.
+  * Update may mail address in Uploaders.
 
- -- Dominik George <natureshadow@debian.org>  Sat, 31 Mar 2018 18:57:34 +0200
+ -- Dominik George <natureshadow@debian.org>  Sat, 31 Mar 2018 19:39:03 +0200
 
 xrdp (0.9.5-2) unstable; urgency=medium
 
