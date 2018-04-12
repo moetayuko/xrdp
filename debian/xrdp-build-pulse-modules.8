@@ -1,0 +1,16 @@
+.TH XRDP-BUILD-PULSE-MODULES 8
+.SH NAME
+xrdp\-build\-pulse\-modules \- Download PulseAudio source and build modules for xrdp
+.SH SYNOPSIS
+.B xrdp\-build\-pulse\-modules
+.SH DESCRIPTION
+This script downloads the sources of pulseaudio corresponding to the
+currently installed binary package, then uses it to build the modules
+shipped with the xrdp sources to get an audio channel in RDP sessions.
+.PP
+This is necessary because PulseAduio does not expose all symbols needed for
+the build in its header files.
+.PP
+The modules are installed to /var/lib/xrdp\-pulseaudio\-installer.
+.SH OPTIONS
+This utility takes no options.

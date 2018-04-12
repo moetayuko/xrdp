@@ -1,0 +1,3 @@
+debian/xrdp-build-pulse-modules usr/sbin
+common/xrdp_sockets.h usr/src/xrdp-pulseaudio-installer
+sesman/chansrv/pulse/* usr/src/xrdp-pulseaudio-installer

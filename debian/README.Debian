@@ -1,19 +1,31 @@
+Debian specific notes for xrdp
+==============================
+
+Encryption
+----------
+
 Consider using TLS encryption instead of the default RDP encryption, but
 do make sure to test all possible clients, and mind client bugs. TLS has
 been tested with Microsoft Remote Desktop in Windows 7 and above,
 rdesktop 1.8 and freerdp 1.1 (Remmina, et al).
 
-If the Xorg server does not start, you may need to install the
-xserver-xorg-legacy package (if you're not using systemd's or
-consolekit's privilege mechanism, or not using Linux), and/or set
-"allowed_users=anybody" in /etc/X11/Xwrapper.config to allow users, once
-they are logged in through xrdp, to start their own X server. Please
-note that xserver-xorg-legacy may cause its own issues, so keep an eye
-on Xorg being suid root and the like.
+Don't forget that xrdp might have to be a member of the ssl-cert group to
+read your private key.
 
-The pulseaudio plugin from sesman/chansrv/pulse should be installed but
-cannot be built due to lack of a pulseaudio-modules-dev package in
-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
+Audio
+-----
+
+The PulseAudio module can currently not be packaged correctly due to a lack
+of headers in Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=794692
+
+You can install the xrdp-pulseaudio-installer package, which pulls in all
+the build dependencies and contains a script that downloads the PulseAudio
+source, builds the modules and installs them locally.
+
+After installing the package, run xrdp-build-pulse-modules as root.
+
+xrdpvr
+------
 
 We currently do not use --enable-xrdpvr (as FFmpeg in squeeze is the
 last supported version, but it may be possible to use the one in

@@ -1,3 +1,98 @@
+xrdp (0.9.6-1) unstable; urgency=medium
+
+  * Salsa migration.
+    + Change VCS-URLs.
+    * Change team mailing list in Maintainer field.
+  * New upstream release.
+  * Split xorgxrdp out into separate source package.
+  * Update my mail address in Uploaders.
+
+ -- Dominik George <natureshadow@debian.org>  Sat, 31 Mar 2018 19:39:03 +0200
+
+xrdp (0.9.5-2) unstable; urgency=medium
+
+  [ Thorsten Glaser ]
+
+  * Re-enable asm code for i386, the fixed upstream is included now.
+
+  [ Dominik George ]
+
+  * Enable vsock.
+    + Requested by Craig White and Justin Terry from Microsoft.
+  * Fix lintian issues.
+    + Use HTTPS copyright format URL.
+    + Move source{.,/}lintian-overrides.
+    + Replace dh_systemd_start with dh_installsystemd call.
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 16 Feb 2018 16:42:50 +0100
+
+xrdp (0.9.5-1) unstable; urgency=medium
+
+  * New upstream version.
+    + Remove patches applied upstream.
+    + Refresh other patches.
+    + Update debian/copyright.
+  * Call X.org directly and remove notes about the wrapper.
+  * Bump Standards-Version to 4.1.3, no changes needed.
+  * Bump compat level to 11, no changes needed.
+
+ -- Dominik George <nik@naturalnet.de>  Sun, 07 Jan 2018 22:24:28 +0100
+
+xrdp (0.9.4-5) unstable; urgency=medium
+
+  [ Dominik George ]
+  * Add package to build PulseAudio modules.
+    + Thanks to Wolfgang Schweer for the initial idea!
+  * Update README.Debian.
+
+  [ Thorsten Glaser ]
+  * Fix typos.
+  * Upload separately from the previous version targetting NEW.
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 17:09:14 +0100
+
+xrdp (0.9.4-4) unstable; urgency=high
+
+  [ Dominik George ]
+  * Fix (possibly exploitable) high CPU load in ssl_tls_accept.
+    (Closes: #884453)
+  * Source /etc/profile in startwm. (Closes: #882246)
+    + Thanks to Wolfgang Schweer!
+  * Update README.Debian.
+  * Update bug report instructions.
+
+  [ Thorsten Glaser ]
+  * Allow user profile to override /etc/default/locale.
+  * Upload to unstable, next upload is likely to idle in NEW for a bit.
+  * Disable asm code for i386: xorgxrdp v0.2.4 does not contain the fix.
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 22 Dec 2017 17:06:00 +0100
+
+xrdp (0.9.4-3) unstable; urgency=high
+
+  * Fix regression introduced by last upload. (Closes: #884702)
+    + Upstream's patch for CVE-2017-16927 turned out to be broken.
+      Thanks to Willem Mulder for reporting.
+
+ -- Dominik George <nik@naturalnet.de>  Wed, 20 Dec 2017 19:40:16 +0100
+
+xrdp (0.9.4-2) unstable; urgency=high
+
+  [ Dominik George ]
+  * Fix typo in previous changelog.
+  * Fix CVE-2017-16927. (Closes: #882463)
+  * Bump Standards-Version.
+    + No changes needed.
+
+  [ Thorsten Glaser ]
+  * Place missing log_end_msg in init script.
+  * Run libpainter/bootstrap as well.
+  * Re-enable SIMD on any-i386.
+  * Cherry-pick missing parts from experimental branch.
+  * Fix another typo in previous changelog.
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 02:10:18 +0100
+
 xrdp (0.9.4-1~bpo9+1) stretch-backports; urgency=medium
 
   * Rebuild for stretch-backports.
@@ -7,10 +102,10 @@ xrdp (0.9.4-1~bpo9+1) stretch-backports; urgency=medium
 xrdp (0.9.4-1) unstable; urgency=medium
 
   * New upstream version. (Closes: #876976, #858098, #864230, #867494)
-    + Includes xorgxrdo 0.2.4.
+    + Includes xorgxrdp 0.2.4.
     + Refreshed patches.
     + Updated d/copyright.
-    + Japanese keybaord patch is not needed anymore, applied upstream.
+    + Japanese keyboard patch is not needed anymore, applied upstream.
     + High resolution RFX patch is not needed anymore, applied upstream.
     + FreeBSD patch is not needed anymore, applied upstream.
     + Socket path patch is not needed anymore, made configurable upstream.

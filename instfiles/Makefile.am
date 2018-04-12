@@ -48,7 +48,8 @@ dist_startscript_DATA = \
   km-0000080c.ini \
   km-00000813.ini \
   km-00000816.ini \
-  km-0000100c.ini
+  km-0000100c.ini \
+  km-00010409.ini
 
 #
 # platform specific files
@@ -75,6 +76,10 @@ SUBDIRS += \
   pam.d \
   rc.d \
   pulse
+endif
+
+if MACOS
+SUBDIRS += pam.d
 endif
 
 #

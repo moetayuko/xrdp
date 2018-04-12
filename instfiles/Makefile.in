@@ -102,6 +102,7 @@ host_triplet = @host@
 @FREEBSD_TRUE@  rc.d \
 @FREEBSD_TRUE@  pulse
 
+@MACOS_TRUE@am__append_4 = pam.d
 subdir = instfiles
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -429,13 +430,15 @@ dist_startscript_DATA = \
   km-0000080c.ini \
   km-00000813.ini \
   km-00000816.ini \
-  km-0000100c.ini
+  km-0000100c.ini \
+  km-00010409.ini
 
 
 #
 # platform specific files
 #
-SUBDIRS = $(am__append_1) $(am__append_2) $(am__append_3)
+SUBDIRS = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @LINUX_TRUE@dist_startscript_SCRIPTS = xrdp.sh
 @HAVE_SYSTEMD_TRUE@@LINUX_TRUE@systemdsystemunit_DATA = \
 @HAVE_SYSTEMD_TRUE@@LINUX_TRUE@  xrdp-sesman.service \

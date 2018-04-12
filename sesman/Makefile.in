@@ -469,6 +469,13 @@ xrdp_sesman_LDADD = \
   -lpthread
 
 sesmansysconfdir = $(sysconfdir)/xrdp
+SUBST_VARS = sed \
+   -e 's|@sesmansysconfdir[@]|$(sesmansysconfdir)|g'
+
+subst_verbose = $(subst_verbose_@AM_V@)
+subst_verbose_ = $(subst_verbose_@AM_DEFAULT_V@)
+subst_verbose_0 = @echo "  SUBST    $@";
+SUFFIXES = .in
 dist_sesmansysconf_DATA = \
   sesman.ini
 
@@ -484,7 +491,7 @@ SUBDIRS = \
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .in .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -960,6 +967,8 @@ uninstall-am: uninstall-dist_sesmansysconfDATA \
 
 .PRECIOUS: Makefile
 
+.in:
+	$(subst_verbose)$(SUBST_VARS) $< > $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
