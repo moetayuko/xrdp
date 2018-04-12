@@ -1,3 +1,9 @@
+xrdp (0.9.6-1~bpo9+1) stretch-backports; urgency=medium
+
+  * Rebuild for stretch-backports.
+
+ -- Dominik George <natureshadow@debian.org>  Thu, 12 Apr 2018 16:06:20 +0200
+
 xrdp (0.9.6-1) unstable; urgency=medium
 
   * Salsa migration.
