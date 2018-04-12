@@ -1,3 +1,18 @@
+xrdp (0.9.1-9+deb9u2) stretch; urgency=medium
+
+  * Fix CVE-2017-16927. (Closes: #882463)
+  * Fix high CPU load on ssl_tls_accept. (Closes: #884453)
+
+ -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 19:28:28 +0100
+
+xrdp (0.9.1-9+deb9u1) stretch; urgency=medium
+
+  * Fix high CPU load on SSL shutdown. (Closes: #876976)
+    + xrdp could in some situations cause permanent high load on a
+      system if an SSL shutdown got into an endless loop.
+
+ -- Dominik George <nik@naturalnet.de>  Wed, 18 Oct 2017 11:56:31 +0200
+
 xrdp (0.9.1-9~bpo8+1) jessie-backports; urgency=high
 
   * Rebuild for jessie-backports.
