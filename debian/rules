@@ -42,7 +42,6 @@ endif
 
 override_dh_auto_configure:
 	./bootstrap
-	cd xorgxrdp && ./bootstrap
 	cd librfxcodec && ./bootstrap
 	cd libpainter && ./bootstrap
 	./configure \
@@ -53,8 +52,6 @@ override_dh_auto_configure:
 	    --enable-opus \
 	    --enable-painter \
 	    --enable-vsock \
-	    ${CONFIGURE_ARGS}
-	cd xorgxrdp && ./configure \
 	    ${CONFIGURE_ARGS}
 	cd librfxcodec && ./configure \
 	    --disable-shared \
@@ -80,10 +77,6 @@ override_dh_auto_install:
 	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
 	find debian/xrdp/usr/lib/ -name \*.a -print0 | \
 	    xargs -0 strip --strip-debug -R .comment --
-	# package split
-	mkdir -p debian/xorgxrdp/etc debian/xorgxrdp/usr/lib
-	mv debian/xrdp/etc/X11 debian/xorgxrdp/etc/
-	mv debian/xrdp/usr/lib/xorg debian/xorgxrdp/usr/lib/
 
 override_dh_installchangelogs:
 	dh_installchangelogs -pxrdp -- NEWS.md
@@ -94,20 +87,3 @@ override_dh_installinit:
 
 override_dh_installsystemd:
 	dh_installsystemd --no-restart-on-upgrade
-
-override_dh_shlibdeps:
-	# That's a plugin, use appropriate warning level:
-	dh_shlibdeps -pxorgxrdp -- --warnings=6
-	# Use default levels for everything else:
-	dh_shlibdeps --remaining-packages
-
-override_dh_gencontrol:
-	echo >>debian/xorgxrdp.substvars "xdriver:Depends=$$( \
-	    (cd /usr/share/xserver-xorg && cat videodrvdep xinputdep) | \
-	    sed 's/, /\n/g' | sort -u | \
-	    perl -0e 'print join(", ", split(/\n/, <>));')"
-	dh_gencontrol
-
-override_dh_clean:
-	dh_clean
-	chmod +x xorgxrdp/tests/xorg-test-run.sh

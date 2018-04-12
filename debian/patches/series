@@ -1,6 +1,5 @@
 make-fixes.diff
 config.diff
-misc-fixes.diff
 fix_perms.diff
 shutup-daemon.diff
 systemd.diff

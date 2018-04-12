@@ -1,3 +1,14 @@
+xrdp (0.9.6-1) unstable; urgency=medium
+
+  * Salsa migration.
+    + Change VCS-URLs.
+    * Change team mailing list in Maintainer field.
+  * New upstream release.
+  * Split xorgxrdp out into separate source package.
+  * Update my mail address in Uploaders.
+
+ -- Dominik George <natureshadow@debian.org>  Sat, 31 Mar 2018 19:39:03 +0200
+
 xrdp (0.9.5-2) unstable; urgency=medium
 
   [ Thorsten Glaser ]
