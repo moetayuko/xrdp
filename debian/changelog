@@ -1,6 +1,6 @@
-xrdp (0.9.1-9+deb9u3) UNRELEASED; urgency=medium
+xrdp (0.9.1-9+deb9u3) stretch-security; urgency=high
 
-  * Fix patch for CVE-2017-16927.
+  * Fix patch for CVE-2017-16927. (Closes: #884702)
     + Off-by-one mistake could crash xrdp in some cases.
 
  -- Dominik George <natureshadow@debian.org>  Thu, 12 Apr 2018 23:43:25 +0200
