@@ -3,8 +3,9 @@ xrdp (0.9.1-9+deb9u2~bpo8+1) jessie-backports; urgency=medium
   * Rebuild for jessie-backports.
   * Trivial changes for maintenance:
     + Update my mail address in Uploaders.
+    + Update VCS URLs and maintainer e-mail for Salsa migration.
 
- -- Dominik George <natureshadow@debian.org>  Thu, 12 Apr 2018 16:53:06 +0200
+ -- Dominik George <natureshadow@debian.org>  Thu, 12 Apr 2018 16:54:46 +0200
 
 xrdp (0.9.1-9+deb9u2) stretch; urgency=medium
 

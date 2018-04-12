@@ -1,5 +1,5 @@
 Source: xrdp
-Maintainer: Debian Remote Maintainers <pkg-remote-team@lists.alioth.debian.org>
+Maintainer: Debian Remote Maintainers <debian-remote@lists.debian.org>
 Uploaders:
  Dominik George <natureshadow@debian.org>,
  Andreas Tille <tille@debian.org>,
@@ -29,8 +29,8 @@ Build-Depends:
  xserver-xorg-core,
  xserver-xorg-dev,
 Standards-Version: 3.9.8
-Vcs-Browser: https://anonscm.debian.org/cgit/pkg-remote/xrdp.git/?h=jessie-backports
-Vcs-Git: https://anonscm.debian.org/git/pkg-remote/xrdp.git -b jessie-backports
+Vcs-Browser: https://salsa.debian.org/debian-remote-team/xrdp/tree/jessie-backports
+Vcs-Git: https://salsa.debian.org/debian-remote-team/xrdp.git -b jessie-backports
 Homepage: http://xrdp.sourceforge.net
 
 Package: xrdp
