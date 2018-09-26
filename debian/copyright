@@ -155,11 +155,6 @@ Files: COPYING
  sesman/chansrv/pcsc/wrapper/winscard.c
  sesman/chansrv/pcsc/wrapper/winscard.def
  sesman/chansrv/pcsc/xrdp_pcsc.c
- sesman/chansrv/pulse/Makefile
- sesman/chansrv/pulse/README.md
- sesman/chansrv/pulse/module-xrdp-sink-symdef.h
- sesman/chansrv/pulse/module-xrdp-sink.c
- sesman/chansrv/pulse/module-xrdp-source-symdef.h
  sesman/chansrv/rail.c
  sesman/chansrv/rail.h
  sesman/chansrv/smartcard_pcsc.c
@@ -473,11 +468,6 @@ Files: genkeymap/genkeymap.c
 Copyright: 2008, Ádám Wallner <wallner@bitbaro.hu>
 License: GPL-2+
 
-Files: sesman/chansrv/pulse/module-xrdp-source.c
-Copyright: 2004-2008, Lennart Poettering
-  2008, Nokia Corporation and/or its subsidiary(-ies)
-License: LGPL-2+
-
 Files: xrdp/sans-10.fv1
 Copyright: 2003, Bitstream, Inc.
 License: Bitstream
@@ -592,12 +582,6 @@ Files: debian/generate-keymap-rm-conffile.sh
 Copyright: Dominik George <nik@naturalnet.de>
 License: Expat
 
-Files: debian/xrdp-build-pulse-modules
-Copyright: 2017 Wolfgang Schweer <wschweer@arcor.de>
- 2017 Dominik George <nik@naturalnet.de>
- 2017 mirabilos <thorsten.glaser@teckids.org>
-License: GPL-2+
-
 Files: sesman/chansrv/pcsc/dumps/*
  instfiles/keymap-names.txt
  instfiles/km-*.ini
@@ -650,7 +634,6 @@ Files: sesman/chansrv/pcsc/dumps/*
  fontdump/.gitignore
  m4/.gitignore
  sesman/chansrv/pcsc/.gitignore
- sesman/chansrv/pulse/.gitignore
  tests/.gitignore
  librfxcodec/include/Makefile.in
  librfxcodec/src/amd64/Makefile.in
@@ -803,25 +786,6 @@ License: Expat
  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-License: LGPL-2+
- This program is free software; you can redistribute it and/or modify it
- under the terms of the GNU Lesser General Public License as published
- by the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
- .
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- .
- You should have received a copy of the GNU Lesser General Public
- License along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- 02110-1301 USA.
- .
- On Debian systems, the complete text of the licence can be found in
- `/usr/share/common-licenses/LGPL-2`.
 
 License: MirOS
  Provided that these terms and disclaimer and all copyright notices
