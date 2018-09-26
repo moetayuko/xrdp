@@ -1,3 +1,59 @@
+# Release notes for xrdp v0.9.8 (2018/09/25)
+
+## Deprecation notice
+We removed TLSv1 and TLSv1.1 from the default config. The current default is TLSv1.2
+and TLSv1.3. Users can whenever re-enable these early TLS versions by editing xrdp.
+To use TLSv1.3, OpenSSL or LibreSSL must support TLSv1.3. You can know the OpenSSL
+or LibreSSL version by `xrdp --version` command that compiled with xrdp.
+
+## Other topics
+
+Pulseaudio modules has been removed from xrdp source tree since it is actually
+independent and not part of xrdp. The repository has been moved to:
+https://github.com/neutrinolabs/pulseaudio-module-xrdp
+
+If you want to use audio redirection, make sure install the module separately.
+
+## New features
+* Add TLSv1.3 support #1193
+
+## Bug fixes
+* Ensure unmount redirected drive on fatal X error #1140
+
+## Other changes
+* Show more helpful message if xrdp-dis failed #1206
+* Pass pulse socket name via environment variable #1198
+* Fix xrdp's log path in man page #1168
+
+# Release notes for xrdp v0.9.7 (2018/06/29)
+
+## Deprecation notice
+x11rdp has been removed from xrdp reposiory and stored in the separate repository.
+Checkout [x11rdp repository](https://github.com/neutrionlabs/x11rdp) if you still need x11rdp.
+In most cases, [xorgxrdp](https://github.com/neutrinolabs/xorgxrdp) can replace x11rdp.
+
+## Bug fixes
+* Fix endianness detection on ppc64el #1082
+* Fix a bug xrdp file copy slow #1112 #1132
+* Copy the PAM session environment for the reconnect script #1120
+* Accept fullpath for DefaultWindowManager, ReconnectScript #1147
+
+## Other changes
+* Add PAM support for Arch Linux #1078
+* Show OpenSSL version to '--version' CLI option #1096
+* Separate x11rdp from xrdp repository #1104
+* Support sesrun start xorgxrdp sessions #1108
+* Show configure summary when configure is done #1126 #1134 #1137
+* Less spit on the console when sesman starts #1142
+* Fix memory leaks #1146
+* Separate rc script for FreeBSD into xrdp and xrdp-sesman #1153
+* Improve documents and helps
+
+## Known issues
+* Audio redirection by MP3 codec doesn't sound with some client, use AAC instead #965
+
+-----------------------
+
 # Release notes for xrdp v0.9.6 (2018/03/26)
 
 ## Compatibility notice
