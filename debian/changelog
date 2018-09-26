@@ -8,6 +8,7 @@ xrdp (0.9.8-1) UNRELEASED; urgency=medium
   * Refresh patches.
   * Update copyright.
     + Remove xorg/* files as x11rdp was removed from sources.
+    + Add minor new instfiles.
 
  -- Dominik George <natureshadow@debian.org>  Wed, 26 Sep 2018 21:58:17 +0200
 

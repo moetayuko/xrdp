@@ -58,6 +58,7 @@ Files: COPYING
  instfiles/init.d/xrdp
  instfiles/pam.d/Makefile.am
  instfiles/pam.d/mkpamrules
+ instfiles/pam.d/xrdp-sesman.arch
  instfiles/pam.d/xrdp-sesman.debian
  instfiles/pam.d/xrdp-sesman.freebsd
  instfiles/pam.d/xrdp-sesman.macos
@@ -67,6 +68,7 @@ Files: COPYING
  instfiles/pulse/Makefile.am
  instfiles/pulse/default.pa
  instfiles/rc.d/Makefile.am
+ instfiles/rc.d/xrdp-sesman
  instfiles/xrdp-sesman.service.in
  instfiles/xrdp.service.in
  keygen/Makefile.am
