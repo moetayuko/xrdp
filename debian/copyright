@@ -274,24 +274,6 @@ Files: COPYING
  vrplayer/playvideo.cpp
  vrplayer/playvideo.h
  vrplayer/vrplayer.pro
- xorg/X11R7.6/cleanx.sh
- xorg/X11R7.6/libXext-1.2.0.patch
- xorg/X11R7.6/Mesa-7.10.3.patch
- xorg/X11R7.6/libpciaccess-0.12.0.patch
- xorg/X11R7.6/pixman-0.30.0.patch
- xorg/X11R7.6/xorg-server-1.9.3.patch
- xorg/X11R7.6/rdp/Makefile
- xorg/X11R7.6/x11_file_list.txt
- xorg/debuild/debX11rdp.sh
- xorg/debuild/x11rdp-files/DEBIAN/control
- xorg/debuild/x11rdp-files/DEBIAN/postinst
- xorg/readme.txt
- xorg/tests/nx/client.sh
- xorg/tests/nx/server.sh
- xorg/tests/randr/Makefile
- xorg/tests/randr/trandr.c
- xorg/tests/xdemo/Makefile
- xorg/tests/xdemo/README.txt
  xrdp/Makefile.am
  xrdp/ad24b.bmp
  xrdp/ad256.bmp
@@ -352,9 +334,6 @@ Files: common/fifo.c
  sesman/chansrv/smartcard.h
  tests/gtcp_proxy/gtcp-proxy.c
  tests/gtcp_proxy/hexdump.c
- xorg/tests/xdemo/bmp_parser.c
- xorg/tests/xdemo/common.h
- xorg/tests/xdemo/xdemo.c
  xrdp/xrdp_encoder.c
  xrdpapi/vrplayer.c
  xrdpvr/xrdpvr_internal.h
@@ -407,7 +386,6 @@ License: Apache-2.0
 
 Files: libxrdp/xrdp_mppc_enc.c
  sesman/chansrv/smartcard.c
- xorg/X11R7.6/buildx.sh
  xrdpapi/simple.c
  xrdpapi/xrdpapi.c
  xrdpvr/xrdpvr.c
@@ -442,66 +420,6 @@ Files: librfxcodec/src/amd64/funcs_amd64.h
  librfxcodec/src/x86/funcs_x86.h
  librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse2.asm
  librfxcodec/src/x86/rfxcodec_encode_dwt_shift_x86_sse41.asm
- xorg/X11R7.6/rdp/gcops.h
- xorg/X11R7.6/rdp/rdp.h
- xorg/X11R7.6/rdp/rdpComposite.c
- xorg/X11R7.6/rdp/rdpCopyArea.c
- xorg/X11R7.6/rdp/rdpCopyArea.h
- xorg/X11R7.6/rdp/rdpCopyPlane.c
- xorg/X11R7.6/rdp/rdpCopyPlane.h
- xorg/X11R7.6/rdp/rdpFillPolygon.c
- xorg/X11R7.6/rdp/rdpFillPolygon.h
- xorg/X11R7.6/rdp/rdpFillSpans.c
- xorg/X11R7.6/rdp/rdpFillSpans.h
- xorg/X11R7.6/rdp/rdpImageGlyphBlt.c
- xorg/X11R7.6/rdp/rdpImageGlyphBlt.h
- xorg/X11R7.6/rdp/rdpImageText16.c
- xorg/X11R7.6/rdp/rdpImageText16.h
- xorg/X11R7.6/rdp/rdpImageText8.c
- xorg/X11R7.6/rdp/rdpImageText8.h
- xorg/X11R7.6/rdp/rdpPolyArc.c
- xorg/X11R7.6/rdp/rdpPolyArc.h
- xorg/X11R7.6/rdp/rdpPolyFillArc.c
- xorg/X11R7.6/rdp/rdpPolyFillArc.h
- xorg/X11R7.6/rdp/rdpPolyFillRect.c
- xorg/X11R7.6/rdp/rdpPolyFillRect.h
- xorg/X11R7.6/rdp/rdpPolyGlyphBlt.c
- xorg/X11R7.6/rdp/rdpPolyGlyphBlt.h
- xorg/X11R7.6/rdp/rdpPolyPoint.c
- xorg/X11R7.6/rdp/rdpPolyPoint.h
- xorg/X11R7.6/rdp/rdpPolyRectangle.c
- xorg/X11R7.6/rdp/rdpPolyRectangle.h
- xorg/X11R7.6/rdp/rdpPolySegment.c
- xorg/X11R7.6/rdp/rdpPolySegment.h
- xorg/X11R7.6/rdp/rdpPolyText16.c
- xorg/X11R7.6/rdp/rdpPolyText16.h
- xorg/X11R7.6/rdp/rdpPolyText8.c
- xorg/X11R7.6/rdp/rdpPolyText8.h
- xorg/X11R7.6/rdp/rdpPolylines.c
- xorg/X11R7.6/rdp/rdpPolylines.h
- xorg/X11R7.6/rdp/rdpPushPixels.c
- xorg/X11R7.6/rdp/rdpPushPixels.h
- xorg/X11R7.6/rdp/rdpPutImage.c
- xorg/X11R7.6/rdp/rdpPutImage.h
- xorg/X11R7.6/rdp/rdpSetSpans.c
- xorg/X11R7.6/rdp/rdpSetSpans.h
- xorg/X11R7.6/rdp/rdpdraw.c
- xorg/X11R7.6/rdp/rdpdraw.h
- xorg/X11R7.6/rdp/rdpglyph.c
- xorg/X11R7.6/rdp/rdpglyph.h
- xorg/X11R7.6/rdp/rdpinput.c
- xorg/X11R7.6/rdp/rdpkeyboard.c
- xorg/X11R7.6/rdp/rdpkeyboard.h
- xorg/X11R7.6/rdp/rdpkeyboardbase.c
- xorg/X11R7.6/rdp/rdpkeyboardbase.h
- xorg/X11R7.6/rdp/rdpkeyboardevdev.c
- xorg/X11R7.6/rdp/rdpkeyboardevdev.h
- xorg/X11R7.6/rdp/rdpmain.c
- xorg/X11R7.6/rdp/rdpmisc.c
- xorg/X11R7.6/rdp/rdprandr.c
- xorg/X11R7.6/rdp/rdprandr.h
- xorg/X11R7.6/rdp/rdpup.c
- xorg/X11R7.6/rdp/rdpxv.c
  README.md
  NEWS.md
 Copyright: 2011-2016, Jay Sorg
@@ -663,10 +581,6 @@ Files: instfiles/rc.d/xrdp
 Copyright: metalefty
 License: FreeBSD
 
-Files: xorg/tests/xdemo/yosemite.bmp
-Copyright: 2015 mirabilos <m@mirbsd.org>
-License: MirOS
-
 Files: debian/*
 Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
@@ -689,7 +603,6 @@ Files: sesman/chansrv/pcsc/dumps/*
  librfxcodec/rfxcodec-uninstalled.pc.in
  pkgconfig/xrdp.pc.in
  pkgconfig/xrdp-uninstalled.pc.in
- xorg/X11R7.6/xkeyboard-config-2.0.patch
  keygen/openssl.conf
  Makefile.in
  aclocal.m4
@@ -737,9 +650,6 @@ Files: sesman/chansrv/pcsc/dumps/*
  sesman/chansrv/pcsc/.gitignore
  sesman/chansrv/pulse/.gitignore
  tests/.gitignore
- xorg/.gitignore
- xorg/X11R7.6/.gitignore
- xorg/X11R7.6/rdp/.gitignore
  librfxcodec/include/Makefile.in
  librfxcodec/src/amd64/Makefile.in
  librfxcodec/src/x86/Makefile.in
