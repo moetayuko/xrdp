@@ -33,6 +33,7 @@
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
 #include <openssl/dh.h>
+#include <openssl/crypto.h>
 
 #include "os_calls.h"
 #include "arch.h"
@@ -78,7 +79,7 @@ DH_set0_pqg(DH *dh, BIGNUM *p, BIGNUM *q, BIGNUM *g)
         return 0;
     }
 
-    if (p != NULL) 
+    if (p != NULL)
     {
         BN_free(dh->p);
         dh->p = p;
@@ -733,7 +734,7 @@ ssl_tls_accept(struct ssl_tls *self, long ssl_protocols,
         }
     }
 
-    SSL_CTX_set_read_ahead(self->ctx, 1);
+    SSL_CTX_set_read_ahead(self->ctx, 0);
 
     if (SSL_CTX_use_RSAPrivateKey_file(self->ctx, self->key, SSL_FILETYPE_PEM)
             <= 0)
@@ -1004,7 +1005,22 @@ ssl_get_protocols_from_string(const char *str, long *ssl_protocols)
 #if defined(SSL_OP_NO_TLSv1_2)
     protocols |= SSL_OP_NO_TLSv1_2;
 #endif
+#if defined(SSL_OP_NO_TLSv1_3)
+    protocols |= SSL_OP_NO_TLSv1_3;
+#endif
     bad_protocols = protocols;
+    if (g_pos(str, ",TLSv1.3,") >= 0)
+    {
+#if defined(SSL_OP_NO_TLSv1_3)
+        log_message(LOG_LEVEL_DEBUG, "TLSv1.3 enabled");
+        protocols &= ~SSL_OP_NO_TLSv1_3;
+#else
+        log_message(LOG_LEVEL_WARNING,
+                    "TLSv1.3 enabled by config, "
+                    "but not supported by system OpenSSL");
+        rv |= (1 << 6);
+#endif
+    }
     if (g_pos(str, ",TLSv1.2,") >= 0)
     {
 #if defined(SSL_OP_NO_TLSv1_2)
@@ -1062,5 +1078,17 @@ ssl_get_protocols_from_string(const char *str, long *ssl_protocols)
     }
     *ssl_protocols = protocols;
     return rv;
+}
+
+/*****************************************************************************/
+const char
+*get_openssl_version()
+{
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    return SSLeay_version(SSLEAY_VERSION);
+#else
+    return OpenSSL_version(OPENSSL_VERSION);
+#endif
+
 }
 
