@@ -1,4 +1,4 @@
-xrdp (0.9.8-1) UNRELEASED; urgency=medium
+xrdp (0.9.8-1) unstable; urgency=medium
 
   * New upstream version. (Closes: #885029)
     + Heads up: This disables TLSv1 and TLSv1.1 by default!
