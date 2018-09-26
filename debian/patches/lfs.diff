@@ -13,12 +13,14 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  
-@@ -365,4 +367,5 @@ AC_CONFIG_FILES([
+@@ -370,6 +372,7 @@ AC_CONFIG_FILES([
    xup/Makefile
  ])
  
 +CPPFLAGS="-include config_ac.h $CPPFLAGS"
  AC_OUTPUT
+ 
+ echo ""
 --- a/libpainter/configure.ac
 +++ b/libpainter/configure.ac
 @@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
