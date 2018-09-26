@@ -17,14 +17,3 @@ Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
      }
      return 0;
  }
---- a/xorg/X11R7.6/rdp/rdpup.c
-+++ b/xorg/X11R7.6/rdp/rdpup.c
-@@ -1245,7 +1245,7 @@ rdpup_init(void)
-             return 0;
-         }
- 
--        g_chmod_hex(socket_dir, 0x1777);
-+        g_chmod_hex(socket_dir, 0x3777);
-     }
- 
-     i = atoi(display);
