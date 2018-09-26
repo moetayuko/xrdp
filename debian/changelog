@@ -2,7 +2,7 @@ xrdp (0.9.8-1) UNRELEASED; urgency=medium
 
   * New upstream version. (Closes: #885029)
     + Heads up: This disables TLSv1 and TLSv1.1 by default!
-    + PulseAudio modules are not part of this source anymore.
+    + PulseAudio modules are not part of this source anymore. (Closes: #902004)
   * Bump Standards-Version to 4.2.1.
     + No changes required.
   * Refresh patches.
