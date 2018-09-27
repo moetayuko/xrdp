@@ -1,3 +1,9 @@
+xrdp (0.9.8-2) unstable; urgency=medium
+
+  * Bring back pulse module path patch.
+
+ -- Dominik George <natureshadow@debian.org>  Thu, 27 Sep 2018 10:34:12 +0200
+
 xrdp (0.9.8-1) unstable; urgency=medium
 
   * New upstream version. (Closes: #885029)

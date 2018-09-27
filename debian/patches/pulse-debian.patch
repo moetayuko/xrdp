@@ -1,0 +1,20 @@
+From: Dominik George <nik@naturalnet.de>
+Subject: Use absolute path to PulseAudio modules
+ The modules are installed to their locations by the xrdp-build-pulse-modules script.
+--- a/instfiles/pulse/default.pa
++++ b/instfiles/pulse/default.pa
+@@ -2,11 +2,11 @@
+ .fail
+ load-module module-augment-properties
+ load-module module-always-sink
+-.ifexists module-xrdp-sink.so
+-load-module module-xrdp-sink
++.ifexists /var/lib/xrdp-pulseaudio-installer/module-xrdp-sink.so
++load-module /var/lib/xrdp-pulseaudio-installer/module-xrdp-sink.so
+ .endif
+-.ifexists module-xrdp-source.so
+-load-module module-xrdp-source
++.ifexists /var/lib/xrdp-pulseaudio-installer/module-xrdp-source.so
++load-module /var/lib/xrdp-pulseaudio-installer/module-xrdp-source.so
+ .endif
+ load-module module-native-protocol-unix
