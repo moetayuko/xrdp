@@ -1,16 +1,7 @@
 make-fixes.diff
 config.diff
-misc-fixes.diff
 fix_perms.diff
 shutup-daemon.diff
-sockpath.diff
-kfreebsd.diff
 systemd.diff
 lfs.diff
-kb_jp.diff
-highres.diff
-cve-2017-6967.diff
-fix-876976.patch
-cve-2017-16927.patch
-fix-ssl-accept-load.patch
-Fix-for-CVE-2020-4044.patch
+pulse-debian.patch

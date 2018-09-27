@@ -1,7 +1,7 @@
 /**
  * RFX codec encoder
  *
- * Copyright 2014-2015 Jay Sorg <jay.sorg@gmail.com>
+ * Copyright 2014-2017 Jay Sorg <jay.sorg@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,9 +28,17 @@
 
 #include "rfxcommon.h"
 #include "rfxencode.h"
-#include "rfxcompose.h"
+#include "rfxencode_compose.h"
 #include "rfxconstants.h"
 #include "rfxencode_tile.h"
+#include "rfxencode_rlgr1.h"
+#include "rfxencode_rlgr3.h"
+#include "rfxencode_differential.h"
+#include "rfxencode_quantization.h"
+#include "rfxencode_dwt.h"
+#include "rfxencode_diff_rlgr1.h"
+#include "rfxencode_diff_rlgr3.h"
+#include "rfxencode_rgb_to_yuv.h"
 
 #ifdef RFX_USE_ACCEL_X86
 #include "x86/funcs_x86.h"
@@ -47,16 +59,15 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
     int cx;
     int dx;
 
-    enc = (struct rfxencode *) malloc(sizeof(struct rfxencode));
-    if (enc == 0)
+    enc = (struct rfxencode *) calloc(1, sizeof(struct rfxencode));
+    if (enc == NULL)
     {
         return 1;
     }
-    memset(enc, 0, sizeof(struct rfxencode));
 
-    enc->dwt_buffer = (sint16*)(((size_t)(enc->dwt_buffer_a)) & ~15);
-    enc->dwt_buffer1 = (sint16*)(((size_t)(enc->dwt_buffer1_a)) & ~15);
-    enc->dwt_buffer2 = (sint16*)(((size_t)(enc->dwt_buffer2_a)) & ~15);
+    enc->dwt_buffer = (sint16 *) (((size_t) (enc->dwt_buffer_a)) & ~15);
+    enc->dwt_buffer1 = (sint16 *) (((size_t) (enc->dwt_buffer1_a)) & ~15);
+    enc->dwt_buffer2 = (sint16 *) (((size_t) (enc->dwt_buffer2_a)) & ~15);
 
 #if defined(RFX_USE_ACCEL_X86)
     cpuid_x86(1, 0, &ax, &bx, &cx, &dx);
@@ -143,6 +154,8 @@ rfxcodec_encode_create_ex(int width, int height, int format, int flags,
             return 2;
     }
     enc->format = format;
+    enc->rfx_encode_rgb_to_yuv = rfx_encode_rgb_to_yuv;
+    enc->rfx_encode_argb_to_yuva = rfx_encode_argb_to_yuva;
     /* assign encoding functions */
     if (flags & RFX_FLAGS_NOACCEL)
     {
@@ -272,19 +285,19 @@ rfxcodec_encode_create(int width, int height, int format, int flags)
     error = rfxcodec_encode_create_ex(width, height, format, flags, &handle);
     if (error == 0)
     {
-        return handle; 
+        return handle;
     }
     return 0;
 }
 
 /******************************************************************************/
 int
-rfxcodec_encode_destroy(void * handle)
+rfxcodec_encode_destroy(void *handle)
 {
     struct rfxencode *enc;
 
     enc = (struct rfxencode *) handle;
-    if (enc == 0)
+    if (enc == NULL)
     {
         return 0;
     }
@@ -295,7 +308,7 @@ rfxcodec_encode_destroy(void * handle)
 /******************************************************************************/
 int
 rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
-                   char *buf, int width, int height, int stride_bytes,
+                   const char *buf, int width, int height, int stride_bytes,
                    const struct rfx_rect *regions, int num_regions,
                    const struct rfx_tile *tiles, int num_tiles,
                    const char *quants, int num_quants, int flags)
@@ -331,7 +344,7 @@ rfxcodec_encode_ex(void *handle, char *cdata, int *cdata_bytes,
 /******************************************************************************/
 int
 rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
-                char *buf, int width, int height, int stride_bytes,
+                const char *buf, int width, int height, int stride_bytes,
                 const struct rfx_rect *regions, int num_regions,
                 const struct rfx_tile *tiles, int num_tiles,
                 const char *quants, int num_quants)
@@ -341,3 +354,25 @@ rfxcodec_encode(void *handle, char *cdata, int *cdata_bytes,
                               num_tiles, quants, num_quants, 0);
 }
 
+/******************************************************************************/
+int
+rfxcodec_encode_get_internals(struct rfxcodec_encode_internals *internals)
+{
+    memset(internals, 0, sizeof(struct rfxcodec_encode_internals));
+    internals->rfxencode_rlgr1 = rfx_rlgr1_encode;
+    internals->rfxencode_rlgr3 = rfx_rlgr3_encode;
+    internals->rfxencode_differential = rfx_differential_encode;
+    internals->rfxencode_quantization = rfx_quantization_encode;
+    internals->rfxencode_dwt_2d = rfx_dwt_2d_encode;
+    internals->rfxencode_diff_rlgr1 = rfx_encode_diff_rlgr1;
+    internals->rfxencode_diff_rlgr3 = rfx_encode_diff_rlgr3;
+#if defined(RFX_USE_ACCEL_X86)
+    internals->rfxencode_dwt_shift_x86_sse2 = rfxcodec_encode_dwt_shift_x86_sse2;
+    internals->rfxencode_dwt_shift_x86_sse41 = rfxcodec_encode_dwt_shift_x86_sse41;
+#endif
+#if defined(RFX_USE_ACCEL_AMD64)
+    internals->rfxencode_dwt_shift_amd64_sse2 = rfxcodec_encode_dwt_shift_amd64_sse2;
+    internals->rfxencode_dwt_shift_amd64_sse41 = rfxcodec_encode_dwt_shift_amd64_sse41;
+#endif
+    return 0;
+}

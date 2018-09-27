@@ -1,5 +1,6 @@
 ;
 ;Copyright 2016 Jay Sorg
+;Copyright 2017 mirabilos
 ;
 ;Permission to use, copy, modify, distribute, and sell this software and its
 ;documentation for any purpose is hereby granted without fee, provided that
@@ -19,12 +20,9 @@
 ;
 ;x86 asm dwt
 
-%ifidn __OUTPUT_FORMAT__,elf
-section .note.GNU-stack noalloc noexec nowrite progbits
-%endif
+%include "common.asm"
 
-section .data
-    align 16
+PREPARE_RODATA
     cw128    times 8 dw 128
     cdFFFF   times 4 dd 65535
     ; these are 1 << (factor - 1) 0 to 15 is factor
@@ -45,14 +43,6 @@ section .data
     cwa8192  times 8 dw 8192  ; 14
     cwa16384 times 8 dw 16384 ; 15
 
-section .text
-
-%macro PROC 1
-    align 16
-    global %1
-    %1:
-%endmacro
-
 %define LHI_ADD  [esp + 1 * 16 + 4]
 %define LHI_SFT  [esp + 2 * 16 + 4]
 %define LLO_ADD  [esp + 3 * 16 + 4]
@@ -68,8 +58,8 @@ loop1a:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -79,8 +69,8 @@ loop1a:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -98,8 +88,8 @@ loop1a:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -260,8 +250,8 @@ loop1c:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -271,8 +261,8 @@ loop1c:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -290,8 +280,8 @@ loop1c:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -324,7 +314,7 @@ loop1c:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa xmm6, xmm5                   ; out lo
     paddw xmm6, LLO_ADD
@@ -341,8 +331,8 @@ loop1c:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -352,8 +342,8 @@ loop1c:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -371,8 +361,8 @@ loop1c:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -395,7 +385,7 @@ loop1c:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -436,8 +426,8 @@ loop1c1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -447,8 +437,8 @@ loop1c1:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -466,8 +456,8 @@ loop1c1:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -500,7 +490,7 @@ loop1c1:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa [edx], xmm5                  ; out lo
 
@@ -514,8 +504,8 @@ loop1c1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -525,8 +515,8 @@ loop1c1:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -544,8 +534,8 @@ loop1c1:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -568,7 +558,7 @@ loop1c1:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -703,8 +693,8 @@ loop1e:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -714,8 +704,8 @@ loop1e:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -733,8 +723,8 @@ loop1e:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -767,7 +757,7 @@ loop1e:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa xmm6, xmm5                   ; out lo
     paddw xmm6, LLO_ADD
@@ -787,8 +777,8 @@ loop2e:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -798,8 +788,8 @@ loop2e:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -817,8 +807,8 @@ loop2e:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -842,14 +832,14 @@ loop2e:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa xmm6, xmm5                   ; out lo
     paddw xmm6, LLO_ADD
@@ -870,8 +860,8 @@ loop2e:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -881,8 +871,8 @@ loop2e:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -900,8 +890,8 @@ loop2e:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -924,7 +914,7 @@ loop2e:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -965,8 +955,8 @@ loop1e1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -976,8 +966,8 @@ loop1e1:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -995,8 +985,8 @@ loop1e1:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -1029,7 +1019,7 @@ loop1e1:
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa [edx], xmm5                  ; out lo
 
@@ -1046,8 +1036,8 @@ loop2e1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -1057,8 +1047,8 @@ loop2e1:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -1076,8 +1066,8 @@ loop2e1:
     movd xmm5, eax
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -1101,14 +1091,14 @@ loop2e1:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
     paddw xmm5, xmm1
 
     psrldq xmm2, 14
-    movd ebx, xmm2                      ; save hi
+    movd ebp, xmm2                      ; save hi
 
     movdqa [edx], xmm5                  ; out lo
 
@@ -1126,8 +1116,8 @@ loop2e1:
     movdqa xmm2, [esi + 16]
     movdqa xmm6, xmm1
     movdqa xmm7, xmm2
-    pand xmm1, [cdFFFF]
-    pand xmm2, [cdFFFF]
+    pand xmm1, [lsym(cdFFFF)]
+    pand xmm2, [lsym(cdFFFF)]
     pslld xmm1, 16
     pslld xmm2, 16
     psrad xmm1, 16
@@ -1137,8 +1127,8 @@ loop2e1:
     movdqa xmm3, xmm7
     psrldq xmm2, 2
     psrldq xmm3, 2
-    pand xmm2, [cdFFFF]
-    pand xmm3, [cdFFFF]
+    pand xmm2, [lsym(cdFFFF)]
+    pand xmm3, [lsym(cdFFFF)]
     pslld xmm2, 16
     pslld xmm3, 16
     psrad xmm2, 16
@@ -1156,8 +1146,8 @@ loop2e1:
     psrldq xmm5, 12
     pslldq xmm5, 12
     por xmm4, xmm5
-    pand xmm3, [cdFFFF]
-    pand xmm4, [cdFFFF]
+    pand xmm3, [lsym(cdFFFF)]
+    pand xmm4, [lsym(cdFFFF)]
     pslld xmm3, 16
     pslld xmm4, 16
     psrad xmm3, 16
@@ -1180,7 +1170,7 @@ loop2e1:
     ; l[n] = src[2n] + ((h[n - 1] + h[n]) >> 1)
     movdqa xmm7, xmm5
     pslldq xmm7, 2
-    movd xmm6, ebx
+    movd xmm6, ebp
     por xmm7, xmm6
     paddw xmm5, xmm7
     psraw xmm5, 1
@@ -1220,9 +1210,9 @@ loop1f:
     punpcklbw xmm1, xmm0
     punpcklbw xmm2, xmm0
     punpcklbw xmm3, xmm0
-    psubw xmm1, [cw128]
-    psubw xmm2, [cw128]
-    psubw xmm3, [cw128]
+    psubw xmm1, [lsym(cw128)]
+    psubw xmm2, [lsym(cw128)]
+    psubw xmm3, [lsym(cw128)]
     psllw xmm1, 5
     psllw xmm2, 5
     psllw xmm3, 5
@@ -1254,8 +1244,8 @@ loop2f:
     movq xmm3, [esi + 64 * 1 * 2]       ; src[2n + 2]
     punpcklbw xmm2, xmm0
     punpcklbw xmm3, xmm0
-    psubw xmm2, [cw128]
-    psubw xmm3, [cw128]
+    psubw xmm2, [lsym(cw128)]
+    psubw xmm3, [lsym(cw128)]
     psllw xmm2, 5
     psllw xmm3, 5
     movdqa xmm4, xmm1
@@ -1287,7 +1277,7 @@ loop2f:
     movdqa xmm1, xmm3                   ; src[2n]
     movq xmm2, [esi + 64 * 1]           ; src[2n + 1]
     punpcklbw xmm2, xmm0
-    psubw xmm2, [cw128]
+    psubw xmm2, [lsym(cw128)]
     psllw xmm2, 5
     movdqa xmm4, xmm1
     movdqa xmm5, xmm2
@@ -1328,7 +1318,7 @@ set_quants_hi:
     movd xmm1, eax
     movdqa LHI_SFT, xmm1
     imul eax, 16
-    lea edx, [cwa0]
+    lea edx, [lsym(cwa0)]
     add edx, eax
     movdqa xmm1, [edx]
     movdqa LHI_ADD, xmm1
@@ -1339,7 +1329,7 @@ set_quants_lo:
     movd xmm1, eax
     movdqa LLO_SFT, xmm1
     imul eax, 16
-    lea edx, [cwa0]
+    lea edx, [lsym(cwa0)]
     add edx, eax
     movdqa xmm1, [edx]
     movdqa LLO_ADD, xmm1
@@ -1357,11 +1347,7 @@ set_quants_lo:
 ;                                   short *work_buffer);
 
 ;******************************************************************************
-%ifidn __OUTPUT_FORMAT__,elf
 PROC rfxcodec_encode_dwt_shift_x86_sse2
-%else
-PROC _rfxcodec_encode_dwt_shift_x86_sse2
-%endif
     ; align stack
     mov eax, esp
     sub eax, 0x10
@@ -1375,6 +1361,7 @@ PROC _rfxcodec_encode_dwt_shift_x86_sse2
     movdqu [esp], xmm0
     ; save registers
     push ebx
+    RETRIEVE_RODATA
     push esi
     push edi
     push ebp
@@ -1529,5 +1516,4 @@ PROC _rfxcodec_encode_dwt_shift_x86_sse2
     ; return value
     mov eax, 0
     ret
-    align 16
-
+END_OF_FILE

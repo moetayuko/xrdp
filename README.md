@@ -2,7 +2,7 @@
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neutrinolabs/xrdp)
 ![Apache-License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
-*Current Version:* 0.9.1
+*Current Version:* 0.9.8
 
 # xrdp - an open source RDP server
 
@@ -29,7 +29,7 @@ RDP transport is encrypted using TLS by default.
 
 ### Access to Remote Resources
  * two-way clipboard transfer (text, bitmap, file)
- * audio redirection
+ * audio redirection ([requires to build additional modules](https://github.com/neutrinolabs/xrdp/wiki/How-to-set-up-audio-redirection))
  * drive redirection (mount local client drives on remote machine)
 
 ## Quick Start
@@ -40,15 +40,30 @@ experience. It is recommended that xrdp depends on xorgxrdp, so it should
 be sufficient to install xrdp. If xorgxrdp is not provided, use Xvnc
 server.
 
+xrdp listens on 3389/tcp. Make sure your firewall accepts connection to
+3389/tcp from where you want to access.
+
 ### Ubuntu / Debian
 ```bash
-apt-get install xrdp
+apt install xrdp
 ```
 
 ### RedHat / CentOS / Fedora
+
+On RedHat and CentOS, make sure to enable EPEL packages first.
+
+```bash
+yum install epel-release
+```
+
+Install xrdp package.
+
 ```bash
 yum install xrdp
 ```
+
+`yum` is being replaced with `dnf`, so you may need to use `dnf` instead
+of `yum` in the above commands.
 
 ## Environment
 
@@ -61,7 +76,7 @@ SIMD instructions.
 FreeBSD is not a primary target of xrdp. It is working on FreeBSD except
 for the drive redirection feature.
 
-Other operating systems such as Mac OS are not supported so far, but we
+Other operating systems such as macOS are not supported so far, but we
 welcome your contributions.
 
 ## Compiling
@@ -84,7 +99,7 @@ need **autoconf**, **automake**, **libtool** and **pkgconfig**.
 If compiling from the packaged source, unpack the tarball and change to the
 resulting directory.
 
-If compiling from a checked out repository, please make sure you've got the submodules  
+If compiling from a checked out repository, please make sure you've got the submodules
 cloned too (use `git clone --recursive https://github.com/neutrinolabs/xrdp`)
 
 Then run following commands to compile and install xrdp:
@@ -95,32 +110,35 @@ make
 sudo make install
 ```
 
+If you want to use audio redirection, you need to build and install additional
+pulseaudio modules. The build instructions can be found at wiki.
+
+* [How to set up audio redirection](https://github.com/neutrinolabs/xrdp/wiki/How-to-set-up-audio-redirection)
+
 ## Directory Structure
 
 ```
 xrdp
-├── common ------ common code
-├── docs -------- documentation
-├── fontdump ---- font dump for Windows
-├── genkeymap --- keymap generator
-├── instfiles --- installable data file
-├── keygen ------ xrdp RSA key pair generator
-├── libpainter -- painter library
-├── librfxcodec - RFX codec library
-├── libxrdp ----- core RDP protocol implementation
-├── m4 ---------- Autoconf macros
-├── mc ---------- media center module
-├── neutrinordp - RDP client module for proxying RDP connections using NeutrinoRDP
-├── pkgconfig --- pkg-config configuration
-├── rdp --------- RDP client module for connecting to another RDP server
-├── sesman ------ session manager for xrdp
-├── tcutils ----- QT based utility program for thin clients
-├── tests ------- tests for the code
-├── vnc --------- VNC client module for xrdp
-├── vrplayer ---- QT player redirecting video/audio to clients over xrdpvr channel
-├── xorg -------- X11rdp, an Xorg backend for xrdp
-├── xrdp -------- main server code
-├── xrdpapi ----- virtual channel API
-├── xrdpvr ------ API for playing media over RDP
-└── xup --------- X11rdp and xorgxrdp client module
+├── common ······ common code
+├── docs ········ documentation
+├── fontdump ···· font dump for Windows
+├── genkeymap ··· keymap generator
+├── instfiles ··· installable data file
+├── keygen ······ xrdp RSA key pair generator
+├── libpainter ·· painter library
+├── librfxcodec · RFX codec library
+├── libxrdp ····· core RDP protocol implementation
+├── m4 ·········· Autoconf macros
+├── mc ·········· media center module
+├── neutrinordp · RDP client module for proxying RDP connections using NeutrinoRDP
+├── pkgconfig ··· pkg-config configuration
+├── sesman ······ session manager for xrdp
+├── tcutils ····· QT based utility program for thin clients
+├── tests ······· tests for the code
+├── vnc ········· VNC client module for xrdp
+├── vrplayer ···· QT player redirecting video/audio to clients over xrdpvr channel
+├── xrdp ········ main server code
+├── xrdpapi ····· virtual channel API
+├── xrdpvr ······ API for playing media over RDP
+└── xup ········· X11rdp and xorgxrdp client module
 ```

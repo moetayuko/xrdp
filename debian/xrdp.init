@@ -173,6 +173,7 @@ case $1 in
 	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
 	rc=$?
 	test $rc -gt 0 && rv=$rc
+	test x"$VERBOSE" = x"no" || log_end_msg $rv
 	;;
 (try-restart)
 	log_daemon_msg "Trying to restart $DESC"
@@ -216,6 +217,7 @@ case $1 in
 	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
 	rc=$?
 	test $rc -gt 0 && rv=$rc
+	test x"$VERBOSE" = x"no" || log_end_msg $rv
 	;;
 esac
 # make “/etc/init.d/xrdp status” work for nōn-root

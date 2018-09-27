@@ -1,14 +1,4 @@
-%ifidn __OUTPUT_FORMAT__,elf64
-SECTION .note.GNU-stack noalloc noexec nowrite progbits
-%endif
-
-SECTION .text
-
-%macro PROC 1
-    align 16
-    global %1
-    %1:
-%endmacro
+%include "common.asm"
 
 ;The first six integer or pointer arguments are passed in registers
 ;RDI, RSI, RDX, RCX, R8, and R9
@@ -16,11 +6,7 @@ SECTION .text
 ;int
 ;cpuid_amd64(int eax_in, int ecx_in, int *eax, int *ebx, int *ecx, int *edx)
 
-%ifidn __OUTPUT_FORMAT__,elf64
 PROC cpuid_amd64
-%else
-PROC _cpuid_amd64
-%endif
     ; save registers
     push rbx
 
@@ -44,5 +30,4 @@ PROC _cpuid_amd64
     ; restore registers
     pop rbx
     ret
-    align 16
-
+END_OF_FILE

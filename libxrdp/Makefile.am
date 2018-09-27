@@ -8,14 +8,14 @@ AM_CPPFLAGS = \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -I$(top_srcdir)/common
 
+AM_CFLAGS = $(OPENSSL_CFLAGS)
+
 AM_LDFLAGS =
 
 LIBXRDP_EXTRA_LIBS =
 
 if XRDP_DEBUG
 AM_CPPFLAGS += -DXRDP_DEBUG
-else
-AM_CPPFLAGS += -DXRDP_NODEBUG
 endif
 
 if XRDP_NEUTRINORDP

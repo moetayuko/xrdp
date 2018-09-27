@@ -1,33 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
+#
+# This script is an example. You might need to edit this script
+# depending on your distro if it doesn't work for you.
+#
+# Uncomment the following line for debug:
+# exec xterm
 
-#start the window manager
-wm_start()
-{
-  if [ -r /etc/default/locale ]; then
-    . /etc/default/locale
-    export LANG LANGUAGE
-  fi
-
-  # debian
-  if [ -r /etc/X11/Xsession ]; then
-    . /etc/X11/Xsession
-    exit 0
-  fi
-
-  # el
-  if [ -r /etc/X11/xinit/Xsession ]; then
-    . /etc/X11/xinit/Xsession
-    exit 0
-  fi
-
-  # suse
-  if [ -r /etc/X11/xdm/Xsession ]; then
-    . /etc/X11/xdm/Xsession
-    exit 0
-  fi
-
-  xterm
-}
 
 # Execution sequence for interactive login shell - pseudocode
 #
@@ -77,6 +55,43 @@ post_start()
   return 0
 }
 
+#start the window manager
+wm_start()
+{
+  if [ -r /etc/default/locale ]; then
+    . /etc/default/locale
+    export LANG LANGUAGE
+  fi
+
+  # debian
+  if [ -r /etc/X11/Xsession ]; then
+    pre_start
+    . /etc/X11/Xsession
+    post_start
+    exit 0
+  fi
+
+  # el
+  if [ -r /etc/X11/xinit/Xsession ]; then
+    pre_start
+    . /etc/X11/xinit/Xsession
+    post_start
+    exit 0
+  fi
+
+  # suse
+  if [ -r /etc/X11/xdm/Xsession ]; then
+    # since the following script run a user login shell,
+    # do not execute the pseudo login shell scripts
+    . /etc/X11/xdm/Xsession
+    exit 0
+  fi
+
+  pre_start
+  xterm
+  post_start
+}
+
 #. /etc/environment
 #export PATH=$PATH
 #export LANG=$LANG
@@ -91,8 +106,6 @@ post_start()
 # includes
 # auth       required     pam_env.so readenv=1
 
-pre_start
 wm_start
-post_start
 
 exit 1

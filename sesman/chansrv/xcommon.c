@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+#if defined(HAVE_CONFIG_H)
+#include <config_ac.h>
+#endif
+
 #include <X11/Xlib.h>
 #include "arch.h"
 #include "parse.h"
@@ -24,6 +28,7 @@
 #include "log.h"
 #include "clipboard.h"
 #include "rail.h"
+#include "xcommon.h"
 
 /*
 #undef LOG_LEVEL
@@ -46,8 +51,11 @@ Atom g_utf8_string = 0;
 Atom g_net_wm_name = 0;
 Atom g_wm_state = 0;
 
+static x_server_fatal_cb_type x_server_fatal_handler = 0;
+
+
 /*****************************************************************************/
-static int DEFAULT_CC
+static int
 xcommon_error_handler(Display *dis, XErrorEvent *xer)
 {
     char text[256];
@@ -60,23 +68,34 @@ xcommon_error_handler(Display *dis, XErrorEvent *xer)
 }
 
 /*****************************************************************************/
-/* The X server had an internal error.  This is the last function called.
-   Do any cleanup that needs to be done on exit, like removing temporary files.
+/* Allow the caller to be notified on X server failure
+   Specified callback can do any cleanup that needs to be done on exit,
+   like removing temporary files. This is the last function called.
    Don't worry about memory leaks */
-#if 0
-static int DEFAULT_CC
+void
+xcommon_set_x_server_fatal_handler(x_server_fatal_cb_type handler)
+{
+    x_server_fatal_handler = handler;
+}
+
+/*****************************************************************************/
+/* The X server had an internal error */
+static int
 xcommon_fatal_handler(Display *dis)
 {
+    if (x_server_fatal_handler)
+    {
+        x_server_fatal_handler();
+    }
     return 0;
 }
-#endif
 
 /*****************************************************************************/
 /* returns time in milliseconds
    this is like g_time2 in os_calls, but not milliseconds since machine was
    up, something else
    this is a time value similar to what the xserver uses */
-int APP_CC
+int
 xcommon_get_local_time(void)
 {
     return g_time3();
@@ -84,7 +103,7 @@ xcommon_get_local_time(void)
 
 /******************************************************************************/
 /* this should be called first */
-int APP_CC
+int
 xcommon_init(void)
 {
     if (g_display != 0)
@@ -106,7 +125,7 @@ xcommon_init(void)
     /* setting the error handlers can cause problem when shutting down
        chansrv on some xlibs */
     XSetErrorHandler(xcommon_error_handler);
-    //XSetIOErrorHandler(xcommon_fatal_handler);
+    XSetIOErrorHandler(xcommon_fatal_handler);
 
     g_x_socket = XConnectionNumber(g_display);
 
@@ -135,7 +154,7 @@ xcommon_init(void)
 /* returns error
    this is called to get any wait objects for the main loop
    timeout can be nil */
-int APP_CC
+int
 xcommon_get_wait_objs(tbus *objs, int *count, int *timeout)
 {
     int lcount;
@@ -152,7 +171,7 @@ xcommon_get_wait_objs(tbus *objs, int *count, int *timeout)
 }
 
 /*****************************************************************************/
-int APP_CC
+int
 xcommon_check_wait_objs(void)
 {
     XEvent xevent;

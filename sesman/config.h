@@ -39,6 +39,7 @@
 #define SESMAN_CFG_USERWM            "UserWindowManager"
 #define SESMAN_CFG_MAX_SESSION       "MaxSessions"
 #define SESMAN_CFG_AUTH_FILE_PATH    "AuthFilePath"
+#define SESMAN_CFG_RECONNECT_SH      "ReconnectScript"
 
 #define SESMAN_CFG_RDP_PARAMS        "X11rdp"
 #define SESMAN_CFG_XORG_PARAMS       "Xorg"
@@ -198,12 +199,17 @@ struct config_sesman
    * @var default_wm
    * @brief Default window manager
    */
-  char default_wm[32];
+  char *default_wm;
   /**
    * @var user_wm
    * @brief Default window manager
    */
   char user_wm[32];
+  /**
+   * @var reconnect_sh
+   * @brief Script executed when reconnected
+   */
+  char *reconnect_sh;
   /**
    * @var auth_file_path
    * @brief Auth file path
@@ -240,8 +246,16 @@ struct config_sesman
    */
   struct config_sessions sess;
 
-  struct list* session_variables1;
-  struct list* session_variables2;
+  /**
+   * @var env_names
+   * @brief environment variable name list
+   */
+  struct list* env_names;
+   /**
+   * @var env_values
+   * @brief environment variable value list
+   */
+  struct list* env_values;
 };
 
 /**
@@ -251,7 +265,7 @@ struct config_sesman
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read(struct config_sesman* cfg);
 
 /**
@@ -264,23 +278,9 @@ config_read(struct config_sesman* cfg);
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read_globals(int file, struct config_sesman* cf,
                     struct list* param_n, struct list* param_v);
-
-/**
- *
- * @brief Reads sesman [logging] configuration section
- * @param file configuration file descriptor
- * @param lc pointer to a log_config struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int DEFAULT_CC
-config_read_logging(int file, struct log_config* lc, struct list* param_n,
-                    struct list* param_v);
 
 /**
  *
@@ -292,7 +292,7 @@ config_read_logging(int file, struct log_config* lc, struct list* param_n,
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read_security(int file, struct config_security* sc,
                      struct list* param_n, struct list* param_v);
 
@@ -306,7 +306,7 @@ config_read_security(int file, struct config_security* sc,
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read_sessions(int file, struct config_sessions* ss,
                      struct list* param_n, struct list* param_v);
 
@@ -320,13 +320,13 @@ config_read_sessions(int file, struct config_sessions* ss,
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read_rdp_params(int file, struct config_sesman* cs, struct list* param_n,
                        struct list* param_v);
 
 /**
  *
- * @brief Reads sesman [XOrg] configuration section
+ * @brief Reads sesman [Xorg] configuration section
  * @param file configuration file descriptor
  * @param cs pointer to a config_sesman struct
  * @param param_n parameter name list
@@ -334,7 +334,7 @@ config_read_rdp_params(int file, struct config_sesman* cs, struct list* param_n,
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read_xorg_params(int file, struct config_sesman* cs, struct list* param_n,
                         struct list* param_v);
 
@@ -348,13 +348,21 @@ config_read_xorg_params(int file, struct config_sesman* cs, struct list* param_n
  * @return 0 on success, 1 on failure
  *
  */
-int DEFAULT_CC
+int
 config_read_vnc_params(int file, struct config_sesman* cs, struct list* param_n,
                        struct list* param_v);
 
-int DEFAULT_CC
+int
 config_read_session_variables(int file, struct config_sesman *cs,
                               struct list *param_n, struct list *param_v);
+/**
+ *
+ * @brief Dumps configuration
+ * @param pointer to a config_sesman struct
+ *
+ */
+void
+config_dump(struct config_sesman *config);
 
 void
 config_free(struct config_sesman *cs);

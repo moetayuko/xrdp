@@ -1,7 +1,7 @@
 Source: xrdp
-Maintainer: Debian Remote Maintainers <pkg-remote-team@lists.alioth.debian.org>
+Maintainer: Debian Remote Maintainers <debian-remote@lists.debian.org>
 Uploaders:
- Dominik George <nik@naturalnet.de>,
+ Dominik George <natureshadow@debian.org>,
  Andreas Tille <tille@debian.org>,
  Mike Gabriel <sunweaver@debian.org>,
  Thorsten Glaser <tg@mirbsd.de>,
@@ -10,7 +10,7 @@ Priority: optional
 Build-Depends:
  autoconf (>= 2.59),
  automake (>= 1.6),
- debhelper (>= 10),
+ debhelper (>= 11~),
  libfuse-dev [!hurd-any],
  libjpeg-dev,
  libopus-dev,
@@ -20,17 +20,13 @@ Build-Depends:
  libx11-dev,
  libxfixes-dev,
  libxrandr-dev,
-# for now; see debian/rules for details
- nasm [amd64 kfreebsd-amd64],
+ nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
  openssl,
  pkg-config,
  systemd [linux-any],
- x11-utils,
- xserver-xorg-core,
- xserver-xorg-dev,
-Standards-Version: 3.9.8
-Vcs-Browser: https://anonscm.debian.org/cgit/pkg-remote/xrdp.git
-Vcs-Git: https://anonscm.debian.org/git/pkg-remote/xrdp.git
+Standards-Version: 4.2.1
+Vcs-Browser: https://salsa.debian.org/debian-remote-team/xrdp/tree/stretch-backports
+Vcs-Git: https://salsa.debian.org/debian-remote-team/xrdp.git -b stretch-backports
 Homepage: http://xrdp.sourceforge.net
 
 Package: xrdp
@@ -46,6 +42,7 @@ Recommends:
  xorgxrdp,
 Suggests:
  guacamole,
+ xrdp-pulseaudio-installer
 Description: Remote Desktop Protocol (RDP) server
  xrdp offers a graphical login to a remote client using
  RDP (the Remote Desktop Protocol). xrdp can connect to
@@ -59,21 +56,3 @@ Description: Remote Desktop Protocol (RDP) server
  it provides a fully functional Linux terminal server,
  offering an X-Window desktop to the user. In the RDP
  or VNC forwarding mode, any sort of desktop can be used.
-
-Package: xorgxrdp
-Architecture: any
-Depends:
- ${misc:Depends},
- ${shlibs:Depends},
- ${xdriver:Depends},
-Recommends:
- xorg,
-Provides:
- xorg-driver-input,
- xorg-driver-video,
-Description: Remote Desktop Protocol (RDP) modules for X.org
- xorgxrdp is a set of drivers (screen device, keyboard, and mouse)
- for X.org enabling use through an RDP session with xrdp. For full
- operation, most standard X11 fonts and tools need to be installed;
- the Recommended xorg metapackage is a superset of what’s actually
- needed but will do.

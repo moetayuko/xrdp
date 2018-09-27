@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -DXRDP_MODULE_PATH=\"${moduledir}\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\" \
   -I$(top_builddir) \
   -I$(top_srcdir)/common \
   -I$(top_srcdir)/libxrdp
@@ -17,8 +18,6 @@ XRDP_EXTRA_LIBS =
 
 if XRDP_DEBUG
 AM_CPPFLAGS += -DXRDP_DEBUG
-else
-AM_CPPFLAGS += -DXRDP_NODEBUG
 endif
 
 if XRDP_RFXCODEC
@@ -67,6 +66,23 @@ xrdp_LDADD = \
   $(XRDP_EXTRA_LIBS)
 
 xrdpsysconfdir=$(sysconfdir)/xrdp
+
+if MACOS
+lib_extension = dylib
+else
+lib_extension = so
+endif
+
+SUBST_VARS = sed \
+   -e 's|@lib_extension[@]|$(lib_extension)|g'
+
+subst_verbose = $(subst_verbose_@AM_V@)
+subst_verbose_ = $(subst_verbose_@AM_DEFAULT_V@)
+subst_verbose_0 = @echo "  SUBST    $@";
+
+SUFFIXES = .in
+.in:
+	$(subst_verbose)$(SUBST_VARS) $< > $@
 
 dist_xrdpsysconf_DATA = \
   xrdp.ini \

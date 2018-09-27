@@ -19,9 +19,31 @@
 #if !defined(ARCH_H)
 #define ARCH_H
 
-#if defined(HAVE_CONFIG_H)
-#include "config_ac.h"
+#include <stdlib.h>
+
+#if defined(HAVE_STDINT_H)
+#include <stdint.h>
+#else
+typedef signed char int8_t;
+typedef unsigned char uint8_t;
+typedef signed short int16_t;
+typedef unsigned short uint16_t;
+typedef signed int int32_t;
+typedef unsigned int uint32_t;
+#if defined(_WIN64)
+typedef signed __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+typedef signed __int64 intptr_t;
+typedef unsigned __int64 uintptr_t;
+#else
+typedef signed long long int64_t;
+typedef unsigned long long uint64_t;
+typedef signed long intptr_t;
+typedef unsigned long uintptr_t;
 #endif
+#endif
+
+typedef int bool_t;
 
 /* you can define L_ENDIAN or B_ENDIAN and NEED_ALIGN or NO_NEED_ALIGN
    in the makefile to override */
@@ -41,8 +63,10 @@
 #endif
 
 #if !(defined(L_ENDIAN) || defined(B_ENDIAN))
-#if defined(__sparc__) || defined(__PPC__) || defined(__ppc__) || \
-    defined(__hppa__)
+#if defined(__sparc__) || \
+    defined(__hppa__) || \
+    (defined(__PPC__) && defined(__BIG_ENDIAN__)) || \
+    (defined(__ppc__) && defined(__BIG_ENDIAN__))
 #define B_ENDIAN
 #else
 #define L_ENDIAN
@@ -53,12 +77,14 @@
 /* check if we need to align data */
 #if !(defined(NEED_ALIGN) || defined(NO_NEED_ALIGN))
 #if defined(__sparc__) || defined(__alpha__) || defined(__hppa__) || \
-    defined(__AIX__) || defined(__PPC__) || defined(__mips__) || \
-    defined(__ia64__) || defined(__ppc__) || defined(__arm__)
+    defined(__AIX__) || defined(__mips__) || \
+    defined(__ia64__) || defined(__arm__) || \
+    (defined(__PPC__) && defined(__BIG_ENDIAN__)) || \
+    (defined(__ppc__) && defined(__BIG_ENDIAN__))
 #define NEED_ALIGN
 #elif defined(__x86__) || defined(__x86_64__) || \
       defined(__AMD64__) || defined(_M_IX86) || defined (_M_AMD64) || \
-      defined(__i386__)
+      defined(__i386__) || defined(__aarch64__)
 #define NO_NEED_ALIGN
 #else
 #warning unknown arch
@@ -74,14 +100,6 @@
 #define THREAD_CC
 #endif
 
-#if defined(__BORLANDC__) || defined(_WIN32)
-#define APP_CC __fastcall
-#define DEFAULT_CC __cdecl
-#else
-#define APP_CC
-#define DEFAULT_CC
-#endif
-
 #if defined(_WIN32)
 #if defined(__BORLANDC__)
 #define EXPORT_CC _export __cdecl
@@ -94,37 +112,29 @@
 
 #ifndef DEFINED_Ts
 #define DEFINED_Ts
-typedef char ti8;
-typedef unsigned char tui8;
-typedef signed char tsi8;
-typedef short ti16;
-typedef unsigned short tui16;
-typedef signed short tsi16;
-typedef int ti32;
-typedef unsigned int tui32;
-typedef signed int tsi32;
-typedef int tbool;
-#if defined(_WIN64)
-/* Microsoft's VC++ compiler uses the more backwards-compatible LLP64 model.
-   Most other 64 bit compilers(Solaris, AIX, HP, Linux, Mac OS X) use
-   the LP64 model.
-   long is 32 bits in LLP64 model, 64 bits in LP64 model. */
-typedef __int64 tbus;
-#else
-typedef long tbus;
-#endif
-typedef tbus tintptr;
+typedef int8_t ti8;
+typedef uint8_t tui8;
+typedef int8_t tsi8;
+typedef int16_t ti16;
+typedef uint16_t tui16;
+typedef int16_t tsi16;
+typedef int32_t ti32;
+typedef uint32_t tui32;
+typedef int32_t tsi32;
+typedef int64_t ti64;
+typedef uint64_t tui64;
+typedef int64_t tsi64;
+typedef bool_t tbool;
+typedef intptr_t tbus;
+typedef intptr_t tintptr;
+
 /* wide char, socket */
 #if defined(_WIN32)
 typedef unsigned short twchar;
 typedef unsigned int tsock;
-typedef unsigned __int64 tui64;
-typedef signed __int64 tsi64;
 #else
 typedef int twchar;
 typedef int tsock;
-typedef unsigned long long tui64;
-typedef signed long long tsi64;
 #endif
 #endif /* DEFINED_Ts */
 
@@ -140,7 +150,7 @@ typedef signed long long tsi64;
 #ifdef __cplusplus
 extern "C" {
 #endif
-   tintptr mod_init();
+   tintptr mod_init(void);
    int mod_exit(tintptr);
 #ifdef __cplusplus
 }
