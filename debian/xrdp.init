@@ -222,4 +222,4 @@ case $1 in
 esac
 # make “/etc/init.d/xrdp status” work for nōn-root
 (sleep 3; chmod a+r /var/run/xrdp/*.pid 2>/dev/null) &
-exit 0
+exit $rv
