@@ -1,8 +1,9 @@
 xrdp (0.9.8-3) UNRELEASED; urgency=medium
 
   * Fix errorlevel returned by init script in case of errors.
+  * Correct asymmetry in init script try-restart message verbosity.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sun, 06 Jan 2019 14:52:38 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Sun, 06 Jan 2019 15:09:18 +0100
 
 xrdp (0.9.8-2) unstable; urgency=medium
 

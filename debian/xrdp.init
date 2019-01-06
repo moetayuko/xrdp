@@ -176,11 +176,11 @@ case $1 in
 	test x"$VERBOSE" = x"no" || log_end_msg $rv
 	;;
 (try-restart)
-	log_daemon_msg "Trying to restart $DESC"
+	test x"$VERBOSE" = x"no" || log_daemon_msg "Trying to restart $DESC"
 	if ! status_of_proc -p /var/run/xrdp/xrdp.pid \
 	    /usr/sbin/xrdp xrdp >/dev/null 2>&1; then
-		log_progress_msg "is not running."
-		log_end_msg 1
+		test x"$VERBOSE" = x"no" || log_progress_msg "is not running."
+		test x"$VERBOSE" = x"no" || log_end_msg 1
 		exit 0
 	fi
 	if status_of_proc -p /var/run/xrdp/xrdp-sesman.pid \
