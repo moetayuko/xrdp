@@ -1,7 +1,11 @@
-xrdp (0.9.8-3) UNRELEASED; urgency=medium
+xrdp (0.9.9-1) UNRELEASED; urgency=medium
 
+  [ Thorsten Glaser ]
   * Fix errorlevel returned by init script in case of errors.
   * Correct asymmetry in init script try-restart message verbosity.
+
+  [ Dominik George ]
+  * New upstream version.
 
  -- Thorsten Glaser <tg@mirbsd.de>  Sun, 06 Jan 2019 15:09:18 +0100
 
