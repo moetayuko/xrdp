@@ -7,6 +7,7 @@ xrdp (0.9.9-1) UNRELEASED; urgency=medium
   [ Dominik George ]
   * New upstream version.
     + Adds Spanish Latina American keymap. (Closes: #911902)
+  * Refresh patches.
 
  -- Thorsten Glaser <tg@mirbsd.de>  Sun, 06 Jan 2019 15:09:18 +0100
 
