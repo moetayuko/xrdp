@@ -1,4 +1,4 @@
-xrdp (0.9.9-1) UNRELEASED; urgency=medium
+xrdp (0.9.9-1) unstable; urgency=medium
 
   [ Thorsten Glaser ]
   * Fix errorlevel returned by init script in case of errors.
@@ -9,7 +9,7 @@ xrdp (0.9.9-1) UNRELEASED; urgency=medium
     + Adds Spanish Latina American keymap. (Closes: #911902)
   * Refresh patches.
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sun, 06 Jan 2019 15:09:18 +0100
+ -- Dominik George <natureshadow@debian.org>  Sun, 13 Jan 2019 13:49:36 +0100
 
 xrdp (0.9.8-2) unstable; urgency=medium
 
