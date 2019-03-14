@@ -24,10 +24,10 @@ Build-Depends:
  openssl,
  pkg-config,
  systemd [linux-any],
+Homepage: http://www.xrdp.org/
 Standards-Version: 4.2.1
 Vcs-Browser: https://salsa.debian.org/debian-remote-team/xrdp
 Vcs-Git: https://salsa.debian.org/debian-remote-team/xrdp.git
-Homepage: http://xrdp.sourceforge.net
 
 Package: xrdp
 Architecture: any
