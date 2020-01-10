@@ -5,7 +5,7 @@ xrdp (0.9.12-1) unstable; urgency=low
   * Bump Policy & debhelper; update build system
   * Address lintian’s concerns, update lintian overrides
 
- -- Thorsten Glaser <tg@mirbsd.de>  Fri, 10 Jan 2020 22:18:42 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 10 Jan 2020 22:36:07 +0100
 
 xrdp (0.9.9-1) unstable; urgency=medium
 
