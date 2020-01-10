@@ -31,4 +31,8 @@ esac
 
 #DEBHELPER#
 
+# fixup conffiles after dpkg-maintscript-helper has run, for
+# upgrades from jessie and older jessie-backports
+(test -h /etc/pam.d/xrdp-sesman && rm -f /etc/pam.d/xrdp-sesman || :)
+
 exit 0
