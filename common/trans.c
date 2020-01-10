@@ -712,12 +712,20 @@ trans_connect(struct trans *self, const char *server, const char *port,
                 now = g_time3();
                 if (now - start_time < timeout)
                 {
-                    g_sleep(timeout / 5);
+                    g_sleep(100);
                 }
                 else
                 {
                     self->status = TRANS_STATUS_DOWN;
                     return 1;
+                }
+                if (self->is_term != NULL)
+                {
+                    if (self->is_term())
+                    {
+                        self->status = TRANS_STATUS_DOWN;
+                        return 1;
+                    }
                 }
             }
         }
@@ -748,12 +756,20 @@ trans_connect(struct trans *self, const char *server, const char *port,
                 now = g_time3();
                 if (now - start_time < timeout)
                 {
-                    g_sleep(timeout / 5);
+                    g_sleep(100);
                 }
                 else
                 {
                     self->status = TRANS_STATUS_DOWN;
                     return 1;
+                }
+                if (self->is_term != NULL)
+                {
+                    if (self->is_term())
+                    {
+                        self->status = TRANS_STATUS_DOWN;
+                        return 1;
+                    }
                 }
             }
         }
@@ -859,7 +875,7 @@ trans_listen_address(struct trans *self, char *port, const char *address)
 
         g_tcp_set_non_blocking(self->sck);
 
-        if (g_sck_vsock_bind(self->sck, port) == 0)
+        if (g_sck_vsock_bind_address(self->sck, port, address) == 0)
         {
             if (g_tcp_listen(self->sck) == 0)
             {
@@ -869,7 +885,42 @@ trans_listen_address(struct trans *self, char *port, const char *address)
             }
         }
     }
-
+    else if (self->mode == TRANS_MODE_TCP4) /* tcp4 */
+    {
+        self->sck = g_tcp4_socket();
+        if (self->sck < 0)
+        {
+            return 1;
+        }
+        g_tcp_set_non_blocking(self->sck);
+        if (g_tcp4_bind_address(self->sck, port, address) == 0)
+        {
+            if (g_tcp_listen(self->sck) == 0)
+            {
+                self->status = TRANS_STATUS_UP; /* ok */
+                self->type1 = TRANS_TYPE_LISTENER; /* listener */
+                return 0;
+            }
+        }
+    }
+    else if (self->mode == TRANS_MODE_TCP6) /* tcp6 */
+    {
+        self->sck = g_tcp6_socket();
+        if (self->sck < 0)
+        {
+            return 1;
+        }
+        g_tcp_set_non_blocking(self->sck);
+        if (g_tcp6_bind_address(self->sck, port, address) == 0)
+        {
+            if (g_tcp_listen(self->sck) == 0)
+            {
+                self->status = TRANS_STATUS_UP; /* ok */
+                self->type1 = TRANS_TYPE_LISTENER; /* listener */
+                return 0;
+            }
+        }
+    }
     return 1;
 }
 

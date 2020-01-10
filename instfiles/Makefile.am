@@ -1,6 +1,5 @@
 EXTRA_DIST = \
    keymap-names.txt \
-   xrdp.sh \
    xrdp-sesman.service.in \
    xrdp.service.in
 
@@ -30,6 +29,7 @@ SUFFIXES = .in
 startscriptdir=$(sysconfdir)/xrdp
 
 dist_startscript_DATA = \
+  km-00000406.ini \
   km-00000407.ini \
   km-00000409.ini \
   km-0000040a.ini \
@@ -60,7 +60,6 @@ if LINUX
 SUBDIRS += \
   pam.d \
   pulse
-dist_startscript_SCRIPTS = xrdp.sh
 if HAVE_SYSTEMD
 systemdsystemunit_DATA = \
   xrdp-sesman.service \
