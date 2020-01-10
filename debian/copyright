@@ -3,8 +3,7 @@ Upstream-Name: xrdp
 Upstream-Contact: Jay Sorg <jay.sorg@gmail.com>
 Source: https://github.com/neutrinolabs/xrdp
 
-Files: COPYING
- Makefile.am
+Files: Makefile.am
  astyle_config.as
  bootstrap
  coding_style.md
@@ -322,8 +321,6 @@ Files: common/fifo.c
  sesman/chansrv/chansrv_fuse.h
  sesman/chansrv/devredir.c
  sesman/chansrv/devredir.h
- sesman/chansrv/drdynvc.c
- sesman/chansrv/drdynvc.h
  sesman/chansrv/fifo.c
  sesman/chansrv/fifo.h
  sesman/chansrv/irp.c
