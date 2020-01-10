@@ -31,7 +31,7 @@ remove)
 purge)
 	rm -f /etc/pam.d/sesman
 	rm -f /var/log/sesman.log /var/log/xrdp.log /var/log/xrdp-sesman.log
-	rm -rf /etc/xrdp /var/run/xrdp
+	rm -rf /etc/xrdp /run/xrdp
 
 	(deluser --system --quiet xrdp || :)
 	(delgroup --system --quiet xrdp || :)

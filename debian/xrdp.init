@@ -61,12 +61,12 @@ case $1 in
 	test x"$VERBOSE" = x"no" || log_daemon_msg "Starting $DESC"
 	test x"$SESMAN_START" = x"yes" && \
 	    if start-stop-daemon --start --quiet \
-	    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+	    --pidfile /run/xrdp/xrdp-sesman.pid \
 	    --startas /usr/sbin/xrdp-sesman --name xrdp-sesman \
 	    --exec /usr/sbin/xrdp-sesman --test; then
 		test x"$VERBOSE" = x"no" || log_progress_msg "xrdp-sesman"
 		start-stop-daemon --start --quiet \
-		    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+		    --pidfile /run/xrdp/xrdp-sesman.pid \
 		    --startas /usr/sbin/xrdp-sesman --name xrdp-sesman \
 		    --exec /usr/sbin/xrdp-sesman -- $SESMAN_OPTIONS
 		rc=$?
@@ -76,13 +76,13 @@ case $1 in
 		    log_progress_msg "sesman already running"
 	fi
 	if start-stop-daemon --start --quiet \
-	    --pidfile /var/run/xrdp/xrdp.pid \
+	    --pidfile /run/xrdp/xrdp.pid \
 	    --chuid xrdp:xrdp \
 	    --startas /usr/sbin/xrdp --name xrdp \
 	    --exec /usr/sbin/xrdp --test; then
 		test x"$VERBOSE" = x"no" || log_progress_msg "xrdp"
 		start-stop-daemon --start --quiet \
-		    --pidfile /var/run/xrdp/xrdp.pid \
+		    --pidfile /run/xrdp/xrdp.pid \
 		    --chuid xrdp:xrdp \
 		    --startas /usr/sbin/xrdp --name xrdp \
 		    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
@@ -98,7 +98,7 @@ case $1 in
 	test x"$VERBOSE" = x"no" || log_daemon_msg "Stopping $DESC"
 	test x"$VERBOSE" = x"no" || log_progress_msg "xrdp"
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
-	    --pidfile /var/run/xrdp/xrdp.pid \
+	    --pidfile /run/xrdp/xrdp.pid \
 	    --name xrdp --exec /usr/sbin/xrdp
 	rc=$?
 	if test $rc -gt 1; then
@@ -111,7 +111,7 @@ case $1 in
 	fi
 	test x"$VERBOSE" = x"no" || log_progress_msg "xrdp-sesman"
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
-	    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+	    --pidfile /run/xrdp/xrdp-sesman.pid \
 	    --name xrdp-sesman --exec /usr/sbin/xrdp-sesman
 	rc=$?
 	if test $rc -gt 1; then
@@ -122,18 +122,18 @@ case $1 in
 		rc=$?
 		test $rc -gt 1 && test $rv -lt $rc && rv=$rc
 	fi
-	rm -f /var/run/xrdp/xrdp-sesman.pid /var/run/xrdp/xrdp.pid
-	rm -rf /var/run/xrdp/sockdir
+	rm -f /run/xrdp/xrdp-sesman.pid /run/xrdp/xrdp.pid
+	rm -rf /run/xrdp/sockdir
 	test x"$VERBOSE" = x"no" || log_end_msg $rv
 	;;
 (status)
 	if test x"$SESMAN_START" = x"yes"; then
-		status_of_proc -p /var/run/xrdp/xrdp-sesman.pid \
+		status_of_proc -p /run/xrdp/xrdp-sesman.pid \
 		    /usr/sbin/xrdp-sesman xrdp-sesman
 		rc=$?
 		test $rc -gt $rv && rv=$rc
 	fi
-	status_of_proc -p /var/run/xrdp/xrdp.pid /usr/sbin/xrdp xrdp
+	status_of_proc -p /run/xrdp/xrdp.pid /usr/sbin/xrdp xrdp
 	rc=$?
 	test $rc -gt $rv && rv=$rc
 	exit $rv
@@ -143,15 +143,15 @@ case $1 in
 	if test x"$SESMAN_START" = x"yes"; then
 		test x"$VERBOSE" = x"no" || log_progress_msg "xrdp-sesman"
 		start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
-		    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+		    --pidfile /run/xrdp/xrdp-sesman.pid \
 		    --name xrdp-sesman --exec /usr/sbin/xrdp-sesman
 		if test $? -lt 2; then
 			start-stop-daemon --stop --quiet --oknodo \
 			    --retry=0/30/KILL/5 --exec /usr/sbin/xrdp-sesman
 		fi
-		rm -f /var/run/xrdp/xrdp-sesman.pid
+		rm -f /run/xrdp/xrdp-sesman.pid
 		start-stop-daemon --start --quiet \
-		    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+		    --pidfile /run/xrdp/xrdp-sesman.pid \
 		    --startas /usr/sbin/xrdp-sesman --name xrdp-sesman \
 		    --exec /usr/sbin/xrdp-sesman -- $SESMAN_OPTIONS
 		rc=$?
@@ -159,15 +159,15 @@ case $1 in
 	fi
 	test x"$VERBOSE" = x"no" || log_progress_msg "xrdp"
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
-	    --pidfile /var/run/xrdp/xrdp.pid \
+	    --pidfile /run/xrdp/xrdp.pid \
 	    --name xrdp --exec /usr/sbin/xrdp
 	if test $? -lt 2; then
 		start-stop-daemon --stop --quiet --oknodo \
 		    --retry=0/30/KILL/5 --exec /usr/sbin/xrdp
 	fi
-	rm -f /var/run/xrdp/xrdp.pid
+	rm -f /run/xrdp/xrdp.pid
 	start-stop-daemon --start --quiet \
-	    --pidfile /var/run/xrdp/xrdp.pid \
+	    --pidfile /run/xrdp/xrdp.pid \
 	    --chuid xrdp:xrdp \
 	    --startas /usr/sbin/xrdp --name xrdp \
 	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
@@ -177,25 +177,25 @@ case $1 in
 	;;
 (try-restart)
 	test x"$VERBOSE" = x"no" || log_daemon_msg "Trying to restart $DESC"
-	if ! status_of_proc -p /var/run/xrdp/xrdp.pid \
+	if ! status_of_proc -p /run/xrdp/xrdp.pid \
 	    /usr/sbin/xrdp xrdp >/dev/null 2>&1; then
 		test x"$VERBOSE" = x"no" || log_progress_msg "is not running."
 		test x"$VERBOSE" = x"no" || log_end_msg 1
 		exit 0
 	fi
-	if status_of_proc -p /var/run/xrdp/xrdp-sesman.pid \
+	if status_of_proc -p /run/xrdp/xrdp-sesman.pid \
 	    /usr/sbin/xrdp-sesman xrdp-sesman >/dev/null 2>&1; then
 		test x"$VERBOSE" = x"no" || log_progress_msg "xrdp-sesman"
 		start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
-		    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+		    --pidfile /run/xrdp/xrdp-sesman.pid \
 		    --name xrdp-sesman --exec /usr/sbin/xrdp-sesman
 		if test $? -lt 2; then
 			start-stop-daemon --stop --quiet --oknodo \
 			    --retry=0/30/KILL/5 --exec /usr/sbin/xrdp-sesman
 		fi
-		rm -f /var/run/xrdp/xrdp-sesman.pid
+		rm -f /run/xrdp/xrdp-sesman.pid
 		start-stop-daemon --start --quiet \
-		    --pidfile /var/run/xrdp/xrdp-sesman.pid \
+		    --pidfile /run/xrdp/xrdp-sesman.pid \
 		    --startas /usr/sbin/xrdp-sesman --name xrdp-sesman \
 		    --exec /usr/sbin/xrdp-sesman -- $SESMAN_OPTIONS
 		rc=$?
@@ -203,15 +203,15 @@ case $1 in
 	fi
 	test x"$VERBOSE" = x"no" || log_progress_msg "xrdp"
 	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 \
-	    --pidfile /var/run/xrdp/xrdp.pid \
+	    --pidfile /run/xrdp/xrdp.pid \
 	    --name xrdp --exec /usr/sbin/xrdp
 	if test $? -lt 2; then
 		start-stop-daemon --stop --quiet --oknodo \
 		    --retry=0/30/KILL/5 --exec /usr/sbin/xrdp
 	fi
-	rm -f /var/run/xrdp/xrdp.pid
+	rm -f /run/xrdp/xrdp.pid
 	start-stop-daemon --start --quiet \
-	    --pidfile /var/run/xrdp/xrdp.pid \
+	    --pidfile /run/xrdp/xrdp.pid \
 	    --chuid xrdp:xrdp \
 	    --startas /usr/sbin/xrdp --name xrdp \
 	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
@@ -221,5 +221,5 @@ case $1 in
 	;;
 esac
 # make “/etc/init.d/xrdp status” work for nōn-root
-(sleep 3; chmod a+r /var/run/xrdp/*.pid 2>/dev/null) &
+(sleep 3; chmod a+r /run/xrdp/*.pid 2>/dev/null) &
 exit $rv

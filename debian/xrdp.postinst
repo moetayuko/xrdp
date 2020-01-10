@@ -27,7 +27,7 @@ configure)
 	getent passwd xrdp >/dev/null 2>&1 || adduser \
 	    --quiet --system --group --no-create-home \
 	    --disabled-password --disabled-login \
-	    --home /var/run/xrdp xrdp
+	    --home /run/xrdp xrdp
 
 	touch /var/log/xrdp-sesman.log /var/log/xrdp.log
 	chown root:adm /var/log/xrdp-sesman.log
