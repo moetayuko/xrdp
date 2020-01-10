@@ -1,6 +1,7 @@
 From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Build system fixes
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
+
 --- a/xrdp/Makefile.am
 +++ b/xrdp/Makefile.am
 @@ -23,7 +23,7 @@ endif

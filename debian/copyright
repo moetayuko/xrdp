@@ -309,8 +309,9 @@ Files: COPYING
 Copyright: 2004-2017, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
-Files: instfiles/xrdp.sh
-Copyright: 2013 Mark Balliet <posicat@pobox.com>
+Files: sesman/chansrv/audin.c
+ sesman/chansrv/audin.h
+Copyright: 2019, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
 Files: common/fifo.c
@@ -340,6 +341,15 @@ License: Apache-2.0
 Files: sesman/xauth.h
  sesman/xauth.c
 Copyright: 2016 Emmanuel Blindauer
+License: Apache-2.0
+
+Files: sesman/chansrv/chansrv_xfs.c
+ sesman/chansrv/chansrv_xfs.h
+ sesman/chansrv/ms-erref.h
+ sesman/chansrv/ms-fscc.h
+ sesman/chansrv/ms-rdpefs.h
+ sesman/chansrv/ms-smb2.h
+Copyright: 2019, matt335672 <30179339+matt335672@users.noreply.github.com>
 License: Apache-2.0
 
 Files: librfxcodec/src/rfx_bitstream.h

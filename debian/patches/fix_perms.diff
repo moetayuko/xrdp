@@ -6,6 +6,7 @@ Subject: Fix permissions between xrdp and sesman.
  can’t easily chgrp here; also fix retval check for listen(2)
 Forwarded: https://github.com/neutrinolabs/xorgxrdp/pull/16
  https://github.com/neutrinolabs/xrdp/pull/464
+
 --- a/common/os_calls.c
 +++ b/common/os_calls.c
 @@ -127,7 +127,7 @@ g_mk_socket_path(const char *app_name)
