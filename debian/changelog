@@ -5,7 +5,7 @@ xrdp (0.9.12-1) unstable; urgency=low
   * Remove maintainer script code for upgrade from jessie{,-backports}
   * Bump Policy, debhelper; update build system
 
- -- Thorsten Glaser <tg@mirbsd.de>  Fri, 10 Jan 2020 21:31:04 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Fri, 10 Jan 2020 21:39:20 +0100
 
 xrdp (0.9.9-1) unstable; urgency=medium
 
