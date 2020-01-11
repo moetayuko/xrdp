@@ -7,7 +7,7 @@ xrdp (0.9.12-1) unstable; urgency=low
   * d/p/document-certs.diff: Address #860890 with documentation
   * d/xrdp.init: redirect xrdp stdout into nirvana (Closes: #883358)
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Jan 2020 02:28:36 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Jan 2020 02:40:04 +0100
 
 xrdp (0.9.9-1) unstable; urgency=medium
 
