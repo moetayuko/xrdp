@@ -6,3 +6,4 @@ systemd.diff
 lfs.diff
 pulse-debian.patch
 var-run.diff
+document-certs.diff
