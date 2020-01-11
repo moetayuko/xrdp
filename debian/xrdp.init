@@ -14,7 +14,7 @@
 #                    the session and, if necessary, X11 server.
 ### END INIT INFO
 #-
-# Copyright © 2015 mirabilos <thorsten.glaser@teckids.org>
+# Copyright © 2015, 2019 mirabilos <thorsten.glaser@teckids.org>
 # Published under The MirOS Licence.
 
 # absolute basics
@@ -85,7 +85,7 @@ case $1 in
 		    --pidfile /run/xrdp/xrdp.pid \
 		    --chuid xrdp:xrdp \
 		    --startas /usr/sbin/xrdp --name xrdp \
-		    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
+		    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS >/dev/null
 		rc=$?
 		test $rc -gt 0 && rv=$rc
 	else
@@ -170,7 +170,7 @@ case $1 in
 	    --pidfile /run/xrdp/xrdp.pid \
 	    --chuid xrdp:xrdp \
 	    --startas /usr/sbin/xrdp --name xrdp \
-	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
+	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS >/dev/null
 	rc=$?
 	test $rc -gt 0 && rv=$rc
 	test x"$VERBOSE" = x"no" || log_end_msg $rv
@@ -214,7 +214,7 @@ case $1 in
 	    --pidfile /run/xrdp/xrdp.pid \
 	    --chuid xrdp:xrdp \
 	    --startas /usr/sbin/xrdp --name xrdp \
-	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS
+	    --exec /usr/sbin/xrdp -- $XRDP_OPTIONS >/dev/null
 	rc=$?
 	test $rc -gt 0 && rv=$rc
 	test x"$VERBOSE" = x"no" || log_end_msg $rv
