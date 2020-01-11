@@ -1,12 +1,12 @@
 xrdp (0.9.12-1) unstable; urgency=low
 
   * Update Homepage link
-  * New upstream version
+  * New upstream version (Closes: #925890)
   * Bump Policy & debhelper; update build system
   * Address lintian’s concerns, update lintian overrides
   * d/p/document-certs.diff: Address #860890 with documentation
 
- -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Jan 2020 01:22:41 +0100
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Jan 2020 01:27:42 +0100
 
 xrdp (0.9.9-1) unstable; urgency=medium
 
