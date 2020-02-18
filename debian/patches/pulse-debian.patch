@@ -1,6 +1,11 @@
 From: Dominik George <nik@naturalnet.de>
 Subject: Use absolute path to PulseAudio modules
- The modules are installed to their locations by the xrdp-build-pulse-modules script.
+ The modules are installed to their locations by the
+ xrdp-build-pulse-modules script from the former
+ xrdp-pulseaudio-installer package. The upstream
+ pulseaudio-module-xrdp/wiki/README instructions
+ install the module into the PA directory and do
+ not need this patch.
 
 --- a/instfiles/pulse/default.pa
 +++ b/instfiles/pulse/default.pa

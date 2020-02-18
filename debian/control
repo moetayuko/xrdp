@@ -44,7 +44,6 @@ Recommends:
  xorgxrdp,
 Suggests:
  guacamole,
- xrdp-pulseaudio-installer
 Description: Remote Desktop Protocol (RDP) server
  xrdp offers a graphical login to a remote client using
  RDP (the Remote Desktop Protocol). xrdp can connect to
