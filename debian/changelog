@@ -1,3 +1,9 @@
+xrdp (0.9.12-2) UNRELEASED; urgency=medium
+
+  * Do not source /etc/profile twice in startwm.sh
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Tue, 18 Feb 2020 04:54:11 +0100
+
 xrdp (0.9.12-1) unstable; urgency=low
 
   * Update Homepage link

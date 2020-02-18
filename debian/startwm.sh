@@ -2,10 +2,6 @@
 # xrdp X session start script (c) 2015, 2017 mirabilos
 # published under The MirOS Licence
 
-if test -r /etc/profile; then
-	. /etc/profile
-fi
-
 if test -r /etc/default/locale; then
 	. /etc/default/locale
 	test -z "${LANG+x}" || export LANG
