@@ -2,6 +2,7 @@ From: Thorsten Glaser <tg@mirbsd.org>
 Subject: Enable Large File Support on (at least) 32-bit Linux
 Forwarded: https://github.com/neutrinolabs/xrdp/issues/647
 Reviewed-by: Dominik George <nik@naturalnet.de>
+
 --- a/configure.ac
 +++ b/configure.ac
 @@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
@@ -13,7 +14,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  
-@@ -370,6 +372,7 @@ AC_CONFIG_FILES([
+@@ -375,6 +377,7 @@ AC_CONFIG_FILES([
    xup/Makefile
  ])
  

@@ -12,12 +12,12 @@ case $(id -u) in
 	;;
 esac
 
-mkdir -p /var/run/xrdp || exit 1
-chown root:xrdp /var/run/xrdp || exit 1
-chmod 2775 /var/run/xrdp || exit 1
+mkdir -p /run/xrdp || exit 1
+chown root:xrdp /run/xrdp || exit 1
+chmod 2775 /run/xrdp || exit 1
 
-mkdir -p /var/run/xrdp/sockdir || exit 1
-chown root:xrdp /var/run/xrdp/sockdir || exit 1
-chmod 3777 /var/run/xrdp/sockdir || exit 1
+mkdir -p /run/xrdp/sockdir || exit 1
+chown root:xrdp /run/xrdp/sockdir || exit 1
+chmod 3777 /run/xrdp/sockdir || exit 1
 
 :

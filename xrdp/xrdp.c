@@ -164,6 +164,13 @@ xrdp_child(int sig)
 }
 
 /*****************************************************************************/
+void
+xrdp_hang_up(int sig)
+{
+    log_message(LOG_LEVEL_INFO, "caught SIGHUP, noop...");
+}
+
+/*****************************************************************************/
 /* called in child just after fork */
 int
 xrdp_child_fork(void)
@@ -575,6 +582,16 @@ main(int argc, char **argv)
 
     if (!no_daemon)
     {
+        /* if can't listen, exit with failure status */
+        if (xrdp_listen_test(startup_params) != 0)
+        {
+            log_message(LOG_LEVEL_ERROR, "Failed to start xrdp daemon, "
+                                         "possibly address already in use.");
+            g_deinit();
+            /* must exit with failure status,
+               or systemd cannot detect xrdp daemon couldn't start properly */
+            g_exit(1);
+        }
         /* start of daemonizing code */
         pid = g_fork();
 
@@ -587,16 +604,6 @@ main(int argc, char **argv)
 
         if (0 != pid)
         {
-            /* if can't listen, exit with failure status */
-            if (xrdp_listen_test() != 0)
-            {
-                log_message(LOG_LEVEL_ERROR, "Failed to start xrdp daemon, "
-                                             "possibly address already in use.");
-                g_deinit();
-                /* must exit with failure status,
-                   or systemd cannot detect xrdp daemon couldn't start properly */
-                g_exit(1);
-            }
             g_writeln("daemon process %d started ok", pid);
             /* exit, this is the main process */
             g_deinit();
@@ -644,9 +651,10 @@ main(int argc, char **argv)
     g_threadid = tc_get_threadid();
     g_listen = xrdp_listen_create();
     g_signal_user_interrupt(xrdp_shutdown); /* SIGINT */
-    g_signal_pipe(pipe_sig); /* SIGPIPE */
-    g_signal_terminate(xrdp_shutdown); /* SIGTERM */
-    g_signal_child_stop(xrdp_child); /* SIGCHLD */
+    g_signal_pipe(pipe_sig);                /* SIGPIPE */
+    g_signal_terminate(xrdp_shutdown);      /* SIGTERM */
+    g_signal_child_stop(xrdp_child);        /* SIGCHLD */
+    g_signal_hang_up(xrdp_hang_up);         /* SIGHUP */
     g_sync_mutex = tc_mutex_create();
     g_sync1_mutex = tc_mutex_create();
     pid = g_getpid();

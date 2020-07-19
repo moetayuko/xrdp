@@ -1,5 +1,6 @@
 From: Thorsten Glaser <tg@mirbsd.org>
 Subject: don’t spit on the console when starting
+
 --- a/common/log.c
 +++ b/common/log.c
 @@ -382,11 +382,6 @@ internal_config_read_logging(int file, s
@@ -16,10 +17,10 @@ Subject: don’t spit on the console when starting
  
 --- a/xrdp/xrdp.c
 +++ b/xrdp/xrdp.c
-@@ -597,7 +597,6 @@ main(int argc, char **argv)
-                    or systemd cannot detect xrdp daemon couldn't start properly */
-                 g_exit(1);
-             }
+@@ -604,7 +604,6 @@ main(int argc, char **argv)
+ 
+         if (0 != pid)
+         {
 -            g_writeln("daemon process %d started ok", pid);
              /* exit, this is the main process */
              g_deinit();

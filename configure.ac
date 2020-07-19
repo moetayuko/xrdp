@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.65)
-AC_INIT([xrdp], [0.9.9], [xrdp-devel@googlegroups.com])
+AC_INIT([xrdp], [0.9.12], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.7.2 foreign])
 AC_CONFIG_MACRO_DIR([m4])
@@ -149,6 +149,11 @@ AC_ARG_ENABLE(rfxcodec, AS_HELP_STRING([--disable-rfxcodec],
               [Do not use included librfxcodec library (default: no)]),
               [], [enable_rfxcodec=yes])
 AM_CONDITIONAL(XRDP_RFXCODEC, [test x$enable_rfxcodec = xyes])
+
+AC_ARG_ENABLE(rdpsndaudin, AS_HELP_STRING([--enable-rdpsndaudin],
+              [Use rdpsnd audio in (default: no)]),
+              [], [enable_rdpsndaudin=no])
+AM_CONDITIONAL(XRDP_RDPSNDAUDIN, [test x$enable_rdpsndaudin = xyes])
 
 # Don't fail without working nasm if rfxcodec is not enabled
 if test "x$enable_rfxcodec" != xyes; then
@@ -390,6 +395,7 @@ echo "  vsock           $enable_vsock"
 echo "  pam             $enable_pam"
 echo "  kerberos        $enable_kerberos"
 echo "  debug           $enable_xrdpdebug"
+echo "  rdpsndaudin     $enable_rdpsndaudin"
 echo ""
 echo "  strict_locations        $enable_strict_locations"
 echo "  prefix                  $prefix"

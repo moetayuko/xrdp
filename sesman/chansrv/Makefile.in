@@ -97,6 +97,7 @@ host_triplet = @host@
 @XRDP_OPUS_TRUE@am__append_7 = -lopus
 @XRDP_MP3LAME_TRUE@am__append_8 = -DXRDP_MP3LAME
 @XRDP_MP3LAME_TRUE@am__append_9 = -lmp3lame
+@XRDP_RDPSNDAUDIN_TRUE@am__append_10 = -DXRDP_RDPSNDAUDIN
 sbin_PROGRAMS = xrdp-chansrv$(EXEEXT)
 subdir = sesman/chansrv
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -121,10 +122,11 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
 am_xrdp_chansrv_OBJECTS = chansrv.$(OBJEXT) chansrv_common.$(OBJEXT) \
-	chansrv_fuse.$(OBJEXT) clipboard.$(OBJEXT) \
-	clipboard_file.$(OBJEXT) devredir.$(OBJEXT) fifo.$(OBJEXT) \
-	irp.$(OBJEXT) rail.$(OBJEXT) smartcard.$(OBJEXT) \
-	smartcard_pcsc.$(OBJEXT) sound.$(OBJEXT) xcommon.$(OBJEXT)
+	chansrv_fuse.$(OBJEXT) chansrv_xfs.$(OBJEXT) \
+	clipboard.$(OBJEXT) clipboard_file.$(OBJEXT) \
+	devredir.$(OBJEXT) fifo.$(OBJEXT) irp.$(OBJEXT) rail.$(OBJEXT) \
+	smartcard.$(OBJEXT) smartcard_pcsc.$(OBJEXT) sound.$(OBJEXT) \
+	xcommon.$(OBJEXT) audin.$(OBJEXT)
 xrdp_chansrv_OBJECTS = $(am_xrdp_chansrv_OBJECTS)
 am__DEPENDENCIES_1 =
 @XRDP_FUSE_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -156,13 +158,13 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/chansrv.Po \
+am__depfiles_remade = ./$(DEPDIR)/audin.Po ./$(DEPDIR)/chansrv.Po \
 	./$(DEPDIR)/chansrv_common.Po ./$(DEPDIR)/chansrv_fuse.Po \
-	./$(DEPDIR)/clipboard.Po ./$(DEPDIR)/clipboard_file.Po \
-	./$(DEPDIR)/devredir.Po ./$(DEPDIR)/fifo.Po ./$(DEPDIR)/irp.Po \
-	./$(DEPDIR)/rail.Po ./$(DEPDIR)/smartcard.Po \
-	./$(DEPDIR)/smartcard_pcsc.Po ./$(DEPDIR)/sound.Po \
-	./$(DEPDIR)/xcommon.Po
+	./$(DEPDIR)/chansrv_xfs.Po ./$(DEPDIR)/clipboard.Po \
+	./$(DEPDIR)/clipboard_file.Po ./$(DEPDIR)/devredir.Po \
+	./$(DEPDIR)/fifo.Po ./$(DEPDIR)/irp.Po ./$(DEPDIR)/rail.Po \
+	./$(DEPDIR)/smartcard.Po ./$(DEPDIR)/smartcard_pcsc.Po \
+	./$(DEPDIR)/sound.Po ./$(DEPDIR)/xcommon.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -364,7 +366,7 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
 	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
 	$(am__append_1) $(am__append_2) $(am__append_4) \
-	$(am__append_6) $(am__append_8)
+	$(am__append_6) $(am__append_8) $(am__append_10)
 CHANSRV_EXTRA_LIBS = $(am__append_3) $(am__append_5) $(am__append_7) \
 	$(am__append_9)
 AM_CFLAGS = $(X_CFLAGS)
@@ -375,6 +377,8 @@ xrdp_chansrv_SOURCES = \
   chansrv_common.h \
   chansrv_fuse.c \
   chansrv_fuse.h \
+  chansrv_xfs.c \
+  chansrv_xfs.h \
   clipboard.c \
   clipboard.h \
   clipboard_common.h \
@@ -387,6 +391,10 @@ xrdp_chansrv_SOURCES = \
   irp.c \
   irp.h \
   mlog.h \
+  ms-erref.h \
+  ms-fscc.h \
+  ms-rdpefs.h \
+  ms-smb2.h \
   rail.c \
   rail.h \
   smartcard.c \
@@ -396,7 +404,9 @@ xrdp_chansrv_SOURCES = \
   sound.c \
   sound.h \
   xcommon.c \
-  xcommon.h
+  xcommon.h \
+  audin.c \
+  audin.h
 
 xrdp_chansrv_LDFLAGS = \
   $(X_LIBS)
@@ -499,9 +509,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audin.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chansrv.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chansrv_common.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chansrv_fuse.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chansrv_xfs.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clipboard.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clipboard_file.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/devredir.Po@am__quote@ # am--include-marker
@@ -674,9 +686,11 @@ clean-am: clean-generic clean-libtool clean-sbinPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/chansrv.Po
+		-rm -f ./$(DEPDIR)/audin.Po
+	-rm -f ./$(DEPDIR)/chansrv.Po
 	-rm -f ./$(DEPDIR)/chansrv_common.Po
 	-rm -f ./$(DEPDIR)/chansrv_fuse.Po
+	-rm -f ./$(DEPDIR)/chansrv_xfs.Po
 	-rm -f ./$(DEPDIR)/clipboard.Po
 	-rm -f ./$(DEPDIR)/clipboard_file.Po
 	-rm -f ./$(DEPDIR)/devredir.Po
@@ -732,9 +746,11 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/chansrv.Po
+		-rm -f ./$(DEPDIR)/audin.Po
+	-rm -f ./$(DEPDIR)/chansrv.Po
 	-rm -f ./$(DEPDIR)/chansrv_common.Po
 	-rm -f ./$(DEPDIR)/chansrv_fuse.Po
+	-rm -f ./$(DEPDIR)/chansrv_xfs.Po
 	-rm -f ./$(DEPDIR)/clipboard.Po
 	-rm -f ./$(DEPDIR)/clipboard_file.Po
 	-rm -f ./$(DEPDIR)/devredir.Po

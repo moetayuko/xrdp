@@ -1,6 +1,7 @@
 Subject: Fixes to systemd service files
 From: Dominik George <nik@naturalnet.de>
 Forwarded: https://github.com/neutrinolabs/xrdp/pull/646
+
 --- a/instfiles/xrdp-sesman.service.in
 +++ b/instfiles/xrdp-sesman.service.in
 @@ -7,7 +7,8 @@ BindsTo=xrdp.service

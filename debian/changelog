@@ -1,36 +1,22 @@
-xrdp (0.9.9-1+deb10u3) buster-security; urgency=high
+xrdp (0.9.12-1.1) unstable; urgency=medium
 
-  * Non-maintainer upload by the LTS Security Team.
-  * CVE-2022-23480: Prevent a series of potential buffer overflow
-    vulnerabilities in the devredir_proc_client_devlist_announce_req()
-    function. (Closes: #1025879)
-  * CVE-2022-23481: Fix an out of bounds read vulnerability in the
-    xrdp_caps_process_confirm_active() function. (Closes: #1025879)
-  * CVE-2022-23482: Fix an out of bounds read vulnerability in the
-    xrdp_sec_process_mcs_data_CS_CORE() function. (Closes: #1025879)
-
- -- Chris Lamb <lamby@debian.org>  Fri, 31 Mar 2023 12:47:45 +0100
-
-xrdp (0.9.9-1+deb10u2) buster-security; urgency=medium
-
-  * Fix CVE-2022-23468 (buffer over flow in xrdp_login_wnd_create).
-  * Fix CVE-2022-23478 (Out of Bound Write in xrdp_mm_trans_process_drdynvc_channel_open).
-  * Fix CVE-2022-23479 (buffer over flow in xrdp_mm_chan_data_in).
-  * Fix CVE-2022-23483 (Out of Bound Read in libxrdp_send_to_channel).
-  * Fix CVE-2022-23484 (Integer Overflow in xrdp_mm_process_rail_update_window_text).
-  * Fix CVE-2022-23493 (Out of Bound Read in xrdp_mm_trans_process_drdynvc_channel_close).
-
- -- Dominik George <natureshadow@debian.org>  Mon, 27 Mar 2023 11:34:36 +0000
-
-xrdp (0.9.9-1+deb10u1) buster-security; urgency=high
-
-  * Non-maintainer upload by the Security Team.
-  * libscp v1 server set height twice, and not set width
+  * Non-maintainer upload.
   * xrdp-sesman can be crashed remotely over port 3350 (CVE-2020-4044)
     (Closes: #964573)
   * Fixed CVE-2020-4044 CI errors
 
- -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 19 Jul 2020 17:02:11 +0200
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 19 Jul 2020 17:11:20 +0200
+
+xrdp (0.9.12-1) unstable; urgency=low
+
+  * Update Homepage link
+  * New upstream version (Closes: #925890)
+  * Bump Policy & debhelper; update build system
+  * Address lintian’s concerns, update lintian overrides
+  * d/p/document-certs.diff: Address #860890 with documentation
+  * d/xrdp.init: redirect xrdp stdout into nirvana (Closes: #883358)
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Sat, 11 Jan 2020 02:40:04 +0100
 
 xrdp (0.9.9-1) unstable; urgency=medium
 

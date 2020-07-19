@@ -999,6 +999,25 @@ xrdp_mm_drdynvc_up(struct xrdp_mm* self)
     return 0;
 }
 
+/******************************************************************************/
+int
+xrdp_mm_suppress_output(struct xrdp_mm* self, int suppress,
+                        int left, int top, int right, int bottom)
+{
+    LLOGLN(0, ("xrdp_mm_suppress_output: suppress %d "
+           "left %d top %d right %d bottom %d",
+           suppress, left, top, right, bottom));
+    if (self->mod != NULL)
+    {
+        if (self->mod->mod_suppress_output != NULL)
+        {
+            self->mod->mod_suppress_output(self->mod, suppress,
+                                           left, top, right, bottom);
+        }
+    }
+    return 0;
+}
+
 /*****************************************************************************/
 /* open response from client going to channel server */
 static int
@@ -1411,6 +1430,14 @@ xrdp_mm_connect_chansrv(struct xrdp_mm *self, const char *ip, const char *port)
 
     self->usechansrv = 1;
 
+    if (self->wm->client_info->channels_allowed == 0)
+    {
+        log_message(LOG_LEVEL_DEBUG, "%s: "
+                    "skip connecting to chansrv because all channels are disabled",
+                    __func__);
+        return 0;
+    }
+
     /* connect channel redir */
     if ((g_strcmp(ip, "127.0.0.1") == 0) || (ip[0] == 0))
     {
@@ -1440,7 +1467,10 @@ xrdp_mm_connect_chansrv(struct xrdp_mm *self, const char *ip, const char *port)
             self->chan_trans_up = 1;
             break;
         }
-
+        if (g_is_term())
+        {
+            break;
+        }
         g_sleep(1000);
         log_message(LOG_LEVEL_ERROR,"xrdp_mm_connect_chansrv: connect failed "
                   "trying again...");
@@ -2275,7 +2305,10 @@ xrdp_mm_connect(struct xrdp_mm *self)
                 ok = 1;
                 break;
             }
-
+            if (g_is_term())
+            {
+                break;
+            }
             g_sleep(1000);
             g_writeln("xrdp_mm_connect: connect failed "
                       "trying again...");
