@@ -122,10 +122,9 @@ am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
 am_xrdp_chansrv_OBJECTS = chansrv.$(OBJEXT) chansrv_common.$(OBJEXT) \
 	chansrv_fuse.$(OBJEXT) clipboard.$(OBJEXT) \
-	clipboard_file.$(OBJEXT) devredir.$(OBJEXT) drdynvc.$(OBJEXT) \
-	fifo.$(OBJEXT) irp.$(OBJEXT) rail.$(OBJEXT) \
-	smartcard.$(OBJEXT) smartcard_pcsc.$(OBJEXT) sound.$(OBJEXT) \
-	xcommon.$(OBJEXT)
+	clipboard_file.$(OBJEXT) devredir.$(OBJEXT) fifo.$(OBJEXT) \
+	irp.$(OBJEXT) rail.$(OBJEXT) smartcard.$(OBJEXT) \
+	smartcard_pcsc.$(OBJEXT) sound.$(OBJEXT) xcommon.$(OBJEXT)
 xrdp_chansrv_OBJECTS = $(am_xrdp_chansrv_OBJECTS)
 am__DEPENDENCIES_1 =
 @XRDP_FUSE_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -160,10 +159,10 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/chansrv.Po \
 	./$(DEPDIR)/chansrv_common.Po ./$(DEPDIR)/chansrv_fuse.Po \
 	./$(DEPDIR)/clipboard.Po ./$(DEPDIR)/clipboard_file.Po \
-	./$(DEPDIR)/devredir.Po ./$(DEPDIR)/drdynvc.Po \
-	./$(DEPDIR)/fifo.Po ./$(DEPDIR)/irp.Po ./$(DEPDIR)/rail.Po \
-	./$(DEPDIR)/smartcard.Po ./$(DEPDIR)/smartcard_pcsc.Po \
-	./$(DEPDIR)/sound.Po ./$(DEPDIR)/xcommon.Po
+	./$(DEPDIR)/devredir.Po ./$(DEPDIR)/fifo.Po ./$(DEPDIR)/irp.Po \
+	./$(DEPDIR)/rail.Po ./$(DEPDIR)/smartcard.Po \
+	./$(DEPDIR)/smartcard_pcsc.Po ./$(DEPDIR)/sound.Po \
+	./$(DEPDIR)/xcommon.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -383,8 +382,6 @@ xrdp_chansrv_SOURCES = \
   clipboard_file.h \
   devredir.c \
   devredir.h \
-  drdynvc.c \
-  drdynvc.h \
   fifo.c \
   fifo.h \
   irp.c \
@@ -508,7 +505,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clipboard.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clipboard_file.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/devredir.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drdynvc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fifo.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/irp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rail.Po@am__quote@ # am--include-marker
@@ -684,7 +680,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/clipboard.Po
 	-rm -f ./$(DEPDIR)/clipboard_file.Po
 	-rm -f ./$(DEPDIR)/devredir.Po
-	-rm -f ./$(DEPDIR)/drdynvc.Po
 	-rm -f ./$(DEPDIR)/fifo.Po
 	-rm -f ./$(DEPDIR)/irp.Po
 	-rm -f ./$(DEPDIR)/rail.Po
@@ -743,7 +738,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/clipboard.Po
 	-rm -f ./$(DEPDIR)/clipboard_file.Po
 	-rm -f ./$(DEPDIR)/devredir.Po
-	-rm -f ./$(DEPDIR)/drdynvc.Po
 	-rm -f ./$(DEPDIR)/fifo.Po
 	-rm -f ./$(DEPDIR)/irp.Po
 	-rm -f ./$(DEPDIR)/rail.Po

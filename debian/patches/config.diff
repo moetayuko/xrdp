@@ -2,7 +2,7 @@ From: Dominik George <nik@naturalnet.de>
 Subject: Use xorgxrdp instead of x11rdp
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -74,7 +74,7 @@ SyslogLevel=DEBUG
+@@ -80,7 +80,7 @@ SyslogLevel=DEBUG
  ; Arch Linux            :  param=/usr/lib/xorg-server/Xorg
  ; CentOS 7              :  param=/usr/bin/Xorg or param=Xorg
  ;
@@ -11,17 +11,3 @@ Subject: Use xorgxrdp instead of x11rdp
  ; Leave the rest paramaters as-is unless you understand what will happen.
  param=-config
  param=xrdp/xorg.conf
-@@ -84,13 +84,6 @@ param=tcp
- param=-logfile
- param=.xorgxrdp.%s.log
- 
--[X11rdp]
--param=X11rdp
--param=-bs
--param=-nolisten
--param=tcp
--param=-uds
--
- [Xvnc]
- param=Xvnc
- param=-bs

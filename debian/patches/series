@@ -5,3 +5,6 @@ shutup-daemon.diff
 systemd.diff
 lfs.diff
 pulse-debian.patch
+libscp-v1-server-set-height-twice-and-not-set-width..patch
+Fix-for-CVE-2020-4044.patch
+Fixed-CVE-2020-4044-CI-errors.patch

@@ -25,8 +25,8 @@ Build-Depends:
  pkg-config,
  systemd [linux-any],
 Standards-Version: 4.2.1
-Vcs-Browser: https://salsa.debian.org/debian-remote-team/xrdp/tree/stretch-backports
-Vcs-Git: https://salsa.debian.org/debian-remote-team/xrdp.git -b stretch-backports
+Vcs-Browser: https://salsa.debian.org/debian-remote-team/xrdp
+Vcs-Git: https://salsa.debian.org/debian-remote-team/xrdp.git
 Homepage: http://xrdp.sourceforge.net
 
 Package: xrdp

@@ -1,8 +1,25 @@
-xrdp (0.9.8-2~bpo9+1) stretch-backports; urgency=medium
+xrdp (0.9.9-1+deb10u1) buster-security; urgency=high
 
-  * Rebuild for stretch-backports.
+  * Non-maintainer upload by the Security Team.
+  * libscp v1 server set height twice, and not set width
+  * xrdp-sesman can be crashed remotely over port 3350 (CVE-2020-4044)
+    (Closes: #964573)
+  * Fixed CVE-2020-4044 CI errors
 
- -- Dominik George <natureshadow@debian.org>  Thu, 27 Sep 2018 10:41:18 +0200
+ -- Salvatore Bonaccorso <carnil@debian.org>  Sun, 19 Jul 2020 17:02:11 +0200
+
+xrdp (0.9.9-1) unstable; urgency=medium
+
+  [ Thorsten Glaser ]
+  * Fix errorlevel returned by init script in case of errors.
+  * Correct asymmetry in init script try-restart message verbosity.
+
+  [ Dominik George ]
+  * New upstream version.
+    + Adds Spanish Latina American keymap. (Closes: #911902)
+  * Refresh patches.
+
+ -- Dominik George <natureshadow@debian.org>  Sun, 13 Jan 2019 13:49:36 +0100
 
 xrdp (0.9.8-2) unstable; urgency=medium
 
@@ -119,12 +136,6 @@ xrdp (0.9.4-2) unstable; urgency=high
   * Fix another typo in previous changelog.
 
  -- Dominik George <nik@naturalnet.de>  Fri, 15 Dec 2017 02:10:18 +0100
-
-xrdp (0.9.4-1~bpo9+1) stretch-backports; urgency=medium
-
-  * Rebuild for stretch-backports.
-
- -- Dominik George <nik@naturalnet.de>  Mon, 16 Oct 2017 10:35:52 +0200
 
 xrdp (0.9.4-1) unstable; urgency=medium
 
