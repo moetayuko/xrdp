@@ -1,5 +1,4 @@
 # debhelper-generated
-xrdp: postinst-has-useless-call-to-ldconfig
 xrdp: package-has-unnecessary-activation-of-ldconfig-trigger
 
 # this is a dlopen()'ed plugin
