@@ -11,6 +11,7 @@ xrdp (0.9.15-1) unstable; urgency=medium
   * Bump Standards-Version.
     + No changes needed.
   * Refresh patches.
+  * Add new files to d/copyright.
 
  -- Dominik George <natureshadow@debian.org>  Mon, 01 Mar 2021 22:27:36 +0100
 

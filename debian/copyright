@@ -313,6 +313,21 @@ Files: sesman/chansrv/audin.c
 Copyright: 2019, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
+Files: common/ms-erref.h
+ common/ms-fscc.h
+ common/ms-rdpbcgr.h
+ common/ms-rdpefs.h
+ common/ms-rdpegdi.h
+ common/ms-rdpele.h
+ common/ms-rdperp.h
+ common/ms-smb2.h
+ common/string_calls.c
+ common/string_calls.h
+ sesman/chansrv/chansrv_config.c
+ sesman/chansrv/chansrv_config.h
+Copyright: 2020, Jay Sorg <jay.sorg@gmail.com>
+License: Apache-2.0
+
 Files: common/fifo.c
  common/fifo.h
  sesman/chansrv/chansrv_common.c
