@@ -7,7 +7,9 @@ xrdp (0.9.15-1) unstable; urgency=medium
   * d/p/pulse-debian.patch: Update comment w.r.t. the above
 
   [ Dominik George ]
-  * New upstream release
+  * New upstream release.
+  * Bump Standards-Version.
+    + No changes needed.
 
  -- Dominik George <natureshadow@debian.org>  Mon, 01 Mar 2021 22:27:36 +0100
 
