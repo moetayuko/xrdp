@@ -44,7 +44,7 @@
 #include <X11/XKBlib.h>
 #include <locale.h>
 
-extern int xfree86_to_evdev[137-8];
+extern int xfree86_to_evdev[137-8+1];
 
 int main(int argc, char **argv)
 {
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
         fprintf(outf, "[%s]\n", sections[idx]);
         e.state = states[idx];
 
-        for (i = 8; i <= 137; i++) /* Keycodes */
+        for (i = 8; i < 137; i++) /* Keycodes */
         {
             if (is_evdev)
                 e.keycode = xfree86_to_evdev[i-8];

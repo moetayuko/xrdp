@@ -23,6 +23,7 @@
 #endif
 #include "xrdp.h"
 #include "log.h"
+#include "string_calls.h"
 
 #ifndef USE_NOPAM
 #if defined(HAVE__PAM_TYPES_H)
@@ -161,6 +162,9 @@ xrdp_mm_delete(struct xrdp_mm *self)
 
 /*****************************************************************************/
 /* Send login information to sesman */
+/* FIXME : This code duplicates functionality in the sesman tools sesrun.c.
+ * When SCP is reworked, a common library function should be used */
+
 static int
 xrdp_mm_send_login(struct xrdp_mm *self)
 {
@@ -471,7 +475,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm *self)
             self->mod->server_composite = server_composite;
             self->mod->server_paint_rects = server_paint_rects;
             self->mod->server_session_info = server_session_info;
-            self->mod->si = (tintptr) &(self->wm->session->si);
+            self->mod->si = &(self->wm->session->si);
         }
     }
 
@@ -1553,6 +1557,8 @@ xrdp_mm_update_allowed_channels(struct xrdp_mm *self)
 }
 
 /*****************************************************************************/
+/* FIXME : This code duplicates functionality in the sesman tools sesrun.c.
+ * When SCP is reworked, a common library function should be used */
 static int
 xrdp_mm_process_login_response(struct xrdp_mm *self, struct stream *s)
 {
@@ -3261,6 +3267,9 @@ server_draw_text(struct xrdp_mod *mod, int font,
 }
 
 /*****************************************************************************/
+
+/* Note : if this is called on a multimon setup, the client is resized
+ * to a single monitor */
 int
 server_reset(struct xrdp_mod *mod, int width, int height, int bpp)
 {
@@ -3279,10 +3288,11 @@ server_reset(struct xrdp_mod *mod, int width, int height, int bpp)
         return 0;
     }
 
-    /* if same, don't need to do anything */
+    /* if same (and only one monitor on client) don't need to do anything */
     if (wm->client_info->width == width &&
-            wm->client_info->height == height &&
-            wm->client_info->bpp == bpp)
+        wm->client_info->height == height &&
+        wm->client_info->bpp == bpp &&
+        (wm->client_info->monitorCount == 0 || wm->client_info->multimon == 0))
     {
         return 0;
     }

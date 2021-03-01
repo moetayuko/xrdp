@@ -66,6 +66,7 @@ struct xrdp_session
     struct trans *trans;
     int (*callback)(intptr_t id, int msg, intptr_t param1, intptr_t param2,
                     intptr_t param3, intptr_t param4);
+    int check_for_app_input;
     void *rdp;
     void *orders;
     struct xrdp_client_info *client_info;
@@ -74,6 +75,7 @@ struct xrdp_session
     int in_process_data; /* inc / dec libxrdp_process_data calls */
 
     struct source_info si;
+    char *xrdp_ini; /* path to xrdp.ini */
 };
 
 struct xrdp_drdynvc_procs
@@ -84,8 +86,16 @@ struct xrdp_drdynvc_procs
     int (*data)(intptr_t id, int chan_id, char *data, int bytes);
 };
 
+/***
+ * Initialise the XRDP library
+ *
+ * @param id Channel ID (xrdp_process* as integer type)
+ * @param trans Transport object to use for this instance
+ * @param xrdp_ini Path to xrdp.ini config file, or NULL for default
+ * @return an allocated xrdp_session object
+ */
 struct xrdp_session *
-libxrdp_init(tbus id, struct trans *trans);
+libxrdp_init(tbus id, struct trans *trans, const char *xrdp_ini);
 int
 libxrdp_exit(struct xrdp_session *session);
 int

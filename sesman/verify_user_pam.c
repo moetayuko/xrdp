@@ -30,14 +30,18 @@
 
 #include "arch.h"
 #include "os_calls.h"
+#include "string_calls.h"
 
 #include <stdio.h>
 #include <security/pam_appl.h>
 
+/* Defines the maximum size of a username or password. With pam there is no real limit */
+#define MAX_BUF 8192
+
 struct t_user_pass
 {
-    char user[256];
-    char pass[256];
+    char user[MAX_BUF];
+    char pass[MAX_BUF];
 };
 
 struct t_auth_info
@@ -74,6 +78,9 @@ verify_pam_conv(int num_msg, const struct pam_message **msg,
                 reply[i].resp = g_strdup(user_pass->pass);
                 reply[i].resp_retcode = PAM_SUCCESS;
                 break;
+            case PAM_TEXT_INFO:
+                g_memset(&reply[i], 0, sizeof(struct pam_response));
+                break;
             default:
                 g_printf("unknown in verify_pam_conv\r\n");
                 g_free(reply);
@@ -92,7 +99,7 @@ get_service_name(char *service_name)
     service_name[0] = 0;
 
     if (g_file_exist("/etc/pam.d/xrdp-sesman") ||
-        g_file_exist(XRDP_SYSCONF_PATH "/pam.d/xrdp-sesman"))
+            g_file_exist(XRDP_SYSCONF_PATH "/pam.d/xrdp-sesman"))
     {
         g_strncpy(service_name, "xrdp-sesman", 255);
     }
@@ -115,8 +122,8 @@ auth_userpass(const char *user, const char *pass, int *errorcode)
 
     get_service_name(service_name);
     auth_info = g_new0(struct t_auth_info, 1);
-    g_strncpy(auth_info->user_pass.user, user, 255);
-    g_strncpy(auth_info->user_pass.pass, pass, 255);
+    g_strncpy(auth_info->user_pass.user, user, MAX_BUF - 1);
+    g_strncpy(auth_info->user_pass.pass, pass, MAX_BUF - 1);
     auth_info->pamc.conv = &verify_pam_conv;
     auth_info->pamc.appdata_ptr = &(auth_info->user_pass);
     error = pam_start(service_name, 0, &(auth_info->pamc), &(auth_info->ph));

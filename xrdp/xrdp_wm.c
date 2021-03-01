@@ -25,7 +25,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "xrdp.h"
+#include "ms-rdpbcgr.h"
 #include "log.h"
+#include "string_calls.h"
 
 #define LLOG_LEVEL 1
 #define LLOGLN(_level, _args) \
@@ -395,7 +397,6 @@ xrdp_wm_load_static_colors_plus(struct xrdp_wm *self, char *autorun_name)
     char *val;
     struct list *names;
     struct list *values;
-    char cfg_file[256];
 
     if (autorun_name != 0)
     {
@@ -414,8 +415,7 @@ xrdp_wm_load_static_colors_plus(struct xrdp_wm *self, char *autorun_name)
     self->background = HCOLOR(self->screen->bpp, 0x000000);
 
     /* now load them from the globals in xrdp.ini if defined */
-    g_snprintf(cfg_file, 255, "%s/xrdp.ini", XRDP_CFG_PATH);
-    fd = g_file_open(cfg_file);
+    fd = g_file_open(self->session->xrdp_ini);
 
     if (fd >= 0)
     {
@@ -506,7 +506,7 @@ xrdp_wm_load_static_colors_plus(struct xrdp_wm *self, char *autorun_name)
     }
     else
     {
-        log_message(LOG_LEVEL_ERROR,"xrdp_wm_load_static_colors: Could not read xrdp.ini file %s", cfg_file);
+        log_message(LOG_LEVEL_ERROR,"xrdp_wm_load_static_colors: Could not read xrdp.ini file %s", self->session->xrdp_ini);
     }
 
     if (self->screen->bpp == 8)
@@ -568,20 +568,20 @@ xrdp_wm_init(struct xrdp_wm *self)
     char param[256];
     char default_section_name[256];
     char section_name[256];
-    char cfg_file[256];
     char autorun_name[256];
 
     g_writeln("in xrdp_wm_init: ");
 
-    load_xrdp_config(self->xrdp_config, self->screen->bpp);
+    load_xrdp_config(self->xrdp_config, self->session->xrdp_ini,
+                     self->screen->bpp);
 
     /* global channels allow */
     names = list_create();
     names->auto_free = 1;
     values = list_create();
     values->auto_free = 1;
-    g_snprintf(cfg_file, 255, "%s/xrdp.ini", XRDP_CFG_PATH);
-    if (file_by_name_read_section(cfg_file, "Channels", names, values) == 0)
+    if (file_by_name_read_section(self->session->xrdp_ini,
+                                  "Channels", names, values) == 0)
     {
         int error;
         int ii;
@@ -648,8 +648,7 @@ xrdp_wm_init(struct xrdp_wm *self)
          * NOTE: this should eventually be accessed from self->xrdp_config
          */
 
-        g_snprintf(cfg_file, 255, "%s/xrdp.ini", XRDP_CFG_PATH);
-        fd = g_file_open(cfg_file); /* xrdp.ini */
+        fd = g_file_open(self->session->xrdp_ini);
         if (fd != -1)
         {
             names = list_create();
@@ -666,6 +665,7 @@ xrdp_wm_init(struct xrdp_wm *self)
                 q = (char *)list_get_item(names, index);
                 if ((g_strncasecmp("globals", q, 8) != 0) &&
                     (g_strncasecmp("Logging", q, 8) != 0) &&
+                    (g_strncasecmp("LoggingPerLogger", q, 17) != 0) &&
                     (g_strncasecmp("channels", q, 9) != 0))
                 {
                     g_strncpy(default_section_name, q, 255);
@@ -789,7 +789,9 @@ xrdp_wm_init(struct xrdp_wm *self)
         }
         else
         {
-            log_message(LOG_LEVEL_ERROR,"xrdp_wm_init: Could not read xrdp.ini file %s", cfg_file);
+            log_message(LOG_LEVEL_ERROR,
+                        "xrdp_wm_init: Could not read xrdp.ini file %s",
+                        self->session->xrdp_ini);
         }
     }
     else
@@ -912,7 +914,7 @@ xrdp_wm_xor_pat(struct xrdp_wm *self, int x, int y, int cx, int cy)
     self->painter->brush.pattern[6] = 0xaa;
     self->painter->brush.pattern[7] = 0x55;
     self->painter->brush.x_origin = 0;
-    self->painter->brush.x_origin = 0;
+    self->painter->brush.y_origin = 0;
     self->painter->brush.style = 3;
     self->painter->bg_color = self->black;
     self->painter->fg_color = self->white;
@@ -1339,6 +1341,22 @@ xrdp_wm_mouse_click(struct xrdp_wm *self, int x, int y, int but, int down)
                     self->mm->mod->mod_event(self->mm->mod, WM_BUTTON3UP, x, y, 0, 0);
                 }
 
+                if (but == 8 && down)
+                {
+                    self->mm->mod->mod_event(self->mm->mod, WM_BUTTON8DOWN, x, y, 0, 0);
+                }
+                else if (but == 8 && !down)
+                {
+                    self->mm->mod->mod_event(self->mm->mod, WM_BUTTON8UP, x, y, 0, 0);
+                }
+                if (but == 9 && down)
+                {
+                    self->mm->mod->mod_event(self->mm->mod, WM_BUTTON9DOWN, x, y, 0, 0);
+                }
+                else if (but == 9 && !down)
+                {
+                    self->mm->mod->mod_event(self->mm->mod, WM_BUTTON9UP, x, y, 0, 0);
+                }
                 /* vertical scroll */
 
                 if (but == 4)
@@ -1512,6 +1530,12 @@ xrdp_wm_key(struct xrdp_wm *self, int device_flags, int scan_code)
     if (self->popup_wnd != 0)
     {
         xrdp_wm_clear_popup(self);
+        return 0;
+    }
+
+    // workaround odd shift behavior
+    // see https://github.com/neutrinolabs/xrdp/issues/397
+    if (scan_code == 42 && device_flags == (KBD_FLAG_UP | KBD_FLAG_EXT)) {
         return 0;
     }
 
@@ -1801,22 +1825,22 @@ xrdp_wm_process_input_mousex(struct xrdp_wm* self, int device_flags,
     {
         if (device_flags & PTRXFLAGS_BUTTON1)
         {
-            xrdp_wm_mouse_click(self, x, y, 6, 1);
+            xrdp_wm_mouse_click(self, x, y, 8, 1);
         }
         else if (device_flags & PTRXFLAGS_BUTTON2)
         {
-            xrdp_wm_mouse_click(self, x, y, 7, 1);
+            xrdp_wm_mouse_click(self, x, y, 9, 1);
         }
     }
     else
     {
         if (device_flags & PTRXFLAGS_BUTTON1)
         {
-            xrdp_wm_mouse_click(self, x, y, 6, 0);
+            xrdp_wm_mouse_click(self, x, y, 8, 0);
         }
         else if (device_flags & PTRXFLAGS_BUTTON2)
         {
-            xrdp_wm_mouse_click(self, x, y, 7, 0);
+            xrdp_wm_mouse_click(self, x, y, 9, 0);
         }
     }
     return 0;
