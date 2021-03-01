@@ -5,7 +5,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
 
 --- a/configure.ac
 +++ b/configure.ac
-@@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
+@@ -6,6 +6,8 @@
  AM_INIT_AUTOMAKE([1.7.2 foreign])
  AC_CONFIG_MACRO_DIR([m4])
  AC_PROG_CC
@@ -14,7 +14,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  
-@@ -375,6 +377,7 @@ AC_CONFIG_FILES([
+@@ -404,6 +406,7 @@
    xup/Makefile
  ])
  
@@ -24,7 +24,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  echo ""
 --- a/libpainter/configure.ac
 +++ b/libpainter/configure.ac
-@@ -6,6 +6,8 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-
+@@ -6,6 +6,8 @@
  AM_INIT_AUTOMAKE([1.6 foreign])
  AC_CONFIG_MACRO_DIR([m4])
  AC_PROG_CC
@@ -33,7 +33,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
-@@ -31,4 +33,5 @@ AC_CONFIG_FILES([
+@@ -31,4 +33,5 @@
    tests/Makefile
  ])
  
@@ -41,7 +41,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_OUTPUT
 --- a/librfxcodec/configure.ac
 +++ b/librfxcodec/configure.ac
-@@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([1.6 foreign])
+@@ -7,6 +7,8 @@
  AC_CONFIG_MACRO_DIR([m4])
  m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
  AC_PROG_CC
@@ -50,7 +50,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
-@@ -53,5 +55,6 @@ AC_CONFIG_FILES([Makefile
+@@ -53,5 +55,6 @@
                   rfxcodec-uninstalled.pc
  ])
  

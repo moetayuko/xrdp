@@ -5,7 +5,7 @@ Forwarded: not-yet
 
 --- a/xrdp/xrdp.ini
 +++ b/xrdp/xrdp.ini
-@@ -49,6 +49,8 @@ crypt_level=high
+@@ -50,6 +50,8 @@
  
  ; X.509 certificate and private key
  ; openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365

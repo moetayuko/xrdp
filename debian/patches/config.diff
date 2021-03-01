@@ -3,9 +3,9 @@ Subject: Use xorgxrdp instead of x11rdp
 
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -83,7 +83,7 @@ SyslogLevel=DEBUG
- ; Arch Linux            :  param=/usr/lib/xorg-server/Xorg
+@@ -94,7 +94,7 @@
  ; CentOS 7              :  param=/usr/bin/Xorg or param=Xorg
+ ; CentOS 8              :  param=/usr/libexec/Xorg
  ;
 -param=Xorg
 +param=/usr/lib/xorg/Xorg
