@@ -51,37 +51,37 @@ typedef struct _STREAM STREAM;
 #define stream_write_uint32(_s, _v) do { ((uint32 *) ((_s)->p))[0] = _v; (_s)->p += 4; } while (0)
 #else
 #define stream_read_uint8(_s, _v) do { \
-    _v = ((uint8 *) ((_s)->p))[0]; \
-    (_s)->p += 1; \
-} while (0)
+        _v = ((uint8 *) ((_s)->p))[0]; \
+        (_s)->p += 1; \
+    } while (0)
 #define stream_read_uint16(_s, _v) do { \
-    _v = (((uint8 *) ((_s)->p))[0]) | \
-        ((((uint8 *) ((_s)->p))[1]) << 8); \
-    (_s)->p += 2; \
-} while (0)
+        _v = (((uint8 *) ((_s)->p))[0]) | \
+             ((((uint8 *) ((_s)->p))[1]) << 8); \
+        (_s)->p += 2; \
+    } while (0)
 #define stream_read_uint32(_s, _v) do { \
-    _v = (((uint8 *) ((_s)->p))[0]) | \
-        ((((uint8 *) ((_s)->p))[1]) << 8) | \
-        ((((uint8 *) ((_s)->p))[2]) << 16) | \
-        ((((uint8 *) ((_s)->p))[3]) << 24); \
-    (_s)->p += 4; \
-} while (0)
+        _v = (((uint8 *) ((_s)->p))[0]) | \
+             ((((uint8 *) ((_s)->p))[1]) << 8) | \
+             ((((uint8 *) ((_s)->p))[2]) << 16) | \
+             ((((uint8 *) ((_s)->p))[3]) << 24); \
+        (_s)->p += 4; \
+    } while (0)
 #define stream_write_uint8(_s, _v) do { \
-    ((uint8 *) ((_s)->p))[0] = _v; \
-    (_s)->p += 1; \
-} while (0)
+        ((uint8 *) ((_s)->p))[0] = _v; \
+        (_s)->p += 1; \
+    } while (0)
 #define stream_write_uint16(_s, _v) do { \
-    ((uint8 *) ((_s)->p))[0] = (uint8) (_v); \
-    ((uint8 *) ((_s)->p))[1] = (uint8) ((_v) >> 8); \
-    (_s)->p += 2; \
-} while (0)
+        ((uint8 *) ((_s)->p))[0] = (uint8) (_v); \
+        ((uint8 *) ((_s)->p))[1] = (uint8) ((_v) >> 8); \
+        (_s)->p += 2; \
+    } while (0)
 #define stream_write_uint32(_s, _v) do { \
-    ((uint8 *) ((_s)->p))[0] = (uint8) (_v); \
-    ((uint8 *) ((_s)->p))[1] = (uint8) ((_v) >> 8); \
-    ((uint8 *) ((_s)->p))[2] = (uint8) ((_v) >> 16); \
-    ((uint8 *) ((_s)->p))[3] = (uint8) ((_v) >> 24); \
-    (_s)->p += 4; \
-} while (0)
+        ((uint8 *) ((_s)->p))[0] = (uint8) (_v); \
+        ((uint8 *) ((_s)->p))[1] = (uint8) ((_v) >> 8); \
+        ((uint8 *) ((_s)->p))[2] = (uint8) ((_v) >> 16); \
+        ((uint8 *) ((_s)->p))[3] = (uint8) ((_v) >> 24); \
+        (_s)->p += 4; \
+    } while (0)
 #endif
 
 #define stream_seek(_s, _n) (_s)->p += _n
@@ -106,25 +106,25 @@ typedef struct _STREAM STREAM;
 */
 #if defined(__GNUC__)
 #define GBSR(_in, _r) do { \
-    _r = __builtin_clz(_in) ^ 31; \
-} while (0)
+        _r = __builtin_clz(_in) ^ 31; \
+    } while (0)
 #elif defined(_MSC_VER) && (_MSC_VER > 1000)
 #define GBSR(_in, _r) do { \
-    unsigned long rv = 0; \
-    _BitScanReverse(&rv, _in); \
-    _r = rv; \
-} while (0)
+        unsigned long rv = 0; \
+        _BitScanReverse(&rv, _in); \
+        _r = rv; \
+    } while (0)
 #else
 #define GBSR(_in, _r) do { \
-    int rv = -1; \
-    int x = _in; \
-    while (x != 0) \
-    { \
-        rv++; \
-        x = x >> 1; \
-    } \
-    _r = rv; \
-} while (0)
+        int rv = -1; \
+        int x = _in; \
+        while (x != 0) \
+        { \
+            rv++; \
+            x = x >> 1; \
+        } \
+        _r = rv; \
+    } while (0)
 #endif
 
 #endif

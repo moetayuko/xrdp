@@ -22,13 +22,13 @@
 struct rfxencode;
 
 typedef int (*rfx_encode_rgb_to_yuv_proc)(struct rfxencode *enc,
-                                          const char *rgb_data,
-                                          int width, int height,
-                                          int stride_bytes);
+        const char *rgb_data,
+        int width, int height,
+        int stride_bytes);
 typedef int (*rfx_encode_argb_to_yuva_proc)(struct rfxencode *enc,
-                                            const char *argb_data,
-                                            int width, int height,
-                                       int stride_bytes);
+        const char *argb_data,
+        int width, int height,
+        int stride_bytes);
 typedef int (*rfx_encode_proc)(struct rfxencode *enc, const char *qtable,
                                const uint8 *data,
                                uint8 *buffer, int buffer_size, int *size);

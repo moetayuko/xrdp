@@ -75,13 +75,13 @@ fdelta(const char *in_plane, char *out_plane, int cx, int cy)
 #if 0
 /*****************************************************************************/
 #define DELTA_ONE \
-do { \
-    delta = src8[cx] - src8[0]; \
-    is_neg = (delta >> 7) & 1; \
-    dst8[cx] = (((delta ^ -is_neg) + is_neg) << 1) - is_neg; \
-    src8++; \
-    dst8++; \
-} while (0)
+    do { \
+        delta = src8[cx] - src8[0]; \
+        is_neg = (delta >> 7) & 1; \
+        dst8[cx] = (((delta ^ -is_neg) + is_neg) << 1) - is_neg; \
+        src8++; \
+        dst8++; \
+    } while (0)
 
 /*****************************************************************************/
 static int

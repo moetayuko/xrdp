@@ -7,6 +7,14 @@ endif
 EXTRA_DIST = pixman-region.c
 
 include_HEADERS = \
+  ms-erref.h \
+  ms-fscc.h \
+  ms-rdpbcgr.h \
+  ms-rdpefs.h \
+  ms-rdpegdi.h \
+  ms-rdpele.h \
+  ms-rdperp.h \
+  ms-smb2.h \
   xrdp_client_info.h \
   xrdp_constants.h \
   xrdp_rail.h \
@@ -46,11 +54,12 @@ libcommon_la_SOURCES = \
   log.h \
   os_calls.c \
   os_calls.h \
-  os_calls.h \
   parse.h \
   rail.h \
   ssl_calls.c \
   ssl_calls.h \
+  string_calls.c \
+  string_calls.h \
   thread_calls.c \
   thread_calls.h \
   trans.c \

@@ -22,6 +22,7 @@
 #endif
 
 #include "libxrdp.h"
+#include "ms-rdpbcgr.h"
 
 /*****************************************************************************/
 struct xrdp_fastpath *
@@ -29,12 +30,12 @@ xrdp_fastpath_create(struct xrdp_sec *owner, struct trans *trans)
 {
     struct xrdp_fastpath *self;
 
-    DEBUG(("  in xrdp_fastpath_create"));
+    LOG_DEVEL(LOG_LEVEL_TRACE, "  in xrdp_fastpath_create");
     self = (struct xrdp_fastpath *)g_malloc(sizeof(struct xrdp_fastpath), 1);
     self->sec_layer = owner;
     self->trans = trans;
     self->session = owner->rdp_layer->session;
-    DEBUG(("  out xrdp_fastpath_create"));
+    LOG_DEVEL(LOG_LEVEL_TRACE, "  out xrdp_fastpath_create");
     return self;
 }
 
@@ -66,7 +67,7 @@ xrdp_fastpath_recv(struct xrdp_fastpath *self, struct stream *s)
     int byte;
     char *holdp;
 
-    DEBUG(("   in xrdp_fastpath_recv"));
+    LOG_DEVEL(LOG_LEVEL_TRACE, "   in xrdp_fastpath_recv");
     holdp = s->p;
     if (!s_check_rem(s, 2))
     {
@@ -96,7 +97,7 @@ xrdp_fastpath_recv(struct xrdp_fastpath *self, struct stream *s)
         len = byte;
     }
     s->next_packet = holdp + len;
-    DEBUG(("  out xrdp_fastpath_recv"));
+    LOG_DEVEL(LOG_LEVEL_TRACE, "  out xrdp_fastpath_recv");
     return 0;
 }
 
@@ -145,7 +146,10 @@ xrdp_fastpath_send(struct xrdp_fastpath *self, struct stream *s)
     {
         return 1;
     }
-    xrdp_fastpath_session_callback(self, 0x5556, 0, 0, 0, 0);
+    if (self->session->check_for_app_input)
+    {
+        xrdp_fastpath_session_callback(self, 0x5556, 0, 0, 0, 0);
+    }
     return 0;
 }
 
@@ -175,7 +179,9 @@ xrdp_fastpath_process_EVENT_SCANCODE(struct xrdp_fastpath *self,
     }
 
     if ((eventFlags & FASTPATH_INPUT_KBDFLAGS_EXTENDED))
+    {
         flags |= KBD_FLAG_EXT;
+    }
 
     xrdp_fastpath_session_callback(self, RDP_INPUT_SCANCODE,
                                    code, 0, flags, 0);
@@ -249,13 +255,13 @@ static int
 xrdp_fastpath_process_EVENT_SYNC(struct xrdp_fastpath *self,
                                  int eventFlags, struct stream *s)
 {
-   /*
-    * The eventCode bitfield (3 bits in size) MUST be set to
-    * FASTPATH_INPUT_EVENT_SYNC (3).
-    * The eventFlags bitfield (5 bits in size) contains flags
-    * indicating the "on"
-    * status of the keyboard toggle keys.
-    */
+    /*
+     * The eventCode bitfield (3 bits in size) MUST be set to
+     * FASTPATH_INPUT_EVENT_SYNC (3).
+     * The eventFlags bitfield (5 bits in size) contains flags
+     * indicating the "on"
+     * status of the keyboard toggle keys.
+     */
 
     xrdp_fastpath_session_callback(self, RDP_INPUT_SYNCHRONIZE,
                                    eventFlags, 0, 0, 0);
@@ -322,8 +328,8 @@ xrdp_fastpath_process_input_event(struct xrdp_fastpath *self,
         {
             case FASTPATH_INPUT_EVENT_SCANCODE:
                 if (xrdp_fastpath_process_EVENT_SCANCODE(self,
-                                                         eventFlags,
-                                                         s) != 0)
+                        eventFlags,
+                        s) != 0)
                 {
                     return 1;
                 }
@@ -361,8 +367,8 @@ xrdp_fastpath_process_input_event(struct xrdp_fastpath *self,
                 }
                 break;
             default:
-                g_writeln("xrdp_fastpath_process_input_event: unknown "
-                          "eventCode %d", eventCode);
+                LOG(LOG_LEVEL_WARNING, "xrdp_fastpath_process_input_event: unknown "
+                    "eventCode %d", eventCode);
                 break;
         }
     }

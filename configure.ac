@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.65)
-AC_INIT([xrdp], [0.9.12], [xrdp-devel@googlegroups.com])
+AC_INIT([xrdp], [0.9.15], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.7.2 foreign])
 AC_CONFIG_MACRO_DIR([m4])
@@ -18,11 +18,6 @@ AC_CONFIG_SUBDIRS([libpainter librfxcodec])
 
 # Use silent rules by default if supported by Automake
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
-
-AX_CFLAGS_WARN_ALL
-AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
-AX_GCC_FUNC_ATTRIBUTE([format])
-AX_TYPE_SOCKLEN_T
 
 case $host_os in
 	*linux*)
@@ -70,7 +65,7 @@ if test "x$with_systemdsystemunitdir" != xno; then
 fi
 AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno ])
 
-AC_ARG_ENABLE(pam, AS_HELP_STRING([--disable-pam],
+AC_ARG_ENABLE(pam, AS_HELP_STRING([--enable-pam],
               [Build PAM support (default: yes)]),
               [], [enable_pam=yes])
 AM_CONDITIONAL(SESMAN_NOPAM, [test x$enable_pam != xyes])
@@ -84,7 +79,7 @@ AC_ARG_ENABLE(ipv6only, AS_HELP_STRING([--enable-ipv6only],
               [Build IPv6-only (default: no)]),
               [], [enable_ipv6only=no])
 AC_ARG_ENABLE(kerberos, AS_HELP_STRING([--enable-kerberos],
-              [Build kerberos support (default: no)]),
+              [Build kerberos support (prefer --enable-pam if available) (default: no)]),
               [], [enable_kerberos=no])
 AC_ARG_ENABLE(bsd, AS_HELP_STRING([--enable-bsd],
               [Build BSD auth support (default: no)]),
@@ -92,7 +87,7 @@ AC_ARG_ENABLE(bsd, AS_HELP_STRING([--enable-bsd],
 AM_CONDITIONAL(SESMAN_BSD, [test x$bsd = xtrue])
 AM_CONDITIONAL(SESMAN_KERBEROS, [test x$enable_kerberos = xyes])
 AC_ARG_ENABLE(pamuserpass, AS_HELP_STRING([--enable-pamuserpass],
-              [Build pam userpass support (default: no)]),
+              [Build PAM userpass support (default: no)]),
               [], [enable_pamuserpass=no])
 AM_CONDITIONAL(SESMAN_PAMUSERPASS, [test x$enable_pamuserpass = xyes])
 AC_ARG_ENABLE(pam-config, AS_HELP_STRING([--enable-pam-config=CONF],
@@ -155,6 +150,19 @@ AC_ARG_ENABLE(rdpsndaudin, AS_HELP_STRING([--enable-rdpsndaudin],
               [], [enable_rdpsndaudin=no])
 AM_CONDITIONAL(XRDP_RDPSNDAUDIN, [test x$enable_rdpsndaudin = xyes])
 
+# configure compiler options and CFLAGS
+AX_GCC_FUNC_ATTRIBUTE([format])
+AX_TYPE_SOCKLEN_T
+AX_CFLAGS_WARN_ALL
+AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
+
+AM_COND_IF([LINUX],
+  [AX_APPEND_COMPILE_FLAGS([-Werror])]) # bsd has warnings that have not been fixed yet
+
+AM_COND_IF([XRDP_DEBUG],
+  [AX_APPEND_COMPILE_FLAGS([-g -O0])],
+  [AX_APPEND_COMPILE_FLAGS([-O2])])
+
 # Don't fail without working nasm if rfxcodec is not enabled
 if test "x$enable_rfxcodec" != xyes; then
   with_simd=no
@@ -175,7 +183,7 @@ PKG_CHECK_MODULES([OPENSSL], [openssl >= 0.9.8], [],
 OPENSSL_BIN=`$PKG_CONFIG --variable=exec_prefix openssl`/bin
 AC_PATH_PROGS([OPENSSL], [openssl], [:], [$OPENSSL_BIN:$PATH])
 
-# checking for pam variation
+# checking for PAM variation
 # Linux-PAM is used in Linux systems
 # OpenPAM is used by FreeBSD, NetBSD, DragonFly BSD and OS X
 # OpenBSD uses BSD Authentication rather than both PAMs
@@ -184,16 +192,42 @@ AC_CHECK_HEADER([security/_pam_types.h],
 AC_CHECK_HEADER([security/pam_constants.h],
                 [AC_DEFINE([HAVE_PAM_CONSTANTS_H], 1, [Using OpenPAM], [])])
 
+# Check only one auth mechanism is specified, and give it a name
+auth_cnt=0
+auth_mech="Builtin"
+if test x$enable_pam = xyes
+then
+  auth_cnt=`expr $auth_cnt + 1`
+  auth_mech="PAM"
+fi
+if test x$bsd = xtrue
+then
+  auth_cnt=`expr $auth_cnt + 1`
+  auth_mech="BSD"
+fi
+if test x$enable_kerberos = xyes
+then
+  auth_cnt=`expr $auth_cnt + 1`
+  auth_mech="Kerberos"
+fi
+if test x$enable_pamuserpass = xyes
+then
+  auth_cnt=`expr $auth_cnt + 1`
+  auth_mech="PAM userpass"
+fi
+
+if test $auth_cnt -gt 1
+then
+  AC_MSG_ERROR([--enable-pam, --enable-bsd, --enable-pamuserpass and --enable-kerberos are mutually exclusive])
+fi
+
 # checking if pam should be autodetected.
 if test "x$enable_pam" = "xyes"
 then
-  if test "x$enable_kerberos" != "xyes"
+  if test -z "$enable_bsd"
   then
-    if test -z "$enable_bsd"
-    then
-      AC_CHECK_HEADER([security/pam_appl.h], [],
-        [AC_MSG_ERROR([please install libpam0g-dev or pam-devel])])
-    fi
+    AC_CHECK_HEADER([security/pam_appl.h], [],
+      [AC_MSG_ERROR([please install libpam0g-dev or pam-devel])])
   fi
   if test "x$enable_pam_config" = "x"; then
     PAM_RULES="auto"
@@ -229,7 +263,7 @@ then
   AC_DEFINE([XRDP_ENABLE_IPV6],1,[Enable IPv6])
 fi
 
-if test "x$enable_pam" != "xyes" || test "x$bsd" = "xtrue"
+if test "x$enable_pam" != "xyes"
 then
   AC_DEFINE([USE_NOPAM],1,[Disable PAM])
 fi
@@ -241,11 +275,6 @@ if test "x$enable_jpeg" = "xyes"
 then
   AC_CHECK_HEADER([jpeglib.h], [],
     [AC_MSG_ERROR([please install libjpeg-dev or libjpeg-devel])])
-fi
-
-if test "x$enable_xrdpdebug" = "xyes"
-then
-  CFLAGS="-g -O0"
 fi
 
 # checking for fuse
@@ -392,8 +421,7 @@ echo "  fuse            $enable_fuse"
 echo "  ipv6            $enable_ipv6"
 echo "  ipv6only        $enable_ipv6only"
 echo "  vsock           $enable_vsock"
-echo "  pam             $enable_pam"
-echo "  kerberos        $enable_kerberos"
+echo "  auth mechanism  $auth_mech"
 echo "  debug           $enable_xrdpdebug"
 echo "  rdpsndaudin     $enable_rdpsndaudin"
 echo ""
@@ -403,6 +431,9 @@ echo "  exec_prefix             $exec_prefix"
 echo "  libdir                  $libdir"
 echo "  bindir                  $bindir"
 echo "  sysconfdir              $sysconfdir"
+echo ""
+echo "  CFLAGS = $CFLAGS"
+echo "  LDFLAGS = $LDFLAGS"
 
 # xrdp_configure_options.h will be written to the build directory, not the source directory
 echo '#define XRDP_CONFIGURE_OPTIONS \' > ./xrdp_configure_options.h

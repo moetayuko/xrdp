@@ -42,90 +42,90 @@
 
 /* Returns the least number of bits required to represent a given value */
 #define GetMinBits(_val, _nbits) \
-do { \
-    uint32 _v = _val; \
-    _nbits = 0; \
-    while (_v) \
-    { \
-        _v >>= 1; \
-        _nbits++; \
-    } \
-} while (0)
+    do { \
+        uint32 _v = _val; \
+        _nbits = 0; \
+        while (_v) \
+        { \
+            _v >>= 1; \
+            _nbits++; \
+        } \
+    } while (0)
 
 /*
  * Update the passed parameter and clamp it to the range [0, KPMAX]
  * Return the value of parameter right-shifted by LSGR
  */
 #define UpdateParam(_param, _deltaP, _k) \
-do { \
-    _param += _deltaP; \
-    if (_param > KPMAX) \
-    { \
-        _param = KPMAX; \
-    } \
-    if (_param < 0) \
-    { \
-        _param = 0; \
-    } \
-    _k = (_param >> LSGR); \
-} while (0)
+    do { \
+        _param += _deltaP; \
+        if (_param > KPMAX) \
+        { \
+            _param = KPMAX; \
+        } \
+        if (_param < 0) \
+        { \
+            _param = 0; \
+        } \
+        _k = (_param >> LSGR); \
+    } while (0)
 
 /* Returns the next coefficient (a signed int) to encode, from the input stream */
 #define GetNextInput(_n) \
-do { \
-    if (data_size > 0) \
-    { \
-        _n = *data++; \
-        data_size--; \
-    } \
-    else \
-    { \
-        _n = 0; \
-    } \
-} while (0)
+    do { \
+        if (data_size > 0) \
+        { \
+            _n = *data++; \
+            data_size--; \
+        } \
+        else \
+        { \
+            _n = 0; \
+        } \
+    } while (0)
 
 /* Emit bitPattern to the output bitstream */
 #define OutputBits(_numBits, _bitPattern) rfx_bitstream_put_bits(bs, _bitPattern, _numBits)
 
 /* Emit a bit (0 or 1), count number of times, to the output bitstream */
 #define OutputBit(_count, _bit) \
-do \
-{   \
-    uint16 b = (_bit ? 0xFFFF : 0); \
-    int c = _count; \
-    for (; c > 0; c -= 16) \
-    { \
-        rfx_bitstream_put_bits(bs, b, (c > 16 ? 16 : c)); \
-    } \
-} while (0)
+    do \
+    {   \
+        uint16 b = (_bit ? 0xFFFF : 0); \
+        int c = _count; \
+        for (; c > 0; c -= 16) \
+        { \
+            rfx_bitstream_put_bits(bs, b, (c > 16 ? 16 : c)); \
+        } \
+    } while (0)
 
 /* Converts the input value to (2 * abs(input) - sign(input)), where sign(input) = (input < 0 ? 1 : 0) and returns it */
 #define Get2MagSign(_input) ((_input) >= 0 ? 2 * (_input) : -2 * (_input) - 1)
 
 /* Outputs the Golomb/Rice encoding of a non-negative integer */
 #define CodeGR(_krp, _val) \
-do { \
-    int lkr = (_krp) >> LSGR; \
-    int lval = _val; \
-    /* unary part of GR code */ \
-    uint32 lvk = lval >> lkr; \
-    OutputBit(lvk, 1); \
-    OutputBit(1, 0); \
-    /* remainder part of GR code, if needed */ \
-    if (lkr) \
-    { \
-        OutputBits(lkr, lval & ((1 << lkr) - 1)); \
-    } \
-    /* update krp, only if it is not equal to 1 */ \
-    if (lvk == 0) \
-    { \
-        UpdateParam(_krp, -2, lkr); \
-    } \
-    else if (lvk > 1) \
-    { \
-        UpdateParam(_krp, lvk, lkr); \
-    } \
-} while (0)
+    do { \
+        int lkr = (_krp) >> LSGR; \
+        int lval = _val; \
+        /* unary part of GR code */ \
+        uint32 lvk = lval >> lkr; \
+        OutputBit(lvk, 1); \
+        OutputBit(1, 0); \
+        /* remainder part of GR code, if needed */ \
+        if (lkr) \
+        { \
+            OutputBits(lkr, lval & ((1 << lkr) - 1)); \
+        } \
+        /* update krp, only if it is not equal to 1 */ \
+        if (lvk == 0) \
+        { \
+            UpdateParam(_krp, -2, lkr); \
+        } \
+        else if (lvk > 1) \
+        { \
+            UpdateParam(_krp, lvk, lkr); \
+        } \
+    } while (0)
 
 int
 rfx_rlgr3_encode(const sint16 *data, uint8 *buffer, int buffer_size)
