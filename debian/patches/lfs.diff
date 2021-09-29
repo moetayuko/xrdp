@@ -14,10 +14,11 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  
-@@ -404,6 +406,7 @@
-   xup/Makefile
+@@ -465,6 +467,8 @@
  ])
  
+ AC_REQUIRE_AUX_FILE([tap-driver.sh])
++
 +CPPFLAGS="-include config_ac.h $CPPFLAGS"
  AC_OUTPUT
  
