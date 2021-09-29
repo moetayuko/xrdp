@@ -3,6 +3,7 @@ xrdp (0.9.17-1) unstable; urgency=medium
   * New upstream release. (Closes: #983843, #970380)
     + Refresh patches.
     + Build-dep on check for unit tests.
+    + Update d/copyright.
   * Bump Standards-Version to 4.6.0 (no changes needed).
   * Do not rm_conffile /etc/pam.d/xrdp-sesman.
 

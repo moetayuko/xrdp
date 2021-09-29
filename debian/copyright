@@ -21,8 +21,8 @@ Files: Makefile.am
  common/os_calls.c
  common/os_calls.h
  common/parse.h
- common/rail.h
  common/pixman-region.h
+ common/rail.h
  common/thread_calls.c
  common/thread_calls.h
  common/trans.c
@@ -72,6 +72,18 @@ Files: Makefile.am
  instfiles/xrdp.service.in
  keygen/Makefile.am
  keygen/keygen.c
+ libpainter/Makefile.am
+ libpainter/bootstrap
+ libpainter/configure.ac
+ libpainter/include/Makefile.am
+ libpainter/include/painter.h
+ libpainter/pkgconfig/Makefile.am
+ libpainter/src/Makefile.am
+ libpainter/src/painter.c
+ libpainter/src/painter_utils.c
+ libpainter/src/painter_utils.h
+ libpainter/tests/Makefile.am
+ libpainter/tests/paintertest.c
  librfxcodec/Makefile.am
  librfxcodec/bootstrap
  librfxcodec/configure.ac
@@ -97,22 +109,6 @@ Files: Makefile.am
  librfxcodec/tests/readme.txt
  librfxcodec/tests/rfxcodectest.c
  librfxcodec/tests/rfxencode.c
- libpainter/Makefile.am
- libpainter/bootstrap
- libpainter/configure.ac
- libpainter/include/Makefile.am
- libpainter/include/painter.h
- libpainter/pkgconfig/Makefile.am
- libpainter/README
- libpainter/AUTHORS
- libpainter/ChangeLog
- libpainter/NEWS
- libpainter/src/Makefile.am
- libpainter/src/painter.c
- libpainter/src/painter_utils.c
- libpainter/src/painter_utils.h
- libpainter/tests/Makefile.am
- libpainter/tests/paintertest.c
  libxrdp/Makefile.am
  libxrdp/libxrdp.c
  libxrdp/libxrdp.h
@@ -195,6 +191,7 @@ Files: Makefile.am
  sesman/libscp/libscp_v1s_mng.h
  sesman/libscp/libscp_vX.c
  sesman/libscp/libscp_vX.h
+ sesman/reconnectwm.sh
  sesman/scp.c
  sesman/scp.h
  sesman/scp_v0.c
@@ -209,7 +206,6 @@ Files: Makefile.am
  sesman/session.h
  sesman/sig.c
  sesman/sig.h
- sesman/reconnectwm.sh
  sesman/startwm.sh
  sesman/tools/Makefile.am
  sesman/tools/config.c
@@ -223,35 +219,41 @@ Files: Makefile.am
  sesman/verify_user_kerberos.c
  sesman/verify_user_pam.c
  sesman/verify_user_pam_userpass.c
- tcutils/README.txt
- tcutils/main.cpp
- tcutils/mainwindow.cpp
- tcutils/mainwindow.h
- tcutils/mainwindow.ui
- tcutils/resources.qrc
- tcutils/resources/images/tools.gif
- tcutils/tcutils.pro.user
- tcutils/utils.cpp
- tcutils/utils.h
- tests/gtcp_proxy/Makefile
- tests/gtcp_proxy/README.txt
- tests/gtcp_proxy/gtcp.c
- tests/gtcp_proxy/gtcp.h
- tests/memtest/Makefile
+ tests/Makefile.am
+ tests/Makefile.in
+ tests/common/Makefile.am
+ tests/common/Makefile.in
+ tests/common/test_common.h
+ tests/common/test_common_main.c
+ tests/common/test_string_calls.c
+ tests/memtest/Makefile.am
+ tests/memtest/Makefile.in
  tests/memtest/libmem.c
  tests/memtest/libmem.h
  tests/memtest/memtest.c
  tests/readme.txt
- tests/tcp_proxy/Makefile
- tests/tcp_proxy/main.c
+ tools/Makefile.am
+ tools/Makefile.in
+ tools/devel/Makefile.am
+ tools/devel/Makefile.in
+ tools/devel/gtcp_proxy/Makefile
+ tools/devel/gtcp_proxy/README.txt
+ tools/devel/gtcp_proxy/gtcp-proxy.c
+ tools/devel/gtcp_proxy/gtcp.c
+ tools/devel/gtcp_proxy/gtcp.h
+ tools/devel/gtcp_proxy/hexdump.c
+ tools/devel/tcp_proxy/Makefile.am
+ tools/devel/tcp_proxy/Makefile.in
+ tools/devel/tcp_proxy/main.c
  vnc/Makefile.am
+ vnc/rfb.h
  vnc/vnc.c
  vnc/vnc.h
+ vnc/vnc_clip.c
+ vnc/vnc_clip.h
  vrplayer/README.txt
  vrplayer/decoder.cpp
  vrplayer/decoder.h
- vrplayer/decoderthread.cpp
- vrplayer/decoderthread.h
  vrplayer/demuxmedia.cpp
  vrplayer/demuxmedia.h
  vrplayer/dlgabout.cpp
@@ -316,6 +318,8 @@ License: Apache-2.0
 Files: common/ms-erref.h
  common/ms-fscc.h
  common/ms-rdpbcgr.h
+ common/ms-rdpeclip.h
+ common/ms-rdpedisp.h
  common/ms-rdpefs.h
  common/ms-rdpegdi.h
  common/ms-rdpele.h
@@ -325,7 +329,11 @@ Files: common/ms-erref.h
  common/string_calls.h
  sesman/chansrv/chansrv_config.c
  sesman/chansrv/chansrv_config.h
-Copyright: 2020, Jay Sorg <jay.sorg@gmail.com>
+Copyright: 2020-2021, Jay Sorg <jay.sorg@gmail.com>
+License: Apache-2.0
+
+Files: common/parse.c
+Copyright: 2020-2021, Matt Burt
 License: Apache-2.0
 
 Files: common/fifo.c
@@ -340,10 +348,7 @@ Files: common/fifo.c
  sesman/chansrv/fifo.h
  sesman/chansrv/irp.c
  sesman/chansrv/irp.h
- sesman/chansrv/mlog.h
  sesman/chansrv/smartcard.h
- tests/gtcp_proxy/gtcp-proxy.c
- tests/gtcp_proxy/hexdump.c
  xrdp/xrdp_encoder.c
  xrdpapi/vrplayer.c
  xrdpvr/xrdpvr_internal.h
@@ -357,10 +362,6 @@ License: Apache-2.0
 
 Files: sesman/chansrv/chansrv_xfs.c
  sesman/chansrv/chansrv_xfs.h
- sesman/chansrv/ms-erref.h
- sesman/chansrv/ms-fscc.h
- sesman/chansrv/ms-rdpefs.h
- sesman/chansrv/ms-smb2.h
 Copyright: 2019, matt335672 <30179339+matt335672@users.noreply.github.com>
 License: Apache-2.0
 
@@ -548,6 +549,8 @@ Files: compile
  config.sub
  ltmain.sh
  missing
+ tap-driver.sh
+ test-driver
  librfxcodec/compile
  librfxcodec/depcomp
  librfxcodec/config.guess
@@ -560,7 +563,7 @@ Files: compile
  libpainter/config.sub
  libpainter/ltmain.sh
  libpainter/missing
-Copyright: 1996-2013 Free Software Foundation, Inc.
+Copyright: 1996-2020 Free Software Foundation, Inc.
 License: GPL-3+~autoconf
 
 Files: configure
@@ -655,7 +658,6 @@ Files: sesman/chansrv/pcsc/dumps/*
  fontdump/.gitignore
  m4/.gitignore
  sesman/chansrv/pcsc/.gitignore
- tests/.gitignore
  librfxcodec/include/Makefile.in
  librfxcodec/src/amd64/Makefile.in
  librfxcodec/src/x86/Makefile.in
