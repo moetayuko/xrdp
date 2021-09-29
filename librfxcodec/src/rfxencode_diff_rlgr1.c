@@ -44,57 +44,57 @@
 #define DQ_GR   (3)   /* decrease in kp after zero symbol in GR mode */
 
 #define GetNextInput do { \
-        input = *coef; \
-        coef++; \
-        coef_size--; \
-    } while (0)
+    input = *coef; \
+    coef++; \
+    coef_size--; \
+} while (0)
 
 #define CheckWrite do { \
-        while (bit_count >= 8) \
-        { \
-            bit_count -= 8; \
-            *cdata = bits >> bit_count; \
-            cdata++; \
-        } \
-    } while (0)
+    while (bit_count >= 8) \
+    { \
+        bit_count -= 8; \
+        *cdata = bits >> bit_count; \
+        cdata++; \
+    } \
+} while (0)
 
 /* output GR code for (mag - 1) */
 #define CodeGR(_krp, _lmag) do { \
-        int lkr = _krp >> LSGR; \
-        /* unary part of GR code */ \
-        int lvk = _lmag >> lkr; \
-        int llvk = lvk; \
-        while (llvk >= 8) \
-        { \
-            bits <<= 8; \
-            bits |= 0xFF; \
-            llvk -= 8; \
-            *cdata = bits >> bit_count; \
-            cdata++; \
-        } \
-        bits <<= llvk; \
-        bits |= (1 << llvk) - 1; \
-        bit_count += llvk; \
-        bits <<= 1; \
-        bit_count++; \
-        CheckWrite; \
-        /* remainder part of GR code, if needed */ \
-        if (lkr) \
-        { \
-            bits <<= lkr; \
-            bits |= _lmag & ((1 << lkr) - 1); \
-            bit_count += lkr; \
-        } \
-        /* update _krp, only if it is not equal to 1 */ \
-        if (lvk == 0) \
-        { \
-            _krp = MAX(0, _krp - 2); \
-        } \
-        else if (lvk > 1) \
-        { \
-            _krp = MIN(KPMAX, _krp + lvk); \
-        } \
-    } while (0)
+    int lkr = _krp >> LSGR; \
+    /* unary part of GR code */ \
+    int lvk = _lmag >> lkr; \
+    int llvk = lvk; \
+    while (llvk >= 8) \
+    { \
+        bits <<= 8; \
+        bits |= 0xFF; \
+        llvk -= 8; \
+        *cdata = bits >> bit_count; \
+        cdata++; \
+    } \
+    bits <<= llvk; \
+    bits |= (1 << llvk) - 1; \
+    bit_count += llvk; \
+    bits <<= 1; \
+    bit_count++; \
+    CheckWrite; \
+    /* remainder part of GR code, if needed */ \
+    if (lkr) \
+    { \
+        bits <<= lkr; \
+        bits |= _lmag & ((1 << lkr) - 1); \
+        bit_count += lkr; \
+    } \
+    /* update _krp, only if it is not equal to 1 */ \
+    if (lvk == 0) \
+    { \
+        _krp = MAX(0, _krp - 2); \
+    } \
+    else if (lvk > 1) \
+    { \
+        _krp = MIN(KPMAX, _krp + lvk); \
+    } \
+} while (0)
 
 int
 rfx_encode_diff_rlgr1(sint16 *coef, uint8 *cdata, int cdata_size)

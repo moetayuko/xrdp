@@ -89,15 +89,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
-@XRDP_RFXCODEC_TRUE@am__append_2 = -DXRDP_RFXCODEC \
+@XRDP_RFXCODEC_TRUE@am__append_1 = -DXRDP_RFXCODEC \
 @XRDP_RFXCODEC_TRUE@	-I$(top_srcdir)/librfxcodec/include
-@XRDP_RFXCODEC_TRUE@am__append_3 = $(top_builddir)/librfxcodec/src/.libs/librfxencode.a
-@XRDP_PIXMAN_TRUE@am__append_4 = -DXRDP_PIXMAN $(PIXMAN_CFLAGS)
-@XRDP_PIXMAN_TRUE@am__append_5 = $(PIXMAN_LIBS)
-@XRDP_PAINTER_TRUE@am__append_6 = -DXRDP_PAINTER \
+@XRDP_RFXCODEC_TRUE@am__append_2 = $(top_builddir)/librfxcodec/src/.libs/librfxencode.a
+@XRDP_PIXMAN_TRUE@am__append_3 = -DXRDP_PIXMAN $(PIXMAN_CFLAGS)
+@XRDP_PIXMAN_TRUE@am__append_4 = $(PIXMAN_LIBS)
+@XRDP_PAINTER_TRUE@am__append_5 = -DXRDP_PAINTER \
 @XRDP_PAINTER_TRUE@	-I$(top_srcdir)/libpainter/include
-@XRDP_PAINTER_TRUE@am__append_7 = $(top_builddir)/libpainter/src/.libs/libpainter.a
+@XRDP_PAINTER_TRUE@am__append_6 = $(top_builddir)/libpainter/src/.libs/libpainter.a
 sbin_PROGRAMS = xrdp$(EXEEXT)
 subdir = xrdp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -132,8 +131,8 @@ am_xrdp_OBJECTS = funcs.$(OBJEXT) lang.$(OBJEXT) xrdp.$(OBJEXT) \
 xrdp_OBJECTS = $(am_xrdp_OBJECTS)
 am__DEPENDENCIES_1 =
 @XRDP_PIXMAN_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
-am__DEPENDENCIES_3 = $(am__append_3) $(am__DEPENDENCIES_2) \
-	$(am__append_7)
+am__DEPENDENCIES_3 = $(am__append_2) $(am__DEPENDENCIES_2) \
+	$(am__append_6)
 xrdp_DEPENDENCIES = $(top_builddir)/common/libcommon.la \
 	$(top_builddir)/libxrdp/libxrdp.la $(am__DEPENDENCIES_3)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -248,6 +247,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -392,8 +393,8 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_MODULE_PATH=\"${moduledir}\" \
 	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_builddir) \
 	-I$(top_srcdir)/common -I$(top_srcdir)/libxrdp $(am__append_1) \
-	$(am__append_2) $(am__append_4) $(am__append_6)
-XRDP_EXTRA_LIBS = $(am__append_3) $(am__append_5) $(am__append_7)
+	$(am__append_3) $(am__append_5)
+XRDP_EXTRA_LIBS = $(am__append_2) $(am__append_4) $(am__append_6)
 xrdp_SOURCES = \
   funcs.c \
   lang.c \

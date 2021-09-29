@@ -89,7 +89,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
 subdir = common
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -145,13 +144,13 @@ libcommon_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am__libcommon_la_SOURCES_DIST = arch.h base64.h base64.c defines.h \
 	fifo.c fifo.h file.c file.h list.c list.h list16.c list16.h \
-	log.c log.h os_calls.c os_calls.h parse.h rail.h ssl_calls.c \
-	ssl_calls.h string_calls.c string_calls.h thread_calls.c \
-	thread_calls.h trans.c trans.h pixman-region16.c \
-	pixman-region.h
+	log.c log.h os_calls.c os_calls.h parse.c parse.h rail.h \
+	ssl_calls.c ssl_calls.h string_calls.c string_calls.h \
+	thread_calls.c thread_calls.h trans.c trans.h \
+	pixman-region16.c pixman-region.h
 @XRDP_PIXMAN_FALSE@am__objects_1 = pixman-region16.lo
 am_libcommon_la_OBJECTS = base64.lo fifo.lo file.lo list.lo list16.lo \
-	log.lo os_calls.lo ssl_calls.lo string_calls.lo \
+	log.lo os_calls.lo parse.lo ssl_calls.lo string_calls.lo \
 	thread_calls.lo trans.lo $(am__objects_1)
 libcommon_la_OBJECTS = $(am_libcommon_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -176,9 +175,10 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/base64.Plo ./$(DEPDIR)/fifo.Plo \
 	./$(DEPDIR)/file.Plo ./$(DEPDIR)/list.Plo \
 	./$(DEPDIR)/list16.Plo ./$(DEPDIR)/log.Plo \
-	./$(DEPDIR)/os_calls.Plo ./$(DEPDIR)/pixman-region16.Plo \
-	./$(DEPDIR)/ssl_calls.Plo ./$(DEPDIR)/string_calls.Plo \
-	./$(DEPDIR)/thread_calls.Plo ./$(DEPDIR)/trans.Plo
+	./$(DEPDIR)/os_calls.Plo ./$(DEPDIR)/parse.Plo \
+	./$(DEPDIR)/pixman-region16.Plo ./$(DEPDIR)/ssl_calls.Plo \
+	./$(DEPDIR)/string_calls.Plo ./$(DEPDIR)/thread_calls.Plo \
+	./$(DEPDIR)/trans.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -238,6 +238,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -377,23 +379,31 @@ include_HEADERS = \
   ms-erref.h \
   ms-fscc.h \
   ms-rdpbcgr.h \
+  ms-rdpeclip.h \
   ms-rdpefs.h \
   ms-rdpegdi.h \
   ms-rdpele.h \
   ms-rdperp.h \
+  ms-rdpedisp.h \
   ms-smb2.h \
   xrdp_client_info.h \
   xrdp_constants.h \
   xrdp_rail.h \
   xrdp_sockets.h
 
-AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-	-DXRDP_SBIN_PATH=\"${sbindir}\" \
-	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-DXRDP_LOG_PATH=\"${localstatedir}/log\" \
-	-DXRDP_SOCKET_PATH=\"${socketdir}\" $(am__append_1)
-AM_CFLAGS = $(OPENSSL_CFLAGS)
+AM_CPPFLAGS = \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_SBIN_PATH=\"${sbindir}\" \
+  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -DXRDP_LOG_PATH=\"${localstatedir}/log\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\"
+
+
+# -no-suppress is an automake-specific flag which is needed
+# to prevent us missing compiler errors in some circumstances
+# (see https://github.com/neutrinolabs/xrdp/pull/1843 )
+AM_CFLAGS = -no-suppress $(OPENSSL_CFLAGS)
 module_LTLIBRARIES = \
   libcommon.la
 
@@ -414,6 +424,7 @@ libcommon_la_SOURCES = \
   log.h \
   os_calls.c \
   os_calls.h \
+  parse.c \
   parse.h \
   rail.h \
   ssl_calls.c \
@@ -516,6 +527,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list16.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/os_calls.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pixman-region16.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ssl_calls.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_calls.Plo@am__quote@ # am--include-marker
@@ -711,6 +723,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/list16.Plo
 	-rm -f ./$(DEPDIR)/log.Plo
 	-rm -f ./$(DEPDIR)/os_calls.Plo
+	-rm -f ./$(DEPDIR)/parse.Plo
 	-rm -f ./$(DEPDIR)/pixman-region16.Plo
 	-rm -f ./$(DEPDIR)/ssl_calls.Plo
 	-rm -f ./$(DEPDIR)/string_calls.Plo
@@ -768,6 +781,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/list16.Plo
 	-rm -f ./$(DEPDIR)/log.Plo
 	-rm -f ./$(DEPDIR)/os_calls.Plo
+	-rm -f ./$(DEPDIR)/parse.Plo
 	-rm -f ./$(DEPDIR)/pixman-region16.Plo
 	-rm -f ./$(DEPDIR)/ssl_calls.Plo
 	-rm -f ./$(DEPDIR)/string_calls.Plo

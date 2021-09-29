@@ -90,7 +90,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
 sbin_PROGRAMS = xrdp-sesman$(EXEEXT)
 subdir = sesman
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -121,13 +120,13 @@ am__xrdp_sesman_SOURCES_DIST = access.c access.h auth.h config.c \
 	config.h env.c env.h scp.c scp.h scp_v0.c scp_v0.h scp_v1.c \
 	scp_v1.h scp_v1_mng.c scp_v1_mng.h sesman.c sesman.h session.c \
 	session.h sig.c sig.h xauth.c xauth.h verify_user_pam.c \
-	verify_user_kerberos.c verify_user_pam_userpass.c \
-	verify_user_bsd.c verify_user.c
+	verify_user.c verify_user_kerberos.c \
+	verify_user_pam_userpass.c verify_user_bsd.c
 @SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@am__objects_1 = verify_user_pam.$(OBJEXT)
-@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@am__objects_1 = verify_user_kerberos.$(OBJEXT)
-@SESMAN_BSD_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_TRUE@am__objects_1 = verify_user_pam_userpass.$(OBJEXT)
-@SESMAN_BSD_TRUE@@SESMAN_NOPAM_FALSE@am__objects_1 = verify_user_bsd.$(OBJEXT)
-@SESMAN_NOPAM_TRUE@am__objects_1 = verify_user.$(OBJEXT)
+@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_TRUE@@SESMAN_PAMUSERPASS_FALSE@am__objects_1 = verify_user.$(OBJEXT)
+@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_PAMUSERPASS_FALSE@am__objects_1 = verify_user_kerberos.$(OBJEXT)
+@SESMAN_BSD_FALSE@@SESMAN_PAMUSERPASS_TRUE@am__objects_1 = verify_user_pam_userpass.$(OBJEXT)
+@SESMAN_BSD_TRUE@am__objects_1 = verify_user_bsd.$(OBJEXT)
 am_xrdp_sesman_OBJECTS = access.$(OBJEXT) config.$(OBJEXT) \
 	env.$(OBJEXT) scp.$(OBJEXT) scp_v0.$(OBJEXT) scp_v1.$(OBJEXT) \
 	scp_v1_mng.$(OBJEXT) sesman.$(OBJEXT) session.$(OBJEXT) \
@@ -293,6 +292,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -428,23 +429,26 @@ top_srcdir = @top_srcdir@
 EXTRA_DIST = \
   Doxyfile
 
-AM_CPPFLAGS = -DXRDP_SYSCONF_PATH=\"${sysconfdir}\" \
-	-DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-	-DXRDP_SBIN_PATH=\"${sbindir}\" \
-	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
-	-I$(top_srcdir)/sesman/libscp $(am__append_1)
+AM_CPPFLAGS = \
+  -DXRDP_SYSCONF_PATH=\"${sysconfdir}\" \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_SBIN_PATH=\"${sbindir}\" \
+  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\" \
+  -I$(top_srcdir)/common \
+  -I$(top_srcdir)/sesman/libscp
+
 @SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@AUTH_C = verify_user_pam.c
-@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@AUTH_C = verify_user_kerberos.c
-@SESMAN_BSD_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_TRUE@AUTH_C = verify_user_pam_userpass.c
-@SESMAN_BSD_TRUE@@SESMAN_NOPAM_FALSE@AUTH_C = verify_user_bsd.c
-@SESMAN_NOPAM_TRUE@AUTH_C = verify_user.c
+@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_TRUE@@SESMAN_PAMUSERPASS_FALSE@AUTH_C = verify_user.c
+@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_PAMUSERPASS_FALSE@AUTH_C = verify_user_kerberos.c
+@SESMAN_BSD_FALSE@@SESMAN_PAMUSERPASS_TRUE@AUTH_C = verify_user_pam_userpass.c
+@SESMAN_BSD_TRUE@AUTH_C = verify_user_bsd.c
 @SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@AUTH_LIB = -lpam
-@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@AUTH_LIB = -lkrb5
-@SESMAN_BSD_FALSE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_TRUE@AUTH_LIB = -lpam -lpam_userpass
-@SESMAN_BSD_TRUE@@SESMAN_NOPAM_FALSE@AUTH_LIB = 
-@SESMAN_NOPAM_TRUE@AUTH_LIB = -lcrypt
+@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_FALSE@@SESMAN_NOPAM_TRUE@@SESMAN_PAMUSERPASS_FALSE@AUTH_LIB = -lcrypt
+@SESMAN_BSD_FALSE@@SESMAN_KERBEROS_TRUE@@SESMAN_PAMUSERPASS_FALSE@AUTH_LIB = -lkrb5
+@SESMAN_BSD_FALSE@@SESMAN_PAMUSERPASS_TRUE@AUTH_LIB = -lpam -lpam_userpass
+@SESMAN_BSD_TRUE@AUTH_LIB = 
 xrdp_sesman_SOURCES = \
   access.c \
   access.h \

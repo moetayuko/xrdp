@@ -24,9 +24,13 @@
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
+#include <ctype.h>
 
-#include "string_calls.h"
+
+#include "log.h"
 #include "os_calls.h"
+#include "string_calls.h"
+#include "defines.h"
 
 unsigned int
 g_format_info_string(char *dest, unsigned int len,
@@ -140,6 +144,36 @@ g_text2bool(const char *s)
 }
 
 /*****************************************************************************/
+int
+g_get_display_num_from_display(const char *display_text)
+{
+    int rv = -1;
+    const char *p;
+
+    /* Skip over the hostname part of the DISPLAY */
+    if (display_text != NULL && (p = strchr(display_text, ':')) != NULL)
+    {
+        ++p; /* Skip the ':' */
+
+        /* Cater for the (still supported) double-colon. See
+         * https://www.x.org/releases/X11R7.7/doc/libX11/libX11/libX11.html */
+        if (*p == ':')
+        {
+            ++p;
+        }
+
+        /* Check it starts with a digit, to avoid oddities like DISPLAY=":zz.0"
+         * being parsed successfully */
+        if (isdigit(*p))
+        {
+            rv = g_atoi(p);
+        }
+    }
+
+    return rv;
+}
+
+/*****************************************************************************/
 /* returns length of text */
 int
 g_strlen(const char *text)
@@ -163,6 +197,19 @@ g_strchr(const char *text, int c)
     }
 
     return strchr(text, c);
+}
+
+/*****************************************************************************/
+/* locates char in text with length */
+const char *
+g_strnchr(const char *text, int c, int len)
+{
+    if (text == NULL || len <= 0)
+    {
+        return NULL;
+    }
+
+    return (const char *)memchr(text, c, len);
 }
 
 /*****************************************************************************/
@@ -361,6 +408,30 @@ g_atoi(const char *str)
 }
 
 /*****************************************************************************/
+/* As g_atoi() but allows for hexadecimal too */
+int
+g_atoix(const char *str)
+{
+    int base = 10;
+    if (str == NULL)
+    {
+        str = "0";
+    }
+
+    while (isspace(*str))
+    {
+        ++str;
+    }
+
+    if (*str == '0' && tolower(*(str + 1)) == 'x')
+    {
+        str += 2;
+        base = 16;
+    }
+    return strtol(str, NULL, base);
+}
+
+/*****************************************************************************/
 int
 g_htoi(char *str)
 {
@@ -468,6 +539,129 @@ g_bytes_to_hexstr(const void *bytes, int num_bytes, char *out_str,
         rv += 2;
     }
     return rv;
+}
+
+/*****************************************************************************/
+/* convert a byte array into a hex dump */
+char *
+g_bytes_to_hexdump(const char *src, int len)
+{
+    unsigned char *line;
+    int i;
+    int dump_number_lines;
+    int dump_line_length;
+    int dump_length;
+    int dump_offset;
+    int thisline;
+    int offset;
+    char *dump_buffer;
+
+#define HEX_DUMP_SOURCE_BYTES_PER_LINE (16)
+#ifdef _WIN32
+#define HEX_DUMP_NEWLINE_SIZE (2)
+#else
+#ifdef _MACOS
+#define HEX_DUMP_NEWLINE_SIZE (1)
+#else
+#define HEX_DUMP_NEWLINE_SIZE (1)
+#endif
+#endif
+
+    dump_line_length = (4 + 3             /* = 4 offset + 3 space */
+                        + ((2 + 1) * HEX_DUMP_SOURCE_BYTES_PER_LINE)  /* + (2 hex char + 1 space) per source byte */
+                        + 2 /* + 2 space */
+                        + HEX_DUMP_SOURCE_BYTES_PER_LINE
+                        + HEX_DUMP_NEWLINE_SIZE);
+
+    dump_number_lines = (len / HEX_DUMP_SOURCE_BYTES_PER_LINE) + 1; /* +1 to round up */
+    dump_length = (dump_number_lines * dump_line_length   /* hex dump lines */
+                   + 1);    /* terminating NULL */
+    dump_buffer = (char *)g_malloc(dump_length, 1);
+    if (dump_buffer == NULL)
+    {
+        LOG_DEVEL(LOG_LEVEL_WARNING,
+                  "Failed to allocate buffer for hex dump of size %d",
+                  dump_length);
+        return NULL;
+    }
+
+    line = (unsigned char *)src;
+    offset = 0;
+    dump_offset = 0;
+
+    while (offset < len)
+    {
+        g_sprintf(dump_buffer + dump_offset, "%04x   ", offset);
+        dump_offset += 7;
+        thisline = len - offset;
+
+        if (thisline > HEX_DUMP_SOURCE_BYTES_PER_LINE)
+        {
+            thisline = HEX_DUMP_SOURCE_BYTES_PER_LINE;
+        }
+
+        for (i = 0; i < thisline; i++)
+        {
+            g_sprintf(dump_buffer + dump_offset, "%02x ", line[i]);
+            dump_offset += 3;
+        }
+
+        for (; i < HEX_DUMP_SOURCE_BYTES_PER_LINE; i++)
+        {
+            dump_buffer[dump_offset++] = ' ';
+            dump_buffer[dump_offset++] = ' ';
+            dump_buffer[dump_offset++] = ' ';
+        }
+
+        dump_buffer[dump_offset++] = ' ';
+        dump_buffer[dump_offset++] = ' ';
+
+        for (i = 0; i < thisline; i++)
+        {
+            dump_buffer[dump_offset++] = (line[i] >= 0x20 && line[i] < 0x7f) ? line[i] : '.';
+        }
+
+        for (; i < HEX_DUMP_SOURCE_BYTES_PER_LINE; i++)
+        {
+            dump_buffer[dump_offset++] = ' ';
+        }
+
+#ifdef _WIN32
+        dump_buffer[dump_offset++] = '\r';
+        dump_buffer[dump_offset++] = '\n';
+#else
+#ifdef _MACOS
+        dump_buffer[dump_offset++] = '\r';
+#else
+        dump_buffer[dump_offset++] = '\n';
+#endif
+#endif
+        offset += thisline;
+        line += thisline;
+
+
+        if (dump_offset % dump_line_length != 0)
+        {
+            LOG_DEVEL(LOG_LEVEL_WARNING,
+                      "BUG: dump_offset (%d) at the end of a line is not a "
+                      "multiple of the line length (%d)",
+                      dump_offset, dump_line_length);
+        }
+
+    }
+    if (dump_offset > dump_length)
+    {
+        LOG_DEVEL(LOG_LEVEL_WARNING,
+                  "BUG: dump_offset (%d) is larger than the dump_buffer length (%d)",
+                  dump_offset, dump_length);
+        dump_buffer[0] = '\0';
+        return dump_buffer;
+    }
+
+    /* replace the last new line with the end of the string since log_message
+       will add a new line */
+    dump_buffer[dump_offset - HEX_DUMP_NEWLINE_SIZE] = '\0';
+    return dump_buffer;
 }
 
 /*****************************************************************************/
@@ -651,3 +845,49 @@ g_strtrim(char *str, int trim_flags)
     return 0;
 }
 
+/*****************************************************************************/
+char *
+g_strnjoin(char *dest, int dest_len, const char *joiner, const char *src[], int src_len)
+{
+    int len = 0;
+    int joiner_len;
+    int i = 0;
+    int dest_remaining;
+    char *dest_pos = dest;
+    char *dest_end;
+
+    if (dest == NULL || dest_len < 1)
+    {
+        return dest;
+    }
+    if (src == NULL || src_len < 1)
+    {
+        dest[0] = '\0';
+        return dest;
+    }
+
+    dest[0] = '\0';
+    dest_end = dest + dest_len - 1;
+    joiner_len = g_strlen(joiner);
+    for (i = 0; i < src_len - 1 && dest_pos < dest_end; i++)
+    {
+        len = g_strlen(src[i]);
+        dest_remaining = dest_end - dest_pos;
+        g_strncat(dest_pos, src[i], dest_remaining);
+        dest_pos += MIN(len, dest_remaining);
+
+        if (dest_pos < dest_end)
+        {
+            dest_remaining = dest_end - dest_pos;
+            g_strncat(dest_pos, joiner, dest_remaining);
+            dest_pos += MIN(joiner_len, dest_remaining);
+        }
+    }
+
+    if (i == src_len - 1 && dest_pos < dest_end)
+    {
+        g_strncat(dest_pos, src[i], dest_end - dest_pos);
+    }
+
+    return dest;
+}
