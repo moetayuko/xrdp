@@ -2,6 +2,7 @@ xrdp (0.9.17-1) unstableD; urgency=medium
 
   * New upstream release. (Closes: #983843, #970380)
     + Refresh patches.
+    + Build-dep on check for unit tests.
   * Bump Standards-Version to 4.6.0 (no changes needed).
 
  -- Dominik George <natureshadow@debian.org>  Wed, 29 Sep 2021 11:45:06 +0200
