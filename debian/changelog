@@ -1,4 +1,4 @@
-xrdp (0.9.17-1) unstableD; urgency=medium
+xrdp (0.9.17-1) unstable; urgency=medium
 
   * New upstream release. (Closes: #983843, #970380)
     + Refresh patches.
