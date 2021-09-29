@@ -88,7 +88,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
 subdir = sesman/libscp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -227,6 +226,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -359,11 +360,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-	-DXRDP_SBIN_PATH=\"${sbindir}\" \
-	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-I$(top_srcdir)/common $(am__append_1)
+AM_CPPFLAGS = \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_SBIN_PATH=\"${sbindir}\" \
+  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -I$(top_srcdir)/common
+
 module_LTLIBRARIES = \
   libscp.la
 

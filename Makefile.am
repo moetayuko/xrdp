@@ -1,7 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_DISTCHECK_CONFIGURE_FLAGS = \
   --without-systemdsystemunitdir \
-  --enable-strict-locations
+  --enable-strict-locations \
+  --enable-tests
 
 EXTRA_DIST = \
   COPYING \
@@ -19,8 +20,6 @@ EXTRA_DIST = \
   install.txt \
   m4 \
   postinstall-pak \
-  tcutils \
-  tests \
   vrplayer
 
 if XRDP_NEUTRINORDP
@@ -64,7 +63,9 @@ SUBDIRS = \
   genkeymap \
   xrdpapi \
   pkgconfig \
-  $(XRDPVRDIR)
+  $(XRDPVRDIR) \
+  tests \
+  tools
 
 distclean-local:
 	-rm -f xrdp_configure_options.h

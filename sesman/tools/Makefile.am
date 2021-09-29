@@ -8,10 +8,6 @@ AM_CPPFLAGS = \
   -I$(top_srcdir)/sesman/libscp \
   -I$(top_srcdir)/sesman
 
-if XRDP_DEBUG
-AM_CPPFLAGS += -DXRDP_DEBUG
-endif
-
 AM_CFLAGS = $(X_CFLAGS)
 
 bin_PROGRAMS = \
@@ -37,6 +33,9 @@ xrdp_sesadmin_SOURCES = \
 
 xrdp_dis_SOURCES = \
   dis.c
+
+xrdp_dis_LDADD = \
+  $(top_builddir)/common/libcommon.la
 
 xrdp_xcon_SOURCES = \
   xcon.c

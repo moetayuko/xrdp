@@ -88,7 +88,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
 bin_PROGRAMS = xrdp-sesrun$(EXEEXT) xrdp-sesadmin$(EXEEXT) \
 	xrdp-dis$(EXEEXT)
 noinst_PROGRAMS = xrdp-sestest$(EXEEXT) xrdp-xcon$(EXEEXT)
@@ -116,7 +115,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
 am_xrdp_dis_OBJECTS = dis.$(OBJEXT)
 xrdp_dis_OBJECTS = $(am_xrdp_dis_OBJECTS)
-xrdp_dis_LDADD = $(LDADD)
+xrdp_dis_DEPENDENCIES = $(top_builddir)/common/libcommon.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -220,6 +219,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -352,13 +353,16 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-	-DXRDP_SBIN_PATH=\"${sbindir}\" \
-	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
-	-I$(top_srcdir)/sesman/libscp -I$(top_srcdir)/sesman \
-	$(am__append_1)
+AM_CPPFLAGS = \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_SBIN_PATH=\"${sbindir}\" \
+  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
+  -DXRDP_SOCKET_PATH=\"${socketdir}\" \
+  -I$(top_srcdir)/common \
+  -I$(top_srcdir)/sesman/libscp \
+  -I$(top_srcdir)/sesman
+
 AM_CFLAGS = $(X_CFLAGS)
 xrdp_sesrun_SOURCES = \
   config.c \
@@ -374,6 +378,9 @@ xrdp_sesadmin_SOURCES = \
 
 xrdp_dis_SOURCES = \
   dis.c
+
+xrdp_dis_LDADD = \
+  $(top_builddir)/common/libcommon.la
 
 xrdp_xcon_SOURCES = \
   xcon.c

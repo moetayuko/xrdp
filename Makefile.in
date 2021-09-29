@@ -168,10 +168,10 @@ CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = common vnc xup mc neutrinordp libxrdp libpainter \
 	librfxcodec xrdp sesman keygen docs instfiles genkeymap \
-	xrdpapi pkgconfig xrdpvr
+	xrdpapi pkgconfig xrdpvr tests tools
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config_ac-h.in \
 	COPYING compile config.guess config.sub install-sh ltmain.sh \
-	missing
+	missing tap-driver.sh
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -227,6 +227,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -362,7 +364,8 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 AM_DISTCHECK_CONFIGURE_FLAGS = \
   --without-systemdsystemunitdir \
-  --enable-strict-locations
+  --enable-strict-locations \
+  --enable-tests
 
 EXTRA_DIST = \
   COPYING \
@@ -380,8 +383,6 @@ EXTRA_DIST = \
   install.txt \
   m4 \
   postinstall-pak \
-  tcutils \
-  tests \
   vrplayer
 
 @XRDP_NEUTRINORDP_FALSE@NEUTRINORDPDIR = 
@@ -409,7 +410,9 @@ SUBDIRS = \
   genkeymap \
   xrdpapi \
   pkgconfig \
-  $(XRDPVRDIR)
+  $(XRDPVRDIR) \
+  tests \
+  tools
 
 all: config_ac.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

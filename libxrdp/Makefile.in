@@ -88,15 +88,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
-@XRDP_NEUTRINORDP_TRUE@am__append_2 = -DXRDP_NEUTRINORDP
-@XRDP_NEUTRINORDP_TRUE@am__append_3 = $(FREERDP_LIBS)
-@XRDP_RFXCODEC_TRUE@am__append_4 = -DXRDP_RFXCODEC
-@XRDP_TJPEG_TRUE@am__append_5 = -DXRDP_JPEG -DXRDP_TJPEG @TurboJpegIncDir@
-@XRDP_TJPEG_TRUE@am__append_6 = @TurboJpegLibDir@
-@XRDP_TJPEG_TRUE@am__append_7 = -lturbojpeg
-@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_8 = -DXRDP_JPEG
-@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_9 = -ljpeg
+@XRDP_NEUTRINORDP_TRUE@am__append_1 = -DXRDP_NEUTRINORDP
+@XRDP_NEUTRINORDP_TRUE@am__append_2 = $(FREERDP_LIBS)
+@XRDP_RFXCODEC_TRUE@am__append_3 = -DXRDP_RFXCODEC
+@XRDP_TJPEG_TRUE@am__append_4 = -DXRDP_JPEG -DXRDP_TJPEG @TurboJpegIncDir@
+@XRDP_TJPEG_TRUE@am__append_5 = @TurboJpegLibDir@
+@XRDP_TJPEG_TRUE@am__append_6 = -lturbojpeg
+@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_7 = -DXRDP_JPEG
+@XRDP_JPEG_TRUE@@XRDP_TJPEG_FALSE@am__append_8 = -ljpeg
 subdir = libxrdp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -243,6 +242,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -382,11 +383,11 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_SBIN_PATH=\"${sbindir}\" \
 	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
 	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
-	-I$(top_srcdir)/common $(am__append_1) $(am__append_2) \
-	$(am__append_4) $(am__append_5) $(am__append_8)
+	-I$(top_srcdir)/common $(am__append_1) $(am__append_3) \
+	$(am__append_4) $(am__append_7)
 AM_CFLAGS = $(OPENSSL_CFLAGS)
-AM_LDFLAGS = $(am__append_6)
-LIBXRDP_EXTRA_LIBS = $(am__append_3) $(am__append_7) $(am__append_9)
+AM_LDFLAGS = $(am__append_5)
+LIBXRDP_EXTRA_LIBS = $(am__append_2) $(am__append_6) $(am__append_8)
 module_LTLIBRARIES = \
   libxrdp.la
 

@@ -22,7 +22,15 @@
 #include <pthread.h>
 
 #include "arch.h"
+#include "defines.h"
 #include "list.h"
+
+/* Check the config_ac.h file is included so we know whether to enable the
+ * development macros
+ */
+#ifndef CONFIG_AC_H
+#   error config_ac.h not visible in log.h
+#endif
 
 /* logging buffer size */
 #define LOG_BUFFER_SIZE      8192
@@ -65,7 +73,7 @@ enum logReturns
 /* enable threading */
 /*#define LOG_ENABLE_THREAD*/
 
-#ifdef XRDP_DEBUG
+#ifdef USE_DEVEL_LOGGING
 
 #define LOG_PER_LOGGER_LEVEL
 
@@ -76,9 +84,10 @@ enum logReturns
  * Note: all log levels are relavant to help a developer understand XRDP at
  *      different levels of granularity.
  *
- * Note: the logging function calls are removed when XRDP_DEBUG is NOT defined.
+ * Note: the logging function calls are removed when USE_DEVEL_LOGGING is
+ * NOT defined.
  *
- * Note: when the build is configured with --enable-xrdpdebug, then
+ * Note: when the build is configured with --enable-devel-logging, then
  *      the log level can be configured per the source file name or method name
  *      (with the suffix "()") in the [LoggingPerLogger]
  *      section of the configuration file.
@@ -95,27 +104,28 @@ enum logReturns
  * @param ... the arguments for the printf format c-string
  */
 #define LOG_DEVEL(log_level, args...) \
-    log_message_with_location(__func__, __FILE__, __LINE__, log_level, args);
+    log_message_with_location(__func__, __FILE__, __LINE__, log_level, args)
 
 /**
  * @brief Logging macro for messages that are for a systeam administrator to
  * configure and run XRDP on their machine.
  *
  * Note: the logging function calls contain additional code location info when
- *      XRDP_DEBUG is defined.
+ *      USE_DEVEL_LOGGING is defined.
  *
  * @param lvl, the log level
  * @param msg, the log text as a printf format c-string
  * @param ... the arguments for the printf format c-string
  */
 #define LOG(log_level, args...) \
-    log_message_with_location(__func__, __FILE__, __LINE__, log_level, args);
+    log_message_with_location(__func__, __FILE__, __LINE__, log_level, args)
 
 /**
  * @brief Logging macro for logging the contents of a byte array using a hex
  * dump format.
  *
- * Note: the logging function calls are removed when XRDP_DEBUG is NOT defined.
+ * Note: the logging function calls are removed when USE_DEVEL_LOGGING is
+ * NOT defined.
  *
  * @param log_level, the log level
  * @param message, a message prefix for the hex dump. Note: no printf like
@@ -124,12 +134,31 @@ enum logReturns
  * @param length, the length of the byte array to log
  */
 #define LOG_DEVEL_HEXDUMP(log_level, message, buffer, length)  \
-    log_hexdump_with_location(__func__, __FILE__, __LINE__, log_level, message, buffer, length);
+    log_hexdump_with_location(__func__, __FILE__, __LINE__, log_level, message, buffer, length)
+
+/**
+ * @brief Logging macro for logging the contents of a byte array using a hex
+ * dump format.
+ *
+ * @param log_level, the log level
+ * @param message, a message prefix for the hex dump. Note: no printf like
+ *          formatting is done to this message.
+ * @param buffer, a pointer to the byte array to log as a hex dump
+ * @param length, the length of the byte array to log
+ */
+#define LOG_HEXDUMP(log_level, message, buffer, length)  \
+    log_hexdump_with_location(__func__, __FILE__, __LINE__, log_level, message, buffer, length)
 
 #else
-#define LOG_DEVEL(log_level, args...)
-#define LOG(log_level, args...) log_message(log_level, args);
-#define LOG_DEVEL_HEXDUMP(log_level, message, buffer, length)
+#define LOG(log_level, args...) log_message(log_level, args)
+#define LOG_HEXDUMP(log_level, message, buffer, length)  \
+    log_hexdump(log_level, message, buffer, length)
+
+/* Since log_message() returns a value ensure that the elided versions of
+ * LOG_DEVEL and LOG_DEVEL_HEXDUMP also "fake" returning the success value
+ */
+#define LOG_DEVEL(log_level, args...) UNUSED_VAR(LOG_STARTUP_OK)
+#define LOG_DEVEL_HEXDUMP(log_level, message, buffer, length) UNUSED_VAR(LOG_STARTUP_OK)
 
 #endif
 
@@ -263,11 +292,15 @@ internal_log_location_overrides_level(const char *function_name,
  * This function initialize the log facilities according to the configuration
  * file, that is described by the in parameter.
  * @param iniFile
- * @param applicationName, the name that is used in the log for the running application
+ * @param applicationName the name that is used in the log for the running
+ *                        application
+ * @param dump_on_start Whether to dump the config on stdout before
+ *                      logging is started
  * @return LOG_STARTUP_OK on success
  */
 enum logReturns
-log_start(const char *iniFile, const char *applicationName);
+log_start(const char *iniFile, const char *applicationName,
+          bool_t dump_on_start);
 
 /**
  * An alternative log_start where the caller gives the params directly.
@@ -335,6 +368,12 @@ log_end(void);
  */
 enum logReturns
 log_message(const enum logLevels lvl, const char *msg, ...) printflike(2, 3);
+
+enum logReturns
+log_hexdump(const enum logLevels log_level,
+            const char *msg,
+            const char *p,
+            int len);
 
 /**
  * the log function that all files use to log an event,

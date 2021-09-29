@@ -88,16 +88,15 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@XRDP_DEBUG_TRUE@am__append_1 = -DXRDP_DEBUG
-@XRDP_FUSE_TRUE@am__append_2 = -DXRDP_FUSE $(FUSE_CFLAGS)
-@XRDP_FUSE_TRUE@am__append_3 = $(FUSE_LIBS)
-@XRDP_FDK_AAC_TRUE@am__append_4 = -DXRDP_FDK_AAC $(FDKAAC_CFLAGS)
-@XRDP_FDK_AAC_TRUE@am__append_5 = $(FDKAAC_LIBS)
-@XRDP_OPUS_TRUE@am__append_6 = -DXRDP_OPUS
-@XRDP_OPUS_TRUE@am__append_7 = -lopus
-@XRDP_MP3LAME_TRUE@am__append_8 = -DXRDP_MP3LAME
-@XRDP_MP3LAME_TRUE@am__append_9 = -lmp3lame
-@XRDP_RDPSNDAUDIN_TRUE@am__append_10 = -DXRDP_RDPSNDAUDIN
+@XRDP_FUSE_TRUE@am__append_1 = -DXRDP_FUSE $(FUSE_CFLAGS) -DFUSE_USE_VERSION=26
+@XRDP_FUSE_TRUE@am__append_2 = $(FUSE_LIBS)
+@XRDP_FDK_AAC_TRUE@am__append_3 = -DXRDP_FDK_AAC $(FDKAAC_CFLAGS)
+@XRDP_FDK_AAC_TRUE@am__append_4 = $(FDKAAC_LIBS)
+@XRDP_OPUS_TRUE@am__append_5 = -DXRDP_OPUS
+@XRDP_OPUS_TRUE@am__append_6 = -lopus
+@XRDP_MP3LAME_TRUE@am__append_7 = -DXRDP_MP3LAME
+@XRDP_MP3LAME_TRUE@am__append_8 = -lmp3lame
+@XRDP_RDPSNDAUDIN_TRUE@am__append_9 = -DXRDP_RDPSNDAUDIN
 sbin_PROGRAMS = xrdp-chansrv$(EXEEXT)
 subdir = sesman/chansrv
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -225,6 +224,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CHECK_CFLAGS = @CHECK_CFLAGS@
+CHECK_LIBS = @CHECK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -367,10 +368,10 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
 	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
 	-DXRDP_SOCKET_PATH=\"${socketdir}\" -I$(top_srcdir)/common \
-	$(am__append_1) $(am__append_2) $(am__append_4) \
-	$(am__append_6) $(am__append_8) $(am__append_10)
-CHANSRV_EXTRA_LIBS = $(am__append_3) $(am__append_5) $(am__append_7) \
-	$(am__append_9)
+	$(am__append_1) $(am__append_3) $(am__append_5) \
+	$(am__append_7) $(am__append_9)
+CHANSRV_EXTRA_LIBS = $(am__append_2) $(am__append_4) $(am__append_6) \
+	$(am__append_8)
 AM_CFLAGS = $(X_CFLAGS)
 xrdp_chansrv_SOURCES = \
   chansrv.c \

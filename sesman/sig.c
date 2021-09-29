@@ -32,7 +32,6 @@
 
 #include "sesman.h"
 
-extern int g_sck;
 extern int g_pid;
 extern struct config_sesman *g_cfg; /* in sesman.c */
 extern tbus g_term_event;
@@ -92,7 +91,7 @@ sig_sesman_reload_cfg(int sig)
     g_cfg = cfg;
 
     /* start again logging subsystem */
-    error = log_start(g_cfg->sesman_ini, "xrdp-sesman");
+    error = log_start(g_cfg->sesman_ini, "xrdp-sesman", 0);
 
     if (error != LOG_STARTUP_OK)
     {
