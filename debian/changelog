@@ -1,3 +1,10 @@
+xrdp (0.9.17-2) UNRELEASED; urgency=medium
+
+  [ Thorsten Glaser ]
+  * Initialise the environment properly (Closes: #996418)
+
+ -- Thorsten Glaser <tg@mirbsd.de>  Wed, 13 Oct 2021 22:55:23 +0200
+
 xrdp (0.9.17-1) unstable; urgency=medium
 
   * New upstream release. (Closes: #983843, #970380)
