@@ -1,7 +1,7 @@
 Description: Initialise the environment properly
 Author: Thorsten Glaser <tg@debian.org>
 Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996418
-Forwarded: not-yet
+Forwarded: https://github.com/neutrinolabs/xrdp/issues/1773
 
 --- a/instfiles/pam.d/xrdp-sesman.debian
 +++ b/instfiles/pam.d/xrdp-sesman.debian
