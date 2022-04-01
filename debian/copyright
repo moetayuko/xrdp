@@ -31,8 +31,6 @@ Files: Makefile.am
  common/xrdp_rail.h
  common/xrdp_sockets.h
  configure.ac
- description-pak
- design.txt
  docs/Makefile.am
  docs/man/Makefile.am
  docs/man/sesman.ini.5.in
@@ -41,15 +39,11 @@ Files: Makefile.am
  docs/man/xrdp-sesadmin.8.in
  docs/man/xrdp-sesrun.8.in
  docs/man/xrdp.ini.5.in
- faq-compile.txt
- faq-general.txt
- file-loc.txt
  fontdump/Makefile
  fontdump/fontdump.c
  genkeymap/Makefile.am
  genkeymap/dump-keymaps.sh
  genkeymap/readme.txt
- install.txt
  instfiles/Makefile.am
  instfiles/default/Makefile.am
  instfiles/default/xrdp
@@ -72,6 +66,10 @@ Files: Makefile.am
  instfiles/xrdp.service.in
  keygen/Makefile.am
  keygen/keygen.c
+ libpainter/AUTHORS
+ libpainter/ChangeLog
+ libpainter/NEWS
+ libpainter/README
  libpainter/Makefile.am
  libpainter/bootstrap
  libpainter/configure.ac
@@ -116,6 +114,7 @@ Files: Makefile.am
  libxrdp/xrdp_bitmap32_compress.c
  libxrdp/xrdp_bitmap_compress.c
  libxrdp/xrdp_channel.c
+ libxrdp/xrdp_channel.h
  libxrdp/xrdp_jpeg_compress.c
  libxrdp/xrdp_mcs.c
  libxrdp/xrdp_orders.c
@@ -132,7 +131,6 @@ Files: Makefile.am
  neutrinordp/xrdp-neutrinordp.c
  neutrinordp/xrdp-neutrinordp.h
  pkgconfig/Makefile.am
- postinstall-pak
  sesman/Doxyfile
  sesman/Makefile.am
  sesman/access.c
@@ -219,19 +217,7 @@ Files: Makefile.am
  sesman/verify_user_kerberos.c
  sesman/verify_user_pam.c
  sesman/verify_user_pam_userpass.c
- tests/Makefile.am
- tests/Makefile.in
- tests/common/Makefile.am
- tests/common/Makefile.in
- tests/common/test_common.h
- tests/common/test_common_main.c
- tests/common/test_string_calls.c
- tests/memtest/Makefile.am
- tests/memtest/Makefile.in
- tests/memtest/libmem.c
- tests/memtest/libmem.h
- tests/memtest/memtest.c
- tests/readme.txt
+ tests/*
  tools/Makefile.am
  tools/Makefile.in
  tools/devel/Makefile.am
@@ -246,6 +232,7 @@ Files: Makefile.am
  tools/devel/tcp_proxy/Makefile.in
  tools/devel/tcp_proxy/main.c
  vnc/Makefile.am
+ vnc/rfb.c
  vnc/rfb.h
  vnc/vnc.c
  vnc/vnc.h
@@ -287,6 +274,8 @@ Files: Makefile.am
  xrdp/xrdp24b.bmp
  xrdp/xrdp256.bmp
  xrdp/xrdp_bitmap.c
+ xrdp/xrdp_bitmap_common.c
+ xrdp/xrdp_bitmap_load.c
  xrdp/xrdp_cache.c
  xrdp/xrdp_encoder.h
  xrdp/xrdp_font.c
@@ -332,7 +321,9 @@ Files: common/ms-erref.h
 Copyright: 2020-2021, Jay Sorg <jay.sorg@gmail.com>
 License: Apache-2.0
 
-Files: common/parse.c
+Files: common/guid.c
+ common/guid.h
+ common/parse.c
 Copyright: 2020-2021, Matt Burt
 License: Apache-2.0
 
