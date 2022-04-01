@@ -1,4 +1,4 @@
-xrdp (0.9.19) unstable; urgency=medium
+xrdp (0.9.19-1) unstable; urgency=medium
 
   * New upstream version.
   * Acknowledge NMUs - thanks to arnaudr and carnil!
