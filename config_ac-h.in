@@ -84,6 +84,9 @@
 /* Enable development stream checking */
 #undef USE_DEVEL_STREAMCHECK
 
+/* Compile with imlib2 support */
+#undef USE_IMLIB2
+
 /* Enable PAM */
 #undef USE_PAM
 

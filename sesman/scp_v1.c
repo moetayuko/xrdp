@@ -33,8 +33,6 @@
 //#include "libscp_types.h"
 #include "libscp.h"
 
-extern struct config_sesman *g_cfg; /* in sesman.c */
-
 static void
 parseCommonStates(enum SCP_SERVER_STATES_E e, const char *f);
 
@@ -79,9 +77,17 @@ scp_v1_process1(struct trans *t, struct SCP_SESSION *s)
         }
         else
         {
+            char ip[64];
+            g_get_ip_from_description(s->connection_description,
+                                      ip, sizeof(ip));
+            /*
+             * The message is intended for use by fail2ban, so for
+             * future-proofing we only log the IP address rather than the
+             * connection description */
+            LOG(LOG_LEVEL_INFO,
+                "AUTHFAIL: user=%s ip=%s time=%d",
+                s->username, ip, g_time1());
             scp_v1s_deny_connection(t, "Login failed");
-            LOG(LOG_LEVEL_INFO, "Login failed for user %s. "
-                "Connection terminated", s->username);
             return SCP_SERVER_STATE_END;
         }
         return SCP_SERVER_STATE_OK;
@@ -108,10 +114,10 @@ scp_v1_process1(struct trans *t, struct SCP_SESSION *s)
         LOG(LOG_LEVEL_DEBUG, "No disconnected sessions for this user "
             "- we create a new one");
 
-        if (0 != s->client_ip)
+        if (0 != s->connection_description)
         {
             LOG(LOG_LEVEL_INFO, "++ created session (access granted): "
-                "username %s, ip %s", s->username, s->client_ip);
+                "username %s, ip %s", s->username, s->connection_description);
         }
         else
         {
@@ -219,9 +225,9 @@ scp_v1_process43(struct trans *t, struct SCP_SESSION *s)
         {
             LOG(LOG_LEVEL_ERROR, "scp_v1s_reconnect_session failed");
         }
-        if (0 != s->client_ip)
+        if (0 != s->connection_description)
         {
-            LOG(LOG_LEVEL_INFO, "++ reconnected session: username %s, display :%d.0, session_pid %d, ip %s", s->username, display, sitem->pid, s->client_ip);
+            LOG(LOG_LEVEL_INFO, "++ reconnected session: username %s, display :%d.0, session_pid %d, ip %s", s->username, display, sitem->pid, s->connection_description);
         }
         else
         {
