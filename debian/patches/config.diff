@@ -3,7 +3,7 @@ Subject: Use xorgxrdp instead of x11rdp
 
 --- a/sesman/sesman.ini
 +++ b/sesman/sesman.ini
-@@ -95,7 +95,7 @@
+@@ -110,7 +110,7 @@
  ; CentOS 7              :  param=/usr/bin/Xorg or param=Xorg
  ; CentOS 8              :  param=/usr/libexec/Xorg
  ;

@@ -14,7 +14,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  
-@@ -465,6 +467,8 @@
+@@ -507,6 +509,8 @@
  ])
  
  AC_REQUIRE_AUX_FILE([tap-driver.sh])
@@ -51,7 +51,7 @@ Reviewed-by: Dominik George <nik@naturalnet.de>
  AC_C_CONST
  AC_PROG_LIBTOOL
  PKG_INSTALLDIR
-@@ -53,5 +55,6 @@
+@@ -65,5 +67,6 @@
                   rfxcodec-uninstalled.pc
  ])
  
