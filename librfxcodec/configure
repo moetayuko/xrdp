@@ -635,6 +635,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+DEVEL_DEBUG_FALSE
+DEVEL_DEBUG_TRUE
 WITH_SIMD_X86_FALSE
 WITH_SIMD_X86_TRUE
 WITH_SIMD_AMD64_FALSE
@@ -693,6 +695,9 @@ AM_BACKSLASH
 AM_DEFAULT_VERBOSITY
 AM_DEFAULT_V
 AM_V
+CSCOPE
+ETAGS
+CTAGS
 am__untar
 am__tar
 AMTAR
@@ -770,6 +775,8 @@ with_sysroot
 enable_libtool_lock
 with_pkgconfigdir
 with_simd
+enable_devel_all
+enable_devel_debug
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1410,6 +1417,9 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --enable-devel-all
+  --enable-devel-debug    Build library with support for getting better
+                          backtraces [default=no]
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2690,6 +2700,20 @@ am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
 
 
 
+
+
+# Variables for tags utilities; see am/tags.am
+if test -z "$CTAGS"; then
+  CTAGS=ctags
+fi
+
+if test -z "$ETAGS"; then
+  ETAGS=etags
+fi
+
+if test -z "$CSCOPE"; then
+  CSCOPE=cscope
+fi
 
 
 
@@ -12303,7 +12327,7 @@ $as_echo "$NAFLAGS" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the assembler ($NASM $NAFLAGS) works" >&5
 $as_echo_n "checking whether the assembler ($NASM $NAFLAGS) works... " >&6; }
 cat > conftest.asm <<EOF
-%line 12306 "configure"
+%line 12330 "configure"
         section .text
         global  _nasmfunc, nasmfunc
 _nasmfunc:
@@ -12522,7 +12546,7 @@ $as_echo "$NAFLAGS" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the assembler ($NASM $NAFLAGS) works" >&5
 $as_echo_n "checking whether the assembler ($NASM $NAFLAGS) works... " >&6; }
 cat > conftest.asm <<EOF
-%line 12525 "configure"
+%line 12549 "configure"
         section .text
         global  _nasmfunc, nasmfunc
 _nasmfunc:
@@ -12613,6 +12637,109 @@ else
   WITH_SIMD_X86_FALSE=
 fi
 
+
+# parent project will propagate these options to us when building
+# Check whether --enable-devel_all was given.
+if test "${enable_devel_all+set}" = set; then :
+  enableval=$enable_devel_all; devel_all=$enableval
+else
+  devel_all=no
+fi
+
+# Check whether --enable-devel_debug was given.
+if test "${enable_devel_debug+set}" = set; then :
+  enableval=$enable_devel_debug; devel_debug=$enableval
+else
+  devel_debug=$devel_all
+fi
+
+ if test x$devel_debug = xyes ; then
+  DEVEL_DEBUG_TRUE=
+  DEVEL_DEBUG_FALSE='#'
+else
+  DEVEL_DEBUG_TRUE='#'
+  DEVEL_DEBUG_FALSE=
+fi
+
+
+# pass debug option to the assembler if specified
+if test -z "$DEVEL_DEBUG_TRUE"; then :
+
+
+
+
+for flag in -DDEBUG; do
+  as_CACHEVAR=`$as_echo "ax_cv_check_cflags__$flag" | $as_tr_sh`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts $flag" >&5
+$as_echo_n "checking whether C compiler accepts $flag... " >&6; }
+if eval \${$as_CACHEVAR+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  ax_check_save_flags=$CFLAGS
+  CFLAGS="$CFLAGS  $flag"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$as_CACHEVAR=yes"
+else
+  eval "$as_CACHEVAR=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  CFLAGS=$ax_check_save_flags
+fi
+eval ac_res=\$$as_CACHEVAR
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+if eval test \"x\$"$as_CACHEVAR"\" = x"yes"; then :
+
+if ${NAFLAGS+:} false; then :
+
+  case " $NAFLAGS " in #(
+  *" $flag "*) :
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: : NAFLAGS already contains \$flag"; } >&5
+  (: NAFLAGS already contains $flag) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } ;; #(
+  *) :
+
+     as_fn_append NAFLAGS " $flag"
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: : NAFLAGS=\"\$NAFLAGS\""; } >&5
+  (: NAFLAGS="$NAFLAGS") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }
+     ;;
+esac
+
+else
+
+  NAFLAGS=$flag
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: : NAFLAGS=\"\$NAFLAGS\""; } >&5
+  (: NAFLAGS="$NAFLAGS") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }
+
+fi
+
+else
+  :
+fi
+
+done
+
+fi
 
 ac_config_files="$ac_config_files Makefile include/Makefile src/Makefile src/amd64/Makefile src/x86/Makefile tests/Makefile rfxcodec.pc rfxcodec-uninstalled.pc"
 
@@ -12756,6 +12883,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_SIMD_X86_TRUE}" && test -z "${WITH_SIMD_X86_FALSE}"; then
   as_fn_error $? "conditional \"WITH_SIMD_X86\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DEVEL_DEBUG_TRUE}" && test -z "${DEVEL_DEBUG_FALSE}"; then
+  as_fn_error $? "conditional \"DEVEL_DEBUG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

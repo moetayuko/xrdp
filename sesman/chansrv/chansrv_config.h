@@ -31,11 +31,16 @@ struct config_chansrv
 
     /** RestrictOutboundClipboard setting from sesman.ini */
     int restrict_outbound_clipboard;
+    /** RestrictInboundClipboard setting from sesman.ini */
+    int restrict_inbound_clipboard;
 
     /** * FuseMountName from sesman.ini */
     char *fuse_mount_name;
     /** FileUmask from sesman.ini */
     mode_t file_umask;
+
+    /** Whether to use nautilus3-compatible file lists for the clipboard */
+    int use_nautilus3_flist_format;
 };
 
 

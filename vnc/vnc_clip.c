@@ -575,7 +575,7 @@ handle_cb_format_data_response(struct vnc *v, struct stream *s)
             {
                 case CF_TEXT:
                     lastc = '\0';
-                    while (s_check(s))
+                    while (s_check_rem(s, 1))
                     {
                         in_uint8(s, c);
                         if (c == '\n' && lastc == '\r')
@@ -1107,6 +1107,7 @@ vnc_clip_open_clip_channel(struct vnc *v)
         s_mark_end(s);
         send_stream_to_clip_channel(v, s);
 
+        free_stream(s);
         /* Need to complete the startup handshake before we send formats */
         v->vc->startup_complete = 1;
     }

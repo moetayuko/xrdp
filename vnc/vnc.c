@@ -94,6 +94,7 @@ rfbHashEncryptBytes(char *bytes, const char *passwd)
     /* create password hash from password */
     passwd_bytes = g_strlen(passwd);
     sha1 = ssl_sha1_info_create();
+    ssl_sha1_clear(sha1);
     ssl_sha1_transform(sha1, "xrdp_vnc", 8);
     ssl_sha1_transform(sha1, passwd, passwd_bytes);
     ssl_sha1_transform(sha1, passwd, passwd_bytes);
@@ -1006,6 +1007,8 @@ find_matching_extended_rect(struct vnc *v,
         }
     }
 
+    free_stream(s);
+
     return error;
 }
 
@@ -1208,7 +1211,7 @@ lib_framebuffer_waiting_for_resize_confirm(struct vnc *v)
 {
     int error;
     struct vnc_screen_layout layout = {0};
-    int response_code;
+    int response_code = 0;
 
     error = find_matching_extended_rect(v,
                                         rect_is_reply_to_us,
@@ -1715,10 +1718,10 @@ lib_mod_connect(struct vnc *v)
                 if (error == 0)
                 {
                     init_stream(s, 8192);
-                    if (v->got_guid)
+                    if (guid_is_set(&v->guid))
                     {
-                        char guid_str[64];
-                        g_bytes_to_hexstr(v->guid, 16, guid_str, 64);
+                        char guid_str[GUID_STR_SIZE];
+                        guid_to_str(&v->guid, guid_str);
                         rfbHashEncryptBytes(s->data, guid_str);
                     }
                     else
@@ -2089,8 +2092,7 @@ lib_mod_set_param(struct vnc *v, const char *name, const char *value)
     }
     else if (g_strcasecmp(name, "guid") == 0)
     {
-        v->got_guid = 1;
-        g_memcpy(v->guid, value, 16);
+        v->guid = *(struct guid *)value;
     }
     else if (g_strcasecmp(name, "disabled_encodings_mask") == 0)
     {

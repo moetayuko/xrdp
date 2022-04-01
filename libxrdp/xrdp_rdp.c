@@ -378,8 +378,10 @@ xrdp_rdp_create(struct xrdp_session *session, struct trans *trans)
     self->client_info.cache3_entries = 262;
     self->client_info.cache3_size = 4096;
     /* load client ip info */
-    bytes = sizeof(self->client_info.client_ip) - 1;
-    g_write_ip_address(trans->sck, self->client_info.client_ip, bytes);
+    bytes = sizeof(self->client_info.connection_description) - 1;
+    g_write_connection_description(trans->sck,
+                                   self->client_info.connection_description,
+                                   bytes);
     self->mppc_enc = mppc_enc_new(PROTO_RDP_50);
 #if defined(XRDP_NEUTRINORDP)
     self->rfx_enc = rfx_context_new();
@@ -814,6 +816,9 @@ xrdp_rdp_send_fastpath(struct xrdp_rdp *self, struct stream *s,
         updateHeader = (updateCode & 15) |
                        ((fragmentation & 3) << 4) |
                        ((compression & 3) << 6);
+
+        send_s.end = send_s.p + send_len;
+        send_s.size = send_s.end - send_s.data;
         out_uint8(&send_s, updateHeader);
         if (compression != 0)
         {
@@ -822,7 +827,6 @@ xrdp_rdp_send_fastpath(struct xrdp_rdp *self, struct stream *s,
         }
         send_len -= header_bytes;
         out_uint16_le(&send_s, send_len);
-        send_s.end = send_s.p + send_len;
         LOG_DEVEL(LOG_LEVEL_TRACE, "Adding header [MS-RDPBCGR] TS_FP_UPDATE "
                   "updateCode %d, fragmentation %d, compression %d, compressionFlags %s, size %d",
                   updateCode, fragmentation, compression,
@@ -938,11 +942,21 @@ xrdp_rdp_incoming(struct xrdp_rdp *self)
     /* log non-TLS connections */
     else
     {
+        int crypt_level = self->sec_layer->crypt_level;
+        const char *security_level =
+            (crypt_level == CRYPT_LEVEL_NONE) ? "none" :
+            (crypt_level == CRYPT_LEVEL_LOW) ? "low" :
+            (crypt_level == CRYPT_LEVEL_CLIENT_COMPATIBLE) ? "medium" :
+            (crypt_level == CRYPT_LEVEL_HIGH) ? "high" :
+            (crypt_level == CRYPT_LEVEL_FIPS) ? "fips" :
+            /* default */ "unknown";
+
         LOG(LOG_LEVEL_INFO,
             "Non-TLS connection established from %s port %s: "
-            "encrypted with standard RDP security",
+            "with security level : %s",
             self->client_info.client_addr,
-            self->client_info.client_port);
+            self->client_info.client_port,
+            security_level);
     }
 
     return 0;
