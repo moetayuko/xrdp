@@ -8,3 +8,5 @@ pulse-debian.patch
 var-run.diff
 document-certs.diff
 fix-environment.diff
+Fix-for-CVE-2020-4044.patch
+Fixed-CVE-2020-4044-CI-errors.patch
