@@ -33,8 +33,8 @@
 extern struct config_sesman *g_cfg; /* in sesman.c */
 
 /******************************************************************************/
-void
-scp_v0_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
+enum SCP_SERVER_STATES_E
+scp_v0_process(struct trans *t, struct SCP_SESSION *s)
 {
     int display = 0;
     tbus data;
@@ -53,25 +53,25 @@ scp_v0_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
             if (1 == access_login_allowed(s->username))
             {
                 /* the user is member of the correct groups. */
-                scp_v0s_replyauthentication(c, errorcode);
-                log_message(LOG_LEVEL_INFO, "Access permitted for user: %s",
-                            s->username);
+                scp_v0s_replyauthentication(t, errorcode);
+                LOG(LOG_LEVEL_INFO, "Access permitted for user: %s",
+                    s->username);
                 /* g_writeln("Connection allowed"); */
             }
             else
             {
-                scp_v0s_replyauthentication(c, 32 + 3); /* all first 32 are reserved for PAM errors */
-                log_message(LOG_LEVEL_INFO, "Username okey but group problem for "
-                            "user: %s", s->username);
+                scp_v0s_replyauthentication(t, 32 + 3); /* all first 32 are reserved for PAM errors */
+                LOG(LOG_LEVEL_INFO, "Username okay but group problem for "
+                    "user: %s", s->username);
                 /* g_writeln("user password ok, but group problem"); */
             }
         }
         else
         {
             /* g_writeln("username or password error"); */
-            log_message(LOG_LEVEL_INFO, "Username or password error for user: %s",
-                        s->username);
-            scp_v0s_replyauthentication(c, errorcode);
+            LOG(LOG_LEVEL_INFO, "Username or password error for user: %s",
+                s->username);
+            scp_v0s_replyauthentication(t, errorcode);
         }
     }
     else if (data)
@@ -85,56 +85,56 @@ scp_v0_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
             g_memcpy(s->guid, s_item->guid, 16);
             if (0 != s->client_ip)
             {
-                log_message( LOG_LEVEL_INFO, "++ reconnected session: username %s, "
-                             "display :%d.0, session_pid %d, ip %s",
-                             s->username, display, s_item->pid, s->client_ip);
+                LOG( LOG_LEVEL_INFO, "++ reconnected session: username %s, "
+                     "display :%d.0, session_pid %d, ip %s",
+                     s->username, display, s_item->pid, s->client_ip);
             }
             else
             {
-                log_message(LOG_LEVEL_INFO, "++ reconnected session: username %s, "
-                            "display :%d.0, session_pid %d", s->username, display,
-                            s_item->pid);
+                LOG(LOG_LEVEL_INFO, "++ reconnected session: username %s, "
+                    "display :%d.0, session_pid %d", s->username, display,
+                    s_item->pid);
             }
 
             session_reconnect(display, s->username, data);
         }
         else
         {
-            LOG_DBG("pre auth");
+            LOG_DEVEL(LOG_LEVEL_DEBUG, "pre auth");
 
             if (1 == access_login_allowed(s->username))
             {
                 tui8 guid[16];
 
-                g_random((char*)guid, 16);
+                g_random((char *)guid, 16);
                 scp_session_set_guid(s, guid);
 
                 if (0 != s->client_ip)
                 {
-                    log_message(LOG_LEVEL_INFO, "++ created session (access granted): "
-                                "username %s, ip %s", s->username, s->client_ip);
+                    LOG(LOG_LEVEL_INFO, "++ created session (access granted): "
+                        "username %s, ip %s", s->username, s->client_ip);
                 }
                 else
                 {
-                    log_message(LOG_LEVEL_INFO, "++ created session (access granted): "
-                                "username %s", s->username);
+                    LOG(LOG_LEVEL_INFO, "++ created session (access granted): "
+                        "username %s", s->username);
                 }
 
                 if (SCP_SESSION_TYPE_XVNC == s->type)
                 {
-                    log_message( LOG_LEVEL_INFO, "starting Xvnc session...");
-                    display = session_start(data, SESMAN_SESSION_TYPE_XVNC, c, s);
+                    LOG( LOG_LEVEL_INFO, "starting Xvnc session...");
+                    display = session_start(data, SESMAN_SESSION_TYPE_XVNC, s);
                 }
                 else if (SCP_SESSION_TYPE_XRDP == s->type)
                 {
-                    log_message(LOG_LEVEL_INFO, "starting X11rdp session...");
-                    display = session_start(data, SESMAN_SESSION_TYPE_XRDP, c, s);
+                    LOG(LOG_LEVEL_INFO, "starting X11rdp session...");
+                    display = session_start(data, SESMAN_SESSION_TYPE_XRDP, s);
                 }
                 else if (SCP_SESSION_TYPE_XORG == s->type)
                 {
                     /* type is SCP_SESSION_TYPE_XORG */
-                    log_message(LOG_LEVEL_INFO, "starting Xorg session...");
-                    display = session_start(data, SESMAN_SESSION_TYPE_XORG, c, s);
+                    LOG(LOG_LEVEL_INFO, "starting Xorg session...");
+                    display = session_start(data, SESMAN_SESSION_TYPE_XORG, s);
                 }
                 /* if the session started up ok, auth_end will be called on
                    sig child */
@@ -148,19 +148,22 @@ scp_v0_process(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
 
         if (display == 0)
         {
-            scp_v0s_deny_connection(c);
+            scp_v0s_deny_connection(t);
         }
         else
         {
-            scp_v0s_allow_connection(c, display, s->guid);
+            scp_v0s_allow_connection(t, display, s->guid);
         }
     }
     else
     {
-        scp_v0s_deny_connection(c);
+        LOG(LOG_LEVEL_INFO, "Username or password error for user: %s",
+            s->username);
+        scp_v0s_deny_connection(t);
     }
     if (do_auth_end)
     {
         auth_end(data);
     }
+    return SCP_SERVER_STATE_END;
 }

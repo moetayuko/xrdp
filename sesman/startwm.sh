@@ -85,6 +85,17 @@ wm_start()
     # do not execute the pseudo login shell scripts
     . /etc/X11/xdm/Xsession
     exit 0
+  elif [ -r /usr/etc/X11/xdm/Xsession ]; then
+    . /usr/etc/X11/xdm/Xsession
+    exit 0
+  fi
+
+  # alpine
+  if [ -r /etc/X11/xinit/xinitrc ]; then
+    pre_start
+    . /etc/X11/xinit/xinitrc
+    post_start
+    exit 0
   fi
 
   pre_start

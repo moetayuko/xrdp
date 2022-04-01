@@ -36,73 +36,55 @@
 extern struct config_sesman *g_cfg; /* in sesman.c */
 
 /******************************************************************************/
-void *
-scp_process_start(void *sck)
+enum SCP_SERVER_STATES_E
+scp_process(struct trans *t, struct SCP_SESSION *sdata)
 {
-    struct SCP_CONNECTION scon;
-    struct SCP_SESSION *sdata = NULL;
-
-    scon.in_sck = (int)(tintptr)sck;
-    LOG_DBG("started scp thread on socket %d", scon.in_sck);
-
-    make_stream(scon.in_s);
-    make_stream(scon.out_s);
-
-    init_stream(scon.in_s, 8192);
-    init_stream(scon.out_s, 8192);
-
-    switch (scp_vXs_accept(&scon, &(sdata)))
+    enum SCP_SERVER_STATES_E result = scp_vXs_accept(t, sdata);
+    switch (result)
     {
         case SCP_SERVER_STATE_OK:
-
             if (sdata->version == 0)
             {
                 /* starts processing an scp v0 connection */
-                LOG_DBG("accept ok, go on with scp v0");
-                scp_v0_process(&scon, sdata);
+                LOG_DEVEL(LOG_LEVEL_DEBUG, "accept ok, go on with scp v0");
+                result = scp_v0_process(t, sdata);
             }
             else
             {
-                LOG_DBG("accept ok, go on with scp v1");
-                /*LOG_DBG("user: %s\npass: %s",sdata->username, sdata->password);*/
-                scp_v1_process(&scon, sdata);
+                LOG_DEVEL(LOG_LEVEL_DEBUG, "accept ok, go on with scp v1");
+                result = scp_v1_process(t, sdata);
             }
-
             break;
         case SCP_SERVER_STATE_START_MANAGE:
             /* starting a management session */
-            log_message(LOG_LEVEL_WARNING,
-                        "starting a sesman management session...");
-            scp_v1_mng_process(&scon, sdata);
+            LOG(LOG_LEVEL_INFO,
+                "starting a sesman management session...");
+            result = scp_v1_mng_process_msg(t, sdata);
             break;
         case SCP_SERVER_STATE_VERSION_ERR:
-            /* an unknown scp version was requested, so we shut down the */
-            /* connection (and log the fact)                             */
-            log_message(LOG_LEVEL_WARNING,
-                        "unknown protocol version specified. connection refused.");
+        case SCP_SERVER_STATE_SIZE_ERR:
+            /* an unknown scp version was requested, or the message sizes
+               are inconsistent. Shut down the connection and log the
+               fact */
+            LOG(LOG_LEVEL_WARNING,
+                "protocol violation. connection refused.");
             break;
         case SCP_SERVER_STATE_NETWORK_ERR:
-            log_message(LOG_LEVEL_WARNING, "libscp network error.");
+            LOG(LOG_LEVEL_WARNING, "libscp network error.");
             break;
         case SCP_SERVER_STATE_SEQUENCE_ERR:
-            log_message(LOG_LEVEL_WARNING, "libscp sequence error.");
+            LOG(LOG_LEVEL_WARNING, "libscp sequence error.");
             break;
         case SCP_SERVER_STATE_INTERNAL_ERR:
             /* internal error occurred (eg. malloc() error, ecc.) */
-            log_message(LOG_LEVEL_ERROR, "libscp internal error occurred.");
+            LOG(LOG_LEVEL_ERROR, "libscp internal error occurred.");
             break;
         default:
-            log_message(LOG_LEVEL_ALWAYS, "unknown return from scp_vXs_accept()");
+            LOG(LOG_LEVEL_ALWAYS, "unknown return from scp_vXs_accept()");
+            result = SCP_SERVER_STATE_INTERNAL_ERR;
             break;
     }
 
-    free_stream(scon.in_s);
-    free_stream(scon.out_s);
-
-    if (sdata)
-    {
-        scp_session_destroy(sdata);
-    }
-
-    return 0;
+    return result;
 }
+

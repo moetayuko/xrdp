@@ -11,6 +11,8 @@
 #include <sys/un.h>
 #include <sys/stat.h>
 
+#include "string_calls.h"
+
 #define PCSC_API
 
 typedef unsigned char BYTE;
@@ -63,9 +65,9 @@ PCSC_API SCARD_IO_REQUEST g_rgSCardRawPci = { SCARD_PROTOCOL_RAW, 8 };
 
 #define LLOG_LEVEL 5
 #define LLOGLN(_level, _args) \
-  do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
+    do { if (_level < LLOG_LEVEL) { printf _args ; printf("\n"); } } while (0)
 #define LHEXDUMP(_level, _args) \
-  do { if  (_level < LLOG_LEVEL) { lhexdump _args ; } } while (0)
+    do { if  (_level < LLOG_LEVEL) { lhexdump _args ; } } while (0)
 
 #define SCARD_ESTABLISH_CONTEXT  0x01
 #define SCARD_RELEASE_CONTEXT    0x02
@@ -88,16 +90,16 @@ PCSC_API SCARD_IO_REQUEST g_rgSCardRawPci = { SCARD_PROTOCOL_RAW, 8 };
 #define SCARD_F_INTERNAL_ERROR ((LONG)0x80100001)
 
 #define SET_UINT32(_data, _offset, _val) do { \
-  (((BYTE*)(_data)) + (_offset))[0] = ((_val) >> 0)  & 0xff; \
-  (((BYTE*)(_data)) + (_offset))[1] = ((_val) >> 8)  & 0xff; \
-  (((BYTE*)(_data)) + (_offset))[2] = ((_val) >> 16) & 0xff; \
-  (((BYTE*)(_data)) + (_offset))[3] = ((_val) >> 24) & 0xff; } while (0)
+        (((BYTE*)(_data)) + (_offset))[0] = ((_val) >> 0)  & 0xff; \
+        (((BYTE*)(_data)) + (_offset))[1] = ((_val) >> 8)  & 0xff; \
+        (((BYTE*)(_data)) + (_offset))[2] = ((_val) >> 16) & 0xff; \
+        (((BYTE*)(_data)) + (_offset))[3] = ((_val) >> 24) & 0xff; } while (0)
 
 #define GET_UINT32(_data, _offset) \
-  ((((BYTE*)(_data)) + (_offset))[0] << 0)  | \
-  ((((BYTE*)(_data)) + (_offset))[1] << 8)  | \
-  ((((BYTE*)(_data)) + (_offset))[2] << 16) | \
-  ((((BYTE*)(_data)) + (_offset))[3] << 24)
+    ((((BYTE*)(_data)) + (_offset))[0] << 0)  | \
+    ((((BYTE*)(_data)) + (_offset))[1] << 8)  | \
+    ((((BYTE*)(_data)) + (_offset))[2] << 16) | \
+    ((((BYTE*)(_data)) + (_offset))[3] << 24)
 
 #define LMIN(_val1, _val2) (_val1) < (_val2) ? (_val1) : (_val2)
 #define LMAX(_val1, _val2) (_val1) > (_val2) ? (_val1) : (_val2)
@@ -155,66 +157,6 @@ lhexdump(void *p, int len)
 
 /*****************************************************************************/
 static int
-get_display_num_from_display(const char *display_text)
-{
-    int rv;
-    int index;
-    int mode;
-    int host_index;
-    int disp_index;
-    int scre_index;
-    char host[256];
-    char disp[256];
-    char scre[256];
-
-    memset(host, 0, 256);
-    memset(disp, 0, 256);
-    memset(scre, 0, 256);
-
-    index = 0;
-    host_index = 0;
-    disp_index = 0;
-    scre_index = 0;
-    mode = 0;
-
-    while (display_text[index] != 0)
-    {
-        if (display_text[index] == ':')
-        {
-            mode = 1;
-        }
-        else if (display_text[index] == '.')
-        {
-            mode = 2;
-        }
-        else if (mode == 0)
-        {
-            host[host_index] = display_text[index];
-            host_index++;
-        }
-        else if (mode == 1)
-        {
-            disp[disp_index] = display_text[index];
-            disp_index++;
-        }
-        else if (mode == 2)
-        {
-            scre[scre_index] = display_text[index];
-            scre_index++;
-        }
-        index++;
-    }
-    host[host_index] = 0;
-    disp[disp_index] = 0;
-    scre[scre_index] = 0;
-    LLOGLN(10, ("get_display_num_from_display: host [%s] disp [%s] scre [%s]",
-           host, disp, scre));
-    rv = atoi(disp);
-    return rv;
-}
-
-/*****************************************************************************/
-static int
 connect_to_chansrv(void)
 {
     int bytes;
@@ -252,11 +194,11 @@ connect_to_chansrv(void)
         LLOGLN(0, ("connect_to_chansrv: error, home not set"));
         return 1;
     }
-    dis = get_display_num_from_display(xrdp_display);
-    if (dis < 10)
+    dis = g_get_display_num_from_display(xrdp_display);
+    if (dis < 0)
     {
-        /* DISPLAY must be > 9 */
-        LLOGLN(0, ("connect_to_chansrv: error, display not > 9 %d", dis));
+        LLOGLN(0, ("connect_to_chansrv: error, don't understand DISPLAY='%s'",
+                   xrdp_display));
         return 1;
     }
     g_sck = socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -359,7 +301,7 @@ get_message(int *code, char *data, int *bytes)
                     else
                     {
                         LLOGLN(10, ("get_message: lcode %d *code %d",
-                               lcode, *code));
+                                    lcode, *code));
                     }
                 }
                 else if (recv_rv == 0)
@@ -421,7 +363,7 @@ SCardEstablishContext(DWORD dwScope, LPCVOID pvReserved1, LPCVOID pvReserved2,
         if (connect_to_chansrv() != 0)
         {
             LLOGLN(0, ("SCardEstablishContext: error, can not connect "
-                   "to chansrv"));
+                       "to chansrv"));
             return SCARD_F_INTERNAL_ERROR;
         }
     }
@@ -515,8 +457,8 @@ SCardConnect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode,
 
     LLOGLN(10, ("SCardConnect:"));
     LLOGLN(10, ("SCardConnect: hContext 0x%8.8x szReader %s dwShareMode %d "
-           "dwPreferredProtocols %d",
-           (int)hContext, szReader, (int)dwShareMode, (int)dwPreferredProtocols));
+                "dwPreferredProtocols %d",
+                (int)hContext, szReader, (int)dwShareMode, (int)dwPreferredProtocols));
     if (g_sck == -1)
     {
         LLOGLN(0, ("SCardConnect: error, not connected"));
@@ -559,8 +501,8 @@ SCardConnect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode,
     *pdwActiveProtocol = GET_UINT32(msg, 4);
     status = GET_UINT32(msg, 8);
     LLOGLN(10, ("SCardConnect: got status 0x%8.8x hCard 0x%8.8x "
-           "dwActiveProtocol %d",
-           status, (int)*phCard, (int)*pdwActiveProtocol));
+                "dwActiveProtocol %d",
+                status, (int)*phCard, (int)*pdwActiveProtocol));
     return status;
 }
 
@@ -589,7 +531,7 @@ SCardDisconnect(SCARDHANDLE hCard, DWORD dwDisposition)
     int status;
 
     LLOGLN(10, ("SCardDisconnect: hCard 0x%8.8x dwDisposition %d",
-           (int)hCard, (int)dwDisposition));
+                (int)hCard, (int)dwDisposition));
     if (g_sck == -1)
     {
         LLOGLN(0, ("SCardDisconnect: error, not connected"));
@@ -1051,10 +993,10 @@ SCardTransmit(SCARDHANDLE hCard, const SCARD_IO_REQUEST *pioSendPci,
     offset += 4;
     SET_UINT32(msg, offset, pioSendPci->dwProtocol);
     offset += 4;
-/*  SET_UINT32(msg, offset, pioSendPci->cbPciLength); */
+    /*  SET_UINT32(msg, offset, pioSendPci->cbPciLength); */
     SET_UINT32(msg, offset, 8);
     offset += 4;
-/*  extra_len = pioSendPci->cbPciLength - 8;  */
+    /*  extra_len = pioSendPci->cbPciLength - 8;  */
     extra_len = 0;
     SET_UINT32(msg, offset, extra_len);
     offset += 4;
@@ -1064,10 +1006,11 @@ SCardTransmit(SCARDHANDLE hCard, const SCARD_IO_REQUEST *pioSendPci,
     offset += 4;
     memcpy(msg + offset, pbSendBuffer, cbSendLength);
     offset += cbSendLength;
+    got_recv_pci = (pioRecvPci != NULL) && (pioRecvPci->cbPciLength >= 8);
     // TODO figure out why recv pci does not work
-    if (1 || (pioRecvPci == 0) || (pioRecvPci->cbPciLength < 8))
+    got_recv_pci = 0;
+    if (got_recv_pci == 0)
     {
-        got_recv_pci = 0;
         SET_UINT32(msg, offset, 0); /* dwProtocol */
         offset += 4;
         SET_UINT32(msg, offset, 0); /* cbPciLength */
@@ -1077,7 +1020,6 @@ SCardTransmit(SCARDHANDLE hCard, const SCARD_IO_REQUEST *pioSendPci,
     }
     else
     {
-        got_recv_pci = 1;
         SET_UINT32(msg, offset, pioRecvPci->dwProtocol);
         offset += 4;
         SET_UINT32(msg, offset, pioRecvPci->cbPciLength);
@@ -1158,8 +1100,8 @@ PCSC_API LONG
 SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR mszReaders,
                  LPDWORD pcchReaders)
 {
-    char* msg;
-    char* reader_names;
+    char *msg;
+    char *reader_names;
     int reader_names_index;
     int code;
     int bytes;
@@ -1167,7 +1109,6 @@ SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR mszReaders,
     int status;
     int offset;
     int index;
-    int bytes_groups;
     int val;
     int llen;
     char reader[100];
@@ -1188,15 +1129,19 @@ SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR mszReaders,
     offset = 0;
     SET_UINT32(msg, offset, hContext);
     offset += 4;
-    bytes_groups = 0;
     if (mszGroups != 0)
     {
-        bytes_groups = strlen(mszGroups);
+        unsigned int bytes_groups = strlen(mszGroups);
+        SET_UINT32(msg, offset, bytes_groups);
+        offset += 4;
+        memcpy(msg + offset, mszGroups, bytes_groups);
+        offset += bytes_groups;
     }
-    SET_UINT32(msg, offset, bytes_groups);
-    offset += 4;
-    memcpy(msg + offset, mszGroups, bytes_groups);
-    offset += bytes_groups;
+    else
+    {
+        SET_UINT32(msg, offset, 0);
+        offset += 4;
+    }
     val = *pcchReaders;
     SET_UINT32(msg, offset, val);
     offset += 4;
@@ -1226,7 +1171,7 @@ SCardListReaders(SCARDCONTEXT hContext, LPCSTR mszGroups, LPSTR mszReaders,
     num_readers = GET_UINT32(msg, offset);
     offset += 4;
     LLOGLN(10, ("SCardListReaders: mszReaders %p pcchReaders %p num_readers %d",
-           mszReaders, pcchReaders, num_readers));
+                mszReaders, pcchReaders, num_readers));
     reader_names = (char *) malloc(8192);
     reader_names_index = 0;
     for (index = 0; index < num_readers; index++)

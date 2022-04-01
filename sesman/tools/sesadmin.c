@@ -27,6 +27,7 @@
 #include "parse.h"
 #include "log.h"
 #include "libscp.h"
+#include "string_calls.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -37,10 +38,8 @@ char cmnd[257];
 char serv[257];
 char port[257];
 
-struct log_config logging;
-
-void cmndList(struct SCP_CONNECTION *c);
-void cmndKill(struct SCP_CONNECTION *c, struct SCP_SESSION *s);
+void cmndList(struct trans *t);
+void cmndKill(struct trans *t, struct SCP_SESSION *s);
 void cmndHelp(void);
 
 int inputSession(struct SCP_SESSION *s);
@@ -49,13 +48,14 @@ unsigned int menuSelect(unsigned int choices);
 int main(int argc, char **argv)
 {
     struct SCP_SESSION *s;
-    struct SCP_CONNECTION *c;
+    struct trans *t;
     enum SCP_CLIENT_STATES_E e;
     //int end;
     int idx;
     //int sel;
     int sock;
     char *pwd;
+    struct log_config *logging;
 
     user[0] = '\0';
     pass[0] = '\0';
@@ -63,11 +63,9 @@ int main(int argc, char **argv)
     serv[0] = '\0';
     port[0] = '\0';
 
-    logging.program_name = "sesadmin";
-    logging.log_file = g_strdup("xrdp-sesadmin.log");
-    logging.log_level = LOG_LEVEL_DEBUG;
-    logging.enable_syslog = 0;
-    log_start_from_param(&logging);
+    logging = log_config_init_for_console(LOG_LEVEL_INFO, NULL);
+    log_start_from_param(logging);
+    log_config_free(logging);
 
     for (idx = 0; idx < argc; idx++)
     {
@@ -133,18 +131,18 @@ int main(int argc, char **argv)
     sock = g_tcp_socket();
     if (sock < 0)
     {
-        LOG_DBG("Socket open error, g_tcp_socket() failed");
+        LOG_DEVEL(LOG_LEVEL_DEBUG, "Socket open error, g_tcp_socket() failed");
         return 1;
     }
 
     s = scp_session_create();
-    c = scp_connection_create(sock);
+    t = scp_trans_create(sock);
 
-    LOG_DBG("Connecting to %s:%s with user %s (%s)", serv, port, user, pass);
+    LOG_DEVEL(LOG_LEVEL_DEBUG, "Connecting to %s:%s with user %s (%s)", serv, port, user, pass);
 
-    if (0 != g_tcp_connect(sock, serv, port))
+    if (0 != trans_connect(t, serv, port, 3000))
     {
-        LOG_DBG("g_tcp_connect() error");
+        LOG(LOG_LEVEL_ERROR, "trans_connect() error");
         return 1;
     }
 
@@ -153,25 +151,24 @@ int main(int argc, char **argv)
     scp_session_set_username(s, user);
     scp_session_set_password(s, pass);
 
-    e = scp_v1c_mng_connect(c, s);
+    e = scp_v1c_mng_connect(t, s);
 
     if (SCP_CLIENT_STATE_OK != e)
     {
-        LOG_DBG("libscp error connecting: %s %d", s->errstr, (int)e);
+        LOG_DEVEL(LOG_LEVEL_DEBUG, "libscp error connecting: %s %d", s->errstr, (int)e);
     }
 
     if (0 == g_strncmp(cmnd, "list", 5))
     {
-        cmndList(c);
+        cmndList(t);
     }
     else if (0 == g_strncmp(cmnd, "kill:", 5))
     {
-        cmndKill(c, s);
+        cmndKill(t, s);
     }
 
-    g_tcp_close(sock);
     scp_session_destroy(s);
-    scp_connection_destroy(c);
+    trans_delete(t);
     log_end();
 
     return 0;
@@ -205,14 +202,14 @@ print_session(const struct SCP_DISCONNECTED_SESSION *s)
            s->conn_minute);
 }
 
-void cmndList(struct SCP_CONNECTION *c)
+void cmndList(struct trans *t)
 {
     struct SCP_DISCONNECTED_SESSION *dsl;
     enum SCP_CLIENT_STATES_E e;
     int scnt;
     int idx;
 
-    e = scp_v1c_mng_get_session_list(c, &scnt, &dsl);
+    e = scp_v1c_mng_get_session_list(t, &scnt, &dsl);
 
     if (e != SCP_CLIENT_STATE_LIST_OK)
     {
@@ -235,7 +232,7 @@ void cmndList(struct SCP_CONNECTION *c)
     g_free(dsl);
 }
 
-void cmndKill(struct SCP_CONNECTION *c, struct SCP_SESSION *s)
+void cmndKill(struct trans *t, struct SCP_SESSION *s)
 {
 
 }

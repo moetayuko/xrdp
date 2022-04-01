@@ -4,7 +4,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
 
 --- a/xrdp/Makefile.am
 +++ b/xrdp/Makefile.am
-@@ -23,7 +23,7 @@ endif
+@@ -19,7 +19,7 @@
  if XRDP_RFXCODEC
  AM_CPPFLAGS += -DXRDP_RFXCODEC
  AM_CPPFLAGS += -I$(top_srcdir)/librfxcodec/include
@@ -15,7 +15,7 @@ Forwarded: https://github.com/neutrinolabs/xrdp/pull/467
  if XRDP_PIXMAN
 --- a/xrdpapi/Makefile.am
 +++ b/xrdpapi/Makefile.am
-@@ -13,3 +13,6 @@ module_LTLIBRARIES = \
+@@ -13,3 +13,6 @@
  libxrdpapi_la_SOURCES = \
    xrdpapi.c \
    xrdpapi.h

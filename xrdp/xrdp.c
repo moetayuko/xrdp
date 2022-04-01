@@ -22,9 +22,12 @@
 #include <config_ac.h>
 #endif
 
+#include <stdarg.h>
+
 #include "xrdp.h"
 #include "log.h"
 #include "xrdp_configure_options.h"
+#include "string_calls.h"
 
 #if !defined(PACKAGE_VERSION)
 #define PACKAGE_VERSION "???"
@@ -47,13 +50,13 @@ static long g_sync_param2 = 0;
 static long (*g_sync_func)(long param1, long param2);
 
 /*****************************************************************************/
-void
+static void
 print_version(void)
 {
     g_writeln("xrdp %s", PACKAGE_VERSION);
     g_writeln("  A Remote Desktop Protocol Server.");
-    g_writeln("  Copyright (C) 2004-2018 Jay Sorg, "
-                "Neutrino Labs, and all contributors.");
+    g_writeln("  Copyright (C) 2004-2020 Jay Sorg, "
+              "Neutrino Labs, and all contributors.");
     g_writeln("  See https://github.com/neutrinolabs/xrdp for more information.");
     g_writeln("%s", "");
 
@@ -67,15 +70,18 @@ print_version(void)
 }
 
 /*****************************************************************************/
-void
+static void
 print_help(void)
 {
     g_writeln("Usage: xrdp [options]");
-    g_writeln("   -h, --help       show help");
-    g_writeln("   -n, --nodaemon   don't fork into background");
-    g_writeln("   -k, --kill       shut down xrdp");
-    g_writeln("   -p, --port       tcp listen port");
-    g_writeln("   -f, --fork       fork on new connection");
+    g_writeln("   -k, --kill        shut down xrdp");
+    g_writeln("   -h, --help        show help");
+    g_writeln("   -v, --version     show version");
+    g_writeln("   -n, --nodaemon    don't fork into background");
+    g_writeln("   -p, --port        tcp listen port");
+    g_writeln("   -f, --fork        fork on new connection");
+    g_writeln("   -c, --config      specify new path to xrdp.ini");
+    g_writeln("       --dump-config display config on stdout on startup");
 }
 
 /*****************************************************************************/
@@ -96,7 +102,7 @@ g_xrdp_sync(long (*sync_func)(long param1, long param2), long sync_param1,
         /* this is the main thread, call the function directly */
         /* in fork mode, this always happens too */
         sync_result = sync_func(sync_param1, sync_param2);
-        /*g_writeln("g_xrdp_sync processed IN main thread -> continue");*/
+        LOG_DEVEL(LOG_LEVEL_DEBUG, "g_xrdp_sync processed IN main thread -> continue");
     }
     else
     {
@@ -127,25 +133,22 @@ g_xrdp_sync(long (*sync_func)(long param1, long param2), long sync_param1,
             tc_mutex_unlock(g_sync_mutex);
         }
         while (sync_command != 0); /* loop until g_process_waiting_function()
-
                                 * has processed the request */
         tc_mutex_unlock(g_sync1_mutex);
-        /*g_writeln("g_xrdp_sync processed BY main thread -> continue");*/
+        LOG_DEVEL(LOG_LEVEL_DEBUG, "g_xrdp_sync processed BY main thread -> continue");
     }
 
     return sync_result;
 }
 
 /*****************************************************************************/
-void
+/* Signal handler for SIGINT and SIGTERM
+ * Note: only signal safe code (eg. setting wait event) should be executed in
+ * this funciton. For more details see `man signal-safety`
+ */
+static void
 xrdp_shutdown(int sig)
 {
-    tbus threadid;
-
-    threadid = tc_get_threadid();
-    g_writeln("shutting down");
-    g_writeln("signal %d threadid %lld", sig, (long long)threadid);
-
     if (!g_is_wait_obj_set(g_term_event))
     {
         g_set_wait_obj(g_term_event);
@@ -153,7 +156,11 @@ xrdp_shutdown(int sig)
 }
 
 /*****************************************************************************/
-void
+/* Signal handler for SIGCHLD
+ * Note: only signal safe code (eg. setting wait event) should be executed in
+ * this funciton. For more details see `man signal-safety`
+ */
+static void
 xrdp_child(int sig)
 {
     int safety;
@@ -164,10 +171,14 @@ xrdp_child(int sig)
 }
 
 /*****************************************************************************/
-void
-xrdp_hang_up(int sig)
+/* No-op signal handler.
+ * Note: only signal safe code (eg. setting wait event) should be executed in
+ * this funciton. For more details see `man signal-safety`
+ */
+static void
+xrdp_sig_no_op(int sig)
 {
-    log_message(LOG_LEVEL_INFO, "caught SIGHUP, noop...");
+    /* no-op */
 }
 
 /*****************************************************************************/
@@ -225,14 +236,6 @@ g_get_sync_event(void)
 }
 
 /*****************************************************************************/
-void
-pipe_sig(int sig_num)
-{
-    /* do nothing */
-    g_writeln("got XRDP SIGPIPE(%d)", sig_num);
-}
-
-/*****************************************************************************/
 /*Some function must be called from the main thread.
  if g_sync_command==THREAD_WAITING a function is waiting to be processed*/
 void
@@ -258,68 +261,87 @@ g_process_waiting_function(void)
 
 /*****************************************************************************/
 /**
+ * @brief looks for a case-insensitive match of a string in a list
+ * @param candidate  String to match
+ * @param ... NULL-terminated list of strings to compare the candidate with
+ * @return !=0 if the candidate is found in the list
+ */
+static int nocase_matches(const char *candidate, ...)
+{
+    va_list vl;
+    const char *member;
+    int result = 0;
+
+    va_start(vl, candidate);
+    while ((member = va_arg(vl, const char *)) != NULL)
+    {
+        if (g_strcasecmp(candidate, member) == 0)
+        {
+            result = 1;
+            break;
+        }
+    }
+
+    va_end(vl);
+    return result;
+}
+
+
+/*****************************************************************************/
+/**
  *
  * @brief  Command line argument parser
  * @param  number of command line arguments
  * @param  pointer array of commandline arguments
+ * @param  [out] Returned startup parameters
  * @return 0 on success, n on nth argument is unknown
  *
  */
-int
+static int
 xrdp_process_params(int argc, char **argv,
                     struct xrdp_startup_params *startup_params)
 {
     int index;
-    char option[128];
-    char value[128];
+    const char *option;
+    const char *value;
 
     index = 1;
 
     while (index < argc)
     {
-        g_strncpy(option, argv[index], 127);
+        option = argv[index];
 
         if (index + 1 < argc)
         {
-            g_strncpy(value, argv[index + 1], 127);
+            value = argv[index + 1];
         }
         else
         {
-            value[0] = 0;
+            value = "";
         }
 
-        if ((g_strncasecmp(option, "-help", 255)) == 0 ||
-                (g_strncasecmp(option, "--help", 255)) == 0 ||
-                (g_strncasecmp(option, "-h", 255)) == 0)
+        if (nocase_matches(option, "-help", "--help", "-h", NULL))
         {
             startup_params->help = 1;
         }
-        else if ((g_strncasecmp(option, "-kill", 255) == 0) ||
-                 (g_strncasecmp(option, "--kill", 255) == 0) ||
-                 (g_strncasecmp(option, "-k", 255) == 0))
+        else if (nocase_matches(option, "-kill", "--kill", "-k", NULL))
         {
             startup_params->kill = 1;
         }
-        else if ((g_strncasecmp(option, "-nodaemon", 255) == 0) ||
-                 (g_strncasecmp(option, "--nodaemon", 255) == 0) ||
-                 (g_strncasecmp(option, "-n", 255) == 0) ||
-                 (g_strncasecmp(option, "-nd", 255) == 0) ||
-                 (g_strncasecmp(option, "--nd", 255) == 0) ||
-                 (g_strncasecmp(option, "-ns", 255) == 0) ||
-                 (g_strncasecmp(option, "--ns", 255) == 0))
+        else if (nocase_matches(option, "-nodaemon", "--nodaemon", "-n",
+                                "-nd", "--nd", "-ns", "--ns", NULL))
         {
             startup_params->no_daemon = 1;
         }
-        else if ((g_strncasecmp(option, "-v", 255) == 0) ||
-                 (g_strncasecmp(option, "--version", 255) == 0))
+        else if (nocase_matches(option, "-v", "--version", NULL))
         {
             startup_params->version = 1;
         }
-        else if ((g_strncasecmp(option, "-p", 255) == 0) ||
-                 (g_strncasecmp(option, "--port", 255) == 0))
+        else if (nocase_matches(option, "-p", "--port", NULL))
         {
             index++;
-            g_strncpy(startup_params->port, value, 127);
+            g_strncpy(startup_params->port, value,
+                      sizeof(startup_params->port) - 1);
 
             if (g_strlen(startup_params->port) < 1)
             {
@@ -332,11 +354,19 @@ xrdp_process_params(int argc, char **argv,
                           startup_params->port);
             }
         }
-        else if ((g_strncasecmp(option, "-f", 255) == 0) ||
-                 (g_strncasecmp(option, "--fork", 255) == 0))
+        else if (nocase_matches(option, "-f", "--fork", NULL))
         {
             startup_params->fork = 1;
             g_writeln("--fork parameter found, ini override");
+        }
+        else if (nocase_matches(option, "--dump-config", NULL))
+        {
+            startup_params->dump_config = 1;
+        }
+        else if (nocase_matches(option, "-c", "--config", NULL))
+        {
+            index++;
+            startup_params->xrdp_ini = value;
         }
         else /* unknown option */
         {
@@ -351,12 +381,12 @@ xrdp_process_params(int argc, char **argv,
 
 /*****************************************************************************/
 /* Basic sanity checks before any forking */
-int
+static int
 xrdp_sanity_check(void)
 {
     int intval = 1;
     int host_be;
-    char key_file[256];
+    const char *key_file = XRDP_CFG_PATH "/rsakeys.ini";
 
     /* check compiled endian with actual endian */
     host_be = !((int)(*(unsigned char *)(&intval)));
@@ -401,7 +431,6 @@ xrdp_sanity_check(void)
         return 1;
     }
 
-    g_snprintf(key_file, 255, "%s/rsakeys.ini", XRDP_CFG_PATH);
     if (!g_file_exist(key_file))
     {
         g_writeln("File %s is missing, create it using xrdp-keygen", key_file);
@@ -416,31 +445,29 @@ int
 main(int argc, char **argv)
 {
     int exit_status = 0;
-    int test;
-    char cfg_file[256];
     enum logReturns error;
-    struct xrdp_startup_params *startup_params;
+    struct xrdp_startup_params startup_params = {0};
     int pid;
     int fd;
-    int no_daemon;
+    int daemon;
     char text[256];
-    char pid_file[256];
+    const char *pid_file = XRDP_PID_PATH "/xrdp.pid";
     int errored_argc;
+
+#ifdef USE_DEVEL_LOGGING
+    int test;
+    for (test = 0; test < argc; test++)
+    {
+        g_writeln("Argument %i - %s", test, argv[test]);
+    }
+#endif
 
     g_init("xrdp");
     ssl_init();
 
-    for (test = 0; test < argc; test++)
-    {
-        DEBUG(("Argument %i - %s", test, argv[test]));
-    }
+    startup_params.xrdp_ini = XRDP_CFG_PATH "/xrdp.ini";
 
-    g_snprintf(cfg_file, 255, "%s/xrdp.ini", XRDP_CFG_PATH);
-
-    startup_params = (struct xrdp_startup_params *)
-                     g_malloc(sizeof(struct xrdp_startup_params), 1);
-
-    errored_argc = xrdp_process_params(argc, argv, startup_params);
+    errored_argc = xrdp_process_params(argc, argv, &startup_params);
     if (errored_argc > 0)
     {
         print_version();
@@ -453,10 +480,7 @@ main(int argc, char **argv)
         g_exit(1);
     }
 
-    g_snprintf(pid_file, 255, "%s/xrdp.pid", XRDP_PID_PATH);
-    no_daemon = 0;
-
-    if (startup_params->help)
+    if (startup_params.help)
     {
         print_version();
         g_writeln("%s", "");
@@ -466,7 +490,7 @@ main(int argc, char **argv)
         g_exit(0);
     }
 
-    if (startup_params->version)
+    if (startup_params.version)
     {
         print_version();
         g_deinit();
@@ -480,7 +504,7 @@ main(int argc, char **argv)
         g_exit(1);
     }
 
-    if (startup_params->kill)
+    if (startup_params.kill)
     {
         g_writeln("stopping xrdp");
         /* read the xrdp.pid file */
@@ -515,7 +539,8 @@ main(int argc, char **argv)
     }
 
     /* starting logging subsystem */
-    error = log_start(cfg_file, "xrdp");
+    error = log_start(startup_params.xrdp_ini, "xrdp",
+                      startup_params.dump_config);
 
     if (error != LOG_STARTUP_OK)
     {
@@ -527,6 +552,10 @@ main(int argc, char **argv)
             case LOG_ERROR_FILE_OPEN:
                 g_writeln("error opening log file [%s]. quitting.",
                           getLogFile(text, 255));
+                break;
+            case LOG_ERROR_NO_CFG:
+                g_writeln("config file %s unreadable or missing",
+                          startup_params.xrdp_ini);
                 break;
             default:
                 g_writeln("log_start error");
@@ -547,13 +576,10 @@ main(int argc, char **argv)
         g_exit(0);
     }
 
-    if (startup_params->no_daemon)
-    {
-        no_daemon = 1;
-    }
+    daemon = !startup_params.no_daemon;
 
 
-    if (!no_daemon)
+    if (daemon)
     {
 
         /* make sure containing directory exists */
@@ -580,13 +606,13 @@ main(int argc, char **argv)
         g_file_delete(pid_file);
     }
 
-    if (!no_daemon)
+    if (daemon)
     {
         /* if can't listen, exit with failure status */
-        if (xrdp_listen_test(startup_params) != 0)
+        if (xrdp_listen_test(&startup_params) != 0)
         {
-            log_message(LOG_LEVEL_ERROR, "Failed to start xrdp daemon, "
-                                         "possibly address already in use.");
+            LOG(LOG_LEVEL_ERROR, "Failed to start xrdp daemon, "
+                "possibly address already in use.");
             g_deinit();
             /* must exit with failure status,
                or systemd cannot detect xrdp daemon couldn't start properly */
@@ -651,20 +677,20 @@ main(int argc, char **argv)
     g_threadid = tc_get_threadid();
     g_listen = xrdp_listen_create();
     g_signal_user_interrupt(xrdp_shutdown); /* SIGINT */
-    g_signal_pipe(pipe_sig);                /* SIGPIPE */
+    g_signal_pipe(xrdp_sig_no_op);          /* SIGPIPE */
     g_signal_terminate(xrdp_shutdown);      /* SIGTERM */
     g_signal_child_stop(xrdp_child);        /* SIGCHLD */
-    g_signal_hang_up(xrdp_hang_up);         /* SIGHUP */
+    g_signal_hang_up(xrdp_sig_no_op);       /* SIGHUP */
     g_sync_mutex = tc_mutex_create();
     g_sync1_mutex = tc_mutex_create();
     pid = g_getpid();
-    log_message(LOG_LEVEL_INFO, "starting xrdp with pid %d", pid);
+    LOG(LOG_LEVEL_INFO, "starting xrdp with pid %d", pid);
     g_snprintf(text, 255, "xrdp_%8.8x_main_term", pid);
     g_term_event = g_create_wait_obj(text);
 
     if (g_term_event == 0)
     {
-        g_writeln("error creating g_term_event");
+        LOG(LOG_LEVEL_WARNING, "error creating g_term_event");
     }
 
     g_snprintf(text, 255, "xrdp_%8.8x_main_sync", pid);
@@ -672,10 +698,10 @@ main(int argc, char **argv)
 
     if (g_sync_event == 0)
     {
-        g_writeln("error creating g_sync_event");
+        LOG(LOG_LEVEL_WARNING, "error creating g_sync_event");
     }
 
-    g_listen->startup_params = startup_params;
+    g_listen->startup_params = &startup_params;
     exit_status = xrdp_listen_main_loop(g_listen);
     xrdp_listen_delete(g_listen);
     tc_mutex_delete(g_sync_mutex);
@@ -684,13 +710,12 @@ main(int argc, char **argv)
     g_delete_wait_obj(g_sync_event);
 
     /* only main process should delete pid file */
-    if ((!no_daemon) && (pid == g_getpid()))
+    if (daemon && (pid == g_getpid()))
     {
         /* delete the xrdp.pid file */
         g_file_delete(pid_file);
     }
 
-    g_free(startup_params);
     log_end();
     g_deinit();
 

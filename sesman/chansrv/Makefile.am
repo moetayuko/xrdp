@@ -11,14 +11,10 @@ AM_CPPFLAGS = \
   -DXRDP_SOCKET_PATH=\"${socketdir}\" \
   -I$(top_srcdir)/common
 
-if XRDP_DEBUG
-AM_CPPFLAGS += -DXRDP_DEBUG
-endif
-
 CHANSRV_EXTRA_LIBS =
 
 if XRDP_FUSE
-AM_CPPFLAGS += -DXRDP_FUSE $(FUSE_CFLAGS)
+AM_CPPFLAGS += -DXRDP_FUSE $(FUSE_CFLAGS) -DFUSE_USE_VERSION=26
 CHANSRV_EXTRA_LIBS += $(FUSE_LIBS)
 endif
 
@@ -51,6 +47,8 @@ xrdp_chansrv_SOURCES = \
   chansrv.h \
   chansrv_common.c \
   chansrv_common.h \
+  chansrv_config.c \
+  chansrv_config.h \
   chansrv_fuse.c \
   chansrv_fuse.h \
   chansrv_xfs.c \
@@ -66,11 +64,6 @@ xrdp_chansrv_SOURCES = \
   fifo.h \
   irp.c \
   irp.h \
-  mlog.h \
-  ms-erref.h \
-  ms-fscc.h \
-  ms-rdpefs.h \
-  ms-smb2.h \
   rail.c \
   rail.h \
   smartcard.c \

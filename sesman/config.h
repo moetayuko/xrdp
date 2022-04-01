@@ -77,13 +77,15 @@
 #define SESMAN_CFG_SESS_POLICY_UBDI_S "UBDI"
 #define SESMAN_CFG_SESS_POLICY_UBDC_S "UBDC"
 
-enum SESMAN_CFG_SESS_POLICY_BITS {
+enum SESMAN_CFG_SESS_POLICY_BITS
+{
     SESMAN_CFG_SESS_POLICY_D = 0x01,
     SESMAN_CFG_SESS_POLICY_I = 0x02,
     SESMAN_CFG_SESS_POLICY_C = 0x04
 };
 
-enum SESMAN_CFG_SESS_POLICY {
+enum SESMAN_CFG_SESS_POLICY
+{
     SESMAN_CFG_SESS_POLICY_DFLT = 0,
     SESMAN_CFG_SESS_POLICY_UBD = SESMAN_CFG_SESS_POLICY_D,
     SESMAN_CFG_SESS_POLICY_UBI = SESMAN_CFG_SESS_POLICY_I,
@@ -100,38 +102,38 @@ enum SESMAN_CFG_SESS_POLICY {
  */
 struct config_security
 {
-  /**
-   * @var allow_root
-   * @brief allow root login on TS
-   */
-  int allow_root;
-  /**
-   * @var login_retry
-   * @brief maximum login attempts
-   */
-  int login_retry;
-  /**
-   * @var ts_users
-   * @brief Terminal Server Users group
-   */
-  int ts_users_enable;
-  int ts_users;
-  /**
-   * @var ts_admins
-   * @brief Terminal Server Administrators group
-   */
-  int ts_admins_enable;
-  int ts_admins;
-  /**
-   * @var ts_always_group_check
-   * @brief if the Groups are not found deny access
-   */
-  int ts_always_group_check;
-  /**
-   * @var restrict_outbound_clipboard
-   * @brief if the clipboard should be enforced restricted. If true only allow client -> server, not vice versa.
-   */
-  int restrict_outbound_clipboard;
+    /**
+     * @var allow_root
+     * @brief allow root login on TS
+     */
+    int allow_root;
+    /**
+     * @var login_retry
+     * @brief maximum login attempts
+     */
+    int login_retry;
+    /**
+     * @var ts_users
+     * @brief Terminal Server Users group
+     */
+    int ts_users_enable;
+    int ts_users;
+    /**
+     * @var ts_admins
+     * @brief Terminal Server Administrators group
+     */
+    int ts_admins_enable;
+    int ts_admins;
+    /**
+     * @var ts_always_group_check
+     * @brief if the Groups are not found deny access
+     */
+    int ts_always_group_check;
+    /**
+     * @var restrict_outbound_clipboard
+     * @brief if the clipboard should be enforced restricted. If true only allow client -> server, not vice versa.
+     */
+    int restrict_outbound_clipboard;
 };
 
 /**
@@ -142,36 +144,36 @@ struct config_security
  */
 struct config_sessions
 {
-  /**
-   * @var x11_display_offset
-   * @brief X11 TCP port offset. default value: 10
-   */
-  int x11_display_offset;
-  /**
-   * @var max_sessions
-   * @brief maximum number of allowed sessions. 0 for unlimited
-   */
-  int max_sessions;
-  /**
-   * @var max_idle_time
-   * @brief maximum idle time for each session
-   */
-  int max_idle_time;
-  /**
-   * @var max_disc_time
-   * @brief maximum disconnected time for each session
-   */
-  int max_disc_time;
-  /**
-   * @var kill_disconnected
-   * @brief enables automatic killing of disconnected session
-   */
-  int kill_disconnected;
-  /**
-   * @var policy
-   * @brief session allocation policy
-   */
-  enum SESMAN_CFG_SESS_POLICY policy;
+    /**
+     * @var x11_display_offset
+     * @brief X11 TCP port offset. default value: 10
+     */
+    int x11_display_offset;
+    /**
+     * @var max_sessions
+     * @brief maximum number of allowed sessions. 0 for unlimited
+     */
+    int max_sessions;
+    /**
+     * @var max_idle_time
+     * @brief maximum idle time for each session
+     */
+    int max_idle_time;
+    /**
+     * @var max_disc_time
+     * @brief maximum disconnected time for each session
+     */
+    int max_disc_time;
+    /**
+     * @var kill_disconnected
+     * @brief enables automatic killing of disconnected session
+     */
+    int kill_disconnected;
+    /**
+     * @var policy
+     * @brief session allocation policy
+     */
+    enum SESMAN_CFG_SESS_POLICY policy;
 };
 
 /**
@@ -186,181 +188,102 @@ struct config_sessions
  */
 struct config_sesman
 {
-  /**
-   * @var listen_address
-   * @brief Listening address
-   */
-  char listen_address[32];
-  /**
-   * @var listen_port
-   * @brief Listening port
-   */
-  char listen_port[16];
-  /**
-   * @var enable_user_wm
-   * @brief Flag that enables user specific wm
-   */
-  int enable_user_wm;
-  /**
-   * @var default_wm
-   * @brief Default window manager
-   */
-  char *default_wm;
-  /**
-   * @var user_wm
-   * @brief Default window manager
-   */
-  char user_wm[32];
-  /**
-   * @var reconnect_sh
-   * @brief Script executed when reconnected
-   */
-  char *reconnect_sh;
-  /**
-   * @var auth_file_path
-   * @brief Auth file path
-   */
-  char* auth_file_path;
-  /**
-   * @var vnc_params
-   * @brief Xvnc additional parameter list
-   */
-  struct list* vnc_params;
-  /**
-   * @var rdp_params
-   * @brief X11rdp additional parameter list
-   */
-  struct list* rdp_params;
-  /**
-   * @var xorg_params
-   * @brief Xorg additional parameter list
-   */
-  struct list* xorg_params;
-  /**
-   * @var log
-   * @brief Log configuration struct
-   */
-  //struct log_config log;
-  /**
-   * @var sec
-   * @brief Security configuration options struct
-   */
-  struct config_security sec;
-  /**
-   * @var sess
-   * @brief Session configuration options struct
-   */
-  struct config_sessions sess;
+    /**
+     * @var sesman_ini
+     * @brief File that these parameters are read from
+     */
+    char *sesman_ini;
 
-  /**
-   * @var env_names
-   * @brief environment variable name list
-   */
-  struct list* env_names;
-   /**
-   * @var env_values
-   * @brief environment variable value list
-   */
-  struct list* env_values;
+    /**
+     * @var listen_address
+     * @brief Listening address
+     */
+    char listen_address[32];
+    /**
+     * @var listen_port
+     * @brief Listening port
+     */
+    char listen_port[16];
+    /**
+     * @var enable_user_wm
+     * @brief Flag that enables user specific wm
+     */
+    int enable_user_wm;
+    /**
+     * @var default_wm
+     * @brief Default window manager
+     */
+    char *default_wm;
+    /**
+     * @var user_wm
+     * @brief Default window manager
+     */
+    char user_wm[32];
+    /**
+     * @var reconnect_sh
+     * @brief Script executed when reconnected
+     */
+    char *reconnect_sh;
+    /**
+     * @var auth_file_path
+     * @brief Auth file path
+     */
+    char *auth_file_path;
+    /**
+     * @var vnc_params
+     * @brief Xvnc additional parameter list
+     */
+    struct list *vnc_params;
+    /**
+     * @var rdp_params
+     * @brief X11rdp additional parameter list
+     */
+    struct list *rdp_params;
+    /**
+     * @var xorg_params
+     * @brief Xorg additional parameter list
+     */
+    struct list *xorg_params;
+    /**
+     * @var log
+     * @brief Log configuration struct
+     */
+    //struct log_config log;
+    /**
+     * @var sec
+     * @brief Security configuration options struct
+     */
+    struct config_security sec;
+    /**
+     * @var sess
+     * @brief Session configuration options struct
+     */
+    struct config_sessions sess;
+
+    /**
+     * @var env_names
+     * @brief environment variable name list
+     */
+    struct list *env_names;
+    /**
+    * @var env_values
+    * @brief environment variable value list
+    */
+    struct list *env_values;
 };
 
 /**
  *
  * @brief Reads sesman configuration
- * @param cfg pointer to configuration object to be replaced
- * @return 0 on success, 1 on failure
+ * @param sesman_ini Name of configuration file to read
+ * @return configuration on success, NULL on failure
+ *
+ * @post pass return value to config_free() to prevent memory leaks
  *
  */
-int
-config_read(struct config_sesman* cfg);
+struct config_sesman *
+config_read(const char *sesman_ini);
 
-/**
- *
- * @brief Reads sesman [global] configuration section
- * @param file configuration file descriptor
- * @param cf pointer to a config struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int
-config_read_globals(int file, struct config_sesman* cf,
-                    struct list* param_n, struct list* param_v);
-
-/**
- *
- * @brief Reads sesman [Security] configuration section
- * @param file configuration file descriptor
- * @param sc pointer to a config_security struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int
-config_read_security(int file, struct config_security* sc,
-                     struct list* param_n, struct list* param_v);
-
-/**
- *
- * @brief Reads sesman [Sessions] configuration section
- * @param file configuration file descriptor
- * @param ss pointer to a config_sessions struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int
-config_read_sessions(int file, struct config_sessions* ss,
-                     struct list* param_n, struct list* param_v);
-
-/**
- *
- * @brief Reads sesman [X11rdp] configuration section
- * @param file configuration file descriptor
- * @param cs pointer to a config_sesman struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int
-config_read_rdp_params(int file, struct config_sesman* cs, struct list* param_n,
-                       struct list* param_v);
-
-/**
- *
- * @brief Reads sesman [Xorg] configuration section
- * @param file configuration file descriptor
- * @param cs pointer to a config_sesman struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int
-config_read_xorg_params(int file, struct config_sesman* cs, struct list* param_n,
-                        struct list* param_v);
-
-/**
- *
- * @brief Reads sesman [Xvnc] configuration section
- * @param file configuration file descriptor
- * @param cs pointer to a config_sesman struct
- * @param param_n parameter name list
- * @param param_v parameter value list
- * @return 0 on success, 1 on failure
- *
- */
-int
-config_read_vnc_params(int file, struct config_sesman* cs, struct list* param_n,
-                       struct list* param_v);
-
-int
-config_read_session_variables(int file, struct config_sesman *cs,
-                              struct list *param_n, struct list *param_v);
 /**
  *
  * @brief Dumps configuration
@@ -370,6 +293,12 @@ config_read_session_variables(int file, struct config_sesman *cs,
 void
 config_dump(struct config_sesman *config);
 
+/**
+ *
+ * @brief Frees configuration allocated by config_read()
+ * @param pointer to a config_sesman struct (may be NULL)
+ *
+ */
 void
 config_free(struct config_sesman *cs);
 

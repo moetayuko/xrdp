@@ -1,3 +1,193 @@
+# Release notes for xrdp v0.9.17 (2021/08/31)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## New features
+* The IP address, port, and user name of NeutrinoRDP Proxy connection are logged in xrdp.log - these connections may not have a sesman log to use (#1873)
+* The performance settings for NeutrinoRDP can be now configured (#1903)
+* Support for Alpine Linux in startwm.sh (#1965)
+* clipboard: log file transfer for the purpose of audit (#1954)
+* Client's Keyboard layout now can be overridden by xrdp configuration for debugging purposes (#1952)
+
+## Bug fixes
+* PAM_USER environment variable is not set when using pam_exec module (#1882)
+* Allow common channel settings to be overridden for modules as well as chansrv (#1899)
+* The text only-copy/paste interface for the VNC module (used only when chansrv is not active) has been improved (#1900)
+* The unsupported `tcutils` utility has been removed (#1943)
+* The quality of TLS logging has been improved (#1926)
+* Keyboard information is now passed correctly through NeuutrinoRDP, and can be overridden if required (#1934)
+* A message is now logged in the sesman log for unsuccessful login attempts detailing the user used (#1947)
+
+
+## Internal changes
+* astyle formatting is now checked during CI builds (#1879)
+* Generalise development build options, and add --enable-devel-streamcheck (#1887)
+* Now uses cppcheck 2.5 for CI builds (#1938)
+* The SCP protocol is now using a standard `struct trans` for messaging rather than its own thing (#1925)
+
+## Changes for packagers or developers
+* The `--enable-xrdpdebug` developer option has been replaced with finer-grained `--enable-devel-*` options. Consequently, specifying `--enable-xrdpdebug` is now an error (#1913)
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
+# Release notes for xrdp v0.9.16 (2021/04/30)
+
+## New features
+* On-the-fly resolution change now supported for Xvnc and Xorg (#448, #1820) - thanks to @Nexarian for this significant first contribution. See the following YouTube video for a demo.
+    * [Windows] https://youtu.be/cZ0ebieZHeA
+    * [Mac] https://youtu.be/6kfAkyLUgFY
+* xrdp can now use key algorithms other than RSA for TLS (#1776)
+* Do not spit on the console 2nd stage (inspired by Debian) #1762
+* Unified and improved logging (#1742, #1767, #1802, #1806, #1807, #1826, #1843) - thanks to @aquesnel for this detailed work.
+* Other logging level fixes (#1864)
+* chansrv can now work on `DISPLAY=:0` so it can be used with x11vnc/Vino/etc sessions (#1849)
+
+## Bug fixes
+* Fix some regressions in sesman auth modules (#1769)
+* Minor manpage fixes (#1787)
+* Fix TS_PLAY_SOUND_PDU_DATA to set the correct frequency and duration (#1793)
+* Fix password leakage to logs in NeutrinoRDP module (#1872) - thanks to @TOMATO-ONE for reporting.
+
+## Internal changes
+* cppcheck version for CI bumped to 2.4 (#1771, #1836)
+* FreeBSD version for CI bumped to 12-2 (#1804)
+* Support for check unit test framework added (#1843, #1860)
+* FreeBSD FUSE module now compiles under CI but needs additional work (#1856)
+* Compilation support added for additional Debian platforms (#1818)
+* Refactoring:-
+   * Confusing preprocessor macro USE_NOPAM replaced with USE_PAM (#1800)
+   * Window manager states in xrdp executable now use symbolic constants instead of numbers (#1803)
+* Documentation improvements
+   * KRDC added to client list (#1817)
+   * Platform support tier added (#1822)
+   * README file revised (#1863)
+* Don't install test+development executables by default (#1858)
+
+## Changes for packagers
+These changes are likely to impact operating system package builders and those building xrdp from source.
+* (#1843, #1860) This release introduces an additional optional compile-time dependency on the `check` unit test framework. The dependency is recommended when packaging for compile-time tests.
+* (#1858) The executables `memtest` and `tcp_proxy` are no longer copied to the sbin directory on a package install.
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
+# Release notes for xrdp v0.9.15 (2020/12/28)
+
+## New features
+* Allow token sign in without autologon for SSO (#1667 #1668)
+* Norwegian keyboard support (#1675)
+* Improved config support for chansrv (#1635)
+* Unified chansrv, sesman and libxrdp logging (#1633 #1708 #1738) - thanks to @aquesnel
+* Support SUSE move to /usr/etc (#1702)
+* Parameters may now be specified for user-specified shell (#1270 #1695)
+* xrdp executables now allow alternative config files to be specified with -c (#1588 #1650 #1651)
+* sesrun improvements (#1741)
+* Drive redirection location can now be specified (#1048)
+* Now compiles on RISC-V (#1761)
+
+## Bug fixes
+* Additional buffer overflow checks (#1662)
+* FUSE support now builds on 32-bit platforms (#1682)
+* genkeymap array size conflict fixed (#1691)
+* Buffering issue with neutrinordp over a slow link fixed (#1608 1634)
+* Various documentation fixes (#1704 #1741 #1755 #1759)
+* Prevent PAM info message from causing authentication failure (#1727)
+* Cosmetic fixes for minor issues (#1751 #1755 #1749)
+* Try harder to clean up socket files on session exit (#1740 #1756)
+* xrdp-chansrv become defunct in docker while file copy (#1658)
+
+## Internal changes
+* Compilation warnings with newer compilers (#1659 #1680)
+* Continuation Integration checks on 32-bit platforms now include FUSE support (#1682)
+* Continuation Integration builds now default to the Ubuntu Focal platform (#1666)
+* FUSE type tidy-ups (#1686)
+* Switch from Travis CI to GitHub Actions (#1728 #1732)
+* Easier to set up console logging for utilities (#1711)
+
+-----------------------
+
+# Release notes for xrdp v0.9.14 (2020/08/31)
+
+## New features
+* VNC multi-monitor support if you are using a suitable Xvnc server #1343
+* VNC sessions now resize by default on reconnection if you are using a suitable Xvnc server #1343
+* Support Slackware for PAM #1558 #1560
+* Support Programmer Dvorak Keyboard #1663
+
+**[HEADS UP]** The VNC changes are significant. They described in more detail on the following wiki page.
+* [Xvnc backend : Multi monitor and resize support](https://github.com/neutrinolabs/xrdp/wiki/Xvnc-backend-:-Multi-monitor-and-resize-support)
+
+## Bug fixes
+* Fix odd shift key behavior (workaround) #397 #1522
+* Fix Xorg path in the document for Arch Linux #1448 #1529
+* Fix Xorg path in the document for CentOS 8 #1646 #1647
+* Fix internal username/password buffer is smaller than RDP protocol specification #1648 #1653
+* Fix possible memory out-of-bounds accesses #1549
+* Fix memory allocation overflow #1557
+* Prevent chansrv input channels being scanned during a server reset #1595
+* Ignore TS_MULTIFRAGMENTUPDATE_CAPABILITYSET from client if fp disabled #1593
+* Minor manpage fixes #1611
+
+## Other changes
+* CI error fixes 
+* Introduce cppcheck
+
+## Known issues
+* FreeRDP 2.0.0-rc4 or later might not able to connect to xrdp due to
+  xrdp's bad-mannered behaviour, add `+glyph-cache` option to FreeRDP to connect #1266
+* Audio redirection by MP3 codec doesn't sound with some client, use AAC instead #965
+
+# Release notes for xrdp v0.9.13.1 (2020/06/30)
+
+This is a security fix release that includes fixes for the following local buffer overflow vulnerability.
+
+* [CVE-2022-4044: Local users can perform a buffer overflow attack against the xrdp-sesman service and then impersonate it](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-4044)
+
+This update is recommended for all xrdp users.
+
+## Special thanks
+
+Thanks to [Ashley Newson](https://github.com/ashleynewson) reporting the vulnerability and reviewing fix.
+
+-----------------------
+
+# Release notes for xrdp v0.9.13 (2020/03/11)
+
+This release is an intermediate bugfix release. The previous version v0.9.12 has some regressions on drive redirection.
+
+## Bug fixes (drive redirection related)
+* Fix chansrv crashes with segmentation fault (regression in #1449) #1487
+* Drive redirection now supports Guacamole client #1505 #1507
+* Prevent a coredump in the event of a corrupted file system #1507
+* Resolve double-free in `chansrv_fuse` #1469
+
+## Bug fixes (other)
+* Fix the issue `xrdp --version | less` will show empty output #1471 #1472
+* Fix some warnings found by cppcheck #1479 #1481 #1484 #1485
+
+## Other changes
+* Add FreeBSD CI test #1466
+* Move Microsoft-defined constants into separate includes #1470
+* Perform cppcheck during CI test #1493
+* Support mousex button 8/9 #1478
+
+## Known issues
+* FreeRDP 2.0.0-rc4 or later might not able to connect to xrdp due to
+  xrdp's bad-mannered behaviour, add `+glyph-cache` option to FreeRDP to connect #1266
+* Audio redirection by MP3 codec doesn't sound with some client, use AAC instead #965
+
+-----------------------
+
 # Release notes for xrdp v0.9.12 (2019/12/28)
 
 ## Bug fixes
@@ -84,7 +274,7 @@ Thank you for matt335672 contributing to lots of improvements in drive redirecti
 
 -----------------------
 
-## Release notes for xrdp v0.9.9 (2018/12/25)
+# Release notes for xrdp v0.9.9 (2018/12/25)
 
 ## Release cycle
 From the next release, release cycle will be changed from quarterly to every

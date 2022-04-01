@@ -23,10 +23,12 @@
 #endif
 
 #include "os_calls.h"
+#include "string_calls.h"
 #include "trans.h"
 #include "arch.h"
 #include "parse.h"
 #include "ssl_calls.h"
+#include "log.h"
 
 #define MAX_SBYTES 0
 
@@ -302,7 +304,7 @@ trans_check_wait_objs(struct trans *self)
     int to_read = 0;
     int read_so_far = 0;
     int rv = 0;
-    int cur_source;
+    enum xrdp_source cur_source;
 
     if (self == 0)
     {
@@ -371,7 +373,7 @@ trans_check_wait_objs(struct trans *self)
         }
         else if (self->trans_can_recv(self, self->sck, 0))
         {
-            cur_source = 0;
+            cur_source = XRDP_SOURCE_NONE;
             if (self->si != 0)
             {
                 cur_source = self->si->cur_source;
@@ -452,17 +454,14 @@ trans_force_read_s(struct trans *self, struct stream *in_s, int size)
 {
     int rcvd;
 
-    if (self->status != TRANS_STATUS_UP)
+    if (self->status != TRANS_STATUS_UP ||
+            size < 0 || !s_check_rem_out(in_s, size))
     {
         return 1;
     }
+
     while (size > 0)
     {
-        /* make sure stream has room */
-        if ((in_s->end + size) > (in_s->data + in_s->size))
-        {
-            return 1;
-        }
         rcvd = self->trans_recv(self, in_s->end, size);
         if (rcvd == -1)
         {
@@ -636,8 +635,8 @@ trans_write_copy_s(struct trans *self, struct stream *out_s)
     init_stream(wait_s, size);
     if (self->si != 0)
     {
-        if ((self->si->cur_source != 0) &&
-            (self->si->cur_source != self->my_source))
+        if ((self->si->cur_source != XRDP_SOURCE_NONE) &&
+                (self->si->cur_source != self->my_source))
         {
             self->si->source[self->si->cur_source] += size;
             wait_s->source = self->si->source + self->si->cur_source;
@@ -664,7 +663,7 @@ trans_write_copy_s(struct trans *self, struct stream *out_s)
 
 /*****************************************************************************/
 int
-trans_write_copy(struct trans* self)
+trans_write_copy(struct trans *self)
 {
     return trans_write_copy_s(self, self->out_s);
 }
@@ -815,7 +814,7 @@ trans_connect(struct trans *self, const char *server, const char *port,
  * @return 0 on success, 1 on failure
  */
 int
-trans_listen_address(struct trans *self, char *port, const char *address)
+trans_listen_address(struct trans *self, const char *port, const char *address)
 {
     if (self->sck != 0)
     {
@@ -826,7 +825,9 @@ trans_listen_address(struct trans *self, char *port, const char *address)
     {
         self->sck = g_tcp_socket();
         if (self->sck < 0)
+        {
             return 1;
+        }
 
         g_tcp_set_non_blocking(self->sck);
 
@@ -848,7 +849,9 @@ trans_listen_address(struct trans *self, char *port, const char *address)
 
         self->sck = g_tcp_local_socket();
         if (self->sck < 0)
+        {
             return 1;
+        }
 
         g_tcp_set_non_blocking(self->sck);
 
@@ -926,7 +929,7 @@ trans_listen_address(struct trans *self, char *port, const char *address)
 
 /*****************************************************************************/
 int
-trans_listen(struct trans *self, char *port)
+trans_listen(struct trans *self, const char *port)
 {
     return trans_listen_address(self, port, "0.0.0.0");
 }
@@ -977,13 +980,13 @@ trans_set_tls_mode(struct trans *self, const char *key, const char *cert,
     self->tls = ssl_tls_create(self, key, cert);
     if (self->tls == NULL)
     {
-        g_writeln("trans_set_tls_mode: ssl_tls_create malloc error");
+        LOG(LOG_LEVEL_ERROR, "trans_set_tls_mode: ssl_tls_create malloc error");
         return 1;
     }
 
     if (ssl_tls_accept(self->tls, ssl_protocols, tls_ciphers) != 0)
     {
-        g_writeln("trans_set_tls_mode: ssl_tls_accept failed");
+        LOG(LOG_LEVEL_ERROR, "trans_set_tls_mode: ssl_tls_accept failed");
         return 1;
     }
 
