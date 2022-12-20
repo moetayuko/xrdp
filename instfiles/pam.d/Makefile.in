@@ -192,6 +192,7 @@ EXEEXT = @EXEEXT@
 FDKAAC_CFLAGS = @FDKAAC_CFLAGS@
 FDKAAC_LIBS = @FDKAAC_LIBS@
 FGREP = @FGREP@
+FILECMD = @FILECMD@
 FREERDP_CFLAGS = @FREERDP_CFLAGS@
 FREERDP_LIBS = @FREERDP_LIBS@
 FUSE_CFLAGS = @FUSE_CFLAGS@
@@ -298,6 +299,7 @@ pkgconfigdir = @pkgconfigdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 socketdir = @socketdir@
@@ -310,13 +312,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 PAM_FILES = \
+  xrdp-sesman.arch \
   xrdp-sesman.debian \
-  xrdp-sesman.redhat \
-  xrdp-sesman.suse \
   xrdp-sesman.freebsd \
   xrdp-sesman.macos \
-  xrdp-sesman.unix \
-  xrdp-sesman.arch
+  xrdp-sesman.redhat \
+  xrdp-sesman.suse \
+  xrdp-sesman.system \
+  xrdp-sesman.unix
 
 EXTRA_DIST = $(PAM_FILES) mkpamrules
 CLEANFILES = xrdp-sesman
