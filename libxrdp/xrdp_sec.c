@@ -1014,7 +1014,7 @@ xrdp_sec_process_logon_info(struct xrdp_sec *self, struct stream *s)
              && len_password == 0
              && (sep = g_strchr(self->rdp_layer->client_info.username, '\x1f')) != NULL)
     {
-        LOG(LOG_LEVEL_DEBUG, "Client supplied a Logon token. Overwritting password with logon token.");
+        LOG(LOG_LEVEL_DEBUG, "Client supplied a Logon token. Overwriting password with logon token.");
         g_strncpy(self->rdp_layer->client_info.password, sep + 1,
                   sizeof(self->rdp_layer->client_info.password) - 1);
         self->rdp_layer->client_info.username[sep - self->rdp_layer->client_info.username] = '\0';
@@ -1038,7 +1038,7 @@ xrdp_sec_process_logon_info(struct xrdp_sec *self, struct stream *s)
     if (self->rdp_layer->client_info.domain_user_separator[0] != '\0'
             && self->rdp_layer->client_info.domain[0] != '\0')
     {
-        LOG(LOG_LEVEL_DEBUG, "Client supplied domain with user name. Overwritting user name with user name parsed from domain.");
+        LOG(LOG_LEVEL_DEBUG, "Client supplied domain with user name. Overwriting user name with user name parsed from domain.");
         int size = sizeof(self->rdp_layer->client_info.username);
         g_strncat(self->rdp_layer->client_info.username, self->rdp_layer->client_info.domain_user_separator, size - 1 - g_strlen(self->rdp_layer->client_info.domain_user_separator));
         g_strncat(self->rdp_layer->client_info.username, self->rdp_layer->client_info.domain, size - 1 - g_strlen(self->rdp_layer->client_info.domain));
@@ -1081,7 +1081,7 @@ xrdp_sec_process_logon_info(struct xrdp_sec *self, struct stream *s)
         {
             return 1;
         }
-        /* TS_EXTENDED_INFO_PACKET requiered fields */
+        /* TS_EXTENDED_INFO_PACKET required fields */
         in_uint8s(s, 2);         /* clientAddressFamily */
         in_uint16_le(s, len_ip);
         if (unicode_utf16_in(s, len_ip - 2, tmpdata, sizeof(tmpdata) - 1) != 0)
@@ -1100,7 +1100,7 @@ xrdp_sec_process_logon_info(struct xrdp_sec *self, struct stream *s)
             return 1;
         }
         LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] TS_EXTENDED_INFO_PACKET "
-                  "<Requiered Fields> clientAddressFamily (ignored), "
+                  "<Required Fields> clientAddressFamily (ignored), "
                   "cbClientAddress (ignored), clientAddress (ignored), "
                   "cbClientDir (ignored), clientDir (ignored)");
 
@@ -1946,6 +1946,18 @@ xrdp_sec_send_fastpath(struct xrdp_sec *self, struct stream *s)
 static int
 xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
 {
+#define CS_CORE_MIN_LENGTH \
+    (\
+     4 +            /* Version */ \
+     2 + 2 +        /* desktopWidth + desktopHeight */ \
+     2 + 2 +        /* colorDepth + SASSequence */ \
+     4 +            /* keyboardLayout */ \
+     4 + 32 +       /* clientBuild + clientName */ \
+     4 + 4 + 4 +    /* keyboardType + keyboardSubType + keyboardFunctionKey */ \
+     64 +           /* imeFileName */ \
+     0)
+
+    int version;
     int colorDepth;
     int postBeta2ColorDepth;
     int highColorDepth;
@@ -1953,8 +1965,15 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
     int earlyCapabilityFlags;
     char clientName[INFO_CLIENT_NAME_BYTES / 2] = { '\0' };
 
-    /* TS_UD_CS_CORE requiered fields */
-    in_uint8s(s, 4); /* version */
+    UNUSED_VAR(version);
+
+    /* TS_UD_CS_CORE required fields */
+    if (!s_check_rem_and_log(s, CS_CORE_MIN_LENGTH,
+                             "Parsing [MS-RDPBCGR] TS_UD_CS_CORE"))
+    {
+        return 1;
+    }
+    in_uint32_le(s, version);
     in_uint16_le(s, self->rdp_layer->client_info.width);
     in_uint16_le(s, self->rdp_layer->client_info.height);
     in_uint16_le(s, colorDepth);
@@ -1977,12 +1996,13 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
     in_uint8s(s, 4); /* keyboardFunctionKey */
     in_uint8s(s, 64); /* imeFileName */
     LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] TS_UD_CS_CORE "
-              "<Requiered fields> version (ignored), desktopWidth %d, "
-              "desktopHeight %d, colorDepth %s, SASSequence (ingored), "
+              "<Required fields> version %08x, desktopWidth %d, "
+              "desktopHeight %d, colorDepth %s, SASSequence (ignored), "
               "keyboardLayout (ignored), clientBuild (ignored), "
               "clientName %s, keyboardType (ignored), "
               "keyboardSubType (ignored), keyboardFunctionKey (ignored), "
-              "imeFileName (ignroed)",
+              "imeFileName (ignored)",
+              version,
               self->rdp_layer->client_info.width,
               self->rdp_layer->client_info.height,
               (colorDepth == 0xca00 ? "RNS_UD_COLOR_4BPP" :
@@ -1990,6 +2010,10 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
               clientName);
 
     /* TS_UD_CS_CORE optional fields */
+    if (!s_check_rem(s, 2))
+    {
+        return 0;
+    }
     in_uint16_le(s, postBeta2ColorDepth);
     LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] TS_UD_CS_CORE "
               "<Optional Field> postBeta2ColorDepth %s",
@@ -2134,6 +2158,7 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
               "<Optional Field> desktopOrientation (ignored)");
 
     return 0;
+#undef CS_CORE_MIN_LENGTH
 }
 
 /*****************************************************************************/
@@ -2269,6 +2294,7 @@ xrdp_sec_process_mcs_data_channels(struct xrdp_sec *self, struct stream *s)
     int index;
     struct xrdp_client_info *client_info;
     struct mcs_channel_item *channel_item;
+    int next_mcs_channel_id;
 
     client_info = &(self->rdp_layer->client_info);
     /* this is an option set in xrdp.ini */
@@ -2290,6 +2316,13 @@ xrdp_sec_process_mcs_data_channels(struct xrdp_sec *self, struct stream *s)
             "max 31, received %d", num_channels);
         return 1;
     }
+
+    /* GOTCHA: When adding a channel the MCS channel ID is set to
+     * MCS_GLOBAL_CHANNEL + (index + 1). This is assumed by
+     * xrdp_channel_process(), when mapping an incoming PDU into an
+     * entry in this array */
+    next_mcs_channel_id = MCS_GLOBAL_CHANNEL + 1;
+
     for (index = 0; index < num_channels; index++)
     {
         channel_item = g_new0(struct mcs_channel_item, 1);
@@ -2306,7 +2339,7 @@ xrdp_sec_process_mcs_data_channels(struct xrdp_sec *self, struct stream *s)
             LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] "
                       "TS_UD_CS_NET.CHANNEL_DEF %d, name %s, options 0x%8.8x",
                       index, channel_item->name, channel_item->flags);
-            channel_item->chanid = MCS_GLOBAL_CHANNEL + (index + 1);
+            channel_item->chanid = next_mcs_channel_id++;
             list_add_item(self->mcs_layer->channel_list,
                           (intptr_t) channel_item);
             LOG(LOG_LEVEL_DEBUG,
@@ -2324,6 +2357,13 @@ xrdp_sec_process_mcs_data_channels(struct xrdp_sec *self, struct stream *s)
             g_free(channel_item);
         }
     }
+
+    /* Set the user channel as well */
+    self->mcs_layer->chanid = next_mcs_channel_id++;
+    self->mcs_layer->userid = self->mcs_layer->chanid - MCS_USERCHANNEL_BASE;
+    LOG_DEVEL(LOG_LEVEL_DEBUG, "MCS user is %d, channel id is %d",
+              self->mcs_layer->userid, self->mcs_layer->chanid);
+
     return 0;
 }
 
@@ -2675,12 +2715,12 @@ xrdp_sec_in_mcs_data(struct xrdp_sec *self)
     in_uint32_le(s, client_info->keyboard_type); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardType */
     in_uint32_le(s, client_info->keyboard_subtype); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardSubType */
     LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] TS_UD_CS_CORE "
-              "<Requiered fields> version (ignored), desktopWidth (ignored), "
-              "desktopHeight (ignored), colorDepth (ignored), SASSequence (ingored), "
+              "<Required fields> version (ignored), desktopWidth (ignored), "
+              "desktopHeight (ignored), colorDepth (ignored), SASSequence (ignored), "
               "keyboardLayout 0x%8.8x, clientBuild %d, "
               "clientName %s, keyboardType 0x%8.8x, "
               "keyboardSubType 0x%8.8x, keyboardFunctionKey (ignored), "
-              "imeFileName (ignroed)",
+              "imeFileName (ignored)",
               client_info->keylayout,
               client_info->build,
               client_info->hostname,

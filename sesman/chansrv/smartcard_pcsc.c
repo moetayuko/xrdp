@@ -342,7 +342,7 @@ context_add_card(struct pcsc_uds_client *uds_client,
     if (pcscCard == 0)
     {
         LOG(LOG_LEVEL_ERROR,
-            "context_add_card: failed to allocate memmory for pcsc_card");
+            "context_add_card: failed to allocate memory for pcsc_card");
         return 0;
     }
     g_autoinc++;
@@ -355,7 +355,7 @@ context_add_card(struct pcsc_uds_client *uds_client,
         if (acontext->cards == 0)
         {
             LOG(LOG_LEVEL_ERROR, "context_add_card: failed to allocate "
-                "memmory for uds_client->contexts->cards");
+                "memory for uds_client->contexts->cards");
             return 0;
         }
     }
@@ -1874,7 +1874,9 @@ scard_pcsc_init(void)
                 }
             }
         }
-        g_chmod_hex(g_pcsclite_ipc_dir, 0x1777);
+        /* Only the current user should be able to access the remote
+         * smartcard */
+        g_chmod_hex(g_pcsclite_ipc_dir, 0x700);
         g_snprintf(g_pcsclite_ipc_file, 255, "%s/pcscd.comm", g_pcsclite_ipc_dir);
         g_lis->trans_conn_in = my_pcsc_trans_conn_in;
         error = trans_listen(g_lis, g_pcsclite_ipc_file);

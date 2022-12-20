@@ -676,22 +676,31 @@ xrdp_mm_trans_send_channel_setup(struct xrdp_mm *self, struct trans *trans)
 static int
 xrdp_mm_trans_process_channel_data(struct xrdp_mm *self, struct stream *s)
 {
-    int size;
-    int total_size;
+    unsigned int size;
+    unsigned int total_size;
     int chan_id;
     int chan_flags;
-    int rv;
+    int rv = 0;
 
-    in_uint16_le(s, chan_id);
-    in_uint16_le(s, chan_flags);
-    in_uint16_le(s, size);
-    in_uint32_le(s, total_size);
-    rv = 0;
-
-    if (rv == 0)
+    if (!s_check_rem_and_log(s, 10, "Reading channel data header"))
     {
-        rv = libxrdp_send_to_channel(self->wm->session, chan_id, s->p, size, total_size,
-                                     chan_flags);
+        rv = 1;
+    }
+    else
+    {
+        in_uint16_le(s, chan_id);
+        in_uint16_le(s, chan_flags);
+        in_uint16_le(s, size);
+        in_uint32_le(s, total_size);
+        if (!s_check_rem_and_log(s, size, "Reading channel data data"))
+        {
+            rv = 1;
+        }
+        else
+        {
+            rv = libxrdp_send_to_channel(self->wm->session, chan_id,
+                                         s->p, size, total_size, chan_flags);
+        }
     }
 
     return rv;
@@ -929,6 +938,12 @@ xrdp_mm_process_rail_update_window_text(struct xrdp_mm *self, struct stream *s)
 
     g_memset(&rwso, 0, sizeof(rwso));
     in_uint32_le(s, size); /* title size */
+    if (size < 0 || !s_check_rem(s, size))
+    {
+        LOG(LOG_LEVEL_ERROR, "%s : invalid window text size %d",
+            __func__, size);
+        return 1;
+    }
     rwso.title_info = g_new(char, size + 1);
     in_uint8a(s, rwso.title_info, size);
     rwso.title_info[size] = 0;
@@ -1107,27 +1122,47 @@ dynamic_monitor_data(intptr_t id, int chan_id, char *data, int bytes)
     }
     session_width = rect.right - rect.left;
     session_height = rect.bottom - rect.top;
-    if ((session_width > 0) && (session_height > 0))
-    {
-        // TODO: Unify this logic with server_reset
-        libxrdp_reset(wm->session, session_width, session_height, wm->screen->bpp);
-        /* reset cache */
-        xrdp_cache_reset(wm->cache, wm->client_info);
-        /* resize the main window */
-        xrdp_bitmap_resize(wm->screen, session_width, session_height);
-        /* load some stuff */
-        xrdp_wm_load_static_colors_plus(wm, 0);
-        xrdp_wm_load_static_pointers(wm);
-        /* redraw */
-        xrdp_bitmap_invalidate(wm->screen, 0);
 
-        struct xrdp_mod *v = wm->mm->mod;
-        if (v != 0)
-        {
-            v->mod_server_version_message(v);
-            v->mod_server_monitor_resize(v, session_width, session_height);
-            v->mod_server_monitor_full_invalidate(v, session_width, session_height);
-        }
+    if (session_width <= 0 && session_height <= 0)
+    {
+        return 0;
+    }
+    if (session_width == wm->client_info->width
+            && session_height == wm->client_info->height)
+    {
+        return 0;
+    }
+
+    // TODO: Unify this logic with server_reset
+    libxrdp_reset(wm->session, session_width, session_height, wm->screen->bpp);
+    /* reset cache */
+    xrdp_cache_reset(wm->cache, wm->client_info);
+    /* resize the main window */
+    xrdp_bitmap_resize(wm->screen, session_width, session_height);
+    /* load some stuff */
+    xrdp_wm_load_static_colors_plus(wm, 0);
+    xrdp_wm_load_static_pointers(wm);
+    /* redraw */
+    xrdp_bitmap_invalidate(wm->screen, 0);
+
+    struct xrdp_mod *v = wm->mm->mod;
+    if (v == 0)
+    {
+        return 0;
+    }
+    v->mod_server_version_message(v);
+    v->mod_server_monitor_resize(v, session_width, session_height);
+    v->mod_server_monitor_full_invalidate(v, session_width, session_height);
+
+    // Need to recreate the encoder for connections that use it.
+    if (wm->mm->encoder != NULL)
+    {
+        xrdp_encoder_delete(wm->mm->encoder);
+        wm->mm->encoder = NULL;
+    }
+    if (wm->mm->encoder == NULL)
+    {
+        wm->mm->encoder = xrdp_encoder_create(wm->mm);
     }
     return 0;
 }
@@ -1340,7 +1375,7 @@ xrdp_mm_trans_process_drdynvc_channel_open(struct xrdp_mm *self,
     int error;
     int chan_id;
     int chansrv_chan_id;
-    char *name;
+    char name[1024 + 1];
     struct xrdp_drdynvc_procs procs;
 
     if (!s_check_rem(s, 2))
@@ -1348,33 +1383,32 @@ xrdp_mm_trans_process_drdynvc_channel_open(struct xrdp_mm *self,
         return 1;
     }
     in_uint32_le(s, name_bytes);
-    if ((name_bytes < 1) || (name_bytes > 1024))
-    {
-        return 1;
-    }
-    name = g_new(char, name_bytes + 1);
-    if (name == NULL)
+    if ((name_bytes < 1) || (name_bytes > (int)(sizeof(name) - 1)))
     {
         return 1;
     }
     if (!s_check_rem(s, name_bytes))
     {
-        g_free(name);
         return 1;
     }
     in_uint8a(s, name, name_bytes);
     name[name_bytes] = 0;
     if (!s_check_rem(s, 8))
     {
-        g_free(name);
         return 1;
     }
     in_uint32_le(s, flags);
     in_uint32_le(s, chansrv_chan_id);
+    if (chansrv_chan_id < 0 || chansrv_chan_id > 255)
+    {
+        LOG(LOG_LEVEL_ERROR, "Attempting to open invalid chansrv channel %d",
+            chansrv_chan_id);
+        return 1;
+    }
+
     if (flags == 0)
     {
         /* open static channel, not supported */
-        g_free(name);
         return 1;
     }
     else
@@ -1390,13 +1424,11 @@ xrdp_mm_trans_process_drdynvc_channel_open(struct xrdp_mm *self,
                                      &chan_id);
         if (error != 0)
         {
-            g_free(name);
             return 1;
         }
         self->xr2cr_cid_map[chan_id] = chansrv_chan_id;
         self->cs2xr_cid_map[chansrv_chan_id] = chan_id;
     }
-    g_free(name);
     return 0;
 }
 
@@ -1415,6 +1447,12 @@ xrdp_mm_trans_process_drdynvc_channel_close(struct xrdp_mm *self,
         return 1;
     }
     in_uint32_le(s, chansrv_chan_id);
+    if (chansrv_chan_id < 0 || chansrv_chan_id > 255)
+    {
+        LOG(LOG_LEVEL_ERROR, "Attempting to close invalid chansrv channel %d",
+            chansrv_chan_id);
+        return 1;
+    }
     chan_id = self->cs2xr_cid_map[chansrv_chan_id];
     /* close dynamic channel */
     error = libxrdp_drdynvc_close(self->wm->session, chan_id);

@@ -722,13 +722,13 @@ xrdp_login_wnd_create(struct xrdp_wm *self)
     if (globals->ls_title[0] == 0)
     {
         g_gethostname(buf1, 256);
-        g_sprintf(buf, "Login to %s", buf1);
+        g_snprintf(buf, sizeof(buf), "Login to %s", buf1);
         set_string(&self->login_window->caption1, buf);
     }
     else
     {
         /*self->login_window->caption1 = globals->ls_title[0];*/
-        g_sprintf(buf, "%s", globals->ls_title);
+        g_snprintf(buf, sizeof(buf), "%s", globals->ls_title);
         set_string(&self->login_window->caption1, buf);
     }
 
@@ -737,7 +737,7 @@ xrdp_login_wnd_create(struct xrdp_wm *self)
         /* Load the background image. */
         /* If no file is specified no default image will be loaded. */
         /* We only load the image if bpp > 8, and if the user hasn't
-         * disabled wallpaer in the performance settings */
+         * disabled wallpaper in the performance settings */
         if (globals->ls_background_image[0] != 0)
         {
             if (self->screen->bpp <= 8)
