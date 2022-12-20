@@ -2,6 +2,7 @@ xrdp (0.9.21.1-1) unstable; urgency=medium
 
   * New upstream version. (Closes: #1025879)
     + Refresh patches.
+    + Refresh d/copyright.
   * Bump Standards-Version to 4.6.2; no changes needed.
 
  -- Dominik George <natureshadow@debian.org>  Tue, 20 Dec 2022 11:09:50 +0100

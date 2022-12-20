@@ -57,6 +57,7 @@ Files: Makefile.am
  instfiles/pam.d/xrdp-sesman.macos
  instfiles/pam.d/xrdp-sesman.redhat
  instfiles/pam.d/xrdp-sesman.suse
+ instfiles/pam.d/xrdp-sesman.system
  instfiles/pam.d/xrdp-sesman.unix
  instfiles/pulse/Makefile.am
  instfiles/pulse/default.pa
@@ -66,10 +67,6 @@ Files: Makefile.am
  instfiles/xrdp.service.in
  keygen/Makefile.am
  keygen/keygen.c
- libpainter/AUTHORS
- libpainter/ChangeLog
- libpainter/NEWS
- libpainter/README
  libpainter/Makefile.am
  libpainter/bootstrap
  libpainter/configure.ac
