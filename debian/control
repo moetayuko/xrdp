@@ -10,7 +10,7 @@ Build-Depends:
  autoconf (>= 2.59),
  automake (>= 1.6),
  check,
- debhelper-compat (= 12),
+ debhelper-compat (= 13),
  libfuse-dev [!hurd-any],
  libjpeg-dev,
  libopus-dev,
