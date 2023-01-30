@@ -7,8 +7,8 @@ Uploaders:
 Section: net
 Priority: optional
 Build-Depends:
- autoconf (>= 2.59),
- automake (>= 1.6),
+ autoconf,
+ automake,
  check,
  debhelper-compat (= 12),
  libfuse-dev [!hurd-any],
@@ -35,7 +35,7 @@ Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends:
  adduser,
- lsb-base (>= 3.0-6),
+ lsb-base,
  ssl-cert,
  ${misc:Depends},
  ${shlibs:Depends},
