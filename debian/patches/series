@@ -8,3 +8,9 @@ pulse-debian.patch
 libscp-v1-server-set-height-twice-and-not-set-width..patch
 Fix-for-CVE-2020-4044.patch
 Fixed-CVE-2020-4044-CI-errors.patch
+CVE-2022-23468.patch
+CVE-2022-23478.patch
+CVE-2022-23479.patch
+CVE-2022-23483.patch
+CVE-2022-23484.patch
+CVE-2022-23493.patch
