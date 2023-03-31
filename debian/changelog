@@ -1,3 +1,16 @@
+xrdp (0.9.9-1+deb10u3) buster-security; urgency=high
+
+  * Non-maintainer upload by the LTS Security Team.
+  * CVE-2022-23480: Prevent a series of potential buffer overflow
+    vulnerabilities in the devredir_proc_client_devlist_announce_req()
+    function. (Closes: #1025879)
+  * CVE-2022-23481: Fix an out of bounds read vulnerability in the
+    xrdp_caps_process_confirm_active() function. (Closes: #1025879)
+  * CVE-2022-23482: Fix an out of bounds read vulnerability in the
+    xrdp_sec_process_mcs_data_CS_CORE() function. (Closes: #1025879)
+
+ -- Chris Lamb <lamby@debian.org>  Fri, 31 Mar 2023 12:47:45 +0100
+
 xrdp (0.9.9-1+deb10u2) buster-security; urgency=medium
 
   * Fix CVE-2022-23468 (buffer over flow in xrdp_login_wnd_create).
