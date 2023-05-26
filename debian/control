@@ -24,7 +24,7 @@ Build-Depends:
  openssl,
  pkg-config,
  systemd [linux-any],
-Homepage: http://www.xrdp.org/
+Homepage: https://www.xrdp.org/
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
 Vcs-Browser: https://salsa.debian.org/debian-remote-team/xrdp
