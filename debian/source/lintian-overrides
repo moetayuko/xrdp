@@ -1,5 +1,5 @@
 # nothing to watch for, for now
-xrdp source: debian-watch-does-not-check-gpg-signature
+xrdp source: debian-watch-does-not-check-openpgp-signature
 
 # there are no useful tests currently
-xrdp source: testsuite-autopkgtest-missing
+xrdp source: missing-tests-control
