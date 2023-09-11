@@ -94,6 +94,7 @@ rfbHashEncryptBytes(char *bytes, const char *passwd)
     /* create password hash from password */
     passwd_bytes = g_strlen(passwd);
     sha1 = ssl_sha1_info_create();
+    ssl_sha1_clear(sha1);
     ssl_sha1_transform(sha1, "xrdp_vnc", 8);
     ssl_sha1_transform(sha1, passwd, passwd_bytes);
     ssl_sha1_transform(sha1, passwd, passwd_bytes);
@@ -424,7 +425,7 @@ resize_client(struct vnc *v, int update_in_progress, int width, int height)
  *
  * This has some limitations. We have no way to move multiple screens about
  * on a connected client, and so we are not able to change the client unless
- * we're changing to a single screeen layout.
+ * we're changing to a single screen layout.
  */
 static int
 resize_client_from_layout(struct vnc *v,
@@ -546,41 +547,64 @@ lib_mod_event(struct vnc *v, int msg, long param1, long param2,
             }
         }
     }
-    else if (msg >= 100 && msg <= 110) /* mouse events */
+    /* mouse events
+     *
+     * VNC supports up to 8 mouse buttons because mouse buttons are
+     * represented by 7 bits bitmask
+     */
+    else if (msg >= WM_MOUSEMOVE && msg <= WM_BUTTON8DOWN) /* 100 to 116 */
     {
         switch (msg)
         {
-            case 100:
-                break; /* WM_MOUSEMOVE */
-            case 101:
+            case WM_MOUSEMOVE:
+                break;
+            case WM_LBUTTONUP:
                 v->mod_mouse_state &= ~1;
-                break; /* WM_LBUTTONUP */
-            case 102:
+                break;
+            case WM_LBUTTONDOWN:
                 v->mod_mouse_state |= 1;
-                break; /* WM_LBUTTONDOWN */
-            case 103:
+                break;
+            case WM_RBUTTONUP:
                 v->mod_mouse_state &= ~4;
-                break; /* WM_RBUTTONUP */
-            case 104:
+                break;
+            case WM_RBUTTONDOWN:
                 v->mod_mouse_state |= 4;
-                break; /* WM_RBUTTONDOWN */
-            case 105:
+                break;
+            case WM_BUTTON3UP:
                 v->mod_mouse_state &= ~2;
                 break;
-            case 106:
+            case WM_BUTTON3DOWN:
                 v->mod_mouse_state |= 2;
                 break;
-            case 107:
+            case WM_BUTTON4UP:
                 v->mod_mouse_state &= ~8;
                 break;
-            case 108:
+            case WM_BUTTON4DOWN:
                 v->mod_mouse_state |= 8;
                 break;
-            case 109:
+            case WM_BUTTON5UP:
                 v->mod_mouse_state &= ~16;
                 break;
-            case 110:
+            case WM_BUTTON5DOWN:
                 v->mod_mouse_state |= 16;
+                break;
+            case WM_BUTTON6UP:
+                v->mod_mouse_state &= ~32;
+                break;
+            case WM_BUTTON6DOWN:
+                v->mod_mouse_state |= 32;
+                break;
+            case WM_BUTTON7UP:
+                v->mod_mouse_state &= ~64;
+                break;
+            case WM_BUTTON7DOWN:
+                v->mod_mouse_state |= 64;
+                break;
+            case WM_BUTTON8UP:
+                v->mod_mouse_state &= ~128;
+                break;
+            case WM_BUTTON8DOWN:
+                v->mod_mouse_state |= 128;
                 break;
         }
 
@@ -1006,6 +1030,8 @@ find_matching_extended_rect(struct vnc *v,
         }
     }
 
+    free_stream(s);
+
     return error;
 }
 
@@ -1208,7 +1234,7 @@ lib_framebuffer_waiting_for_resize_confirm(struct vnc *v)
 {
     int error;
     struct vnc_screen_layout layout = {0};
-    int response_code;
+    int response_code = 0;
 
     error = find_matching_extended_rect(v,
                                         rect_is_reply_to_us,
@@ -1715,10 +1741,10 @@ lib_mod_connect(struct vnc *v)
                 if (error == 0)
                 {
                     init_stream(s, 8192);
-                    if (v->got_guid)
+                    if (guid_is_set(&v->guid))
                     {
-                        char guid_str[64];
-                        g_bytes_to_hexstr(v->guid, 16, guid_str, 64);
+                        char guid_str[GUID_STR_SIZE];
+                        guid_to_str(&v->guid, guid_str);
                         rfbHashEncryptBytes(s->data, guid_str);
                     }
                     else
@@ -2089,8 +2115,7 @@ lib_mod_set_param(struct vnc *v, const char *name, const char *value)
     }
     else if (g_strcasecmp(name, "guid") == 0)
     {
-        v->got_guid = 1;
-        g_memcpy(v->guid, value, 16);
+        v->guid = *(struct guid *)value;
     }
     else if (g_strcasecmp(name, "disabled_encodings_mask") == 0)
     {

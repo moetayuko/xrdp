@@ -81,7 +81,7 @@ enum logReturns
  * @brief Logging macro for messages that are for an XRDP developer to
  * understand and debug XRDP code.
  *
- * Note: all log levels are relavant to help a developer understand XRDP at
+ * Note: all log levels are relevant to help a developer understand XRDP at
  *      different levels of granularity.
  *
  * Note: the logging function calls are removed when USE_DEVEL_LOGGING is
@@ -107,7 +107,7 @@ enum logReturns
     log_message_with_location(__func__, __FILE__, __LINE__, log_level, args)
 
 /**
- * @brief Logging macro for messages that are for a systeam administrator to
+ * @brief Logging macro for messages that are for a system administrator to
  * configure and run XRDP on their machine.
  *
  * Note: the logging function calls contain additional code location info when
@@ -162,6 +162,23 @@ enum logReturns
 
 #endif
 
+/* Flags values for log_start() */
+
+/**
+ * Dump the log config on startup
+ */
+#define LOG_START_DUMP_CONFIG (1<<0)
+
+/**
+ * Restart the logging system.
+ *
+ * On a restart, existing files are not closed. This is because the
+ * files may be shared by sub-processes, and the result will not be what the
+ * user expects
+ */
+#define LOG_START_RESTART (1<<1)
+
+#ifdef LOG_PER_LOGGER_LEVEL
 enum log_logger_type
 {
     LOG_TYPE_FILE = 0,
@@ -174,22 +191,27 @@ struct log_logger_level
     enum log_logger_type logger_type;
     char logger_name[LOGGER_NAME_SIZE + 1];
 };
+#endif
 
 struct log_config
 {
-    const char *program_name;
-    char *log_file;
+    const char *program_name; /* Pointer to static storage */
+    char *log_file; /* Dynamically allocated */
     int fd;
     enum logLevels log_level;
     int enable_console;
     enum logLevels console_level;
     int enable_syslog;
     enum logLevels syslog_level;
+#ifdef LOG_PER_LOGGER_LEVEL
     struct list *per_logger_level;
+#endif
     int dump_on_start;
     int enable_pid;
+#ifdef LOG_ENABLE_THREAD
     pthread_mutex_t log_lock;
     pthread_mutexattr_t log_lock_attr;
+#endif
 };
 
 /* internal functions, only used in log.c if this ifdef is defined.*/
@@ -275,8 +297,8 @@ internal_log_is_enabled_for_level(const enum logLevels log_level,
                                   const enum logLevels override_log_level);
 
 /**
- * @param function_name, the function name (typicaly the __func__ macro)
- * @param file_name, the file name (typicaly the __FILE__ macro)
+ * @param function_name, the function name (typically the __func__ macro)
+ * @param file_name, the file name (typically the __FILE__ macro)
  * @param[out] log_level_return, the log level to use instead of the destination log level
  * @return true if the logger location overrides the destination log levels
  */
@@ -294,13 +316,12 @@ internal_log_location_overrides_level(const char *function_name,
  * @param iniFile
  * @param applicationName the name that is used in the log for the running
  *                        application
- * @param dump_on_start Whether to dump the config on stdout before
- *                      logging is started
+ * @param flags Flags to affect the operation of the call
  * @return LOG_STARTUP_OK on success
  */
 enum logReturns
 log_start(const char *iniFile, const char *applicationName,
-          bool_t dump_on_start);
+          unsigned int flags);
 
 /**
  * An alternative log_start where the caller gives the params directly.
@@ -381,9 +402,9 @@ log_hexdump(const enum logLevels log_level,
  *
  * Please prefer to use the LOG and LOG_DEVEL macros instead of this function directly.
  *
- * @param function_name, the function name (typicaly the __func__ macro)
- * @param file_name, the file name (typicaly the __FILE__ macro)
- * @param line_number, the line number in the file (typicaly the __LINE__ macro)
+ * @param function_name, the function name (typically the __func__ macro)
+ * @param file_name, the file name (typically the __FILE__ macro)
+ * @param line_number, the line number in the file (typically the __LINE__ macro)
  * @param lvl, the loglevel
  * @param msg, the logtext.
  * @param ...

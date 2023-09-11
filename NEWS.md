@@ -1,3 +1,194 @@
+# Release notes for xrdp v0.9.21.1 (2022/12/13)
+
+This release only includes following fix for packagers. Packagers try to build xrdp on distributions _other than_ Arch Linux, Debian, SUSE, Red Hat(ish), FreeBSD and macOS may be required to use this release.
+
+## Changes for packagers or developers
+* Add missing xrdp-sesman.system to distributed tarball (#2466 #2468)
+
+-----------------------
+
+# Release notes for xrdp v0.9.21 (2022/12/10)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future v1.0 release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## Security fixes
+
+This update is recommended for all xrdp users and provides following important security fixes:
+
+* [CVE-2022-23468](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23468)
+* [CVE-2022-23477](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23477)
+* [CVE-2022-23478](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23478)
+* [CVE-2022-23479](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23479)
+* [CVE-2022-23480](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23480)
+* [CVE-2022-23481](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23481)
+* [CVE-2022-23483](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23483)
+* [CVE-2022-23482](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23482)
+* [CVE-2022-23484](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23484)
+* [CVE-2022-23493](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23493)
+
+These security issues are reported by [Team BT5 (BoB 11th)](https://github.com/Team-BT5). We appreciate their great help with making and reviewing patches.
+
+## New features
+* openSuSE Tumbleweed move to /usr/lib/pam.d is now supported in the installation scripts (#2413)
+* VNC backend session now supports extra mouse buttons 6, 7 and 8 (#2426)
+
+## Bug fixes
+* Passwords are no longer left on the heap in sesman (#1599 #2439)
+* Set permissions on pcsc socket dir to owner only (#2454 #2460)
+
+## Internal changes
+* CI updates to cope with github upgrades (#2395)
+
+## Changes for packagers or developers
+Nothing this time.
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
+# Release notes for xrdp v0.9.20 (2022/09/15)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future v1.0 release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## New features
+* Mitigation for too fast vertical scroll has been implemented. This is actually not a new feature of xrdp so see also [xorgxrdp v0.9.19 release note](https://github.com/neutrinolabs/xorgxrdp/releases/tag/v0.9.19).
+
+## Bug fixes
+* Windows RDS compatibility has been improved, so some old clients (e.g. Wyse Sx0) can now be used again with xrdp in non-TLS mode (#2273)
+* Update xrdpapi simple example to work with new logging (#2276)
+* sesman: fix spacing in log (#2282)
+* Fix MSTSC crashes when resolution is changed by maximizing on a different monitor (#2292 #1928)
+* Mark count with unused attribute (#2353)
+* Simple maintenance improvements (#2354)
+
+## Internal changes
+* FreeBSD version for CI bumped to 12-3 (#2226)
+* cppcheck version used for CI bumped to 2.9 (#2351)
+
+## Changes for packagers or developers
+
+Nothing this time.
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
+# Release notes for xrdp v0.9.19 (2022/03/17)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## New features
+* Both inbound and outbound clipboards can now be restricted for text, files or images [Sponsored by @CyberTrust @clear-code and @kenhys] (#2087)
+
+## Bug fixes
+* [CVE-2022-23613](https://www.cve.org/CVERecord?id=CVE-2022-23613): Privilege escalation on xrdp-sesman (This fix is also in the out-of-band v0.9.18.1 release)
+* The versions of imlib2 used on RHEL 7 and 8 are now detected correctly (#2118)
+* Some situations where zombie processes could exist have been resolved (#2146, #2151, #2168)
+* Some null-pointer exceptions which can happen in the logging module have been addressed (#2149)
+* Some minor logging errors have been corrected (#2152)
+* The signal handling in sesman has been reworked to prevent race conditions when a child exits. This has also made it possible to reliably reload the sesman configuration with SIGHUP (#1729, #2168)
+
+## Internal changes
+* Versions 0.13 and later of checklib can undefine the pre-processor symbol `HAVE_STDINT_H`. The xrdp tests now build successfully against these versions (#2124)
+* OpenSSL packaging changes (#2130):-
+   - The OpenSSL 3 EVP interface is now fully supported
+   - When building against OpenSSL 3, an internal implementation of the RC4 cipher is used instead of the implementation from the OpenSSL legacy provider
+   - The wrapping of the OpenSSL library has been improved which should make it simpler to provide an alternative cryptographic provider in the future, if required
+   - The logging of TLS/non-TLS security negotiation has been improved
+* cppcheck version used for CI bumped to 2.7 (#2140)
+* The `s_check()` macro which is easily mis-used has been removed (#2144)
+* Status values for the DRDYNVC channel are now available in `libxrdp/xrdp_channel.h`
+
+## Changes for packagers or developers
+* On OpenSSL 3 systems, there is now no need to build with the `-Wno-error=deprecated-declarations` flag
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
+# Release notes for xrdp v0.9.18.1 (2022/02/08)
+
+This is a security fix release that includes fixes for the following privilege escalation vulnerability.
+
+* [CVE-2022-23613: Privilege escalation on xrdp-sesman](https://www.cve.org/CVERecord?id=CVE-2022-23613)
+
+Users who uses xrdp v0.9.17 or v0.9.18 are recommended to update to this version.
+
+## Special thanks
+
+Thanks to [Gilad Kleinman](https://github.com/giladkl) reporting the vulnerability and reviewing fix.
+
+-----------------------
+
+# Release notes for xrdp v0.9.18 (2022/01/10)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+* Special thanks for @trishume for contributing code to the RFX codec
+
+## New features
+* Backgrounds and logos on the login screen can now be zoomed and scaled (#1962)
+* Small change for Alpine Linux support (#2005)
+* loongarch support (#2057)
+* Improved Fail2ban support (#1976)
+
+## Bug fixes
+* Logging is improved for security protocol level decisions (#1974, #1975)
+* An unnecessary log error message which is always generated when running neutrinordp has been removed (#2016)
+* An incorrect development log message has been fixed (#2074)
+* Some informational and error messages written to the console on stdout have been removed or replaced with log messages (#2078 #2080)
+* Failure to attach to the memory area shared with xorgxrdp is now logged (#2065)
+* A regression in the VNC module logging which might cause a connection to drop out has been identified and fixed (#1989)
+* Remote drive redirection now works if printer redirection is also requested by the client (#327)
+* Some file names could not be copied from the client to the server over the clipboard. This is now fixed (#1992, #1995)
+* A config value has been added which allows copy-pasting of files to work with Nautilus for GNOME 3 versions >= 3.29.92 (#1994, #1996)
+* Clipboard now works properly when files can't be read (#1997 #2001)
+* (xorgxrdp v0.2.18) The screen is fully refreshed after initialising shared memory which should fix black screen problems like #1964
+* An incorrect initialisation reported by @qarmin has been fixed (#1909)
+* Some minor memory leaks have been fixed (#2014 #2028)
+* A hard hang in chansrv when copying files from the remote system has been addressed (#2032)
+* Users can now capitalise username and password on the login screen if required (#2061)
+* Some failed size checks in the fastpath code with `--enable-devel-streamcheck` have been addressed (#2066,#2070)
+* Log level for clipboard restriction has been promoted from DEVEL DEBUG to INFO  (#2088)
+* A buffer overflow in the RFX codec associated with large screens has been fixed (#2087)
+
+## Internal changes
+* Some 64-bit packages are removed during the 32-bit CI build process in an attempt to make this more robust (#1985)
+* Minor improvements to error checking and logging for file copy-paste (#1996)
+* Now uses cppcheck 2.6 for CI builds (#2008)
+* Generated systemd unit files now ignored by git (#2006)
+* More internal tests (#2015)
+* Some unnecessary files have been removed from the distribution (#2030)
+* The `which` command in shell scripts has been replaced with `command -v` (#2067)
+* Additional unit tests added for `g_file_get_size()` (#1988)
+* A compiler warning with -O3 on gcc 11.1 has been addressed (#2105)
+* An unused declaration for xrdp_wm_drdynvc_up has been removed (#2098)
+* The SCP V0 code has been unified, which will make it easier to update and replace (#2011)
+* Monitor processing unit tests for existing xrdp_sec function have been added (#1932)
+* The librfxcodec has been updated as part of #2087, and also to add stack frames to assemble code to assist debugging
+
+## Changes for packagers or developers
+* The `--with-imlib2` option has been added. If xrdp is built with imlib2, the login screen supports more image formats for the background and logo, and better quality zooming and scaling (#1962)
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
 # Release notes for xrdp v0.9.17 (2021/08/31)
 
 ## General announcements
@@ -139,7 +330,7 @@ These changes are likely to impact operating system package builders and those b
 * Minor manpage fixes #1611
 
 ## Other changes
-* CI error fixes 
+* CI error fixes
 * Introduce cppcheck
 
 ## Known issues
@@ -151,7 +342,7 @@ These changes are likely to impact operating system package builders and those b
 
 This is a security fix release that includes fixes for the following local buffer overflow vulnerability.
 
-* [CVE-2022-4044: Local users can perform a buffer overflow attack against the xrdp-sesman service and then impersonate it](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-4044)
+* [CVE-2020-4044: Local users can perform a buffer overflow attack against the xrdp-sesman service and then impersonate it](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-4044)
 
 This update is recommended for all xrdp users.
 

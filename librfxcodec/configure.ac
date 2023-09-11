@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.59)
-AC_INIT([rfxcodec], [0.1.5], [xrdp-devel@googlegroups.com])
+AC_INIT([rfxcodec], [0.1.6], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
 AC_CONFIG_MACRO_DIR([m4])
@@ -42,6 +42,18 @@ fi
 
 AM_CONDITIONAL(WITH_SIMD_AMD64, [test x$simd_arch = xx86_64])
 AM_CONDITIONAL(WITH_SIMD_X86, [test x$simd_arch = xi386])
+
+# parent project will propagate these options to us when building
+AC_ARG_ENABLE(devel_all, AS_HELP_STRING([--enable-devel-all]),
+              [devel_all=$enableval], [devel_all=no])
+AC_ARG_ENABLE(devel_debug, AS_HELP_STRING([--enable-devel-debug],
+              [Build library with support for getting better backtraces [default=no]]),
+              [devel_debug=$enableval], [devel_debug=$devel_all])
+AM_CONDITIONAL(DEVEL_DEBUG, [test x$devel_debug = xyes ])
+
+# pass debug option to the assembler if specified
+AM_COND_IF([DEVEL_DEBUG],
+  [AX_APPEND_COMPILE_FLAGS([-DDEBUG], [NAFLAGS])])
 
 AC_CONFIG_FILES([Makefile
                  include/Makefile

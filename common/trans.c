@@ -179,13 +179,9 @@ trans_get_wait_objs(struct trans *self, tbus *objs, int *count)
     objs[*count] = self->sck;
     (*count)++;
 
-    if (self->tls != 0)
+    if (self->tls != NULL && (objs[*count] = ssl_get_rwo(self->tls)) != 0)
     {
-        if (self->tls->rwo != 0)
-        {
-            objs[*count] = self->tls->rwo;
-            (*count)++;
-        }
+        (*count)++;
     }
 
     return 0;
@@ -301,8 +297,8 @@ trans_check_wait_objs(struct trans *self)
     tbus in_sck = (tbus) 0;
     struct trans *in_trans = (struct trans *) NULL;
     int read_bytes = 0;
-    int to_read = 0;
-    int read_so_far = 0;
+    unsigned int to_read = 0;
+    unsigned int read_so_far = 0;
     int rv = 0;
     enum xrdp_source cur_source;
 
@@ -373,13 +369,24 @@ trans_check_wait_objs(struct trans *self)
         }
         else if (self->trans_can_recv(self, self->sck, 0))
         {
+            /* CVE-2022-23479 - check a malicious caller hasn't managed
+             * to set the header_size to an unreasonable value */
+            if (self->header_size > (unsigned int)self->in_s->size)
+            {
+                LOG(LOG_LEVEL_ERROR,
+                    "trans_check_wait_objs: Reading %u bytes beyond buffer",
+                    self->header_size - (unsigned int)self->in_s->size);
+                self->status = TRANS_STATUS_DOWN;
+                return 1;
+            }
+
             cur_source = XRDP_SOURCE_NONE;
             if (self->si != 0)
             {
                 cur_source = self->si->cur_source;
                 self->si->cur_source = self->my_source;
             }
-            read_so_far = (int) (self->in_s->end - self->in_s->data);
+            read_so_far = self->in_s->end - self->in_s->data;
             to_read = self->header_size - read_so_far;
 
             if (to_read > 0)
@@ -419,7 +426,7 @@ trans_check_wait_objs(struct trans *self)
                 }
             }
 
-            read_so_far = (int) (self->in_s->end - self->in_s->data);
+            read_so_far = self->in_s->end - self->in_s->data;
 
             if (read_so_far == self->header_size)
             {
@@ -995,8 +1002,8 @@ trans_set_tls_mode(struct trans *self, const char *key, const char *cert,
     self->trans_send = trans_tls_send;
     self->trans_can_recv = trans_tls_can_recv;
 
-    self->ssl_protocol = ssl_get_version(self->tls->ssl);
-    self->cipher_name = ssl_get_cipher_name(self->tls->ssl);
+    self->ssl_protocol = ssl_get_version(self->tls);
+    self->cipher_name = ssl_get_cipher_name(self->tls);
 
     return 0;
 }
