@@ -4,6 +4,7 @@ Uploaders:
  Dominik George <natureshadow@debian.org>,
  Mike Gabriel <sunweaver@debian.org>,
  Thorsten Glaser <tg@mirbsd.de>,
+ Gürkan Myczko <tar@debian.org>,
 Section: net
 Priority: optional
 Build-Depends:
@@ -35,7 +36,7 @@ Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends:
  adduser,
- lsb-base (>= 3.0-6),
+ sysvinit-utils (>= 3.06-4),
  ssl-cert,
  ${misc:Depends},
  ${shlibs:Depends},

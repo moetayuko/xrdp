@@ -294,6 +294,7 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 moduledir = @moduledir@
 oldincludedir = @oldincludedir@
+pamconfdir = @pamconfdir@
 pdfdir = @pdfdir@
 pkgconfigdir = @pkgconfigdir@
 prefix = @prefix@
@@ -327,7 +328,7 @@ CLEANFILES = xrdp-sesman
 @SESMAN_KERBEROS_TRUE@@SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_FALSE@PAMFILE = 
 @SESMAN_NOPAM_FALSE@@SESMAN_PAMUSERPASS_TRUE@PAMFILE = 
 @SESMAN_NOPAM_TRUE@PAMFILE = 
-pamddir = $(sysconfdir)/pam.d
+pamddir = $(pamconfdir)
 pamd_DATA = \
   $(PAMFILE)
 
