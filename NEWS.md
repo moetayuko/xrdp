@@ -1,3 +1,127 @@
+# Release notes for xrdp v0.9.24 (2023/12/30)
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future v1.0 release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## General announcements
+We have created a fund on [Open Collective](https://opencollective.com/xrdp-project). Support us if you like xrdp!
+
+Direct donations to each developer via GitHub Sponsors are also welcomed.
+
+## Security fixes
+No new security fixes in this release.
+
+## Bug fixes
+* Checking group membership should now work better on systems using directory services (#2806 #2817)
+* Pasting more than 32K characters of text to the clipboard now succeeds (#1839 #2824)
+* An incompatibility with FreeRDP 2.11.2 in the drive redirector has been fixed (#2834 #2839)
+
+## New features
+* Side buttons on some mice are now supported by NeutrinoRDP (#2860). Thanks to new contributor @naruhito for this patch.
+
+## Internal changes
+* cppcheck version used for CI bumped to 2.13.0 (#2830/#2887). Note that this greatly increases cppcheck scan times.
+
+## Known issues
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
+# Release notes for xrdp v0.9.23.1 (2023/09/27)
+
+This is a security fix release for CVE-2023-42822. This update is recommended for all xrdp users.
+
+## Security fixes
+
+* [CVE-2023-42822: Unchecked access to font glyph info](https://www.cve.org/CVERecord?id=CVE-2023-42822)
+
+## Bug fixes
+No bug fixes other than the above security fix in this release.
+
+## New features
+No new features in this release.
+
+## Internal changes
+* cppcheck install script no longer installs z3 for cppcheck >= 2.8 (#2782)
+
+-----------------------
+
+# Release notes for xrdp v0.9.23 (2023/08/31)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future v1.0 release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## Security fixes
+* [CVE-2023-40184: Improper handling of session establishment errors allows bypassing OS-level session restrictions](https://www.cve.org/CVERecord?id=CVE-2023-40184) (Reported by [@gafusss](https://github.com/gafusss))
+
+## Bug fixes
+* Environment variables set by PAM modules are no longer restricted to around 250 characters (#2712)
+* X11 clipboard clients now no longer hang when requesting a clipboard format which isn't available (#2767)
+
+## New features
+No new features in this release.
+
+## Internal changes
+* Introduce release tarball generation script (#2703)
+* cppcheck version used for CI bumped to 2.11 (#2738)
+
+## Known issues
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+# Release notes for xrdp v0.9.22.1 (2023/05/23)
+
+This release is just a re-packing of source code tarball since v0.9.22 tarball includes invalid source code (#2687).
+
+See [v0.9.22 release note](https://github.com/neutrinolabs/xrdp/releases/tag/v0.9.22) for functional changes since v0.9.22.1 is what v0.9.22 should be.
+
+Thanks to [@morgancoxuk](https://github.com/morgancoxuk) and [@bsmojver](https://github.com/bsmojver) for reporting and testing!
+
+## References
+* https://github.com/neutrinolabs/xrdp/issues/2687
+* https://bugzilla.redhat.com/show_bug.cgi?id=2208248
+* https://bugzilla.redhat.com/show_bug.cgi?id=2208015
+
+-----------------------
+
+# Release notes for xrdp v0.9.22 (2023/05/07)
+
+## General announcements
+* Running xrdp and xrdp-sesman on separate hosts is still supported by this release, but is now deprecated. This is not secure. A future v1.0 release will replace the TCP socket used between these processes with a Unix Domain Socket, and then cross-host running will not be possible.
+
+## Security fixes
+No security fixes in this release.
+
+## New features
+* Empty passwords are no longer automatically passed through to sesman for authentication (#2509)
+* Don't try to listen on the scard socket if it isn't there (#2507)
+* The directory where PAM configuration files are installed can now be set with --with-pamconfdir (#2552 #2557 #2566)
+* Sesman can now be configured to ignore alternate shells passed from the client (#2634)
+* Allow longer UserWindowManager strings (#2653)
+
+## Bug fixes
+* Minor documentation fixes (#2508 #2582)
+* Memory management fixes to list module (#2548 #2577)
+* Fix some noise when MP3/AAC are in use and some logging improvements (#2519 #2537 #2554)
+* Fix potential NULL dereferences in chansrv (#2574)
+* An erroneous free in the smartcard handling code has been removed (#2611)
+* An unnecessary 'check.h' include was removed which prevented compilation on Arch systems (#2650)
+
+## Internal changes
+* cppcheck version used for CI bumped to 2.10 (#2521)
+* g_malloc, g_free, g_memset, and g_memcpy are now macros. These should not be used in new code (#2612)
+* FreeBSD CI now runs on FreeBSD 12.4 (#2622)
+
+## Changes for packagers or developers
+* openSUSE [Bug 1208121](https://bugzilla.opensuse.org/show_bug.cgi?id=1208121) has been addressed in upstream
+
+## Known issues
+
+* On-the-fly resolution change requires the Microsoft Store version of Remote Desktop client but sometimes crashes on connect (#1869)
+* xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
+
+-----------------------
+
 # Release notes for xrdp v0.9.21.1 (2022/12/13)
 
 This release only includes following fix for packagers. Packagers try to build xrdp on distributions _other than_ Arch Linux, Debian, SUSE, Red Hat(ish), FreeBSD and macOS may be required to use this release.
