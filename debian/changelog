@@ -1,3 +1,9 @@
+xrdp (0.9.24-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Gürkan Myczko <tar@debian.org>  Thu, 25 Jan 2024 15:16:20 +0100
+
 xrdp (0.9.24-1) experimental; urgency=medium
 
   * New upstream version. (Closes: #1053284, #1051061)
