@@ -28,9 +28,3 @@ xrdpvr
 We currently do not use --enable-xrdpvr (as FFmpeg in squeeze is the
 last supported version, but it may be possible to use the one in
 stretch/sid).
-
-GNOME
------
-
-Please refer to https://bugs.debian.org/907878 for the popup when
-using GNOME as session.
