@@ -1,20 +1,14 @@
-xrdp (0.9.24-5) unstable; urgency=medium
+xrdp (0.10.0~beta1-2) experimental; urgency=medium
 
-  * d/control: switch Build-Depends to systemd-dev.
+  * d/control: add libcmocka-dev to build-depends.
 
- -- Alex Myczko <tar@debian.org>  Thu, 16 May 2024 12:42:26 +0000
+ -- Gürkan Myczko <tar@debian.org>  Mon, 11 Mar 2024 12:16:15 +0100
 
-xrdp (0.9.24-4) unstable; urgency=medium
+xrdp (0.10.0~beta1-1) experimental; urgency=medium
 
-  [ Alex Myczko ]
-  * Update my name.
-  * d/control: build-depends pkg-config to pkgconf.
-  * Bump standards version to 4.7.0.
+  * New upstream version.
 
-  [ Arnaud Rebillout ]
-  * d/control: add pipewire-module-xrdp to recommends.
-
- -- Alex Myczko <tar@debian.org>  Tue, 16 Apr 2024 06:28:43 +0200
+ -- Gürkan Myczko <tar@debian.org>  Mon, 11 Mar 2024 09:37:45 +0100
 
 xrdp (0.9.24-3) unstable; urgency=medium
 

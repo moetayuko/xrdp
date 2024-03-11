@@ -588,7 +588,7 @@ License: FreeBSD
 Files: debian/*
 Copyright: Dominik George <nik@naturalnet.de>
  Thorsten Glaser <tg@mirbsd.org>
- 2024 Alex Myczko <tar@debian.org>
+ 2024 Gürkan Myczko <tar@debian.org>
 License: MirOS
 
 Files: debian/generate-keymap-rm-conffile.sh

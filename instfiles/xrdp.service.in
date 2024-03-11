@@ -5,12 +5,14 @@ Requires=xrdp-sesman.service
 After=network.target xrdp-sesman.service
 
 [Service]
-Type=forking
-PIDFile=@localstatedir@/run/xrdp.pid
+Type=exec
 EnvironmentFile=-@sysconfdir@/sysconfig/xrdp
 EnvironmentFile=-@sysconfdir@/default/xrdp
-ExecStart=@sbindir@/xrdp $XRDP_OPTIONS
-ExecStop=@sbindir@/xrdp $XRDP_OPTIONS --kill
+ExecStart=@sbindir@/xrdp $XRDP_OPTIONS --nodaemon
+SystemCallArchitectures=native
+SystemCallFilter=@basic-io @file-system @io-event @ipc @network-io @process
+SystemCallFilter=@signal @system-service ioctl madvise sysinfo uname
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=multi-user.target
