@@ -1,3 +1,9 @@
+xrdp (0.10.0~beta1-1) UNRELEASED; urgency=medium
+
+  * New upstream version.
+
+ -- Gürkan Myczko <tar@debian.org>  Mon, 11 Mar 2024 09:37:45 +0100
+
 xrdp (0.9.24-3) unstable; urgency=medium
 
   * Added d/xrdp-colord.rules. (Closes: #907878)
