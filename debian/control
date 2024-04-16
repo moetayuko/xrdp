@@ -42,6 +42,7 @@ Depends:
  ${shlibs:Depends},
 Recommends:
  fuse [!hurd-any],
+ pipewire-module-xrdp,
  xorgxrdp,
 Suggests:
  guacamole,
