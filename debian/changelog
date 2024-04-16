@@ -1,14 +1,40 @@
-xrdp (0.9.21.1-1~deb11u1) bullseye-security; urgency=high
+xrdp (0.9.24-4) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  * Fix CVE-2022-23468, CVE-2022-23477, CVE-2022-23478, CVE-2022-23479,
-    CVE-2022-23480, CVE-2022-23481, CVE-2022-23482, CVE-2022-23483,
-    CVE-2022-23484 and CVE-2022-23493.
-    Multiple security vulnerabilities have been found in xrdp, a remote desktop
-    protocol server. Buffer overflows and out-of-bound writes may cause a
-    denial of service or other unspecified impact.
+  [ Alex Myczko ]
+  * Update my name.
+  * d/control: build-depends pkg-config to pkgconf.
+  * Bump standards version to 4.7.0.
 
- -- Markus Koschany <apo@debian.org>  Mon, 11 Sep 2023 12:53:28 +0200
+  [ Arnaud Rebillout ]
+  * d/control: add pipewire-module-xrdp to recommends.
+
+ -- Alex Myczko <tar@debian.org>  Tue, 16 Apr 2024 06:28:43 +0200
+
+xrdp (0.9.24-3) unstable; urgency=medium
+
+  * Added d/xrdp-colord.rules. (Closes: #907878)
+  * Updated d/README.Debian.
+
+ -- Gürkan Myczko <tar@debian.org>  Sun, 11 Feb 2024 22:46:01 +0100
+
+xrdp (0.9.24-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Gürkan Myczko <tar@debian.org>  Thu, 25 Jan 2024 15:16:20 +0100
+
+xrdp (0.9.24-1) experimental; urgency=medium
+
+  * New upstream version. (Closes: #1053284, #1051061)
+    (CVE-2023-42822 and CVE-2023-40184)
+  * d/clean: added.
+  * d/control: replace lsb-base with sysvinit-utils,
+    add myself to Uploaders.
+  * Thanks for the better d/watch file patch. (Closes: #1036056)
+  * Add myself to Uploaders.
+  * d/README.Debian, add information about #907878.
+
+ -- Gürkan Myczko <tar@debian.org>  Tue, 02 Jan 2024 23:13:41 +0100
 
 xrdp (0.9.21.1-1) unstable; urgency=medium
 

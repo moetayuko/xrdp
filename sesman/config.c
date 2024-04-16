@@ -61,7 +61,7 @@ config_read_globals(int file, struct config_sesman *cf, struct list *param_n,
     cf->listen_address[0] = '\0';
     cf->listen_port[0] = '\0';
     cf->enable_user_wm = 0;
-    cf->user_wm[0] = '\0';
+    cf->user_wm = g_strdup("");
     cf->default_wm = 0;
     cf->auth_file_path = 0;
     cf->reconnect_sh = 0;
@@ -78,7 +78,8 @@ config_read_globals(int file, struct config_sesman *cf, struct list *param_n,
         }
         else if (0 == g_strcasecmp(buf, SESMAN_CFG_USERWM))
         {
-            g_strncpy(cf->user_wm, (char *)list_get_item(param_v, i), 31);
+            g_free(cf->user_wm);
+            cf->user_wm = g_strdup((char *)list_get_item(param_v, i));
         }
         else if (0 == g_strcasecmp(buf, SESMAN_CFG_ENABLE_USERWM))
         {
@@ -212,6 +213,7 @@ config_read_security(int file, struct config_security *sc,
     sc->ts_admins_enable = 0;
     sc->restrict_outbound_clipboard = 0;
     sc->restrict_inbound_clipboard = 0;
+    sc->allow_alternate_shell = 1;
 
     file_read_section(file, SESMAN_CFG_SECURITY, param_n, param_v);
 
@@ -278,6 +280,11 @@ config_read_security(int file, struct config_security *sc,
                     "Unrecognised tokens parsing 'RestrictInboundClipboard' %s",
                     unrecognised);
             }
+        }
+        if (0 == g_strcasecmp(buf, SESMAN_CFG_SEC_ALLOW_ALTERNATE_SHELL))
+        {
+            sc->allow_alternate_shell =
+                g_text2bool((char *)list_get_item(param_v, i));
         }
 
     }
@@ -602,6 +609,7 @@ config_dump(struct config_sesman *config)
     g_writeln("    AllowRootLogin:            %d", sc->allow_root);
     g_writeln("    MaxLoginRetry:             %d", sc->login_retry);
     g_writeln("    AlwaysGroupCheck:          %d", sc->ts_always_group_check);
+    g_writeln("    AllowAlternateShell:       %d", sc->allow_alternate_shell);
     if (sc->restrict_outbound_clipboard == CLIP_RESTRICT_NONE)
     {
         g_writeln("    RestrictOutboundClipboard: %s", "none");
@@ -714,6 +722,7 @@ config_free(struct config_sesman *cs)
     {
         g_free(cs->sesman_ini);
         g_free(cs->default_wm);
+        g_free(cs->user_wm);
         g_free(cs->reconnect_sh);
         g_free(cs->auth_file_path);
         list_delete(cs->rdp_params);

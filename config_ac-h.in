@@ -3,11 +3,18 @@
 /* Allow sources to check config_ac.h is included */
 #undef CONFIG_AC_H
 
+/* Define to the type of elements in the array set by `getgroups'. Usually
+   this is either `int' or `gid_t'. */
+#undef GETGROUPS_T
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
 /* Define to 1 if the system has the `format' function attribute */
 #undef HAVE_FUNC_ATTRIBUTE_FORMAT
+
+/* Define to 1 if you have the `getgrouplist' function. */
+#undef HAVE_GETGROUPLIST
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -110,5 +117,11 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef gid_t
+
 /* Substitute for socklen_t */
 #undef socklen_t
+
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef uid_t

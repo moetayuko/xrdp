@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ(2.65)
-AC_INIT([xrdp], [0.9.21.1], [xrdp-devel@googlegroups.com])
+AC_INIT([xrdp], [0.9.24], [xrdp-devel@googlegroups.com])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.7.2 foreign])
 AC_CONFIG_MACRO_DIR([m4])
@@ -188,6 +188,12 @@ AM_COND_IF([LINUX],
 AM_COND_IF([DEVEL_DEBUG],
   [AX_APPEND_COMPILE_FLAGS([-g -O0])],
   [AX_APPEND_COMPILE_FLAGS([-O2])])
+
+# Define HAVE_XXXXX macros for some system functions
+AC_CHECK_FUNCS([getgrouplist])
+
+# The type used by getgrouplist() is the same type used by getgroups()
+AC_TYPE_GETGROUPS
 
 # Don't fail without working nasm if rfxcodec is not enabled
 if test "x$enable_rfxcodec" != xyes; then
@@ -464,6 +470,12 @@ if test "x$enable_strict_locations" != "xyes"; then
   localstatedir="/var";
 fi
 
+AC_ARG_WITH([pamconfdir],
+  [AS_HELP_STRING([--with-pamconfdir=DIR],
+                  [Use directory for pam.d config (default: /etc/pam.d)])],
+                  [], [with_pamconfdir="$sysconfdir/pam.d"])
+AC_SUBST([pamconfdir], [$with_pamconfdir])
+
 PKG_INSTALLDIR
 
 AC_CHECK_HEADERS([sys/prctl.h])
@@ -542,6 +554,7 @@ echo "  exec_prefix             $exec_prefix"
 echo "  libdir                  $libdir"
 echo "  bindir                  $bindir"
 echo "  sysconfdir              $sysconfdir"
+echo "  pamconfdir              $pamconfdir"
 echo ""
 echo "  unit tests performable  $perform_unit_tests"
 echo ""

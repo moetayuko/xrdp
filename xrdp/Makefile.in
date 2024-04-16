@@ -374,6 +374,7 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 moduledir = @moduledir@
 oldincludedir = @oldincludedir@
+pamconfdir = @pamconfdir@
 pdfdir = @pdfdir@
 pkgconfigdir = @pkgconfigdir@
 prefix = @prefix@

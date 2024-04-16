@@ -204,7 +204,15 @@ get_service_name(char *service_name)
     service_name[0] = 0;
 
     if (g_file_exist("/etc/pam.d/xrdp-sesman") ||
-            g_file_exist(XRDP_SYSCONF_PATH "/pam.d/xrdp-sesman"))
+#ifdef __LINUX_PAM__
+            /* /usr/lib/pam.d is hardcoded into Linux-PAM */
+            g_file_exist("/usr/lib/pam.d/xrdp-sesman") ||
+#endif
+#ifdef OPENPAM_VERSION
+            /* /usr/local/etc/pam.d is hardcoded into OpenPAM */
+            g_file_exist("/usr/local/etc/pam.d/xrdp-sesman") ||
+#endif
+            g_file_exist(XRDP_PAMCONF_PATH "/xrdp-sesman"))
     {
         g_strncpy(service_name, "xrdp-sesman", 255);
     }
@@ -308,8 +316,8 @@ auth_userpass(const char *user, const char *pass, int *errorcode)
 
 /******************************************************************************/
 /* returns error */
-int
-auth_start_session(long in_val, int in_display)
+static int
+auth_start_session_private(long in_val, int in_display)
 {
     struct t_auth_info *auth_info;
     int error;
@@ -347,6 +355,26 @@ auth_start_session(long in_val, int in_display)
 
     auth_info->session_opened = 1;
     return 0;
+}
+
+/******************************************************************************/
+/**
+ * Main routine to start a session
+ *
+ * Calls the private routine and logs an additional error if the private
+ * routine fails
+ */
+int
+auth_start_session(long in_val, int in_display)
+{
+    int result = auth_start_session_private(in_val, in_display);
+    if (result != 0)
+    {
+        LOG(LOG_LEVEL_ERROR,
+            "Can't start PAM session. See PAM logging for more info");
+    }
+
+    return result;
 }
 
 /******************************************************************************/
@@ -411,9 +439,6 @@ auth_set_env(long in_val)
     struct t_auth_info *auth_info;
     char **pam_envlist;
     char **pam_env;
-    char item[256];
-    char value[256];
-    int eq_pos;
 
     auth_info = (struct t_auth_info *)in_val;
 
@@ -426,16 +451,16 @@ auth_set_env(long in_val)
         {
             for (pam_env = pam_envlist; *pam_env != NULL; ++pam_env)
             {
-                eq_pos = g_pos(*pam_env, "=");
+                char *str = *pam_env;
+                int eq_pos = g_pos(str, "=");
 
-                if (eq_pos >= 0 && eq_pos < 250)
+                if (eq_pos > 0)
                 {
-                    g_strncpy(item, *pam_env, eq_pos);
-                    g_strncpy(value, (*pam_env) + eq_pos + 1, 255);
-                    g_setenv(item, value, 1);
+                    str[eq_pos] = '\0';
+                    g_setenv(str, str + eq_pos + 1, 1);
                 }
 
-                g_free(*pam_env);
+                g_free(str);
             }
 
             g_free(pam_envlist);
