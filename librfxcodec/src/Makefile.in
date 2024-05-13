@@ -90,9 +90,15 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @WITH_SIMD_AMD64_TRUE@am__append_1 = amd64
-@WITH_SIMD_AMD64_TRUE@am__append_2 = -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_AMD64=1
-@WITH_SIMD_X86_TRUE@am__append_3 = x86
-@WITH_SIMD_X86_TRUE@am__append_4 = -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1
+@WITH_SIMD_AMD64_TRUE@am__append_2 = -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_AMD64=1 -msse2 -mfpmath=sse
+@WITH_SIMD_AMD64_TRUE@am__append_3 = rfxencode_diff_count_sse2.c rfxencode_diff_count_sse2.h \
+@WITH_SIMD_AMD64_TRUE@	       rfxencode_dwt_shift_rem_sse2.c rfxencode_dwt_shift_rem_sse2.h
+
+@WITH_SIMD_X86_TRUE@am__append_4 = x86
+@WITH_SIMD_X86_TRUE@am__append_5 = -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1 -msse2 -mfpmath=sse
+@WITH_SIMD_X86_TRUE@am__append_6 = rfxencode_diff_count_sse2.c rfxencode_diff_count_sse2.h \
+@WITH_SIMD_X86_TRUE@	       rfxencode_dwt_shift_rem_sse2.c rfxencode_dwt_shift_rem_sse2.h
+
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -144,14 +150,35 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 @WITH_SIMD_AMD64_FALSE@@WITH_SIMD_X86_TRUE@librfxencode_la_DEPENDENCIES = x86/librfxencode-x86.la
 @WITH_SIMD_AMD64_TRUE@librfxencode_la_DEPENDENCIES =  \
 @WITH_SIMD_AMD64_TRUE@	amd64/librfxencode-amd64.la
+am__librfxencode_la_SOURCES_DIST = rfx_bitstream.h rfxcommon.h \
+	rfxencode_compose.h rfxconstants.h rfxencode_alpha.h \
+	rfxencode_differential.h rfxencode_dwt.h rfxencode.h \
+	rfxencode_quantization.h rfxencode_rlgr1.h rfxencode_rlgr3.h \
+	rfxencode_tile.h rfxencode_diff_rlgr1.h rfxencode_diff_rlgr3.h \
+	rfxencode_diff_rlgr_common.h rfxencode_rgb_to_yuv.h \
+	rfxencode_dwt_rem.h rfxencode_dwt_shift_rem.h \
+	rfxencode_dwt_shift_rem_common.h rfxencode.c \
+	rfxencode_compose.c rfxencode_tile.c rfxencode_dwt.c \
+	rfxencode_quantization.c rfxencode_differential.c \
+	rfxencode_rlgr1.c rfxencode_rlgr3.c rfxencode_alpha.c \
+	rfxencode_diff_rlgr1.c rfxencode_diff_rlgr3.c \
+	rfxencode_rgb_to_yuv.c rfxencode_dwt_rem.c \
+	rfxencode_dwt_shift_rem.c rfxencode_diff_count_sse2.c \
+	rfxencode_diff_count_sse2.h rfxencode_dwt_shift_rem_sse2.c \
+	rfxencode_dwt_shift_rem_sse2.h
 am__objects_1 =
+@WITH_SIMD_AMD64_TRUE@am__objects_2 = rfxencode_diff_count_sse2.lo \
+@WITH_SIMD_AMD64_TRUE@	rfxencode_dwt_shift_rem_sse2.lo
+@WITH_SIMD_X86_TRUE@am__objects_3 = rfxencode_diff_count_sse2.lo \
+@WITH_SIMD_X86_TRUE@	rfxencode_dwt_shift_rem_sse2.lo
+am__objects_4 = $(am__objects_2) $(am__objects_3)
 am_librfxencode_la_OBJECTS = $(am__objects_1) rfxencode.lo \
 	rfxencode_compose.lo rfxencode_tile.lo rfxencode_dwt.lo \
 	rfxencode_quantization.lo rfxencode_differential.lo \
 	rfxencode_rlgr1.lo rfxencode_rlgr3.lo rfxencode_alpha.lo \
 	rfxencode_diff_rlgr1.lo rfxencode_diff_rlgr3.lo \
 	rfxencode_rgb_to_yuv.lo rfxencode_dwt_rem.lo \
-	rfxencode_dwt_shift_rem.lo
+	rfxencode_dwt_shift_rem.lo $(am__objects_4)
 librfxencode_la_OBJECTS = $(am_librfxencode_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -179,12 +206,14 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/rfxencode.Plo \
 	./$(DEPDIR)/rfxencode_alpha.Plo \
 	./$(DEPDIR)/rfxencode_compose.Plo \
+	./$(DEPDIR)/rfxencode_diff_count_sse2.Plo \
 	./$(DEPDIR)/rfxencode_diff_rlgr1.Plo \
 	./$(DEPDIR)/rfxencode_diff_rlgr3.Plo \
 	./$(DEPDIR)/rfxencode_differential.Plo \
 	./$(DEPDIR)/rfxencode_dwt.Plo \
 	./$(DEPDIR)/rfxencode_dwt_rem.Plo \
 	./$(DEPDIR)/rfxencode_dwt_shift_rem.Plo \
+	./$(DEPDIR)/rfxencode_dwt_shift_rem_sse2.Plo \
 	./$(DEPDIR)/rfxencode_quantization.Plo \
 	./$(DEPDIR)/rfxencode_rgb_to_yuv.Plo \
 	./$(DEPDIR)/rfxencode_rlgr1.Plo \
@@ -209,7 +238,7 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(librfxencode_la_SOURCES)
-DIST_SOURCES = $(librfxencode_la_SOURCES)
+DIST_SOURCES = $(am__librfxencode_la_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -400,8 +429,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_DIST = common.asm nasm_lt.sh
-SUBDIRS = $(am__append_1) $(am__append_3)
-AM_CPPFLAGS = -I$(top_srcdir)/include $(am__append_2) $(am__append_4)
+SUBDIRS = $(am__append_1) $(am__append_4)
+AM_CPPFLAGS = -I$(top_srcdir)/include $(am__append_2) $(am__append_5)
+EXTRA_SOURCES = $(am__append_3) $(am__append_6)
 @WITH_SIMD_AMD64_TRUE@librfxencode_la_LIBADD = amd64/librfxencode-amd64.la
 @WITH_SIMD_X86_TRUE@librfxencode_la_LIBADD = x86/librfxencode-x86.la
 noinst_HEADERS = \
@@ -419,9 +449,11 @@ noinst_HEADERS = \
   rfxencode_tile.h \
   rfxencode_diff_rlgr1.h \
   rfxencode_diff_rlgr3.h \
+  rfxencode_diff_rlgr_common.h \
   rfxencode_rgb_to_yuv.h \
   rfxencode_dwt_rem.h \
-  rfxencode_dwt_shift_rem.h
+  rfxencode_dwt_shift_rem.h \
+  rfxencode_dwt_shift_rem_common.h
 
 lib_LTLIBRARIES = librfxencode.la
 librfxencode_la_LDFLAGS = -all-static
@@ -432,7 +464,8 @@ librfxencode_la_SOURCES = $(noinst_HEADERS) rfxencode.c \
   rfxencode_diff_rlgr1.c rfxencode_diff_rlgr3.c \
   rfxencode_rgb_to_yuv.c \
   rfxencode_dwt_rem.c \
-  rfxencode_dwt_shift_rem.c
+  rfxencode_dwt_shift_rem.c \
+  $(EXTRA_SOURCES)
 
 all: all-recursive
 
@@ -515,12 +548,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_alpha.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_compose.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_diff_count_sse2.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_diff_rlgr1.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_diff_rlgr3.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_differential.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_dwt.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_dwt_rem.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_dwt_shift_rem.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_dwt_shift_rem_sse2.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_quantization.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_rgb_to_yuv.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode_rlgr1.Plo@am__quote@ # am--include-marker
@@ -763,12 +798,14 @@ distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/rfxencode.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_alpha.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_compose.Plo
+	-rm -f ./$(DEPDIR)/rfxencode_diff_count_sse2.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_diff_rlgr1.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_diff_rlgr3.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_differential.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_dwt.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_dwt_rem.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_dwt_shift_rem.Plo
+	-rm -f ./$(DEPDIR)/rfxencode_dwt_shift_rem_sse2.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_quantization.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_rgb_to_yuv.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_rlgr1.Plo
@@ -822,12 +859,14 @@ maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/rfxencode.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_alpha.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_compose.Plo
+	-rm -f ./$(DEPDIR)/rfxencode_diff_count_sse2.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_diff_rlgr1.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_diff_rlgr3.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_differential.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_dwt.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_dwt_rem.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_dwt_shift_rem.Plo
+	-rm -f ./$(DEPDIR)/rfxencode_dwt_shift_rem_sse2.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_quantization.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_rgb_to_yuv.Plo
 	-rm -f ./$(DEPDIR)/rfxencode_rlgr1.Plo
