@@ -24,7 +24,7 @@ Build-Depends:
  nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
  openssl,
  pkgconf,
- systemd [linux-any],
+ systemd-dev [linux-any] | systemd [linux-any],
 Homepage: http://www.xrdp.org/
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
