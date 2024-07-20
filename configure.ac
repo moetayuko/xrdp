@@ -1,11 +1,12 @@
 # Process this file with autoconf to produce a configure script
 
 AC_PREREQ([2.69])
-AC_INIT([xrdp], [0.10.0-beta.1], [xrdp-devel@googlegroups.com])
+AC_INIT([xrdp], [0.10.80], [xrdp-devel@googlegroups.com])
 AC_DEFINE([VERSION_YEAR], 2024, [Copyright year])
 AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.7.2 foreign])
 AC_CONFIG_MACRO_DIR([m4])
+AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_CC
 AC_PROG_CXX
 AC_C_CONST
@@ -167,7 +168,15 @@ AC_ARG_ENABLE(pixman, AS_HELP_STRING([--enable-pixman],
               [Use pixman library (default: no)]),
               [], [enable_pixman=no])
 AM_CONDITIONAL(XRDP_PIXMAN, [test x$enable_pixman = xyes])
-
+AC_ARG_ENABLE(x264, AS_HELP_STRING([--enable-x264],
+              [Use x264 library (default: no)]),
+              [], [enable_x264=no])
+AM_CONDITIONAL(XRDP_X264, [test x$enable_x264 = xyes])
+AC_ARG_ENABLE(nvenc, AS_HELP_STRING([--enable-nvenc],
+              [Use nvenc library (default: no), env vars XRDP_NVENC_CFLAGS and
+               XRDP_NVENC_LIBS should be set if used]),
+              [], [enable_nvenc=no])
+AM_CONDITIONAL(XRDP_NVENC, [test x$enable_nvenc = xyes])
 AC_ARG_ENABLE(painter, AS_HELP_STRING([--disable-painter],
               [Do not use included painter library (default: no)]),
               [], [enable_painter=yes])
@@ -182,6 +191,11 @@ AC_ARG_ENABLE(rdpsndaudin, AS_HELP_STRING([--enable-rdpsndaudin],
               [Use rdpsnd audio in (default: no)]),
               [], [enable_rdpsndaudin=no])
 AM_CONDITIONAL(XRDP_RDPSNDAUDIN, [test x$enable_rdpsndaudin = xyes])
+
+AC_ARG_ENABLE(utmp, AS_HELP_STRING([--enable-utmp],
+              [Update utmp (default: no)]),
+              [], [enable_utmp=no])
+AM_CONDITIONAL(XRDP_UTMP, [test x$enable_utmp = xyes])
 
 AC_ARG_WITH(imlib2, AS_HELP_STRING([--with-imlib2=ARG], [imlib2 library to use for non-BMP backgrounds (ARG=yes/no/<abs-path>)]),,)
 
@@ -200,6 +214,7 @@ AX_GCC_FUNC_ATTRIBUTE([format])
 AX_TYPE_SOCKLEN_T
 AX_CFLAGS_WARN_ALL
 AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
+AX_APPEND_COMPILE_FLAGS([-Wmissing-prototypes], ,[-Werror])
 
 AM_COND_IF([LINUX],
   [AX_APPEND_COMPILE_FLAGS([-Werror])]) # bsd has warnings that have not been fixed yet
@@ -245,6 +260,9 @@ AC_CHECK_HEADER([security/_pam_types.h],
                 [AC_DEFINE([HAVE__PAM_TYPES_H], 1, [Using Linux-PAM], [])])
 AC_CHECK_HEADER([security/pam_constants.h],
                 [AC_DEFINE([HAVE_PAM_CONSTANTS_H], 1, [Using OpenPAM], [])])
+
+# shm_open may not be in the C library
+AC_SEARCH_LIBS([shm_open], [rt])
 
 # Find imlib2
 case "$with_imlib2" in
@@ -467,6 +485,20 @@ fi
 
 AS_IF( [test "x$enable_pixman" = "xyes"] , [PKG_CHECK_MODULES(PIXMAN, pixman-1 >= 0.1.0)] )
 
+AS_IF( [test "x$enable_x264" = "xyes"] , [PKG_CHECK_MODULES(XRDP_X264, x264 >= 0.3.0)] )
+
+if test "x$enable_nvenc" = "xyes"
+then
+if test ! -z "$XRDP_NVENC_CFLAGS"
+then
+  AC_SUBST(XRDP_NVENC_CFLAGS, ["$XRDP_NVENC_CFLAGS"])
+fi
+if test ! -z "$XRDP_NVENC_LIBS"
+then
+  AC_SUBST(XRDP_NVENC_LIBS, ["$XRDP_NVENC_LIBS"])
+fi
+fi
+
 # checking for TurboJPEG
 if test "x$enable_tjpeg" = "xyes"
 then
@@ -514,6 +546,15 @@ AC_CHECK_HEADER([X11/extensions/Xfixes.h], [],
 AC_CHECK_HEADER([X11/extensions/Xrandr.h], [],
   [AC_MSG_ERROR([please install libxrandr-dev or libXrandr-devel])],
   [#include <X11/Xlib.h>])
+
+if test "x$enable_utmp" = "xyes"
+then
+    AC_CHECK_HEADERS(utmp.h utmpx.h)
+
+    # Test for non-standard extensions in struct utmpx
+    AXRDP_CHECK_UTMPX_MEMBER_EXISTS([ut_host], [HAVE_UTMPX_UT_HOST])
+    AXRDP_CHECK_UTMPX_MEMBER_EXISTS([ut_exit], [HAVE_UTMPX_UT_EXIT])
+fi
 
 CFLAGS="$save_CFLAGS"
 
@@ -610,6 +651,8 @@ AC_CONFIG_FILES([
   xup/Makefile
   third_party/Makefile
   third_party/tomlc99/Makefile
+  xrdp_accel_assist/Makefile
+
 ])
 
 AC_REQUIRE_AUX_FILE([tap-driver.sh])
@@ -624,6 +667,8 @@ echo "  fdkaac                  $enable_fdkaac"
 echo "  jpeg                    $enable_jpeg"
 echo "  turbo jpeg              $enable_tjpeg"
 echo "  rfxcodec                $enable_rfxcodec"
+echo "  x264                    $enable_x264"
+echo "  nvenc                   $enable_nvenc"
 echo "  painter                 $enable_painter"
 echo "  pixman                  $enable_pixman"
 echo "  fuse                    $enable_fuse"
@@ -632,6 +677,12 @@ echo "  ipv6only                $enable_ipv6only"
 echo "  vsock                   $enable_vsock"
 echo "  auth mechanism          $auth_mech"
 echo "  rdpsndaudin             $enable_rdpsndaudin"
+echo "  utmp support            $enable_utmp"
+if test x$enable_utmp = xyes; then
+    echo "    utmpx.ut_host         $ac_cv_utmpx_has_ut_host"
+    echo "    utmpx.ut_exit         $ac_cv_utmpx_has_ut_exit"
+fi
+
 echo
 echo "  with imlib2             $use_imlib2"
 echo "  with freetype2          $use_freetype2"

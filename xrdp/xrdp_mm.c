@@ -21,6 +21,7 @@
 #if defined(HAVE_CONFIG_H)
 #include <config_ac.h>
 #endif
+#include "xrdp_mm.h"
 #include "xrdp.h"
 #include "log.h"
 #include "string_calls.h"
@@ -1489,7 +1490,7 @@ xrdp_mm_egfx_frame_ack(void *user, uint32_t queue_depth, int frame_id,
 }
 
 /******************************************************************************/
-int
+static int
 egfx_initialize(struct xrdp_mm *self)
 {
     LOG_DEVEL(LOG_LEVEL_TRACE, "egfx_initialize");
@@ -1988,7 +1989,7 @@ dynamic_monitor_process_queue(struct xrdp_mm *self)
 }
 
 /******************************************************************************/
-int
+static int
 dynamic_monitor_initialize(struct xrdp_mm *self)
 {
     struct xrdp_drdynvc_procs d_procs;
@@ -3477,7 +3478,7 @@ xrdp_mm_process_enc_done(struct xrdp_mm *self)
                 y = enc_done->y;
                 cx = enc_done->cx;
                 cy = enc_done->cy;
-                if (!enc_done->continuation)
+                if (client_ack && !enc_done->continuation)
                 {
                     libxrdp_fastpath_send_frame_marker(self->wm->session, 0,
                                                        enc_done->frame_id);
@@ -3489,7 +3490,7 @@ xrdp_mm_process_enc_done(struct xrdp_mm *self)
                                               x, y, x + cx, y + cy,
                                               32, self->encoder->codec_id,
                                               cx, cy);
-                if (enc_done->last)
+                if (client_ack && enc_done->last)
                 {
                     libxrdp_fastpath_send_frame_marker(self->wm->session, 1,
                                                        enc_done->frame_id);
