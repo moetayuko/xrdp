@@ -72,6 +72,8 @@ override_dh_auto_configure:
 	    --enable-opus \
 	    --enable-painter \
 	    --enable-vsock \
+	    --enable-x264 \
+	    --enable-nvenc \
 	    ${CONFIGURE_ARGS}
 	cd librfxcodec && ./configure \
 	    --disable-shared \
