@@ -154,6 +154,36 @@ g_init(const char *app_name)
 
     WSAStartup(2, &wsadata);
 #endif
+#if defined(XRDP_NVENC)
+    if (g_strcmp(app_name, "xrdp") == 0)
+    {
+        /* call cuInit() to initalize the nvidia drivers */
+        /* TODO create an issue on nvidia forums to figure out why we need to
+        *  do this */
+        if (g_fork() == 0)
+        {
+            typedef int (*cu_init_proc)(int flags);
+            cu_init_proc cu_init;
+            long lib;
+            char cuda_lib_name[] = "libcuda.so";
+            char cuda_func_name[] = "cuInit";
+
+            lib = g_load_library(cuda_lib_name);
+            if (lib != 0)
+            {
+                cu_init = (cu_init_proc)
+                          g_get_proc_address(lib, cuda_func_name);
+                if (cu_init != NULL)
+                {
+                    cu_init(0);
+                }
+            }
+            log_end();
+            g_deinit();
+            g_exit(0);
+        }
+    }
+#endif
 }
 
 /*****************************************************************************/
@@ -427,23 +457,6 @@ g_tcp_socket(void)
             option_value = 1;
             option_len = sizeof(option_value);
             if (setsockopt(rv, SOL_SOCKET, SO_REUSEADDR, (char *)&option_value,
-                           option_len) < 0)
-            {
-                LOG(LOG_LEVEL_ERROR, "g_tcp_socket: setsockopt() failed");
-            }
-        }
-    }
-
-    option_len = sizeof(option_value);
-
-    if (getsockopt(rv, SOL_SOCKET, SO_SNDBUF, (char *)&option_value,
-                   &option_len) == 0)
-    {
-        if (option_value < (1024 * 32))
-        {
-            option_value = 1024 * 32;
-            option_len = sizeof(option_value);
-            if (setsockopt(rv, SOL_SOCKET, SO_SNDBUF, (char *)&option_value,
                            option_len) < 0)
             {
                 LOG(LOG_LEVEL_ERROR, "g_tcp_socket: setsockopt() failed");
@@ -1545,6 +1558,39 @@ g_sck_send_fd_set(int sck, const void *ptr, unsigned int len,
 #endif /* !WIN32 */
 
     return rv;
+}
+
+/******************************************************************************/
+int
+g_alloc_shm_map_fd(void **addr, int *fd, size_t size)
+{
+    int lfd = -1;
+    void *laddr;
+    char name[128];
+    static unsigned int autoinc;
+
+    snprintf(name, 128, "/%8.8X%8.8X", getpid(), autoinc++);
+    lfd = shm_open(name, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (lfd == -1)
+    {
+        return 1;
+    }
+    shm_unlink(name);
+    if (ftruncate(lfd, size) == -1)
+    {
+        close(lfd);
+        return 2;
+    }
+    /* map fd to address space */
+    laddr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, lfd, 0);
+    if (laddr == MAP_FAILED)
+    {
+        close(lfd);
+        return 3;
+    }
+    *addr = laddr;
+    *fd = lfd;
+    return 0;
 }
 
 /*****************************************************************************/
@@ -3303,10 +3349,10 @@ g_set_allusercontext(int uid)
 /*****************************************************************************/
 /* does not work in win32
    returns pid of process that exits or zero if signal occurred
-   an exit_status struct can optionally be passed in to get the
+   a proc_exit_status struct can optionally be passed in to get the
    exit status of the child */
 int
-g_waitchild(struct exit_status *e)
+g_waitchild(struct proc_exit_status *e)
 {
 #if defined(_WIN32)
     return 0;
@@ -3314,14 +3360,14 @@ g_waitchild(struct exit_status *e)
     int wstat;
     int rv;
 
-    struct exit_status dummy;
+    struct proc_exit_status dummy;
 
     if (e == NULL)
     {
         e = &dummy;  // Set this, then throw it away
     }
 
-    e->reason = E_XR_UNEXPECTED;
+    e->reason = E_PXR_UNEXPECTED;
     e->val = 0;
 
     rv = waitpid(-1, &wstat, WNOHANG);
@@ -3336,12 +3382,12 @@ g_waitchild(struct exit_status *e)
     }
     else if (WIFEXITED(wstat))
     {
-        e->reason = E_XR_STATUS_CODE;
+        e->reason = E_PXR_STATUS_CODE;
         e->val = WEXITSTATUS(wstat);
     }
     else if (WIFSIGNALED(wstat))
     {
-        e->reason = E_XR_SIGNAL;
+        e->reason = E_PXR_SIGNAL;
         e->val = WTERMSIG(wstat);
     }
 
@@ -3382,10 +3428,14 @@ g_waitpid(int pid)
 
    Note that signal handlers are established with BSD-style semantics,
    so this call is NOT interrupted by a signal  */
-struct exit_status
+struct proc_exit_status
 g_waitpid_status(int pid)
 {
-    struct exit_status exit_status = {.reason = E_XR_UNEXPECTED, .val = 0};
+    struct proc_exit_status exit_status =
+    {
+        .reason = E_PXR_UNEXPECTED,
+        .val = 0
+    };
 
 #if !defined(_WIN32)
     if (pid > 0)
@@ -3400,12 +3450,12 @@ g_waitpid_status(int pid)
         {
             if (WIFEXITED(status))
             {
-                exit_status.reason = E_XR_STATUS_CODE;
+                exit_status.reason = E_PXR_STATUS_CODE;
                 exit_status.val = WEXITSTATUS(status);
             }
             if (WIFSIGNALED(status))
             {
-                exit_status.reason = E_XR_SIGNAL;
+                exit_status.reason = E_PXR_SIGNAL;
                 exit_status.val = WTERMSIG(status);
             }
         }

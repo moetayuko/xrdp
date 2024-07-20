@@ -23,16 +23,16 @@
 
 #include "arch.h"
 
-enum exit_reason
+enum proc_exit_reason
 {
-    E_XR_STATUS_CODE = 0, ///< 'val' contains exit status
-    E_XR_SIGNAL, ///< 'val' contains a signal number
-    E_XR_UNEXPECTED
+    E_PXR_STATUS_CODE = 0, ///< 'val' contains exit status
+    E_PXR_SIGNAL, ///< 'val' contains a signal number
+    E_PXR_UNEXPECTED
 };
 
-struct exit_status
+struct proc_exit_status
 {
-    enum exit_reason reason;
+    enum proc_exit_reason reason;
     int val;
 };
 
@@ -124,6 +124,7 @@ int      g_sck_recv_fd_set(int sck, void *ptr, unsigned int len,
  */
 int      g_sck_send_fd_set(int sck, const void *ptr, unsigned int len,
                            int fds[], unsigned int fdcount);
+int      g_alloc_shm_map_fd(void **addr, int *fd, size_t size);
 int      g_sck_last_error_would_block(int sck);
 int      g_sck_socket_ok(int sck);
 /**
@@ -352,9 +353,9 @@ int      g_setlogin(const char *name);
  */
 int      g_set_allusercontext(int uid);
 #endif
-int      g_waitchild(struct exit_status *e);
+int      g_waitchild(struct proc_exit_status *e);
 int      g_waitpid(int pid);
-struct exit_status g_waitpid_status(int pid);
+struct proc_exit_status g_waitpid_status(int pid);
 /*
  * Sets the process group ID of the indicated process to the specified value.
  * (POSIX.1)

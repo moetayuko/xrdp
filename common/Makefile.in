@@ -89,6 +89,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@XRDP_NVENC_TRUE@am__append_1 = -DXRDP_NVENC
 subdir = common
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -98,10 +99,10 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
 	$(top_srcdir)/m4/ax_gcc_func_attribute.m4 \
 	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/ax_type_socklen_t.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/pkg.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/axrdp.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(include_HEADERS) \
@@ -325,6 +326,10 @@ TurboJpegIncDir = @TurboJpegIncDir@
 TurboJpegLibDir = @TurboJpegLibDir@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
+XRDP_NVENC_CFLAGS = @XRDP_NVENC_CFLAGS@
+XRDP_NVENC_LIBS = @XRDP_NVENC_LIBS@
+XRDP_X264_CFLAGS = @XRDP_X264_CFLAGS@
+XRDP_X264_LIBS = @XRDP_X264_LIBS@
 X_CFLAGS = @X_CFLAGS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
@@ -408,13 +413,11 @@ include_HEADERS = \
   xrdp_rail.h \
   xrdp_sockets.h
 
-AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-  -DXRDP_SBIN_PATH=\"${sbindir}\" \
-  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
-  -DXRDP_LOG_PATH=\"${localstatedir}/log\"
-
+AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+	-DXRDP_SBIN_PATH=\"${sbindir}\" \
+	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
+	-DXRDP_LOG_PATH=\"${localstatedir}/log\" $(am__append_1)
 
 # -no-suppress is an automake-specific flag which is needed
 # to prevent us missing compiler errors in some circumstances
@@ -457,7 +460,7 @@ libcommon_la_SOURCES = \
   $(PIXMAN_SOURCES)
 
 libcommon_la_LIBADD = \
-  -lpthread -lrt \
+  -lpthread \
   $(OPENSSL_LIBS) \
   $(DLOPEN_LIBS)
 

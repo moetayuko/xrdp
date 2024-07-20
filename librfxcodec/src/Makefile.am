@@ -5,16 +5,22 @@ SUBDIRS =
 AM_CPPFLAGS = \
   -I$(top_srcdir)/include
 
+EXTRA_SOURCES=
+
 if WITH_SIMD_AMD64
 SUBDIRS += amd64
 librfxencode_la_LIBADD = amd64/librfxencode-amd64.la
-AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_AMD64=1
+AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_AMD64=1 -msse2 -mfpmath=sse
+EXTRA_SOURCES+=rfxencode_diff_count_sse2.c rfxencode_diff_count_sse2.h \
+	       rfxencode_dwt_shift_rem_sse2.c rfxencode_dwt_shift_rem_sse2.h
 endif
 
 if WITH_SIMD_X86
 SUBDIRS += x86
 librfxencode_la_LIBADD = x86/librfxencode-x86.la
-AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1
+AM_CPPFLAGS += -DSIMD_USE_ACCEL=1 -DRFX_USE_ACCEL_X86=1 -msse2 -mfpmath=sse
+EXTRA_SOURCES+=rfxencode_diff_count_sse2.c rfxencode_diff_count_sse2.h \
+	       rfxencode_dwt_shift_rem_sse2.c rfxencode_dwt_shift_rem_sse2.h
 endif
 
 noinst_HEADERS = \
@@ -32,9 +38,11 @@ noinst_HEADERS = \
   rfxencode_tile.h \
   rfxencode_diff_rlgr1.h \
   rfxencode_diff_rlgr3.h \
+  rfxencode_diff_rlgr_common.h \
   rfxencode_rgb_to_yuv.h \
   rfxencode_dwt_rem.h \
-  rfxencode_dwt_shift_rem.h
+  rfxencode_dwt_shift_rem.h \
+  rfxencode_dwt_shift_rem_common.h
 
 lib_LTLIBRARIES = librfxencode.la
 
@@ -47,4 +55,5 @@ librfxencode_la_SOURCES = $(noinst_HEADERS) rfxencode.c \
   rfxencode_diff_rlgr1.c rfxencode_diff_rlgr3.c \
   rfxencode_rgb_to_yuv.c \
   rfxencode_dwt_rem.c \
-  rfxencode_dwt_shift_rem.c
+  rfxencode_dwt_shift_rem.c \
+  $(EXTRA_SOURCES)

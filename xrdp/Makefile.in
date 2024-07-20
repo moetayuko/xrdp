@@ -92,11 +92,14 @@ host_triplet = @host@
 @XRDP_RFXCODEC_TRUE@am__append_1 = -DXRDP_RFXCODEC \
 @XRDP_RFXCODEC_TRUE@	-I$(top_srcdir)/librfxcodec/include
 @XRDP_RFXCODEC_TRUE@am__append_2 = $(top_builddir)/librfxcodec/src/.libs/librfxencode.a
-@XRDP_PIXMAN_TRUE@am__append_3 = -DXRDP_PIXMAN $(PIXMAN_CFLAGS)
-@XRDP_PIXMAN_TRUE@am__append_4 = $(PIXMAN_LIBS)
-@XRDP_PAINTER_TRUE@am__append_5 = -DXRDP_PAINTER \
+@XRDP_X264_TRUE@am__append_3 = -DXRDP_X264 $(XRDP_X264_CFLAGS)
+@XRDP_X264_TRUE@am__append_4 = $(XRDP_X264_LIBS)
+@XRDP_X264_TRUE@am__append_5 = xrdp_encoder_x264.c xrdp_encoder_x264.h
+@XRDP_PIXMAN_TRUE@am__append_6 = -DXRDP_PIXMAN $(PIXMAN_CFLAGS)
+@XRDP_PIXMAN_TRUE@am__append_7 = $(PIXMAN_LIBS)
+@XRDP_PAINTER_TRUE@am__append_8 = -DXRDP_PAINTER \
 @XRDP_PAINTER_TRUE@	-I$(top_srcdir)/libpainter/include
-@XRDP_PAINTER_TRUE@am__append_6 = $(top_builddir)/libpainter/src/.libs/libpainter.a
+@XRDP_PAINTER_TRUE@am__append_9 = $(top_builddir)/libpainter/src/.libs/libpainter.a
 sbin_PROGRAMS = xrdp$(EXEEXT)
 subdir = xrdp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -107,10 +110,10 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
 	$(top_srcdir)/m4/ax_gcc_func_attribute.m4 \
 	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/ax_type_socklen_t.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/pkg.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/axrdp.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(dist_xrdppkgdata_DATA) \
@@ -122,6 +125,15 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(xrdppkgdatadir)" \
 	"$(DESTDIR)$(xrdpsysconfdir)"
 PROGRAMS = $(sbin_PROGRAMS)
+am__xrdp_SOURCES_DIST = funcs.c lang.c xrdp.c xrdp.h xrdp_bitmap.c \
+	xrdp_bitmap_load.c xrdp_bitmap_common.c xrdp_cache.c \
+	xrdp_encoder.c xrdp_encoder.h xrdp_font.c xrdp_listen.c \
+	xrdp_login_wnd.c xrdp_mm.c xrdp_mm.h xrdp_painter.c \
+	xrdp_process.c xrdp_region.c xrdp_types.h xrdp_egfx.c \
+	xrdp_egfx.h xrdp_wm.c xrdp_main_utils.c xrdp_encoder_x264.c \
+	xrdp_encoder_x264.h
+@XRDP_X264_TRUE@am__objects_1 = xrdp_encoder_x264.$(OBJEXT)
+am__objects_2 = $(am__objects_1)
 am_xrdp_OBJECTS = funcs.$(OBJEXT) lang.$(OBJEXT) xrdp.$(OBJEXT) \
 	xrdp_bitmap.$(OBJEXT) xrdp_bitmap_load.$(OBJEXT) \
 	xrdp_bitmap_common.$(OBJEXT) xrdp_cache.$(OBJEXT) \
@@ -130,17 +142,18 @@ am_xrdp_OBJECTS = funcs.$(OBJEXT) lang.$(OBJEXT) xrdp.$(OBJEXT) \
 	xrdp_mm.$(OBJEXT) xrdp_painter.$(OBJEXT) \
 	xrdp_process.$(OBJEXT) xrdp_region.$(OBJEXT) \
 	xrdp_egfx.$(OBJEXT) xrdp_wm.$(OBJEXT) \
-	xrdp_main_utils.$(OBJEXT)
+	xrdp_main_utils.$(OBJEXT) $(am__objects_2)
 xrdp_OBJECTS = $(am_xrdp_OBJECTS)
 am__DEPENDENCIES_1 =
-@XRDP_PIXMAN_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
-am__DEPENDENCIES_3 = $(am__append_2) $(am__DEPENDENCIES_2) \
-	$(am__append_6)
+@XRDP_X264_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
+@XRDP_PIXMAN_TRUE@am__DEPENDENCIES_3 = $(am__DEPENDENCIES_1)
+am__DEPENDENCIES_4 = $(am__append_2) $(am__DEPENDENCIES_2) \
+	$(am__DEPENDENCIES_3) $(am__append_9)
 xrdp_DEPENDENCIES = $(top_builddir)/common/libcommon.la \
 	$(top_builddir)/libipm/libipm.la \
 	$(top_builddir)/libxrdp/libxrdp.la \
 	$(top_builddir)/third_party/tomlc99/libtoml.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_3)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_4)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -165,11 +178,11 @@ am__depfiles_remade = ./$(DEPDIR)/funcs.Po ./$(DEPDIR)/lang.Po \
 	./$(DEPDIR)/xrdp_bitmap_common.Po \
 	./$(DEPDIR)/xrdp_bitmap_load.Po ./$(DEPDIR)/xrdp_cache.Po \
 	./$(DEPDIR)/xrdp_egfx.Po ./$(DEPDIR)/xrdp_encoder.Po \
-	./$(DEPDIR)/xrdp_font.Po ./$(DEPDIR)/xrdp_listen.Po \
-	./$(DEPDIR)/xrdp_login_wnd.Po ./$(DEPDIR)/xrdp_main_utils.Po \
-	./$(DEPDIR)/xrdp_mm.Po ./$(DEPDIR)/xrdp_painter.Po \
-	./$(DEPDIR)/xrdp_process.Po ./$(DEPDIR)/xrdp_region.Po \
-	./$(DEPDIR)/xrdp_wm.Po
+	./$(DEPDIR)/xrdp_encoder_x264.Po ./$(DEPDIR)/xrdp_font.Po \
+	./$(DEPDIR)/xrdp_listen.Po ./$(DEPDIR)/xrdp_login_wnd.Po \
+	./$(DEPDIR)/xrdp_main_utils.Po ./$(DEPDIR)/xrdp_mm.Po \
+	./$(DEPDIR)/xrdp_painter.Po ./$(DEPDIR)/xrdp_process.Po \
+	./$(DEPDIR)/xrdp_region.Po ./$(DEPDIR)/xrdp_wm.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -190,7 +203,7 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(xrdp_SOURCES)
-DIST_SOURCES = $(xrdp_SOURCES)
+DIST_SOURCES = $(am__xrdp_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -343,6 +356,10 @@ TurboJpegIncDir = @TurboJpegIncDir@
 TurboJpegLibDir = @TurboJpegLibDir@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
+XRDP_NVENC_CFLAGS = @XRDP_NVENC_CFLAGS@
+XRDP_NVENC_LIBS = @XRDP_NVENC_LIBS@
+XRDP_X264_CFLAGS = @XRDP_X264_CFLAGS@
+XRDP_X264_LIBS = @XRDP_X264_LIBS@
 X_CFLAGS = @X_CFLAGS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
@@ -421,8 +438,11 @@ AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
 	-I$(top_srcdir)/common -I$(top_srcdir)/libipm \
 	-I$(top_srcdir)/libxrdp -I$(top_srcdir)/third_party \
 	-I$(top_srcdir)/third_party/tomlc99 $(IMLIB2_CFLAGS) \
-	$(am__append_1) $(am__append_3) $(am__append_5)
-XRDP_EXTRA_LIBS = $(am__append_2) $(am__append_4) $(am__append_6)
+	$(am__append_1) $(am__append_3) $(am__append_6) \
+	$(am__append_8)
+XRDP_EXTRA_LIBS = $(am__append_2) $(am__append_4) $(am__append_7) \
+	$(am__append_9)
+XRDP_EXTRA_SOURCES = $(am__append_5)
 xrdp_SOURCES = \
   funcs.c \
   lang.c \
@@ -438,6 +458,7 @@ xrdp_SOURCES = \
   xrdp_listen.c \
   xrdp_login_wnd.c \
   xrdp_mm.c \
+  xrdp_mm.h \
   xrdp_painter.c \
   xrdp_process.c \
   xrdp_region.c \
@@ -445,7 +466,8 @@ xrdp_SOURCES = \
   xrdp_egfx.c \
   xrdp_egfx.h \
   xrdp_wm.c \
-  xrdp_main_utils.c
+  xrdp_main_utils.c \
+  $(XRDP_EXTRA_SOURCES)
 
 xrdp_LDADD = \
   $(top_builddir)/common/libcommon.la \
@@ -585,6 +607,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_cache.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_egfx.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_encoder.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_encoder_x264.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_font.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_listen.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xrdp_login_wnd.Po@am__quote@ # am--include-marker
@@ -806,6 +829,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/xrdp_cache.Po
 	-rm -f ./$(DEPDIR)/xrdp_egfx.Po
 	-rm -f ./$(DEPDIR)/xrdp_encoder.Po
+	-rm -f ./$(DEPDIR)/xrdp_encoder_x264.Po
 	-rm -f ./$(DEPDIR)/xrdp_font.Po
 	-rm -f ./$(DEPDIR)/xrdp_listen.Po
 	-rm -f ./$(DEPDIR)/xrdp_login_wnd.Po
@@ -870,6 +894,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/xrdp_cache.Po
 	-rm -f ./$(DEPDIR)/xrdp_egfx.Po
 	-rm -f ./$(DEPDIR)/xrdp_encoder.Po
+	-rm -f ./$(DEPDIR)/xrdp_encoder_x264.Po
 	-rm -f ./$(DEPDIR)/xrdp_font.Po
 	-rm -f ./$(DEPDIR)/xrdp_listen.Po
 	-rm -f ./$(DEPDIR)/xrdp_login_wnd.Po
