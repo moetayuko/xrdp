@@ -1,4 +1,34 @@
-xrdp (0.10.0~beta1-1) UNRELEASED; urgency=medium
+xrdp (0.10.0-2) unstable; urgency=medium
+
+  * Upload to unstable.
+  * d/control: update Homepage field to https://.
+  * Cherry pick dvorak fix from upstream. (Closes: #1071556)
+  * d/README.Debian: add link for settings.
+  * Applied patch for d/watch and signature key. (Closes: #1043488)
+
+ -- Alex Myczko <tar@debian.org>  Mon, 22 Jul 2024 16:24:24 +0000
+
+xrdp (0.10.0-1) experimental; urgency=medium
+
+  * New upstream version.
+  * d/control: build-depends pkg-config to pkgconf.
+  * d/copyright: updated.
+
+ -- Alex Myczko <tar@debian.org>  Mon, 13 May 2024 11:26:44 +0200
+
+xrdp (0.10.0~beta2-1) experimental; urgency=medium
+
+  * New upstream version.
+
+ -- Gürkan Myczko <tar@debian.org>  Thu, 28 Mar 2024 05:31:28 +0100
+
+xrdp (0.10.0~beta1-2) experimental; urgency=medium
+
+  * d/control: add libcmocka-dev to build-depends.
+
+ -- Gürkan Myczko <tar@debian.org>  Mon, 11 Mar 2024 12:16:15 +0100
+
+xrdp (0.10.0~beta1-1) experimental; urgency=medium
 
   * New upstream version.
 

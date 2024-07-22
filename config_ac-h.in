@@ -3,11 +3,11 @@
 /* Allow sources to check config_ac.h is included */
 #undef CONFIG_AC_H
 
-/* Define to the type of elements in the array set by `getgroups'. Usually
-   this is either `int' or `gid_t'. */
+/* Define to the type of elements in the array argument to 'getgroups'.
+   Usually this is either 'int' or 'gid_t'. */
 #undef GETGROUPS_T
 
-/* Define to 1 if you have the `clearenv' function. */
+/* Define to 1 if you have the 'clearenv' function. */
 #undef HAVE_CLEARENV
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
@@ -16,7 +16,7 @@
 /* Define to 1 if the system has the `format' function attribute */
 #undef HAVE_FUNC_ATTRIBUTE_FORMAT
 
-/* Define to 1 if you have the `getgrouplist' function. */
+/* Define to 1 if you have the 'getgrouplist' function. */
 #undef HAVE_GETGROUPLIST
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -31,7 +31,7 @@
 /* Using OpenPAM */
 #undef HAVE_PAM_CONSTANTS_H
 
-/* Define to 1 if you have the `setusercontext' function. */
+/* Define to 1 if you have the 'setusercontext' function. */
 #undef HAVE_SETUSERCONTEXT
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -91,16 +91,16 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* The size of `int', as computed by sizeof. */
+/* The size of 'int', as computed by sizeof. */
 #undef SIZEOF_INT
 
-/* The size of `long', as computed by sizeof. */
+/* The size of 'long', as computed by sizeof. */
 #undef SIZEOF_LONG
 
-/* The size of `void *', as computed by sizeof. */
+/* The size of 'void *', as computed by sizeof. */
 #undef SIZEOF_VOID_P
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
@@ -132,14 +132,14 @@
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING
 
-/* Define to empty if `const' does not conform to ANSI C. */
+/* Define to empty if 'const' does not conform to ANSI C. */
 #undef const
 
-/* Define to `int' if <sys/types.h> doesn't define. */
+/* Define as 'int' if <sys/types.h> doesn't define. */
 #undef gid_t
 
 /* Substitute for socklen_t */
 #undef socklen_t
 
-/* Define to `int' if <sys/types.h> doesn't define. */
+/* Define as 'int' if <sys/types.h> doesn't define. */
 #undef uid_t
