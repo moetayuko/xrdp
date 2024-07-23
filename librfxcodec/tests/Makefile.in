@@ -87,7 +87,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = rfxcodectest$(EXEEXT) rfxencode$(EXEEXT)
+check_PROGRAMS = rfxcodectest$(EXEEXT) rfxencode$(EXEEXT) \
+	test_dwt_rem$(EXEEXT)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -116,6 +117,9 @@ am__v_lt_1 =
 am_rfxencode_OBJECTS = rfxencode.$(OBJEXT)
 rfxencode_OBJECTS = $(am_rfxencode_OBJECTS)
 rfxencode_DEPENDENCIES = $(top_builddir)/src/librfxencode.la
+am_test_dwt_rem_OBJECTS = test_dwt_rem.$(OBJEXT)
+test_dwt_rem_OBJECTS = $(am_test_dwt_rem_OBJECTS)
+test_dwt_rem_DEPENDENCIES = $(top_builddir)/src/librfxencode.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -132,7 +136,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/rfxcodectest.Po \
-	./$(DEPDIR)/rfxencode.Po
+	./$(DEPDIR)/rfxencode.Po ./$(DEPDIR)/test_dwt_rem.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -152,8 +156,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(rfxcodectest_SOURCES) $(rfxencode_SOURCES)
-DIST_SOURCES = $(rfxcodectest_SOURCES) $(rfxencode_SOURCES)
+SOURCES = $(rfxcodectest_SOURCES) $(rfxencode_SOURCES) \
+	$(test_dwt_rem_SOURCES)
+DIST_SOURCES = $(rfxcodectest_SOURCES) $(rfxencode_SOURCES) \
+	$(test_dwt_rem_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -306,10 +312,14 @@ AM_CPPFLAGS = \
 
 rfxcodectest_SOURCES = rfxcodectest.c
 rfxencode_SOURCES = rfxencode.c
+test_dwt_rem_SOURCES = test_dwt_rem.c
 rfxcodectest_LDADD = \
   $(top_builddir)/src/librfxencode.la
 
 rfxencode_LDADD = \
+  $(top_builddir)/src/librfxencode.la
+
+test_dwt_rem_LDADD = \
   $(top_builddir)/src/librfxencode.la
 
 all: all-am
@@ -363,6 +373,10 @@ rfxencode$(EXEEXT): $(rfxencode_OBJECTS) $(rfxencode_DEPENDENCIES) $(EXTRA_rfxen
 	@rm -f rfxencode$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(rfxencode_OBJECTS) $(rfxencode_LDADD) $(LIBS)
 
+test_dwt_rem$(EXEEXT): $(test_dwt_rem_OBJECTS) $(test_dwt_rem_DEPENDENCIES) $(EXTRA_test_dwt_rem_DEPENDENCIES) 
+	@rm -f test_dwt_rem$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_dwt_rem_OBJECTS) $(test_dwt_rem_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -371,6 +385,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxcodectest.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfxencode.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_dwt_rem.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -532,6 +547,7 @@ clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/rfxcodectest.Po
 	-rm -f ./$(DEPDIR)/rfxencode.Po
+	-rm -f ./$(DEPDIR)/test_dwt_rem.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -579,6 +595,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/rfxcodectest.Po
 	-rm -f ./$(DEPDIR)/rfxencode.Po
+	-rm -f ./$(DEPDIR)/test_dwt_rem.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
