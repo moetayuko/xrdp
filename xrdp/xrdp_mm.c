@@ -1370,7 +1370,7 @@ xrdp_mm_egfx_caps_advertise(void *user, int caps_count,
         error = xrdp_egfx_send_reset_graphics(self->egfx,
                                               screen->width, screen->height,
                                               self->wm->client_info->display_sizes.monitorCount,
-                                              self->wm->client_info->display_sizes.minfo_wm);
+                                              self->wm->client_info->display_sizes.minfo);
         LOG(LOG_LEVEL_INFO, "xrdp_mm_egfx_caps_advertise: xrdp_egfx_send_reset_graphics "
             "error %d monitorCount %d",
             error, self->wm->client_info->display_sizes.monitorCount);
@@ -2685,6 +2685,14 @@ xrdp_mm_process_login_response(struct xrdp_mm *self)
             {
                 xrdp_wm_log_msg(self->wm, LOG_LEVEL_INFO, "%s",
                                 self->wm->pamerrortxt);
+            }
+
+            if (self->wm->client_info->require_credentials)
+            {
+                /* Credentials had to be specified, but were invalid */
+                g_set_wait_obj(self->wm->pro_layer->self_term_event);
+                LOG(LOG_LEVEL_ERROR, "require_credentials is set, "
+                    "but the user could not be logged in");
             }
 
             if (server_closed)

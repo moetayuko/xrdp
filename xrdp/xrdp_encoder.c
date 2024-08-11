@@ -48,11 +48,30 @@
 #define OUT_DATA_BYTES_DEFAULT_SIZE (16 * 1024 * 1024)
 
 #ifdef XRDP_RFXCODEC
-/* LH3 LL3, HH3 HL3, HL2 LH2, LH1 HH2, HH1 HL1 todo check this */
-static const unsigned char g_rfx_quantization_values[] =
+/*
+ * LH3 LL3, HH3 HL3, HL2 LH2, LH1 HH2, HH1 HL1
+ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rdprfx/3e9c8af4-7539-4c9d-95de-14b1558b902c
+ */
+
+/* standard quality */
+static const unsigned char g_rfx_quantization_values_std[] =
 {
     0x66, 0x66, 0x77, 0x87, 0x98,
     0x76, 0x77, 0x88, 0x98, 0x99
+};
+
+/* low quality */
+static const unsigned char g_rfx_quantization_values_lq[] =
+{
+    0x66, 0x66, 0x77, 0x87, 0x98,
+    0xAA, 0xAA, 0xAA, 0xAA, 0xAA /* TODO: tentative value */
+};
+
+/* ultra low quality */
+static const unsigned char g_rfx_quantization_values_ulq[] =
+{
+    0x66, 0x66, 0x77, 0x87, 0x98,
+    0xBB, 0xBB, 0xBB, 0xBB, 0xBB /* TODO: tentative value */
 };
 #endif
 
@@ -82,8 +101,15 @@ static void
 xrdp_enc_data_destructor(void *item, void *closure)
 {
     XRDP_ENC_DATA *enc = (XRDP_ENC_DATA *)item;
-    g_free(enc->u.sc.drects);
-    g_free(enc->u.sc.crects);
+    if (ENC_IS_BIT_SET(enc->flags, ENC_FLAGS_GFX_BIT))
+    {
+        g_free(enc->u.gfx.cmd);
+    }
+    else
+    {
+        g_free(enc->u.sc.drects);
+        g_free(enc->u.sc.crects);
+    }
     g_free(enc);
 }
 
@@ -148,11 +174,28 @@ xrdp_encoder_create(struct xrdp_mm *mm)
         client_info->capture_code = 4;
         self->process_enc = process_enc_egfx;
         self->gfx = 1;
-        self->quants = (const char *) g_rfx_quantization_values;
         self->num_quants = 2;
         self->quant_idx_y = 0;
         self->quant_idx_u = 1;
         self->quant_idx_v = 1;
+
+        switch (client_info->mcs_connection_type)
+        {
+            case CONNECTION_TYPE_MODEM:
+            case CONNECTION_TYPE_BROADBAND_LOW:
+            case CONNECTION_TYPE_SATELLITE:
+                self->quants = (const char *) g_rfx_quantization_values_ulq;
+                break;
+            case CONNECTION_TYPE_BROADBAND_HIGH:
+            case CONNECTION_TYPE_WAN:
+                self->quants = (const char *) g_rfx_quantization_values_lq;
+                break;
+            case CONNECTION_TYPE_LAN:
+            case CONNECTION_TYPE_AUTODETECT: /* not implemented yet */
+            default:
+                self->quants = (const char *) g_rfx_quantization_values_std;
+
+        }
     }
     else if (client_info->rfx_codec_id != 0)
     {
@@ -197,7 +240,8 @@ xrdp_encoder_create(struct xrdp_mm *mm)
     g_snprintf(buf, 1024, "xrdp_%8.8x_encoder_event_processed", pid);
     self->xrdp_encoder_event_processed = g_create_wait_obj(buf);
     g_snprintf(buf, 1024, "xrdp_%8.8x_encoder_term", pid);
-    self->xrdp_encoder_term = g_create_wait_obj(buf);
+    self->xrdp_encoder_term_request = g_create_wait_obj(buf);
+    self->xrdp_encoder_term_done = g_create_wait_obj(buf);
     if (client_info->gfx)
     {
         const char *env_var = g_getenv("XRDP_GFX_FRAMES_IN_FLIGHT");
@@ -273,8 +317,12 @@ xrdp_encoder_delete(struct xrdp_encoder *self)
         return;
     }
     /* tell worker thread to shut down */
-    g_set_wait_obj(self->xrdp_encoder_term);
-    g_sleep(1000);
+    g_set_wait_obj(self->xrdp_encoder_term_request);
+    g_obj_wait(&self->xrdp_encoder_term_done, 1, NULL, 0, 5000);
+    if (!g_is_wait_obj_set(self->xrdp_encoder_term_done))
+    {
+        LOG(LOG_LEVEL_WARNING, "Encoder failed to shut down cleanly");
+    }
 
 #ifdef XRDP_RFXCODEC
     for (index = 0; index < 16; index++)
@@ -307,7 +355,8 @@ xrdp_encoder_delete(struct xrdp_encoder *self)
     /* destroy wait objects used for signalling */
     g_delete_wait_obj(self->xrdp_encoder_event_to_proc);
     g_delete_wait_obj(self->xrdp_encoder_event_processed);
-    g_delete_wait_obj(self->xrdp_encoder_term);
+    g_delete_wait_obj(self->xrdp_encoder_term_request);
+    g_delete_wait_obj(self->xrdp_encoder_term_done);
 
     /* cleanup fifos */
     fifo_delete(self->fifo_to_proc, NULL);
@@ -1120,7 +1169,7 @@ proc_enc_msg(void *arg)
     event_to_proc = self->xrdp_encoder_event_to_proc;
 
     term_obj = g_get_term();
-    lterm_obj = self->xrdp_encoder_term;
+    lterm_obj = self->xrdp_encoder_term_request;
 
     cont = 1;
     while (cont)
@@ -1171,6 +1220,7 @@ proc_enc_msg(void *arg)
         }
 
     } /* end while (cont) */
+    g_set_wait_obj(self->xrdp_encoder_term_done);
     LOG_DEVEL(LOG_LEVEL_DEBUG, "proc_enc_msg: thread exit");
     return 0;
 }
