@@ -8,8 +8,8 @@ Uploaders:
 Section: net
 Priority: optional
 Build-Depends:
- autoconf (>= 2.59),
- automake (>= 1.6),
+ autoconf,
+ automake,
  check,
  debhelper-compat (= 12),
  libfuse-dev [!hurd-any],
@@ -25,7 +25,7 @@ Build-Depends:
  nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
  openssl,
  pkgconf,
- systemd [linux-any],
+ systemd-dev [linux-any],
 Homepage: https://www.xrdp.org/
 Standards-Version: 4.7.0
 Rules-Requires-Root: no

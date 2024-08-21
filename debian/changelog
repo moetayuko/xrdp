@@ -1,3 +1,11 @@
+xrdp (0.10.1-2) unstable; urgency=medium
+
+  * d/control:
+    - switch build depends of systemd to systemd-dev (Closes: #106580)
+    - drop version from autoconf and automake
+
+ -- Alex Myczko <tar@debian.org>  Wed, 21 Aug 2024 15:08:22 +0000
+
 xrdp (0.10.1-1) unstable; urgency=medium
 
   * New upstream version.
