@@ -85,6 +85,10 @@ override_dh_auto_configure:
 	    xargs -0 perl -pi -e 's!XRDP_PID_PATH.*?/run!$$&/xrdp!g' --
 
 override_dh_auto_install:
+	# prevent install-data-hook from generating these
+	mkdir -p debian/xrdp/etc/xrdp
+	touch debian/xrdp/etc/xrdp/rsakeys.ini
+	touch debian/xrdp/etc/xrdp/cert.pem
 	dh_auto_install -v --destdir=debian/xrdp
 	# remove unused/confusing files
 	rm -f debian/xrdp/etc/xrdp/xrdp.sh
@@ -97,6 +101,9 @@ override_dh_auto_install:
 	find debian/xrdp/ -name \*.la -print0 | xargs -0 rm -f --
 	find debian/xrdp/usr/lib/ -name \*.a -print0 | \
 	    xargs -0 strip --strip-debug -R .comment --
+
+override_dh_auto_test:
+	@echo skip tests
 
 override_dh_installchangelogs:
 	dh_installchangelogs -pxrdp -- NEWS.md

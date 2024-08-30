@@ -1,3 +1,11 @@
+xrdp (0.10.1-3) unstable; urgency=medium
+
+  * Fix FTCBFS: (Closes: #888772) (Thanks Helmut Grohne for the patch)
+    + Avoid useless install-data-hook running host programs.
+  * d/rules: disable tests.
+
+ -- Alex Myczko <tar@debian.org>  Fri, 30 Aug 2024 06:24:26 +0000
+
 xrdp (0.10.1-2) unstable; urgency=medium
 
   * d/control:
