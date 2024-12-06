@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2004-2007
+   Copyright (C) Jay Sorg 2004-2009
 
    libvnc
 
@@ -125,7 +125,8 @@ lib_send(struct vnc* v, char* data, int len)
 
 /******************************************************************************/
 static int DEFAULT_CC
-lib_process_channel_data(struct vnc* v, int chanid, int size, struct stream* s)
+lib_process_channel_data(struct vnc* v, int chanid, int flags, int size,
+                         struct stream* s, int total_size)
 {
   int type;
   int status;
@@ -152,7 +153,7 @@ lib_process_channel_data(struct vnc* v, int chanid, int size, struct stream* s)
         out_uint8s(out_s, 4); /* pad */
         s_mark_end(out_s);
         length = (int)(out_s->end - out_s->data);
-        v->server_send_to_channel(v, v->clip_chanid, out_s->data, length);
+        v->server_send_to_channel(v, v->clip_chanid, out_s->data, length, length, 3);
         free_stream(out_s);
         break;
       case 3: /* CLIPRDR_FORMAT_ACK */
@@ -194,10 +195,16 @@ lib_process_channel_data(struct vnc* v, int chanid, int size, struct stream* s)
         out_uint8s(out_s, 4); /* pad */
         s_mark_end(out_s);
         length = (int)(out_s->end - out_s->data);
-        v->server_send_to_channel(v, v->clip_chanid, out_s->data, length);
+        v->server_send_to_channel(v, v->clip_chanid, out_s->data, length,
+                                  length, 3);
         free_stream(out_s);
         break;
     }
+  }
+  else
+  {
+    g_writeln("lib_process_channel_data: unknown chanid %d v->clip_chanid %d",
+              chanid, v->clip_chanid);
   }
   return 0;
 }
@@ -215,7 +222,9 @@ lib_mod_event(struct vnc* v, int msg, long param1, long param2,
   int cx;
   int cy;
   int size;
+  int total_size;
   int chanid;
+  int flags;
   char* data;
   char text[256];
 
@@ -223,170 +232,27 @@ lib_mod_event(struct vnc* v, int msg, long param1, long param2,
   make_stream(s);
   if (msg == 0x5555) /* channel data */
   {
-    chanid = (int)param1;
+    chanid = LOWORD(param1);
+    flags = HIWORD(param1);
     size = (int)param2;
     data = (char*)param3;
+    total_size = (int)param4;
     if ((size >= 0) && (size <= (32 * 1024)) && (data != 0))
     {
       init_stream(s, size);
       out_uint8a(s, data, size);
       s_mark_end(s);
       s->p = s->data;
-      error = lib_process_channel_data(v, chanid, size, s);
+      error = lib_process_channel_data(v, chanid, flags, size, s, total_size);
     }
     else
     {
       error = 1;
     }
   }
-  else if (msg >= 15 && msg <= 16) /* key events */
+  else if ((msg >= 15) && (msg <= 16)) /* key events */
   {
-    key = 0;
-    if (param2 == 0xffff) /* ascii char */
-    {
-      /*g_writeln("msg %d param1 %x param2 %x param3 %x param4 %x",
-                msg, param1, param2, param3, param4);*/
-      switch (param1)
-      {
-        case 0x80: /* EuroSign */
-          key = 0x20ac;
-          break;
-        default:
-          key = param1;
-          break;
-      }
-    }
-    else /* non ascii key event */
-    {
-      switch (param1)
-      {
-        case 0x0001: /* ecs */
-          key = 0xff1b;
-          break;
-        case 0x000e: /* backspace */
-          key = 0xff08;
-          break;
-        case 0x000f: /* tab(0xff09) or left tab(0xfe20) */
-          /* some documentation says don't send left tab */
-          /* just send tab and if the shift modifier is down */
-          /* the server will know */
-          /* for now, sending left tab, I don't know which is best */
-          /* nope, sending tab always */
-          /* key = (v->shift_state) ? 0xfe20 : 0xff09; */
-          key = 0xff09;
-          break;
-        case 0x001c: /* enter */
-          key = 0xff0d;
-          break;
-        case 0x001d: /* left-right control */
-          key = (param2 & 0x0100) ? 0xffe4 : 0xffe3;
-          break;
-        case 0x002a: /* left shift */
-          key = 0xffe1;
-          v->shift_state = (msg == 15);
-          break;
-        case 0x0036: /* right shift */
-          key = 0xffe2;
-          v->shift_state = (msg == 15);
-          break;
-        case 0x0038: /* left-right alt */
-          if (param2 & 0x0100) /* right alt */
-          {
-            /* only en-us keymap can send right alt(alt-gr) */
-            if (v->keylayout == 0x409)
-            {
-              key = 0xffea;
-            }
-          }
-          else /* left alt */
-          {
-            key = 0xffe9;
-          }
-          break;
-        case 0x003b: /* F1 */
-          key = 0xffbe;
-          break;
-        case 0x003c: /* F2 */
-          key = 0xffbf;
-          break;
-        case 0x003d: /* F3 */
-          key = 0xffc0;
-          break;
-        case 0x003e: /* F4 */
-          key = 0xffc1;
-          break;
-        case 0x003f: /* F5 */
-          key = 0xffc2;
-          break;
-        case 0x0040: /* F6 */
-          key = 0xffc3;
-          break;
-        case 0x0041: /* F7 */
-          key = 0xffc4;
-          break;
-        case 0x0042: /* F8 */
-          key = 0xffc5;
-          break;
-        case 0x0043: /* F9 */
-          key = 0xffc6;
-          break;
-        case 0x0044: /* F10 */
-          key = 0xffc7;
-          break;
-        case 0x0047: /* home */
-          key = 0xff50;
-          break;
-        case 0x0048: /* up arrow */
-          key = 0xff52;
-          break;
-        case 0x0049: /* page up */
-          key = 0xff55;
-          break;
-        case 0x004b: /* left arrow */
-          key = 0xff51;
-          break;
-        case 0x004d: /* right arrow */
-          key = 0xff53;
-          break;
-        case 0x004f: /* end */
-          key = 0xff57;
-          break;
-        case 0x0050: /* down arrow */
-          key = 0xff54;
-          break;
-        case 0x0051: /* page down */
-          key = 0xff56;
-          break;
-        case 0x0052: /* insert */
-          key = 0xff63;
-          break;
-        case 0x0053: /* delete */
-          key = 0xffff;
-          break;
-        case 0x0057: /* F11 */
-          key = 0xffc8;
-          break;
-        case 0x0058: /* F12 */
-          key = 0xffc9;
-          break;
-        /* not sure about the next three, I don't think rdesktop */
-        /* sends them right */
-        case 0x0037: /* Print Screen */
-          key = 0xff61;
-          break;
-        case 0x0046: /* Scroll Lock */
-          key = 0xff14;
-          break;
-        case 0x0045: /* Pause */
-          key = 0xff13;
-          break;
-        default:
-          g_sprintf(text, "unkown key lib_mod_event msg %d \
-param1 0x%4.4x param2 0x%4.4x", msg, param1, param2);
-          v->server_msg(v, text, 1);
-          break;
-      }
-    }
+    key = param2;
     if (key > 0)
     {
       init_stream(s, 8192);
@@ -569,6 +435,12 @@ split_color(int pixel, int* r, int* g, int* b, int bpp, int* palette)
       *g = (palette[pixel] >> 8) & 0xff;
       *b = (palette[pixel] >> 0) & 0xff;
     }
+  }
+  else if (bpp == 15)
+  {
+    *r = ((pixel >> 7) & 0xf8) | ((pixel >> 12) & 0x7);
+    *g = ((pixel >> 2) & 0xf8) | ((pixel >> 8) & 0x7);
+    *b = ((pixel << 3) & 0xf8) | ((pixel >> 2) & 0x7);
   }
   else if (bpp == 16)
   {
@@ -802,7 +674,7 @@ lib_clip_data(struct vnc* v)
     out_uint8s(out_s, 4);
     s_mark_end(out_s);
     size = (int)(out_s->end - out_s->data);
-    error = v->server_send_to_channel(v, v->clip_chanid, out_s->data, size);
+    error = v->server_send_to_channel(v, v->clip_chanid, out_s->data, size, size, 3);
     free_stream(out_s);
   }
   free_stream(s);
@@ -880,6 +752,7 @@ lib_mod_signal(struct vnc* v)
     }
     else if (type == 3) /* clipboard */
     {
+      g_writeln("got clip data");
       error = lib_clip_data(v);
     }
     else
@@ -914,7 +787,7 @@ lib_open_clip_channel(struct vnc* v)
   v->clip_chanid = v->server_get_channel_id(v, "cliprdr");
   if (v->clip_chanid >= 0)
   {
-    v->server_send_to_channel(v, v->clip_chanid, init_data, 12);
+    v->server_send_to_channel(v, v->clip_chanid, init_data, 12, 12, 3);
   }
   return 0;
 }
@@ -939,9 +812,10 @@ lib_mod_connect(struct vnc* v)
   v->server_msg(v, "started connecting", 0);
   check_sec_result = 1;
   /* only support 8 and 16 bpp connections from rdp client */
-  if ((v->server_bpp != 8) && (v->server_bpp != 16) && (v->server_bpp != 24))
+  if ((v->server_bpp != 8) && (v->server_bpp != 15) &&
+      (v->server_bpp != 16) && (v->server_bpp != 24))
   {
-    v->server_msg(v, "error - only supporting 8, 16 and 24 bpp rdp \
+    v->server_msg(v, "error - only supporting 8, 15, 16 and 24 bpp rdp \
 connections", 0);
     return 1;
   }
@@ -954,6 +828,7 @@ connections", 0);
   g_sprintf(con_port, "%s", v->port);
   make_stream(pixel_format);
   v->sck = g_tcp_socket();
+  v->sck_obj = g_create_wait_obj_from_socket(v->sck, 0);
   v->sck_closed = 0;
   g_sprintf(text, "connecting to %s %s", v->ip, con_port);
   v->server_msg(v, text, 0);
@@ -1086,6 +961,24 @@ connections", 0);
       out_uint16_be(pixel_format, 0); /* blue max */
       out_uint8(pixel_format, 0); /* red shift */
       out_uint8(pixel_format, 0); /* green shift */
+      out_uint8(pixel_format, 0); /* blue shift */
+      out_uint8s(pixel_format, 3); /* pad */
+    }
+    else if (v->mod_bpp == 15)
+    {
+      out_uint8(pixel_format, 16); /* bits per pixel */
+      out_uint8(pixel_format, 15); /* depth */
+#if defined(B_ENDIAN)
+      out_uint8(pixel_format, 1); /* big endian */
+#else
+      out_uint8(pixel_format, 0); /* big endian */
+#endif
+      out_uint8(pixel_format, 1); /* true color flag */
+      out_uint16_be(pixel_format, 31); /* red max */
+      out_uint16_be(pixel_format, 31); /* green max */
+      out_uint16_be(pixel_format, 31); /* blue max */
+      out_uint8(pixel_format, 10); /* red shift */
+      out_uint8(pixel_format, 5); /* green shift */
       out_uint8(pixel_format, 0); /* blue shift */
       out_uint8s(pixel_format, 3); /* pad */
     }
@@ -1233,6 +1126,47 @@ lib_mod_set_param(struct vnc* v, char* name, char* value)
 }
 
 /******************************************************************************/
+/* return error */
+int DEFAULT_CC
+lib_mod_get_wait_objs(struct vnc* v, tbus* read_objs, int* rcount,
+                      tbus* write_objs, int* wcount, int* timeout)
+{
+  int i;
+
+  i = *rcount;
+  if (v != 0)
+  {
+    if (v->sck_obj != 0)
+    {
+      read_objs[i++] = v->sck_obj;
+    }
+  }
+  *rcount = i;
+  return 0;
+}
+
+/******************************************************************************/
+/* return error */
+int DEFAULT_CC
+lib_mod_check_wait_objs(struct vnc* v)
+{
+  int rv;
+
+  rv = 0;
+  if (v != 0)
+  {
+    if (v->sck_obj != 0)
+    {
+      if (g_is_wait_obj_set(v->sck_obj))
+      {
+        rv = lib_mod_signal(v);
+      }
+    }
+  }
+  return rv;
+}
+
+/******************************************************************************/
 struct vnc* EXPORT_CC
 mod_init(void)
 {
@@ -1241,6 +1175,7 @@ mod_init(void)
   v = (struct vnc*)g_malloc(sizeof(struct vnc), 1);
   /* set client functions */
   v->size = sizeof(struct vnc);
+  v->version = CURRENT_MOD_VER;
   v->handle = (long)v;
   v->mod_connect = lib_mod_connect;
   v->mod_start = lib_mod_start;
@@ -1248,6 +1183,8 @@ mod_init(void)
   v->mod_signal = lib_mod_signal;
   v->mod_end = lib_mod_end;
   v->mod_set_param = lib_mod_set_param;
+  v->mod_get_wait_objs = lib_mod_get_wait_objs;
+  v->mod_check_wait_objs = lib_mod_check_wait_objs;
   return v;
 }
 
@@ -1259,6 +1196,7 @@ mod_exit(struct vnc* v)
   {
     return 0;
   }
+  g_delete_wait_obj_from_socket(v->sck_obj);
   g_tcp_close(v->sck);
   g_free(v);
   return 0;

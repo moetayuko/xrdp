@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -76,7 +76,7 @@ main(int argc, char** argv)
     make_stream(out_s);
     init_stream(out_s, 8192);
     sck = g_tcp_socket();
-    if (g_tcp_connect(sck, argv[1], "3350") == 0)
+    if (g_tcp_connect(sck, argv[1], g_cfg.listen_port) == 0)
     {
       s_push_layer(out_s, channel_hdr, 8);
       out_uint16_be(out_s, 0); /* code */

@@ -1,14 +1,15 @@
 
+xrdp 0.5.0
+
 Credits
   This project is very much dependent on rdesktop and the work of Matt Chapman
   and the rdesktop team members, of which I'm a member
 
   Mark from up 19.9 was the first to work with rdp server code.
 
-To use this run make the ./xrdp, then connect with rdesktop or mstsc.
-Tested with linux and i386.
+Tested with linux on i386, x64, sparc, and ppc.
 I've got it compiling and working in windows with borland free tools.
-I've got it compiling and working with linux on x64 processor
+Non of the sesman or Xserver stuff works in windows of course.
 
 xrdp directory is the main server code
 vnc directory is a simple vnc client module for xrdp
@@ -21,7 +22,17 @@ COPYING is the licence file
 design.txt is an attempt to expain the project design
 prog_std.txt is an attemp to explain the programming standard used
 
-run make in main xrdp directory to build
-run make install as root to install in /usr/local/xrdp
+since version 0.5.0 we switch to autotool to build xrdp
+
+to build and install
+
+change to the xrdp directory and run
+./bootstrap
+./configure
+make
+then as root
+make install
+
+see file-loc.txt to see what files are installed where
 
 Jay

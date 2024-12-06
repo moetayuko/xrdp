@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 /**
@@ -22,15 +22,15 @@
  * @file scp.h
  * @brief scp (sesman control protocol) common definitions
  * @author Simone Fedele
- * 
+ *
  */
 
 #ifndef SCP_H
 #define SCP_H
 
-//#include "libscp.h"
 #include "scp_v0.h"
 #include "scp_v1.h"
+#include "scp_v1_mng.h"
 
 /**
  *

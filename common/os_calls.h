@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2004-2007 Jay Sorg
+   Copyright (c) 2004-2009 Jay Sorg
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -27,6 +27,10 @@
 
 #include "arch.h"
 
+void APP_CC
+g_init(void);
+void APP_CC
+g_deinit(void);
 void* APP_CC
 g_malloc(int size, int zero);
 void APP_CC
@@ -60,6 +64,8 @@ g_tcp_close(int sck);
 int APP_CC
 g_tcp_connect(int sck, const char* address, const char* port);
 int APP_CC
+g_tcp_local_connect(int sck, const char* port);
+int APP_CC
 g_tcp_force_send(int sck, char* data, int len);
 int APP_CC
 g_tcp_force_recv(int sck, char* data, int len);
@@ -89,6 +95,23 @@ int APP_CC
 g_tcp_select(int sck1, int sck2);
 void APP_CC
 g_sleep(int msecs);
+tbus APP_CC
+g_create_wait_obj(char* name);
+tbus APP_CC
+g_create_wait_obj_from_socket(tbus socket, int write);
+void APP_CC
+g_delete_wait_obj_from_socket(tbus wait_obj);
+int APP_CC
+g_set_wait_obj(tbus obj);
+int APP_CC
+g_reset_wait_obj(tbus obj);
+int APP_CC
+g_is_wait_obj_set(tbus obj);
+int APP_CC
+g_delete_wait_obj(tbus obj);
+int APP_CC
+g_obj_wait(tbus* read_objs, int rcount, tbus* write_objs, int wcount,
+           int mstimeout);
 void APP_CC
 g_random(char* data, int len);
 int APP_CC
@@ -108,8 +131,6 @@ g_file_seek(int fd, int offset);
 int APP_CC
 g_file_lock(int fd, int start, int len);
 int APP_CC
-g_set_file_rights(const char* filename, int read, int write);
-int APP_CC
 g_chmod_hex(const char* filename, int flags);
 int APP_CC
 g_mkdir(const char* dirname);
@@ -127,6 +148,8 @@ int APP_CC
 g_remove_dir(const char* dirname);
 int APP_CC
 g_file_delete(const char* filename);
+int APP_CC
+g_file_get_size(const char* filename);
 int APP_CC
 g_strlen(const char* text);
 char* APP_CC
@@ -148,7 +171,15 @@ g_strncasecmp(const char* c1, const char* c2, int len);
 int APP_CC
 g_atoi(char* str);
 int APP_CC
+g_htoi(char* str);
+int APP_CC
 g_pos(char* str, const char* to_find);
+int APP_CC
+g_mbstowcs(twchar* dest, const char* src, int n);
+int APP_CC
+g_wcstombs(char* dest, const twchar* src, int n);
+int APP_CC
+g_strtrim(char* str, int trim_flags);
 long APP_CC
 g_load_library(char* in);
 int APP_CC
@@ -160,21 +191,31 @@ g_system(char* aexec);
 char* APP_CC
 g_get_strerror(void);
 int APP_CC
+g_get_errno(void);
+int APP_CC
 g_execvp(const char* p1, char* args[]);
 int APP_CC
 g_execlp3(const char* a1, const char* a2, const char* a3);
 void APP_CC
-g_signal(int sig_num, void (*func)(int));
-void APP_CC
 g_signal_child_stop(void (*func)(int));
 void APP_CC
-g_unset_signals(void);
+g_signal_hang_up(void (*func)(int));
+void APP_CC
+g_signal_user_interrupt(void (*func)(int));
+void APP_CC
+g_signal_kill(void (*func)(int));
+void APP_CC
+g_signal_terminate(void (*func)(int));
+void APP_CC
+g_signal_pipe(void (*func)(int));
 int APP_CC
 g_fork(void);
 int APP_CC
 g_setgid(int pid);
 int APP_CC
 g_initgroups(const char* user, int gid);
+int APP_CC
+g_getuid(void);
 int APP_CC
 g_setuid(int pid);
 int APP_CC
@@ -202,5 +243,9 @@ int APP_CC
 g_check_user_in_group(const char* username, int gid, int* ok);
 int APP_CC
 g_time1(void);
+int APP_CC
+g_time2(void);
+int APP_CC
+g_time3(void);
 
 #endif

@@ -1,48 +1,37 @@
 #!/bin/sh
 
-# edit this file to run whatever window manager you want
-# defaults to running kde
+# change the order in line below to run to run whatever window manager you
+# want, default to kde
 
-# for kde
-if [ -d /opt/kde3/bin ]; then
-  export PATH=/opt/kde3/bin:$PATH
-fi
-if [ -d /opt/kde/bin ]; then
-  export PATH=/opt/kde/bin:$PATH
-fi
-which startkde
-if [ $? -eq 0 ]; then
-  startkde
-  exit 0
-fi
-which kde
-if [ $? -eq 0 ]; then
-  kde
-  exit 0
-fi
+SESSIONS="startkde gnome-session startxfce4 xterm"
 
-# gnome
-which gnome-session
-if [ $? -eq 0 ]; then
-  gnome-session
-  exit 0
-fi
+# change PATH to be what your environment needs usually what is in
+# /etc/environment
+#PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games"
+#export PATH=$PATH
 
-# blackbox
-#if [ "'which blackbox'" != "" ]; then
-#  blackbox
-#  exit 0
-#fi
+# for PATH and LANG from /etc/environment
+# pam will auto process the environment file if /etc/pam.d/xrdp-sesman
+# includes
+# auth       required     pam_env.so readenv=1
+#. /etc/environment
+#export PATH=$PATH
+#export LANG=$LANG
 
-# fvwm95
-#if [ "'which fvwm95'" != "" ]; then
-#  fvwm95
-#  exit 0
-#fi
+# for bash profile
+#. ~/.bash_profile
 
-# fall back on xterm
-which xterm
-if [ $? -eq 0 ]; then
-  xterm
-  exit 0
-fi
+#. /etc/profile
+
+for WindowManager in $SESSIONS
+do
+  which $WindowManager
+  if test $? -eq 0
+  then
+    echo "Starting $WindowManager"
+    $WindowManager
+    exit 0
+  fi
+done
+
+exit 1

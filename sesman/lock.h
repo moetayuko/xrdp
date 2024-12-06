@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2007
+   Copyright (C) Jay Sorg 2005-2008
 */
 
 #ifndef LOCK_H
@@ -27,47 +27,39 @@
  * @brief initializes all the locks
  *
  */
-void DEFAULT_CC
+void APP_CC
 lock_init(void);
+
+/**
+ *
+ * @brief cleanup all the locks
+ *
+ */
+void APP_CC
+lock_deinit(void);
 
 /**
  *
  * @brief acquires the lock for the session chain
  *
  */
-void DEFAULT_CC
+void APP_CC
 lock_chain_acquire(void);
 
 /**
  *
- * @brief releases the sessiona chain lock
+ * @brief releases the session chain lock
  *
  */
-void DEFAULT_CC
+void APP_CC
 lock_chain_release(void);
-
-/**
- *
- * @brief acquires config lock
- *
- */
-void DEFAULT_CC
-lock_cfg_acquire(void);
-
-/**
- *
- * @brief releases config lock
- *
- */
-void DEFAULT_CC
-lock_cfg_release(void);
 
 /**
  *
  * @brief request the socket lock
  *
  */
-void DEFAULT_CC
+void APP_CC
 lock_socket_acquire(void);
 
 /**
@@ -75,8 +67,39 @@ lock_socket_acquire(void);
  * @brief releases the socket lock
  *
  */
-void DEFAULT_CC
+void APP_CC
 lock_socket_release(void);
 
-#endif
+/**
+ *
+ * @brief request the main sync lock
+ *
+ */
+void APP_CC
+lock_sync_acquire(void);
 
+/**
+ *
+ * @brief releases the main sync lock
+ *
+ */
+void APP_CC
+lock_sync_release(void);
+
+/**
+ *
+ * @brief request the sync sem lock
+ *
+ */
+void APP_CC
+lock_sync_sem_acquire(void);
+
+/**
+ *
+ * @brief releases the sync sem lock
+ *
+ */
+void APP_CC
+lock_sync_sem_release(void);
+
+#endif

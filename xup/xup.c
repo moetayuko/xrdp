@@ -14,7 +14,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2006
+   Copyright (C) Jay Sorg 2005-2009
 
    libxup main file
 
@@ -129,6 +129,7 @@ lib_mod_connect(struct mod* mod)
   int error;
   int len;
   int i;
+  int index;
   struct stream* s;
   char con_port[256];
 
@@ -155,13 +156,50 @@ lib_mod_connect(struct mod* mod)
   }
   make_stream(s);
   g_sprintf(con_port, "%s", mod->port);
-  mod->sck = g_tcp_socket();
   mod->sck_closed = 0;
-  error = g_tcp_connect(mod->sck, mod->ip, con_port);
-  if (error == 0)
+  i = 0;
+  while (1)
   {
+    mod->sck = g_tcp_socket();
     g_tcp_set_non_blocking(mod->sck);
     g_tcp_set_no_delay(mod->sck);
+    mod->server_msg(mod, "connecting...", 0);
+    error = g_tcp_connect(mod->sck, mod->ip, con_port);
+    if (error == -1)
+    {
+      if (g_tcp_last_error_would_block(mod->sck))
+      {
+        error = 0;
+        index = 0;
+        while (!g_tcp_can_send(mod->sck, 100))
+        {
+          index++;
+          if ((index >= 30) || mod->server_is_term(mod))
+          {
+            mod->server_msg(mod, "connect timeout", 0);
+            error = 1;
+            break;
+          }
+        }
+      }
+      else
+      {
+        mod->server_msg(mod, "connect error", 0);
+      }
+    }
+    if (error == 0)
+    {
+      break;
+    }
+    g_tcp_close(mod->sck);
+    mod->sck = 0;
+    i++;
+    if (i >= 4)
+    {
+      mod->server_msg(mod, "connect problem, giving up", 0);
+      break;
+    }
+    g_sleep(250);
   }
   if (error == 0)
   {
@@ -178,7 +216,7 @@ lib_mod_connect(struct mod* mod)
     out_uint32_le(s, 0);
     out_uint32_le(s, 0);
     s_mark_end(s);
-    len = s->end - s->data;
+    len = (int)(s->end - s->data);
     s_pop_layer(s, iso_hdr);
     out_uint32_le(s, len);
     lib_send(mod, s->data, len);
@@ -190,6 +228,11 @@ lib_mod_connect(struct mod* mod)
     LIB_DEBUG(mod, "out lib_mod_connect error");
     return 1;
   }
+  else
+  {
+    mod->server_msg(mod, "connected ok", 0);
+    mod->sck_obj = g_create_wait_obj_from_socket(mod->sck, 0);
+  }
   LIB_DEBUG(mod, "out lib_mod_connect");
   return 0;
 }
@@ -197,8 +240,8 @@ lib_mod_connect(struct mod* mod)
 /******************************************************************************/
 /* return error */
 int DEFAULT_CC
-lib_mod_event(struct mod* mod, int msg, long param1, long param2,
-              long param3, long param4)
+lib_mod_event(struct mod* mod, int msg, tbus param1, tbus param2,
+              tbus param3, tbus param4)
 {
   struct stream* s;
   int len;
@@ -215,7 +258,7 @@ lib_mod_event(struct mod* mod, int msg, long param1, long param2,
   out_uint32_le(s, param3);
   out_uint32_le(s, param4);
   s_mark_end(s);
-  len = s->end - s->data;
+  len = (int)(s->end - s->data);
   s_pop_layer(s, iso_hdr);
   out_uint32_le(s, len);
   rv = lib_send(mod, s->data, len);
@@ -399,6 +442,47 @@ lib_mod_set_param(struct mod* mod, char* name, char* value)
 }
 
 /******************************************************************************/
+/* return error */
+int DEFAULT_CC
+lib_mod_get_wait_objs(struct mod* mod, tbus* read_objs, int* rcount,
+                      tbus* write_objs, int* wcount, int* timeout)
+{
+  int i;
+
+  i = *rcount;
+  if (mod != 0)
+  {
+    if (mod->sck_obj != 0)
+    {
+      read_objs[i++] = mod->sck_obj;
+    }
+  }
+  *rcount = i;
+  return 0;
+}
+
+/******************************************************************************/
+/* return error */
+int DEFAULT_CC
+lib_mod_check_wait_objs(struct mod* mod)
+{
+  int rv;
+
+  rv = 0;
+  if (mod != 0)
+  {
+    if (mod->sck_obj != 0)
+    {
+      if (g_is_wait_obj_set(mod->sck_obj))
+      {
+        rv = lib_mod_signal(mod);
+      }
+    }
+  }
+  return rv;
+}
+
+/******************************************************************************/
 struct mod* EXPORT_CC
 mod_init(void)
 {
@@ -406,13 +490,16 @@ mod_init(void)
 
   mod = (struct mod*)g_malloc(sizeof(struct mod), 1);
   mod->size = sizeof(struct mod);
-  mod->handle = (long)mod;
+  mod->version = CURRENT_MOD_VER;
+  mod->handle = (tbus)mod;
   mod->mod_connect = lib_mod_connect;
   mod->mod_start = lib_mod_start;
   mod->mod_event = lib_mod_event;
   mod->mod_signal = lib_mod_signal;
   mod->mod_end = lib_mod_end;
   mod->mod_set_param = lib_mod_set_param;
+  mod->mod_get_wait_objs = lib_mod_get_wait_objs;
+  mod->mod_check_wait_objs = lib_mod_check_wait_objs;
   return mod;
 }
 
@@ -424,6 +511,7 @@ mod_exit(struct mod* mod)
   {
     return 0;
   }
+  g_delete_wait_obj_from_socket(mod->sck_obj);
   g_tcp_close(mod->sck);
   g_free(mod);
   return 0;
