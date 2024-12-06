@@ -1,11 +1,53 @@
-# Release notes for xrdp v0.10.0 (2024/03/dd)
+# Release notes for xrdp v0.10.1 (2024/07/31)
+
+## General announcements
+
+A clipboard bugfix included in this release is sponsored by Krämer Pferdesport GmbH & Co KG. We very much appreciate the sponsorship.
+
+Please consider sponsoring or making a donation to the project if you like xrdp. We accept financial contributions via [Open Collective](https://opencollective.com/xrdp-project). Direct donations to each developer via GitHub Sponsors are also welcomed.
+
+## Security fixes
+* Unauthenticated RDP security scan finding / partial auth bypass (no CVE). Thanks to @txtdawg for reporting this.
+
+## New features
+* GFX-RFX lossy compression levels are now selectable depending on connection type on the client (#3183, backport of #2973)
+
+## Bug fixes
+* A regression in the code for creating the chansrv FUSE directory has been fixed (#3088, backport of #3082)
+* Fix a systemd dependency ("network-online.target") (#3088, backport of #3086)
+* A problem in session list processing which could result in incorrect display assignments has been fixed (#3088, backport of #3103)
+* A problem in GFX resizing which could lead to a SEGV in xrdp has been fixed (#3088, backport of #3107)
+* A problem with the US Dvorak keyboard layout has been resolved (#3088, backport of #3112)
+* A regression bug when pasting image to LibreOffice has been fixed [Sponsored by Krämer Pferdesport GmbH & Co KG] (#3102 #3120)
+* Fix a regression when the server tries to negotiate GFX when max_bpp is not high enough (#3118 #3122)
+* Fix a GFX multi-monitor screen placing issue on minimise/maximize (#3075 #3127)
+* Fix an issue some files are not included properly in release tarball (#3149 #3150)
+* Using 'I' in the session selection policy now works correctly (#3167 #3171)
+* A potential name buffer overflow in the redirector has been fixed [no security implications] (#3175)
+* Screens wider than 4096 pixels should now be supported (#3083)
+* An unnecessary licensing exchange during connection setup has been removed. This was causing problems for FIPS-compliant clients (#3132  backport of #3143)
+
+## Internal changes
+* FreeBSD CI bumped to 13.3 (#3088, backport of #3104)
+
+## Changes for users
+* None since v0.10.0.
+* If moving from v0.9.x, read the v0.10.0 release note.
+
+## Changes for packagers or developers
+* None since v0.10.0.
+* If moving from v0.9.x, read the v0.10.0 release note.
+
+-----------------------
+
+# Release notes for xrdp v0.10.0 (2024/05/10)
 
 This section notes changes since the [v0.10 branch](#branch-v010) was created. 
 
 ## General announcements
 The biggest news of this release is that [Graphic Pipeline Extension](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpegfx/da5c75f9-cd99-450c-98c4-014a496942b0) also called GFX in short has been supported. xrdp v0.10 with GFX achieves more frame rates and less bandwidth compared to v0.9. There is a significant performance improvement especially if the client is Windows 11's mstsc.exe or Microsoft Remote Desktop for Mac. GFX H.264/AVC 444 mode and hardware-accelerated encoding are not supported in this version yet.
 
-GFX implementation in xrdp is sponsored by an enterprise sponsor. We very much appreciate the sponsorship. It helped us to accelerate xrdp development and land GFX earlier!
+GFX implementation in xrdp is sponsored by an enterprise sponsor. @CyberTrust is also one of the sponsors. We very much appreciate the sponsorship. It helped us to accelerate xrdp development and land GFX earlier! 
 
 Please consider sponsoring or making a donation to the project if you like xrdp. We accept financial contributions via [Open Collective](https://opencollective.com/xrdp-project). Direct donations to each developer via GitHub Sponsors are also welcomed.
 
@@ -21,18 +63,21 @@ This section describes the most user-visible new or changed features in xrdp sin
 * The format of the date and time in the log file has been changed to ISO 8601 with milliseconds (#2386 #2541)
 * xrdp-sesman now supports a `--reload` switch to allow for the configuration to be changed when sessions are active (#2416)
 
-
 ## Security fixes
 None
 
 ## New features
-* If the client announces support for the RemoteFX codec it is logged (back-port of #2946)
+* If the client announces support for the Image RemoteFX codec it is logged (back-port of #2946)
 
 ## Bug fixes
 * Fix some monitor hotplug issues (#2951)
 * GFX: Fix disconnect on resize of busy windows (#2962 #2957)
 * Fall back to IPv4 if IPv6 capable but don't have an IPv6 address set (#2967 #2957)
 * Remove tcutils channel from xrdp.ini (#2970 #2957)
+* Don't generate a corefile when generating SIGSEGV during unit testing (#2987)
+* If the drdynvc static channel isn't available, disable GFX gracefully (#3003)
+* A buffer misconfiguration which affects performance on high bandwidth, high latency links has been addressed (cherry-pick of #2910)
+* A permissions fix for the socketdir update in #2731 has been issued (cherry-pick of #3011)
 
 ## Internal changes
 * Adjust log level not too verbose (#2954 #2972 #2957)
@@ -40,13 +85,19 @@ None
 * Bump copyright year and make easier to bump (#2956 #2957)
 * Remove duplicate DEBUG output (#2976 #2977)
 * Add script to make release tarball (#2983)
+* Syscall filter for xrdp updated (cherry-pick of #3017)
+* GFX memory usage for large screens is greatly improved (cherry-pick of #3013)
+* librfxcodec SSE2 performance improvements (#3032)
 
 ## Known issues
 * On-the-fly resolution change with the Microsoft Store version of Remote Desktop client sometimes crashes on connect (#1869)
 * xrdp's login dialog is not relocated at the center of the new resolution after on-the-fly resolution change happens (#1867)
 
+## Changes for users
+* If moving from v0.9.x, read the '[User changes](#user-changes)' for the v0.10 branch below.
+
 ## Changes for packagers or developers
-* If moving from v0.9.x, read the '[Significant changes for packagers or developers section](#significant-changes-for-packagers-or-developers)' for the v0.10 branch below.
+* If moving from v0.9.x, read the '[User changes](#user-changes)'  and '[Significant changes for packagers or developers section](#significant-changes-for-packagers-or-developers)' sections for the v0.10 branch below.
 
 -----------------------
 
@@ -56,7 +107,7 @@ This branch was forked from development on 2024-02-08 in preparation for testing
 
 The changes in this section are relative to version v0.9.19 of xrdp.
 
-## General announcements
+## User changes
 * The [x11rdp](/neutrinolabs/x11rdp) X server is no longer supported. Users will need to move to xorgxrdp (#2489)
 * Running xrdp and xrdp-sesman on separate hosts is no longer supported.
 * There are some changes to `xrdp.ini` and `sesman.ini` which break backwards compatibility. In particular:-
@@ -199,7 +250,8 @@ Other security fixes:-
 * The libscp.so shared library is replaced with libipm.so
 * A new shared library libsesman.so contains shared code for sesman and related executables (#2601)
 * The default setting for `--with-socketdir` is now `/var/run/xrdp` rather than `/tmp/.xrdp`. The new setting works for installations where `/tmp` is polyinstantiated ( see #1482 for more details)
-* The layout of the socketdir has changed to remove the use of the sticky bit and allow the sesman socket to be stored in it. UNIX socket files used by users are now stored in a per-UID directory (#2731)
+* The permissions of the socketdir have changed from 1777 to 755 (owned by root). Within this directory are the sesman socket and user-specific directories. The user-specific directories store the session sockets used by each user (#2731).  
+   It is recommended not to use the same `--with-socketdir` setting for v0.9.x and v0.10.x packages as the differing permissions can cause problems on package downgrades. See #3066 for an example of where this can be a problem.
 * Passing `--disable-static` to `configure` prevents unused static libraries being installed by `make install`.
 * The `simple.c` example xrdpapi program has been updated to work with logging changes, and is now built as part of the CI (#2276)
 * If the `xrdp-mkfv1` utility is to be built, the switch `--with-freetype2` must be passed to `./configure`.

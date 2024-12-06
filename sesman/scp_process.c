@@ -102,6 +102,14 @@ process_sys_login_request(struct pre_session_item *psi)
         }
         else
         {
+            /*
+             * Copy the IP address of the requesting user, anticipating a
+             * successful login. We need this so we can search for a session
+             * with a matching IP address if required.
+             */
+            g_snprintf(psi->start_ip_addr, sizeof(psi->start_ip_addr),
+                       "%s", ip_addr);
+
             /* Create a sesexec process to handle the login
              *
              * We won't check for the user being valid here, as this might
@@ -323,6 +331,9 @@ process_logout_request(struct pre_session_item *psi)
 static int
 create_xrdp_socket_path(uid_t uid)
 {
+    // Owner all permissions, group read+execute
+#define RWX_PERMS 0x750
+
     int rv = 1;
     const char *sockdir_group = g_cfg->sec.session_sockdir_group;
     int gid = 0; // Default if no group specified
@@ -330,12 +341,19 @@ create_xrdp_socket_path(uid_t uid)
     char sockdir[XRDP_SOCKETS_MAXPATH];
     g_snprintf(sockdir, sizeof(sockdir), XRDP_SOCKET_PATH, (int)uid);
 
-    // Create directory permissions 0x750, if it doesn't exist already.
-    int old_umask = g_umask_hex(0x750 ^ 0x777);
+    // Create directory permissions RWX_PERMS, if it doesn't exist already
+    // (our os_calls layer doesn't allow us to set the SGID bit here)
+    int old_umask = g_umask_hex(RWX_PERMS ^ 0x777);
     if (!g_directory_exist(sockdir) && !g_create_dir(sockdir))
     {
         LOG(LOG_LEVEL_ERROR,
             "create_xrdp_socket_path: Can't create %s [%s]",
+            sockdir, g_get_strerror());
+    }
+    else if (g_chmod_hex(sockdir, RWX_PERMS | 0x2000) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR,
+            "create_xrdp_socket_path: Can't set SGID bit on %s [%s]",
             sockdir, g_get_strerror());
     }
     else if (sockdir_group != NULL && sockdir_group[0] != '\0' &&
@@ -358,6 +376,7 @@ create_xrdp_socket_path(uid_t uid)
     (void)g_umask_hex(old_umask);
 
     return rv;
+#undef RWX_PERMS
 }
 
 /******************************************************************************/

@@ -1370,7 +1370,7 @@ xrdp_mm_egfx_caps_advertise(void *user, int caps_count,
         error = xrdp_egfx_send_reset_graphics(self->egfx,
                                               screen->width, screen->height,
                                               self->wm->client_info->display_sizes.monitorCount,
-                                              self->wm->client_info->display_sizes.minfo_wm);
+                                              self->wm->client_info->display_sizes.minfo);
         LOG(LOG_LEVEL_INFO, "xrdp_mm_egfx_caps_advertise: xrdp_egfx_send_reset_graphics "
             "error %d monitorCount %d",
             error, self->wm->client_info->display_sizes.monitorCount);
@@ -2687,6 +2687,14 @@ xrdp_mm_process_login_response(struct xrdp_mm *self)
                                 self->wm->pamerrortxt);
             }
 
+            if (self->wm->client_info->require_credentials)
+            {
+                /* Credentials had to be specified, but were invalid */
+                g_set_wait_obj(self->wm->pro_layer->self_term_event);
+                LOG(LOG_LEVEL_ERROR, "require_credentials is set, "
+                    "but the user could not be logged in");
+            }
+
             if (server_closed)
             {
                 if (login_result == E_SCP_LOGIN_NOT_AUTHENTICATED)
@@ -3477,7 +3485,7 @@ xrdp_mm_process_enc_done(struct xrdp_mm *self)
                 y = enc_done->y;
                 cx = enc_done->cx;
                 cy = enc_done->cy;
-                if (!enc_done->continuation)
+                if (client_ack && !enc_done->continuation)
                 {
                     libxrdp_fastpath_send_frame_marker(self->wm->session, 0,
                                                        enc_done->frame_id);
@@ -3489,7 +3497,7 @@ xrdp_mm_process_enc_done(struct xrdp_mm *self)
                                               x, y, x + cx, y + cy,
                                               32, self->encoder->codec_id,
                                               cx, cy);
-                if (enc_done->last)
+                if (client_ack && enc_done->last)
                 {
                     libxrdp_fastpath_send_frame_marker(self->wm->session, 1,
                                                        enc_done->frame_id);
