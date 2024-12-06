@@ -1,39 +1,61 @@
-
-AM_CFLAGS = \
+AM_CPPFLAGS = \
   -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-  -DXRDP_SBIN_PATH=\"${sbindir}\" \
-  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\"
-
-INCLUDES = \
+  -DXRDP_SOCKET_ROOT_PATH=\"${socketdir}\" \
+  -I$(top_srcdir)/sesman/libsesman \
   -I$(top_srcdir)/common \
-  -I$(top_srcdir)/sesman/libscp \
-  -I$(top_srcdir)/sesman
+  -I$(top_srcdir)/libipm
+
+AM_CFLAGS = $(X_CFLAGS)
 
 bin_PROGRAMS = \
   xrdp-sesrun \
-  xrdp-sestest \
-  xrdp-sesadmin
+  xrdp-sesadmin \
+  xrdp-dis
+
+noinst_PROGRAMS = \
+  xrdp-authtest \
+  xrdp-xcon
 
 xrdp_sesrun_SOURCES = \
   sesrun.c \
-  tcp.c \
-  config.c
-
-xrdp_sestest_SOURCES = \
-  sestest.c
+  tools_common.h \
+  tools_common.c
 
 xrdp_sesadmin_SOURCES = \
-  sesadmin.c
+  sesadmin.c \
+  tools_common.h \
+  tools_common.c
+
+xrdp_dis_SOURCES = \
+  dis.c
+
+xrdp_dis_LDADD = \
+  $(top_builddir)/common/libcommon.la
+
+xrdp_xcon_SOURCES = \
+  xcon.c
+
+xrdp_authtest_SOURCES = \
+  authtest.c
 
 xrdp_sesrun_LDADD = \
-  $(top_srcdir)/common/libcommon.la
-
-xrdp_sestest_LDADD = \
-  $(top_srcdir)/common/libcommon.la \
-  $(top_srcdir)/sesman/libscp/libscp.la
+  $(top_builddir)/sesman/libsesman/libsesman.la \
+  $(top_builddir)/common/libcommon.la \
+  $(top_builddir)/libipm/libipm.la
 
 xrdp_sesadmin_LDADD = \
-  $(top_srcdir)/common/libcommon.la \
-  $(top_srcdir)/sesman/libscp/libscp.la
+  $(top_builddir)/sesman/libsesman/libsesman.la \
+  $(top_builddir)/common/libcommon.la \
+  $(top_builddir)/libipm/libipm.la
 
+xrdp_xcon_LDFLAGS = \
+  $(X_LIBS)
+
+xrdp_xcon_LDADD = \
+  $(X_PRE_LIBS) -lX11 $(X_EXTRA_LIBS)
+
+xrdp_authtest_LDADD = \
+  $(top_builddir)/sesman/libsesman/libsesman.la \
+  $(top_builddir)/common/libcommon.la \
+  $(top_builddir)/libipm/libipm.la \
+  $(AUTHMOD_LIB)

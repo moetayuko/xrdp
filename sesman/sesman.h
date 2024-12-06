@@ -1,21 +1,20 @@
-/*
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-   xrdp: A Remote Desktop Protocol server.
-   Copyright (C) Jay Sorg 2005-2008
-*/
+/**
+ * xrdp: A Remote Desktop Protocol server.
+ *
+ * Copyright (C) Jay Sorg 2004-2013
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**
  *
@@ -28,27 +27,64 @@
 #ifndef SESMAN_H
 #define SESMAN_H
 
-#if defined(HAVE_CONFIG_H)
-#include "config_ac.h"
-#endif
-#include "d3des.h"
-#include "arch.h"
-#include "parse.h"
-#include "os_calls.h"
-#include "log.h"
-#include "file_loc.h"
-#include "env.h"
-#include "auth.h"
-#include "config.h"
-//#include "tcp.h"
-#include "sig.h"
-#include "session.h"
-#include "access.h"
-#include "scp.h"
-#include "thread.h"
-#include "lock.h"
-#include "thread_calls.h"
+struct config_sesman;
+struct trans;
 
-#include "libscp.h"
+/* Globals */
+extern struct config_sesman *g_cfg;
+
+/**
+ * Close all file descriptors used by sesman.
+ *
+ * This is generally used after forking, to make sure the
+ * file descriptors used by the main process are not disturbed
+ *
+ * This call will also :-
+ * - release all trans objects held by sesman
+ * - Delete sesman wait objects
+ * - Call sesman_delete_listening_transport()
+ */
+int
+sesman_close_all(void);
+
+/*
+ * Remove the listening transport
+ *
+ * Needed if reloading the config and the listener has changed
+ */
+void
+sesman_delete_listening_transport(void);
+
+/*
+ * Create the listening socket transport
+ *
+ * @return 0 for success
+ */
+int
+sesman_create_listening_transport(const struct config_sesman *cfg);
+
+/**
+ * Callback to process incoming SCP data
+ */
+int
+sesman_scp_data_in(struct trans *self);
+
+/**
+ * Callback to process incoming EICP data
+ */
+int
+sesman_eicp_data_in(struct trans *self);
+
+/**
+ * Callback to process incoming ERCP data
+ */
+int
+sesman_ercp_data_in(struct trans *self);
+
+/*
+ * Check for termination
+ */
+int
+sesman_is_term(void);
 
 #endif
