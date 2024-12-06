@@ -1,23 +1,24 @@
-/**
- * xrdp: A Remote Desktop Protocol server.
- * Miscellaneous protocol constants
- *
- * Copyright (C) Matthew Chapman 1999-2008
- * Copyright (C) Jay Sorg 2004-2014
- * Copyright (C) Kevin Zhou 2012
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*
+   rdesktop: A Remote Desktop Protocol client.
+   Miscellaneous protocol constants
+   Copyright (C) Matthew Chapman 1999-2007
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+
+/* modified for xrdp */
 
 #if !defined(XRDP_CONSTANTS_H)
 #define XRDP_CONSTANTS_H
@@ -25,58 +26,13 @@
 /* TCP port for Remote Desktop Protocol */
 #define TCP_PORT_RDP                   3389
 
-/******************************************************************************
- *
- * xrdp constants
- *
- * Constants defined in publicly available Microsoft documents are not
- * stored here, but are stored in the include files ms-*.h, where the name
- * of the file is the name of the document defining the constant.
- *
- * So for example, NTSTATUS values found in [MS-ERREF] are found in
- * ms-erref.h
- ******************************************************************************/
-
-/**
- * Size of buffer including terminator for an IP address as returned
- * by g_sck_get_peer_ip_address(). See POSIX INET6_ADDRSTRLEN
- */
-#define MAX_PEER_ADDRSTRLEN 46
-
-/**
- * Size of buffer including terminator for a socket description, as
- * returned by g_sck_get_peer_description()
- * Currently the largest is an IPv6 address (INET6_ADDRSTRLEN), plus
- * []:<port> characters
- */
-#define MAX_PEER_DESCSTRLEN (46 + 2 + 1 + 5)
-
-#define INFO_CLIENT_NAME_BYTES  32
-
-/**
- * Maximum length of a string including the mandatory null terminator
- * [MS-RDPBCGR] TS_INFO_PACKET(2.2.1.11.1.1)
- */
-#define INFO_CLIENT_MAX_CB_LEN  512
-
-#define XRDP_MAX_BITMAP_CACHE_ID  3
-#define XRDP_MAX_BITMAP_CACHE_IDX 2000
-#define XRDP_BITMAP_CACHE_ENTRIES 2048
-
-#define XR_MIN_KEY_CODE 8
-#define XR_MAX_KEY_CODE 256
-
-/*
- * Constants come from ITU-T Recommendations
- */
-
-#define ISO_PDU_CR                     0xE0 /* X.224 Connection Request */
-#define ISO_PDU_CC                     0xD0 /* X.224 Connection Confirm */
+#define ISO_PDU_CR                     0xE0 /* Connection Request */
+#define ISO_PDU_CC                     0xD0 /* Connection Confirm */
 #define ISO_PDU_DR                     0x80 /* Disconnect Request */
 #define ISO_PDU_DT                     0xF0 /* Data */
 #define ISO_PDU_ER                     0x70 /* Error */
 
-/* MCS PDU codes (T.125) */
+/* MCS PDU codes */
 #define MCS_EDRQ                       1  /* Erect Domain Request */
 #define MCS_DPUM                       8  /* Disconnect Provider Ultimatum */
 #define MCS_AURQ                       10 /* Attach User Request */
@@ -86,32 +42,8 @@
 #define MCS_SDRQ                       25 /* Send Data Request */
 #define MCS_SDIN                       26 /* Send Data Indication */
 
-/******************************************************************************
- *
- * Constants come from other Microsoft products
- *
- *****************************************************************************/
-
-/* Sound format constants - see also RFC 2361 and MS-RDPAI  */
-#define WAVE_FORMAT_PCM                0x0001
-#define WAVE_FORMAT_ADPCM              0x0002
-#define WAVE_FORMAT_ALAW               0x0006
-#define WAVE_FORMAT_MULAW              0x0007
-#define WAVE_FORMAT_MPEGLAYER3         0x0055
-#define WAVE_FORMAT_OPUS               0x0069
-#define WAVE_FORMAT_AAC                0xA106
-
-/* https://technet.microsoft.com/ja-jp/library/aa387685.aspx */
-#define SEC_RSA_MAGIC                  0x31415352 /* RSA1 */
-
-/* NTSTATUS Values (MS-ERREF 2.3.1) */
-/* used for RDPDR */
-/*
- * not yet sorted out
- */
-
-#define MCS_CONNECT_INITIAL            0x7f65 /* MCS BER: big endian, class=application (0x4000), constructed (0x2000), tag number > 30 (0x1f00), tag number=101 (0x0065) */
-#define MCS_CONNECT_RESPONSE           0x7f66 /* MCS BER: application 102 */
+#define MCS_CONNECT_INITIAL            0x7f65
+#define MCS_CONNECT_RESPONSE           0x7f66
 
 #define BER_TAG_BOOLEAN                1
 #define BER_TAG_INTEGER                2
@@ -123,22 +55,111 @@
 #define MCS_USERCHANNEL_BASE           1001
 
 /* RDP secure transport constants */
-/* not used anywhere */
 #define SEC_RANDOM_SIZE                32
 #define SEC_MODULUS_SIZE               64
 #define SEC_PADDING_SIZE               8
 #define SEC_EXPONENT_SIZE              4
+
+#define SEC_CLIENT_RANDOM              0x0001
+#define SEC_ENCRYPT                    0x0008
+#define SEC_LOGON_INFO                 0x0040
+#define SEC_LICENCE_NEG                0x0080
+
+#define SEC_TAG_SRV_INFO               0x0c01
+#define SEC_TAG_SRV_CRYPT              0x0c02
+#define SEC_TAG_SRV_CHANNELS           0x0c03
+
+#define SEC_TAG_CLI_INFO               0xc001
+#define SEC_TAG_CLI_CRYPT              0xc002
+#define SEC_TAG_CLI_CHANNELS           0xc003
+#define SEC_TAG_CLI_4                  0xc004
+
+#define SEC_TAG_PUBKEY                 0x0006
+#define SEC_TAG_KEYSIG                 0x0008
+
+#define SEC_RSA_MAGIC                  0x31415352 /* RSA1 */
 
 /* RDP licensing constants */
 #define LICENCE_TOKEN_SIZE             10
 #define LICENCE_HWID_SIZE              20
 #define LICENCE_SIGNATURE_SIZE         16
 
+#define LICENCE_TAG_DEMAND             0x01
+#define LICENCE_TAG_AUTHREQ            0x02
+#define LICENCE_TAG_ISSUE              0x03
+#define LICENCE_TAG_REISSUE            0x04
+#define LICENCE_TAG_PRESENT            0x12
+#define LICENCE_TAG_REQUEST            0x13
+#define LICENCE_TAG_AUTHRESP           0x15
+#define LICENCE_TAG_RESULT             0xff
+
+#define LICENCE_TAG_USER               0x000f
+#define LICENCE_TAG_HOST               0x0010
+
+/* RDP PDU codes */
+#define RDP_PDU_DEMAND_ACTIVE          1
+#define RDP_PDU_CONFIRM_ACTIVE         3
+#define RDP_PDU_REDIRECT               4
+#define RDP_PDU_DEACTIVATE             6
+#define RDP_PDU_DATA                   7
+
+#define RDP_DATA_PDU_UPDATE            2
+#define RDP_DATA_PDU_CONTROL           20
+#define RDP_DATA_PDU_POINTER           27
+#define RDP_DATA_PDU_INPUT             28
+#define RDP_DATA_PDU_SYNCHRONISE       31
+#define RDP_DATA_PDU_BELL              34
+#define RDP_DATA_PDU_LOGON             38
+#define RDP_DATA_PDU_FONT2             39
+#define RDP_DATA_PDU_DISCONNECT        47
+
+#define RDP_CTL_REQUEST_CONTROL        1
+#define RDP_CTL_GRANT_CONTROL          2
+#define RDP_CTL_DETACH                 3
+#define RDP_CTL_COOPERATE              4
+
+#define RDP_UPDATE_ORDERS              0
+#define RDP_UPDATE_BITMAP              1
+#define RDP_UPDATE_PALETTE             2
+#define RDP_UPDATE_SYNCHRONIZE         3
+
+#define RDP_POINTER_SYSTEM             1
+#define RDP_POINTER_MOVE               3
+#define RDP_POINTER_COLOR              6
+#define RDP_POINTER_CACHED             7
+
+#define RDP_NULL_POINTER               0
+#define RDP_DEFAULT_POINTER            0x7F00
+
+#define RDP_INPUT_SYNCHRONIZE          0
+#define RDP_INPUT_CODEPOINT            1
+#define RDP_INPUT_VIRTKEY              2
+#define RDP_INPUT_SCANCODE             4
+#define RDP_INPUT_MOUSE                0x8001
+
+/* Device flags */
+#define KBD_FLAG_RIGHT                 0x0001
+#define KBD_FLAG_EXT                   0x0100
+#define KBD_FLAG_QUIET                 0x1000
+#define KBD_FLAG_DOWN                  0x4000
+#define KBD_FLAG_UP                    0x8000
+
+/* These are for synchronization; not for keystrokes */
+#define KBD_FLAG_SCROLL                0x0001
+#define KBD_FLAG_NUMLOCK               0x0002
+#define KBD_FLAG_CAPITAL               0x0004
 
 /* See T.128 */
-/* not used anywhere */
 #define RDP_KEYPRESS                   0
 #define RDP_KEYRELEASE                 (KBD_FLAG_DOWN | KBD_FLAG_UP)
+
+#define MOUSE_FLAG_MOVE                0x0800
+#define MOUSE_FLAG_BUTTON1             0x1000
+#define MOUSE_FLAG_BUTTON2             0x2000
+#define MOUSE_FLAG_BUTTON3             0x4000
+#define MOUSE_FLAG_BUTTON4             0x0280
+#define MOUSE_FLAG_BUTTON5             0x0380
+#define MOUSE_FLAG_DOWN                0x8000
 
 /* Raster operation masks */
 #define ROP2_S(rop3)                   (rop3 & 0xf)
@@ -165,7 +186,66 @@
 #define PDU_FLAG_FIRST                 0x01
 #define PDU_FLAG_LAST                  0x02
 
+/* Maps to generalCapabilitySet in T.128 page 138 */
+
+/* RDP capabilities */
+#define RDP_CAPSET_GENERAL             1
+#define RDP_CAPLEN_GENERAL             0x18
+#define OS_MAJOR_TYPE_UNIX             4
+#define OS_MINOR_TYPE_XSERVER          7
+
+#define RDP_CAPSET_BITMAP              2
+#define RDP_CAPLEN_BITMAP              0x1C
+
+#define RDP_CAPSET_ORDER               3
+#define RDP_CAPLEN_ORDER               0x58
+#define ORDER_CAP_NEGOTIATE            2
+#define ORDER_CAP_NOSUPPORT            4
+
+#define RDP_CAPSET_BMPCACHE            4
+#define RDP_CAPLEN_BMPCACHE            0x28
+
+#define RDP_CAPSET_CONTROL             5
+#define RDP_CAPLEN_CONTROL             0x0C
+
+#define RDP_CAPSET_ACTIVATE            7
+#define RDP_CAPLEN_ACTIVATE            0x0C
+
+#define RDP_CAPSET_POINTER             8
+#define RDP_CAPLEN_POINTER             0x08
+
+#define RDP_CAPSET_SHARE               9
+#define RDP_CAPLEN_SHARE               0x08
+
+#define RDP_CAPSET_COLCACHE            10
+#define RDP_CAPLEN_COLCACHE            0x08
+
+#define RDP_CAPSET_BMPCACHE2           19
+#define RDP_CAPLEN_BMPCACHE2           0x28
+#define BMPCACHE2_FLAG_PERSIST         ((long)1<<31)
+
 #define RDP_SOURCE                     "MSTSC"
+
+/* Logon flags */
+#define RDP_LOGON_AUTO                 0x0008
+#define RDP_LOGON_NORMAL               0x0033
+#define RDP_COMPRESSION                0x0080
+#define RDP_LOGON_BLOB                 0x0100
+#define RDP_LOGON_LEAVE_AUDIO          0x2000
+
+#define RDP5_DISABLE_NOTHING           0x00
+#define RDP5_NO_WALLPAPER              0x01
+#define RDP5_NO_FULLWINDOWDRAG         0x02
+#define RDP5_NO_MENUANIMATIONS         0x04
+#define RDP5_NO_THEMING                0x08
+#define RDP5_NO_CURSOR_SHADOW          0x20
+#define RDP5_NO_CURSORSETTINGS         0x40 /* disables cursor blinking */
+
+/* compression types */
+#define RDP_MPPC_COMPRESSED            0x20
+#define RDP_MPPC_RESET                 0x40
+#define RDP_MPPC_FLUSH                 0x80
+#define RDP_MPPC_DICT_SIZE             8192
 
 /* Keymap flags */
 #define MapRightShiftMask              (1 << 0)
@@ -195,7 +275,7 @@
 #define MASK_REMOVE_BITS(var, mask)    (var &= ~mask)
 #define MASK_HAS_BITS(var, mask)       ((var & mask)>0)
 #define MASK_CHANGE_BIT(var, mask, active) \
-    (var = ((var & ~mask) | (active ? mask : 0)))
+                  (var = ((var & ~mask) | (active ? mask : 0)))
 
 /* Clipboard constants, "borrowed" from GCC system headers in
    the w32 cross compiler */
@@ -227,8 +307,100 @@
 #define CF_GDIOBJFIRST                 768
 #define CF_GDIOBJLAST                  1023
 
+/* Sound format constants */
+#define WAVE_FORMAT_PCM	               1
+#define WAVE_FORMAT_ADPCM              2
+#define WAVE_FORMAT_ALAW               6
+#define WAVE_FORMAT_MULAW              7
+
+/* Virtual channel options */
+#define CHANNEL_OPTION_INITIALIZED     0x80000000
+#define CHANNEL_OPTION_ENCRYPT_RDP     0x40000000
+#define CHANNEL_OPTION_COMPRESS_RDP    0x00800000
+#define CHANNEL_OPTION_SHOW_PROTOCOL   0x00200000
+
+/* NT status codes for RDPDR */
+#define STATUS_SUCCESS                 0x00000000
+#define STATUS_PENDING                 0x00000103
+
+#define STATUS_NO_MORE_FILES           0x80000006
+#define STATUS_DEVICE_PAPER_EMPTY      0x8000000e
+#define STATUS_DEVICE_POWERED_OFF      0x8000000f
+#define STATUS_DEVICE_OFF_LINE         0x80000010
+#define STATUS_DEVICE_BUSY             0x80000011
+
+#define STATUS_INVALID_HANDLE          0xc0000008
+#define STATUS_INVALID_PARAMETER       0xc000000d
+#define STATUS_NO_SUCH_FILE            0xc000000f
+#define STATUS_INVALID_DEVICE_REQUEST  0xc0000010
+#define STATUS_ACCESS_DENIED           0xc0000022
+#define STATUS_OBJECT_NAME_COLLISION   0xc0000035
+#define STATUS_DISK_FULL               0xc000007f
+#define STATUS_FILE_IS_A_DIRECTORY     0xc00000ba
+#define STATUS_NOT_SUPPORTED           0xc00000bb
+#define STATUS_TIMEOUT                 0xc0000102
+#define STATUS_CANCELLED               0xc0000120
+
 /* RDPDR constants */
 #define RDPDR_MAX_DEVICES              0x10
+#define DEVICE_TYPE_SERIAL             0x01
+#define DEVICE_TYPE_PARALLEL           0x02
+#define DEVICE_TYPE_PRINTER            0x04
+#define DEVICE_TYPE_DISK               0x08
+#define DEVICE_TYPE_SCARD              0x20
+
+#define FILE_DIRECTORY_FILE            0x00000001
+#define FILE_NON_DIRECTORY_FILE        0x00000040
+#define FILE_OPEN_FOR_FREE_SPACE_QUERY 0x00800000
+
+/* RDP5 disconnect PDU */
+#define exDiscReasonNoInfo                            0x0000
+#define exDiscReasonAPIInitiatedDisconnect            0x0001
+#define exDiscReasonAPIInitiatedLogoff                0x0002
+#define exDiscReasonServerIdleTimeout                 0x0003
+#define exDiscReasonServerLogonTimeout                0x0004
+#define exDiscReasonReplacedByOtherConnection         0x0005
+#define exDiscReasonOutOfMemory                       0x0006
+#define exDiscReasonServerDeniedConnection            0x0007
+#define exDiscReasonServerDeniedConnectionFips        0x0008
+#define exDiscReasonLicenseInternal                   0x0100
+#define exDiscReasonLicenseNoLicenseServer            0x0101
+#define exDiscReasonLicenseNoLicense                  0x0102
+#define exDiscReasonLicenseErrClientMsg               0x0103
+#define exDiscReasonLicenseHwidDoesntMatchLicense     0x0104
+#define exDiscReasonLicenseErrClientLicense           0x0105
+#define exDiscReasonLicenseCantFinishProtocol         0x0106
+#define exDiscReasonLicenseClientEndedProtocol        0x0107
+#define exDiscReasonLicenseErrClientEncryption        0x0108
+#define exDiscReasonLicenseCantUpgradeLicense         0x0109
+#define exDiscReasonLicenseNoRemoteConnections        0x010a
+
+#define RDP_ORDER_STANDARD   0x01
+#define RDP_ORDER_SECONDARY  0x02
+#define RDP_ORDER_BOUNDS     0x04
+#define RDP_ORDER_CHANGE     0x08
+#define RDP_ORDER_DELTA      0x10
+#define RDP_ORDER_LASTBOUNDS 0x20
+#define RDP_ORDER_SMALL      0x40
+#define RDP_ORDER_TINY       0x80
+
+#define RDP_ORDER_DESTBLT   0
+#define RDP_ORDER_PATBLT    1
+#define RDP_ORDER_SCREENBLT 2
+#define RDP_ORDER_LINE      9
+#define RDP_ORDER_RECT      10
+#define RDP_ORDER_DESKSAVE  11
+#define RDP_ORDER_MEMBLT    13
+#define RDP_ORDER_TRIBLT    14
+#define RDP_ORDER_POLYLINE  22
+#define RDP_ORDER_TEXT2     27
+
+#define RDP_ORDER_RAW_BMPCACHE  0
+#define RDP_ORDER_COLCACHE      1
+#define RDP_ORDER_BMPCACHE      2
+#define RDP_ORDER_FONTCACHE     3
+#define RDP_ORDER_RAW_BMPCACHE2 4
+#define RDP_ORDER_BMPCACHE2     5
 
 /* drawable types */
 #define WND_TYPE_BITMAP  0
@@ -240,24 +412,15 @@
 #define WND_TYPE_LABEL   6
 #define WND_TYPE_COMBO   7
 #define WND_TYPE_SPECIAL 8
-#define WND_TYPE_LISTBOX 9
-#define WND_TYPE_OFFSCREEN 10
 
 /* button states */
 #define BUTTON_STATE_UP   0
 #define BUTTON_STATE_DOWN 1
 
-/* touch gestures */
-#define TOUCH_TWO_FINGERS_DOWN 0
-#define TOUCH_TWO_FINGERS_UP 1
-#define TOUCH_TWO_FINGERS_LEFT 2
-#define TOUCH_TWO_FINGERS_RIGHT 3
-
 /* messages */
 #define WM_PAINT       3
 #define WM_KEYDOWN     15
 #define WM_KEYUP       16
-#define WM_KEYBRD_SYNC 17
 #define WM_MOUSEMOVE   100
 #define WM_LBUTTONUP   101
 #define WM_LBUTTONDOWN 102
@@ -269,72 +432,8 @@
 #define WM_BUTTON4DOWN 108
 #define WM_BUTTON5UP   109
 #define WM_BUTTON5DOWN 110
-#define WM_BUTTON6UP   111
-#define WM_BUTTON6DOWN 112
-#define WM_BUTTON7UP   113
-#define WM_BUTTON7DOWN 114
-#define WM_BUTTON8UP   115
-#define WM_BUTTON8DOWN 116
-#define WM_BUTTON9UP   117
-#define WM_BUTTON9DOWN 118
-
-#define WM_TOUCH_VSCROLL 140
-#define WM_TOUCH_HSCROLL 141
-
 #define WM_INVALIDATE  200
-#define WM_CHANNEL_DATA 201
 
 #define CB_ITEMCHANGE  300
-
-#define FASTPATH_MAX_PACKET_SIZE    0x3fff
-
-#define XR_RDP_SCAN_LSHIFT 42
-#define XR_RDP_SCAN_ALT    56
-
-// Since we're not guaranteed to have pixman, copy these directives.
-#define XRDP_PIXMAN_TYPE_ARGB   2
-#define XRDP_PIXMAN_TYPE_ABGR   3
-#define XRDP_PIXMAN_FORMAT(bpp,type,a,r,g,b)    (((bpp) << 24) |  \
-        ((type) << 16) | \
-        ((a) << 12) |    \
-        ((r) << 8) |     \
-        ((g) << 4) |     \
-        ((b)))
-
-#define XRDP_a8b8g8r8 \
-    XRDP_PIXMAN_FORMAT(32, XRDP_PIXMAN_TYPE_ABGR, 8, 8, 8, 8)
-
-#define XRDP_a8r8g8b8 \
-    XRDP_PIXMAN_FORMAT(32, XRDP_PIXMAN_TYPE_ARGB, 8, 8, 8, 8)
-
-#define XRDP_r5g6b5 \
-    XRDP_PIXMAN_FORMAT(16, XRDP_PIXMAN_TYPE_ARGB, 0, 5, 6, 5)
-
-#define XRDP_a1r5g5b5 \
-    XRDP_PIXMAN_FORMAT(16, XRDP_PIXMAN_TYPE_ARGB, 1, 5, 5, 5)
-
-#define XRDP_r3g3b2 \
-    XRDP_PIXMAN_FORMAT(8, XRDP_PIXMAN_TYPE_ARGB, 0, 3, 3, 2)
-
-// The last used constant in pixman is 63, so use 64+
-#define XRDP_nv12 \
-    XRDP_PIXMAN_FORMAT(12, 64, 0, 0, 0, 0)
-
-#define XRDP_i420 \
-    XRDP_PIXMAN_FORMAT(12, 65, 0, 0, 0, 0)
-
-#define XRDP_nv12_709fr \
-    XRDP_PIXMAN_FORMAT(12, 66, 0, 0, 0, 0)
-
-#define XRDP_yuv444_709fr \
-    XRDP_PIXMAN_FORMAT(32, 67, 0, 0, 0, 0)
-
-// https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpegfx/8131c1bc-1af8-4907-a05a-f72f4581160f
-#define XRDP_yuv444_v1_stream_709fr \
-    XRDP_PIXMAN_FORMAT(32, 68, 0, 0, 0, 0)
-
-// https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-rdpegfx/781406c3-5e24-4f2b-b6ff-42b76bf64f6d
-#define XRDP_yuv444_v2_stream_709fr \
-    XRDP_PIXMAN_FORMAT(32, 69, 0, 0, 0, 0)
 
 #endif
