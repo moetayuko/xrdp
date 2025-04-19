@@ -4,18 +4,19 @@ EXTRA_DIST = \
   wave-format-server.txt
 
 AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/${sysconfsubdir}\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -DXRDP_SOCKET_ROOT_PATH=\"${socketdir}\" \
   -I$(top_srcdir)/sesman/libsesman \
-  -I$(top_srcdir)/common
+  -I$(top_srcdir)/common \
+  -I$(top_srcdir)/libipm
 
 CHANSRV_EXTRA_LIBS =
 
 if XRDP_FUSE
-AM_CPPFLAGS += -DXRDP_FUSE $(FUSE_CFLAGS) -DFUSE_USE_VERSION=26
+AM_CPPFLAGS += -DXRDP_FUSE $(FUSE_CFLAGS) -DFUSE_USE_VERSION=30
 CHANSRV_EXTRA_LIBS += $(FUSE_LIBS)
 endif
 
@@ -73,8 +74,17 @@ xrdp_chansrv_SOURCES = \
   sound.h \
   xcommon.c \
   xcommon.h \
+  input.h \
   audin.c \
   audin.h
+
+if XRDP_IBUS
+AM_CPPFLAGS += -DXRDP_IBUS $(IBUS_CFLAGS) $(GLIB2_CFLAGS)
+CHANSRV_EXTRA_LIBS += $(IBUS_LIBS) $(GLIB2_LIBS)
+xrdp_chansrv_SOURCES += \
+  input_ibus.c
+endif
+
 
 xrdp_chansrv_LDFLAGS = \
   $(X_LIBS)

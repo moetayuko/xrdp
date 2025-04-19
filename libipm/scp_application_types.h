@@ -34,11 +34,13 @@
 enum scp_session_type
 {
     SCP_SESSION_TYPE_XVNC = 0,  ///< Session used Xvnc
+    SCP_SESSION_TYPE_XVNC_UDS,  ///< Session used Xvnc with UDS connection
     SCP_SESSION_TYPE_XORG  ///< Session used Xorg + xorgxrdp
 };
 
 #define SCP_SESSION_TYPE_TO_STR(t) \
     ((t) == SCP_SESSION_TYPE_XVNC ? "Xvnc" : \
+     (t) == SCP_SESSION_TYPE_XVNC_UDS ? "Xvnc-UDS" : \
      (t) == SCP_SESSION_TYPE_XORG ? "Xorg" : \
      "unknown" \
     )
@@ -96,6 +98,7 @@ enum scp_screate_status
     E_SCP_SCREATE_MAX_REACHED, ///< Max number of sessions already reached
     E_SCP_SCREATE_NO_DISPLAY, ///< No X server display number is available
     E_SCP_SCREATE_X_SERVER_FAIL, ///< X server could not be started
+    E_SCP_SCREATE_SESSION_FAIL, ///< The session failed quickly
     E_SCP_SCREATE_GENERAL_ERROR ///< An unspecific error has occurred
 };
 
@@ -134,6 +137,24 @@ enum scp_list_sessions_status
      * A client-side error occurred allocating memory for the session
      */
     E_SCP_LS_NO_MEMORY
+};
+
+/**
+ * Status of a create sockdir message
+ */
+enum scp_create_sockdir_status
+{
+    E_SCP_CS_OK = 0,
+
+    /**
+     * Client hasn't logged in yet
+     */
+    E_SCP_CS_NOT_LOGGED_IN = 100,
+
+    /**
+     * sesman failed to create the directory
+     */
+    E_SCP_CS_OTHER_ERROR
 };
 
 

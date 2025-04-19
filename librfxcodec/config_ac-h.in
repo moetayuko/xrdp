@@ -57,6 +57,9 @@
 /* Use x86_64 SIMD instructions */
 #undef RFX_USE_ACCEL_AMD64
 
+/* Use arm64 SIMD instructions */
+#undef RFX_USE_ACCEL_ARM64
+
 /* Use x86 SIMD instructions */
 #undef RFX_USE_ACCEL_X86
 
@@ -67,6 +70,3 @@
 
 /* Version number of package */
 #undef VERSION
-
-/* Define to empty if 'const' does not conform to ANSI C. */
-#undef const

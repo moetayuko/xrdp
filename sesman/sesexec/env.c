@@ -53,6 +53,15 @@ env_check_password_file(const char *filename, const char *passwd)
     void *des;
     void *sha1;
 
+    /*
+     * If we're in FIPS mode, do not write the GUID to disk after it's
+     * been encrypted with an insecure algorithm.
+     */
+    if (g_fips_mode_enabled())
+    {
+        LOG(LOG_LEVEL_ERROR, "Can't create VNC password file in FIPS mode");
+        return 1;
+    }
     /* create password hash from password */
     passwd_bytes = g_strlen(passwd);
     sha1 = ssl_sha1_info_create();
@@ -162,6 +171,12 @@ env_set_user(int uid, char **passwd_file, int display,
             /* pulse source socket */
             g_snprintf(text, sizeof(text), CHANSRV_PORT_IN_BASE_STR, display);
             g_setenv("XRDP_PULSE_SOURCE_SOCKET", text, 1);
+            if (g_cfg->sec.xauth_in_sysdir)
+            {
+                g_snprintf(text, sizeof(text), XRDP_SOCKET_PATH "/Xauthority",
+                           uid);
+                g_setenv("XAUTHORITY", text, 1);
+            }
             if ((env_names != 0) && (env_values != 0) &&
                     (env_names->count == env_values->count))
             {

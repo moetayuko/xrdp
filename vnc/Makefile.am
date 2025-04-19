@@ -1,9 +1,11 @@
 AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/${sysconfsubdir}\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -I$(top_srcdir)/common
+
+AM_CFLAGS = $(X_CFLAGS)
 
 module_LTLIBRARIES = \
   libvnc.la

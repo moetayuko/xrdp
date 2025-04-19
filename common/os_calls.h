@@ -23,20 +23,23 @@
 
 #include "arch.h"
 
-enum exit_reason
+enum proc_exit_reason
 {
-    E_XR_STATUS_CODE = 0, ///< 'val' contains exit status
-    E_XR_SIGNAL, ///< 'val' contains a signal number
-    E_XR_UNEXPECTED
+    E_PXR_STATUS_CODE = 0, ///< 'val' contains exit status
+    E_PXR_SIGNAL, ///< 'val' contains a signal number
+    E_PXR_UNEXPECTED
 };
 
-struct exit_status
+struct proc_exit_status
 {
-    enum exit_reason reason;
+    enum proc_exit_reason reason;
     int val;
 };
 
 struct list;
+
+/** Out-of-memory handler type */
+typedef void (*oom_type)(void);
 
 #define g_tcp_can_recv g_sck_can_recv
 #define g_tcp_can_send g_sck_can_send
@@ -71,6 +74,14 @@ int      g_sck_set_send_buffer_bytes(int sck, int bytes);
 int      g_sck_get_send_buffer_bytes(int sck, int *bytes);
 int      g_sck_set_recv_buffer_bytes(int sck, int bytes);
 int      g_sck_get_recv_buffer_bytes(int sck, int *bytes);
+/**
+ * Set SO_REUSEADDR for a socket
+ *
+ * Use before binding, if appropriate.
+ * @param sck Socket
+ * @return 0 for success
+ */
+int      g_sck_set_reuseaddr(int sck);
 int      g_sck_local_socket(void);
 int      g_sck_local_socketpair(int sck[2]);
 int      g_sck_vsock_socket(void);
@@ -124,6 +135,7 @@ int      g_sck_recv_fd_set(int sck, void *ptr, unsigned int len,
  */
 int      g_sck_send_fd_set(int sck, const void *ptr, unsigned int len,
                            int fds[], unsigned int fdcount);
+int      g_alloc_shm_map_fd(void **addr, int *fd, size_t size);
 int      g_sck_last_error_would_block(int sck);
 int      g_sck_socket_ok(int sck);
 /**
@@ -258,6 +270,7 @@ int      g_file_exist(const char *filename);
 int      g_file_readable(const char *filename);
 int      g_directory_exist(const char *dirname);
 int      g_executable_exist(const char *dirname);
+int      g_socket_exist(const char *dirname);
 int      g_create_dir(const char *dirname);
 int      g_create_path(const char *path);
 int      g_remove_dir(const char *dirname);
@@ -338,6 +351,7 @@ void     g_signal_pipe(void (*func)(int));
 void     g_signal_usr1(void (*func)(int));
 int      g_fork(void);
 int      g_setgid(int pid);
+int      g_drop_privileges(const char *user, const char *group);
 int      g_initgroups(const char *user);
 int      g_getuid(void);
 int      g_getgid(void);
@@ -352,9 +366,9 @@ int      g_setlogin(const char *name);
  */
 int      g_set_allusercontext(int uid);
 #endif
-int      g_waitchild(struct exit_status *e);
+int      g_waitchild(struct proc_exit_status *e);
 int      g_waitpid(int pid);
-struct exit_status g_waitpid_status(int pid);
+struct proc_exit_status g_waitpid_status(int pid);
 /*
  * Sets the process group ID of the indicated process to the specified value.
  * (POSIX.1)
@@ -371,6 +385,12 @@ int      g_exit(int exit_code);
 int      g_getpid(void);
 int      g_sigterm(int pid);
 int      g_sighup(int pid);
+/*
+ * Is a particular PID active?
+ * @param pid PID to check
+ * Returns boolean
+ */
+int      g_pid_is_active(int pid);
 int      g_getuser_info_by_name(const char *username, int *uid, int *gid,
                                 char **shell, char **dir, char **gecos);
 int      g_getuser_info_by_uid(int uid, char **username, int *gid,
@@ -386,9 +406,26 @@ int      g_getgroup_info(const char *groupname, int *gid);
  * Primary group of username is also checked
  */
 int      g_check_user_in_group(const char *username, int gid, int *ok);
-int      g_time1(void);
-int      g_time2(void);
-int      g_time3(void);
+
+/**
+ * Gets elapsed milliseconds since some arbitrary point in the past
+ *
+ * The returned value is unaffected by leap-seconds or time zone changes.
+ *
+ * @return elaped ms since some arbitrary point
+ *
+ * Calculate the duration of a task by calling this routine before and
+ * after the task, and subtracting the two values.
+ *
+ * The value wraps every so often (every 49.7 days on a 32-bit system),
+ * but as we are using unsigned arithmetic, the difference of any of these
+ * two values can be used to calculate elapsed time, whether-or-not a wrap
+ * occurs during the interval - provided of course the time being measured
+ * is less than the total wrap-around interval.
+ */
+unsigned int
+g_get_elapsed_ms(void);
+
 int      g_save_to_bmp(const char *filename, char *data, int stride_bytes,
                        int width, int height, int depth, int bits_per_pixel);
 void    *g_shmat(int shmid);
@@ -400,18 +437,82 @@ int      g_tcp4_bind_address(int sck, const char *port, const char *address);
 int      g_tcp6_socket(void);
 int      g_tcp6_bind_address(int sck, const char *port, const char *address);
 int      g_no_new_privs(void);
+/**
+ * Query whether FIPS mode is enabled
+ *
+ * In FIPS mode, some cryptographic algorithms are disabled
+ *
+ * @return 1 -> FIPS mode enabled, 0 -> FIPS mode disabled or unknown
+ */
+int      g_fips_mode_enabled(void);
 void
 g_qsort(void *base, size_t nitems, size_t size,
         int (*compar)(const void *, const void *));
 
+/**
+ * Returns a list of the filenames contained within a directory
+ *
+ * @param dir Name of directory
+ * @return list of directory entry names
+ *
+ * If NULL is returned, further information may be available in errno. No
+ * other errors are specifically logged.
+ * The special files '.' and '..' are not returned.
+ */
+struct list *
+g_readdir(const char *dir);
+
+/** Set the out-of-memory handler
+ * @param new_handler Function to call if a memory allocation fails
+ * @result old handler or NULL if none.
+ *
+ * After calling an out-of-memory handler, the program exits
+ * If no out-of-memory handler is set, the program aborts
+ *
+ * Only use this function if there is urgent cleaning-up that must be done
+ * before the program exits.
+ */
+oom_type
+g_set_out_of_memory_handler(oom_type new_handler);
+
+/** Allocate memory with error-checking
+ *
+ * @param size Size of memory to allocate
+ * @return Allocated memory
+ *
+ * If memory cannot be allocated, the out-of-memory handler is called and
+ * the program exits
+ *
+ * Only use this function if you are unable to handle an out-of-memory
+ * condition.
+ */
+void *
+g_malloc_nofail(size_t size);
+
+/** Allocate memory with error-checking
+ *
+ * @param Number of elements to allocate
+ * @param size Size of each element
+ * @return Allocated memory
+ *
+ * If memory cannot be allocated, the out-of-memory handler is called and
+ * the program exits
+ *
+ * Only use this function if you are unable to handle an out-of-memory
+ * condition.
+ */
+void *
+g_calloc_nofail(size_t nmemb, size_t size);
+
 /* glib-style wrappers */
 #define g_new(struct_type, n_structs) \
-    (struct_type *) malloc(sizeof(struct_type) * (n_structs))
+    (struct_type *) g_malloc_nofail(sizeof(struct_type) * (n_structs))
 #define g_new0(struct_type, n_structs) \
-    (struct_type *) calloc((n_structs), sizeof(struct_type))
+    (struct_type *) g_calloc_nofail((n_structs), sizeof(struct_type))
 
 /* remove these when no longer used */
-#define g_malloc(_size, _zero) (_zero ? calloc(1, _size) : malloc(_size))
+#define g_malloc(_size, _zero) \
+    (_zero ? g_calloc_nofail(1, _size) : g_malloc_nofail(_size))
 #define g_free free
 #define g_memset memset
 #define g_memcpy memcpy

@@ -1,7 +1,9 @@
 man_MANS = \
   xrdp-dis.1 \
+  gfx.toml.5 \
   sesman.ini.5 \
   xrdp.ini.5 \
+  xrdp-km.toml.5 \
   xrdp.8 \
   xrdp-chansrv.8 \
   xrdp-genkeymap.8 \
@@ -23,6 +25,7 @@ SUBST_VARS = sed \
    -e 's|@sbindir[@]|$(sbindir)|g' \
    -e 's|@localstatedir[@]|$(localstatedir)|g' \
    -e 's|@sysconfdir[@]|$(sysconfdir)|g' \
+   -e 's|@sysconfsubdir[@]|$(sysconfsubdir)|g' \
    -e 's|@socketdir[@]|$(socketdir)|g' \
    -e 's|@xrdpconfdir[@]|$(sysconfdir)/xrdp|g' \
    -e 's|@xrdpdatadir[@]|$(datadir)/xrdp|g' \

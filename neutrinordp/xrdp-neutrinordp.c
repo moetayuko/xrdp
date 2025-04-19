@@ -1790,6 +1790,10 @@ lfreerdp_synchronize(rdpContext *context)
 static boolean
 lfreerdp_pre_connect(freerdp *instance)
 {
+#define MAX_FREERDP_CHANNELS \
+    (sizeof(instance->settings->channels) / \
+     sizeof(instance->settings->channels[0]))
+
     struct mod *mod;
     int index;
     int error;
@@ -1797,7 +1801,7 @@ lfreerdp_pre_connect(freerdp *instance)
     int target_chan;
     int ch_flags;
     char ch_name[256];
-    const char *ch_names[MAX_STATIC_CHANNELS];
+    const char *ch_names[MAX_FREERDP_CHANNELS];
     char *dst_ch_name;
 
     LOG_DEVEL(LOG_LEVEL_INFO, "lfreerdp_pre_connect:");
@@ -1828,7 +1832,7 @@ lfreerdp_pre_connect(freerdp *instance)
                 LOG(LOG_LEVEL_INFO, "Channel '%s' not passed to module",
                     ch_name);
             }
-            else if (target_chan < MAX_STATIC_CHANNELS)
+            else if (target_chan < MAX_FREERDP_CHANNELS)
             {
                 dst_ch_name = instance->settings->channels[target_chan].name;
                 ch_names[target_chan] = dst_ch_name;
@@ -2041,7 +2045,7 @@ lfreerdp_pre_connect(freerdp *instance)
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_WindowCreate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                    WINDOW_STATE_ORDER *window_state)
 {
@@ -2122,7 +2126,7 @@ lrail_WindowCreate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_WindowUpdate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                    WINDOW_STATE_ORDER *window_state)
 {
@@ -2131,7 +2135,7 @@ lrail_WindowUpdate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_WindowDelete(rdpContext *context, WINDOW_ORDER_INFO *orderInfo)
 {
     struct mod *mod;
@@ -2142,7 +2146,7 @@ lrail_WindowDelete(rdpContext *context, WINDOW_ORDER_INFO *orderInfo)
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_WindowIcon(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                  WINDOW_ICON_ORDER *window_icon)
 {
@@ -2168,7 +2172,7 @@ lrail_WindowIcon(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_WindowCachedIcon(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                        WINDOW_CACHED_ICON_ORDER *window_cached_icon)
 {
@@ -2183,7 +2187,7 @@ lrail_WindowCachedIcon(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_NotifyIconCreate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                        NOTIFY_ICON_STATE_ORDER *notify_icon_state)
 {
@@ -2240,7 +2244,7 @@ lrail_NotifyIconCreate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_NotifyIconUpdate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                        NOTIFY_ICON_STATE_ORDER *notify_icon_state)
 {
@@ -2249,7 +2253,7 @@ lrail_NotifyIconUpdate(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_NotifyIconDelete(rdpContext *context, WINDOW_ORDER_INFO *orderInfo)
 {
     struct mod *mod;
@@ -2261,7 +2265,7 @@ lrail_NotifyIconDelete(rdpContext *context, WINDOW_ORDER_INFO *orderInfo)
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_MonitoredDesktop(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
                        MONITORED_DESKTOP_ORDER *monitored_desktop)
 {
@@ -2293,7 +2297,7 @@ lrail_MonitoredDesktop(rdpContext *context, WINDOW_ORDER_INFO *orderInfo,
 }
 
 /*****************************************************************************/
-void
+static void
 lrail_NonMonitoredDesktop(rdpContext *context, WINDOW_ORDER_INFO *orderInfo)
 {
     struct mod *mod;

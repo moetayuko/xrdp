@@ -48,6 +48,7 @@ int main (void)
 
     sr = srunner_create (make_suite_test_fifo());
     srunner_add_suite(sr, make_suite_test_list());
+    srunner_add_suite(sr, make_suite_test_list16());
     srunner_add_suite(sr, make_suite_test_parse());
     srunner_add_suite(sr, make_suite_test_string());
     srunner_add_suite(sr, make_suite_test_string_unicode());
@@ -55,6 +56,7 @@ int main (void)
     srunner_add_suite(sr, make_suite_test_ssl_calls());
     srunner_add_suite(sr, make_suite_test_base64());
     srunner_add_suite(sr, make_suite_test_guid());
+    srunner_add_suite(sr, make_suite_test_scancode());
 
     srunner_set_tap(sr, "-");
     /*

@@ -20,14 +20,19 @@ include_HEADERS = \
   xrdp_client_info.h \
   xrdp_constants.h \
   xrdp_rail.h \
+  xrdp_scancode_defs.h \
   xrdp_sockets.h
 
 AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/${sysconfsubdir}\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
   -DXRDP_LOG_PATH=\"${localstatedir}/log\"
+
+if XRDP_NVENC
+AM_CPPFLAGS += -DXRDP_NVENC
+endif
 
 # -no-suppress is an automake-specific flag which is needed
 # to prevent us missing compiler errors in some circumstances
@@ -59,6 +64,8 @@ libcommon_la_SOURCES = \
   parse.c \
   parse.h \
   rail.h \
+  scancode.c \
+  scancode.h \
   ssl_calls.c \
   ssl_calls.h \
   string_calls.c \

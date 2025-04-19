@@ -123,6 +123,24 @@ session_list_get_count(void)
 }
 
 /******************************************************************************/
+unsigned int
+session_list_get_count_by_state(enum session_state state)
+{
+    unsigned int result = 0;
+    int i;
+    for (i = 0 ; i < g_session_list->count ; ++i)
+    {
+        struct session_item *si;
+        si = (struct session_item *)list_get_item(g_session_list, i);
+        if (si->state == state)
+        {
+            ++result;
+        }
+    }
+    return result;
+}
+
+/******************************************************************************/
 struct session_item *
 session_list_new(void)
 {
@@ -155,13 +173,13 @@ x_server_running_check_ports(int display)
     int x_running;
     int sck;
 
-    g_sprintf(text, "/tmp/.X11-unix/X%d", display);
+    g_snprintf(text, sizeof(text), X11_UNIX_SOCKET_STR, display);
     x_running = g_file_exist(text);
 
     if (!x_running)
     {
         LOG(LOG_LEVEL_DEBUG, "Did not find a running X server at %s", text);
-        g_sprintf(text, "/tmp/.X%d-lock", display);
+        g_snprintf(text, sizeof(text), "/tmp/.X%d-lock", display);
         x_running = g_file_exist(text);
     }
 
@@ -170,7 +188,7 @@ x_server_running_check_ports(int display)
         LOG(LOG_LEVEL_DEBUG, "Did not find a running X server at %s", text);
         if ((sck = g_tcp_socket()) != -1)
         {
-            g_sprintf(text, "59%2.2d", display);
+            g_snprintf(text, sizeof(text), "59%2.2d", display);
             x_running = g_tcp_bind(sck, text);
             g_tcp_close(sck);
         }
@@ -181,7 +199,7 @@ x_server_running_check_ports(int display)
         LOG(LOG_LEVEL_DEBUG, "Did not find a running X server at %s", text);
         if ((sck = g_tcp_socket()) != -1)
         {
-            g_sprintf(text, "60%2.2d", display);
+            g_snprintf(text, sizeof(text), "60%2.2d", display);
             x_running = g_tcp_bind(sck, text);
             g_tcp_close(sck);
         }
@@ -192,7 +210,7 @@ x_server_running_check_ports(int display)
         LOG(LOG_LEVEL_DEBUG, "Did not find a running X server at %s", text);
         if ((sck = g_tcp_socket()) != -1)
         {
-            g_sprintf(text, "62%2.2d", display);
+            g_snprintf(text, sizeof(text), "62%2.2d", display);
             x_running = g_tcp_bind(sck, text);
             g_tcp_close(sck);
         }
@@ -420,7 +438,7 @@ session_list_get_bydata(uid_t uid,
 
 /******************************************************************************/
 struct scp_session_info *
-session_list_get_byuid(uid_t uid, unsigned int *cnt, unsigned int flags)
+session_list_get_byuid(const uid_t *uid, unsigned int *cnt, unsigned int flags)
 {
     int i;
     struct scp_session_info *sess;
@@ -429,13 +447,20 @@ session_list_get_byuid(uid_t uid, unsigned int *cnt, unsigned int flags)
 
     count = 0;
 
-    LOG(LOG_LEVEL_DEBUG, "searching for session by UID: %d", uid);
+    if (uid != NULL)
+    {
+        LOG(LOG_LEVEL_DEBUG, "searching for session by UID: %d", (int)*uid);
+    }
+    else
+    {
+        LOG(LOG_LEVEL_DEBUG, "searching for all sessions");
+    }
 
     for (i = 0 ; i < g_session_list->count ; ++i)
     {
         const struct session_item *si;
         si = (const struct session_item *)list_get_item(g_session_list, i);
-        if (SESSION_IN_USE(si) && uid == si->uid)
+        if (SESSION_IN_USE(si) && (uid == NULL || *uid == si->uid))
         {
             count++;
         }
@@ -462,7 +487,7 @@ session_list_get_byuid(uid_t uid, unsigned int *cnt, unsigned int flags)
         const struct session_item *si;
         si = (const struct session_item *)list_get_item(g_session_list, i);
 
-        if (SESSION_IN_USE(si) && uid == si->uid)
+        if (SESSION_IN_USE(si) && (uid == NULL || *uid == si->uid))
         {
             (sess[index]).sid = si->sesexec_pid;
             (sess[index]).display = si->display;

@@ -28,17 +28,22 @@
 #include "xrdp_constants.h"
 #include "fifo.h"
 #include "guid.h"
+#include "scancode.h"
 #include "xrdp_client_info.h"
+#include "xrdp_tconfig.h"
 
 #define MAX_NR_CHANNELS 16
 #define MAX_CHANNEL_NAME 16
 
 /* Code values used in 'xrdp_mm->code=' settings */
 #define XVNC_SESSION_CODE 0
+#define XVNC_UDS_SESSION_CODE 1
 #define XORG_SESSION_CODE 20
 
 /* To check whether touch events has been implemented on session type 'mm' */
-#define XRDP_MM_IMPLEMENTS_TOUCH(mm) ((mm)->code != XVNC_SESSION_CODE)
+#define XRDP_MM_IMPLEMENTS_TOUCH(mm) \
+    (((mm)->code != XVNC_SESSION_CODE) && \
+     ((mm)->code != XVNC_UDS_SESSION_CODE))
 
 struct source_info;
 struct list16;
@@ -123,6 +128,8 @@ struct xrdp_mod
                                   int total_data_len, int flags);
     int (*server_bell_trigger)(struct xrdp_mod *v);
     int (*server_chansrv_in_use)(struct xrdp_mod *v);
+    void (*server_init_xkb_layout)(struct xrdp_mod *v,
+                                   struct xrdp_client_info *client_info);
     /* off screen bitmaps */
     int (*server_create_os_surface)(struct xrdp_mod *v, int rdpindex,
                                     int width, int height);
@@ -191,7 +198,8 @@ struct xrdp_mod
     int (*server_egfx_cmd)(struct xrdp_mod *v,
                            char *cmd, int cmd_bytes,
                            char *data, int data_bytes);
-    tintptr server_dumby[100 - 50]; /* align, 100 minus the number of server
+    int (*server_set_pointer_system)(struct xrdp_mod *v, int pointer_type);
+    tintptr server_dumby[100 - 52]; /* align, 100 minus the number of server
                                      functions above */
     /* common */
     tintptr handle; /* pointer to self as int */
@@ -440,10 +448,18 @@ struct xrdp_mm
     enum xrdp_egfx_flags egfx_flags;
     int gfx_delay_autologin;
     int mod_uses_wm_screen_for_gfx;
+    /* Whether a working h.264 library is loaded.
+     * We check this at run-time, so that we can fall-back to GFX if
+     * the H.264 library is installed incorrectly */
+    int libh264_loaded;  /* != 0 => H.264 can be used */
     /* Resize on-the-fly control */
     struct display_control_monitor_layout_data *resize_data;
     struct list *resize_queue;
     tbus resize_ready;
+    /* Last sync event if a module isn't loaded */
+    int last_sync_saved;
+    int last_sync_key_flags;
+    int last_sync_device_flags;
 };
 
 struct xrdp_key_info
@@ -454,14 +470,21 @@ struct xrdp_key_info
 
 struct xrdp_keymap
 {
-    struct xrdp_key_info keys_noshift[256];
-    struct xrdp_key_info keys_shift[256];
-    struct xrdp_key_info keys_altgr[256];
-    struct xrdp_key_info keys_shiftaltgr[256];
-    struct xrdp_key_info keys_capslock[256];
-    struct xrdp_key_info keys_capslockaltgr[256];
-    struct xrdp_key_info keys_shiftcapslock[256];
-    struct xrdp_key_info keys_shiftcapslockaltgr[256];
+    // Are the caps lock maps populated?
+    int caps_lock_supported;
+
+    // These arrays are indexed by a return from scancode_to_index()
+    struct xrdp_key_info keys_noshift[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_shift[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_altgr[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_shiftaltgr[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_capslock[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_capslockaltgr[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_shiftcapslock[SCANCODE_MAX_INDEX + 1];
+    struct xrdp_key_info keys_shiftcapslockaltgr[SCANCODE_MAX_INDEX + 1];
+    // NumLock is restricted to a much smaller set of keys
+    struct xrdp_key_info keys_numlock[SCANCODE_MAX_NUMLOCK -
+                                          SCANCODE_MIN_NUMLOCK + 1];
 };
 
 /* the window manager */
@@ -542,11 +565,15 @@ struct xrdp_wm
     int current_pointer;
     int mouse_x;
     int mouse_y;
-    /* keyboard info */
-    int keys[256]; /* key states 0 up 1 down*/
+    /* keyboard info (indexed by a return from scancode_to_index()) */
+    int keys[SCANCODE_MAX_INDEX + 1]; /* key states 0 up 1 down*/
     int caps_lock;
     int scroll_lock;
     int num_lock;
+
+    /* Unicode input */
+    int last_high_surrogate_key_up;
+    int last_high_surrogate_key_down;
     /* client info */
     struct xrdp_client_info *client_info;
     /* session log */
@@ -566,9 +593,11 @@ struct xrdp_wm
 
     /* configuration derived from xrdp.ini */
     struct xrdp_config *xrdp_config;
+    /* configuration derived from gfx.toml */
+    struct xrdp_tconfig_gfx *gfx_config;
 
     struct xrdp_region *screen_dirty_region;
-    int last_screen_draw_time;
+    unsigned int last_screen_draw_time;
 };
 
 /* rdp process */
@@ -735,6 +764,10 @@ struct xrdp_startup_params
     int tcp_nodelay;
     int tcp_keepalive;
     int use_vsock;
+    // These should be local users/groups, and so we shouldn't need
+    // a lot of storage for them.
+    char runtime_user[64];
+    char runtime_group[64];
 };
 
 /*

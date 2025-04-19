@@ -7,7 +7,6 @@ AM_INIT_AUTOMAKE([1.6 foreign])
 AC_CONFIG_MACRO_DIR([m4])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_PROG_CC
-AC_C_CONST
 LT_INIT
 PKG_INSTALLDIR
 
@@ -34,6 +33,11 @@ if test "x${with_simd}" != "xno"; then
       simd_arch=i386
       AC_DEFINE([RFX_USE_ACCEL_X86], [1], [Use x86 SIMD instructions])
     ;;
+    arm64 | aarch64)
+      AC_MSG_RESULT([yes (arm64)])
+      simd_arch=arm64
+      AC_DEFINE([RFX_USE_ACCEL_ARM64], [1], [Use arm64 SIMD instructions])
+    ;;
     *)
       AC_MSG_RESULT([no ("$host_cpu")])
       AC_MSG_WARN([SIMD support not available for this CPU.  Performance will suffer.])
@@ -43,6 +47,7 @@ fi
 
 AM_CONDITIONAL(WITH_SIMD_AMD64, [test x$simd_arch = xx86_64])
 AM_CONDITIONAL(WITH_SIMD_X86, [test x$simd_arch = xi386])
+AM_CONDITIONAL(WITH_SIMD_ARM64, [test x$simd_arch = xarm64])
 
 # parent project will propagate these options to us when building
 AC_ARG_ENABLE(devel_all, AS_HELP_STRING([--enable-devel-all]),
@@ -62,6 +67,7 @@ AC_CONFIG_FILES([Makefile
                  src/amd64/Makefile
                  src/x86/Makefile
                  src/sse2/Makefile
+                 src/neon/Makefile
                  tests/Makefile
                  rfxcodec.pc
                  rfxcodec-uninstalled.pc
