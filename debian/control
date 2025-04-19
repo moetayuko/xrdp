@@ -23,6 +23,7 @@ Build-Depends:
  libx11-dev,
  libx264-dev,
  libxfixes-dev,
+ libxkbfile-dev,
  libxrandr-dev,
  nasm [amd64 hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386],
  openssl,
