@@ -63,9 +63,6 @@
 #define XRDP_MAX_BITMAP_CACHE_IDX 2000
 #define XRDP_BITMAP_CACHE_ENTRIES 2048
 
-#define XR_MIN_KEY_CODE 8
-#define XR_MAX_KEY_CODE 256
-
 /*
  * Constants come from ITU-T Recommendations
  */
@@ -85,6 +82,11 @@
 #define MCS_CJCF                       15 /* Channel Join Confirm */
 #define MCS_SDRQ                       25 /* Send Data Request */
 #define MCS_SDIN                       26 /* Send Data Indication */
+
+/* xorgxrdp: frame capture interval (milliseconds) */
+#define DEFAULT_RFX_FRAME_INTERVAL     32
+#define DEFAULT_H264_FRAME_INTERVAL    16
+#define DEFAULT_NORMAL_FRAME_INTERVAL  40
 
 /******************************************************************************
  *
@@ -287,9 +289,6 @@
 #define CB_ITEMCHANGE  300
 
 #define FASTPATH_MAX_PACKET_SIZE    0x3fff
-
-#define XR_RDP_SCAN_LSHIFT 42
-#define XR_RDP_SCAN_ALT    56
 
 // Since we're not guaranteed to have pixman, copy these directives.
 #define XRDP_PIXMAN_TYPE_ARGB   2

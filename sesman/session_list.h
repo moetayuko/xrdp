@@ -91,6 +91,14 @@ unsigned int
 session_list_get_count(void);
 
 /**
+ * @brief Get the number of sessions in a particular state
+ * @param state to count
+ * @return session count
+ */
+unsigned int
+session_list_get_count_by_state(enum session_state state);
+
+/**
  * Allocates a new session on the list
  *
  * state will be E_SESSION_STARTING. Other data must be filled in by
@@ -132,7 +140,8 @@ session_list_get_bydata(uid_t uid,
 
 /**
  * @brief retrieves session descriptions
- * @param uid the UID for the descriptions
+ * @param uid the UID for the descriptions by reference, or NULL for
+ *            all UIDs
  * @param[out] cnt The number of sessions returned
  * @param flags Future expansion
  * @return A block of session descriptions
@@ -141,7 +150,7 @@ session_list_get_bydata(uid_t uid,
  *
  */
 struct scp_session_info *
-session_list_get_byuid(uid_t uid, unsigned int *cnt, unsigned int flags);
+session_list_get_byuid(const uid_t *uid, unsigned int *cnt, unsigned int flags);
 
 /**
  *

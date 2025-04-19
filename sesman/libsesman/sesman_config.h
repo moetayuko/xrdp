@@ -31,6 +31,8 @@
 #include "list.h"
 #include "log.h"
 
+#include "xrdp_sockets.h"
+
 enum SESMAN_CFG_SESS_POLICY_BITS
 {
     /* If these two are set, they override everything else */
@@ -66,6 +68,12 @@ struct config_security
      * @brief maximum login attempts
      */
     int login_retry;
+    /**
+     * @var x_authority_in_system_dir
+     * @brief Move XAUTHORITY to a system directory
+     */
+    int xauth_in_sysdir;
+
     /**
      * @var ts_users
      * @brief Terminal Server Users group
@@ -158,6 +166,11 @@ struct config_sessions
      * @brief session allocation policy
      */
     unsigned int policy;
+    /**
+     * @var start wait time
+     * @brief Wait time to make sure a session has started.
+     */
+    unsigned int startup_wait_time;
 };
 
 /**
@@ -181,8 +194,11 @@ struct config_sesman
     /**
      * @var listen_port
      * @brief Listening port
+     *
+     * This string is used to form the restart directory name, so
+     * can't be the full XRDP_SOCKETS_MAXPATH length.
      */
-    char listen_port[256];
+    char listen_port[XRDP_SOCKETS_MAXPATH - 10];
     /**
      * @var enable_user_wm
      * @brief Flag that enables user specific wm

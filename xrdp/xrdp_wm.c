@@ -28,6 +28,7 @@
 #include "ms-rdpbcgr.h"
 #include "log.h"
 #include "string_calls.h"
+#include "unicode_defines.h"
 
 /*****************************************************************************/
 static void
@@ -109,13 +110,26 @@ xrdp_wm_create(struct xrdp_process *owner,
     self->log->auto_free = 1;
     self->mm = xrdp_mm_create(self);
     /* this will use built in keymap or load from file */
-    get_keymaps(self->session->client_info->keylayout, &(self->keymap));
+    if (client_info->xrdp_keyboard_overrides.layout > 0 &&
+            client_info->xrdp_keyboard_overrides.layout != client_info->keylayout)
+    {
+        LOG(LOG_LEVEL_INFO, "overrode keylayout %08X with %08X",
+            client_info->keylayout,
+            client_info->xrdp_keyboard_overrides.layout);
+        get_keymaps(client_info->xrdp_keyboard_overrides.layout,
+                    &(self->keymap));
+    }
+    else
+    {
+        get_keymaps(client_info->keylayout, &(self->keymap));
+    }
     xrdp_wm_set_login_state(self, WMLS_RESET);
     self->target_surface = self->screen;
     self->current_surface_index = 0xffff; /* screen */
 
-    /* to store configuration from xrdp.ini */
+    /* to store configuration from xrdp.ini, gfx.toml */
     self->xrdp_config = g_new0(struct xrdp_config, 1);
+    self->gfx_config = g_new0(struct xrdp_tconfig_gfx, 1);
 
     /* Load the channel config so libxrdp can check whether
        drdynvc is enabled or not */
@@ -160,6 +174,11 @@ xrdp_wm_delete(struct xrdp_wm *self)
     if (self->xrdp_config)
     {
         g_free(self->xrdp_config);
+    }
+
+    if (self->gfx_config)
+    {
+        g_free(self->gfx_config);
     }
 
     /* free self */
@@ -289,7 +308,7 @@ xrdp_wm_pointer(struct xrdp_wm *self, char *data, char *mask, int x, int y,
 
 /*****************************************************************************/
 /* returns error */
-int
+static int
 xrdp_wm_load_pointer(struct xrdp_wm *self, char *file_name, char *data,
                      char *mask, int *x, int *y)
 {
@@ -401,6 +420,13 @@ xrdp_wm_load_pointer(struct xrdp_wm *self, char *file_name, char *data,
 
 /*****************************************************************************/
 int
+xrdp_wm_send_pointer_system(struct xrdp_wm *self, int pointer_type)
+{
+    return libxrdp_send_pointer_system(self->session, pointer_type);
+}
+
+/*****************************************************************************/
+int
 xrdp_wm_send_pointer(struct xrdp_wm *self, int cache_idx,
                      char *data, char *mask, int x, int y, int bpp,
                      int width, int height)
@@ -414,42 +440,6 @@ int
 xrdp_wm_set_pointer(struct xrdp_wm *self, int cache_idx)
 {
     return libxrdp_set_pointer(self->session, cache_idx);
-}
-
-/*****************************************************************************/
-/* convert hex string to int */
-unsigned int
-xrdp_wm_htoi (const char *ptr)
-{
-    unsigned int value = 0;
-    char ch = *ptr;
-
-    while (ch == ' ' || ch == '\t')
-    {
-        ch = *(++ptr);
-    }
-
-    for (;;)
-    {
-        if (ch >= '0' && ch <= '9')
-        {
-            value = (value << 4) + (ch - '0');
-        }
-        else if (ch >= 'A' && ch <= 'F')
-        {
-            value = (value << 4) + (ch - 'A' + 10);
-        }
-        else if (ch >= 'a' && ch <= 'f')
-        {
-            value = (value << 4) + (ch - 'a' + 10);
-        }
-        else
-        {
-            return value;
-        }
-
-        ch = *(++ptr);
-    }
 }
 
 /*****************************************************************************/
@@ -503,47 +493,47 @@ xrdp_wm_load_static_colors_plus(struct xrdp_wm *self, char *autorun_name)
                     if (g_strcasecmp(val, "black") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->black = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->black = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "grey") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->grey = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->grey = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "dark_grey") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->dark_grey = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->dark_grey = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "blue") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->blue = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->blue = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "dark_blue") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->dark_blue = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->dark_blue = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "white") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->white = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->white = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "red") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->red = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->red = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "green") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->green = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->green = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "background") == 0)
                     {
                         val = (char *)list_get_item(values, index);
-                        self->background = HCOLOR(self->screen->bpp, xrdp_wm_htoi(val));
+                        self->background = HCOLOR(self->screen->bpp, g_htoi(val));
                     }
                     else if (g_strcasecmp(val, "autorun") == 0)
                     {
@@ -641,6 +631,8 @@ xrdp_wm_init(struct xrdp_wm *self)
 
     load_xrdp_config(self->xrdp_config, self->session->xrdp_ini,
                      self->screen->bpp);
+
+    tconfig_load_gfx(XRDP_CFG_PATH "/gfx.toml", self->gfx_config);
 
     /* Remove a font loaded on the previous config */
     xrdp_font_delete(self->default_font);
@@ -1252,7 +1244,7 @@ xrdp_wm_clear_popup(struct xrdp_wm *self)
     //struct xrdp_bitmap* b;
 
     //b = 0;
-    if (self->popup_wnd != 0)
+    if (self->popup_wnd != NULL)
     {
         //b = self->popup_wnd->popped_from;
         i = list_index_of(self->screen->child_list, (long)self->popup_wnd);
@@ -1261,6 +1253,7 @@ xrdp_wm_clear_popup(struct xrdp_wm *self)
                  self->popup_wnd->width, self->popup_wnd->height);
         xrdp_bitmap_invalidate(self->screen, &rect);
         xrdp_bitmap_delete(self->popup_wnd);
+        self->popup_wnd = NULL;
     }
 
     //xrdp_wm_set_focused(self, b->parent);
@@ -1568,13 +1561,26 @@ xrdp_wm_mouse_click(struct xrdp_wm *self, int x, int y, int but, int down)
 
 /*****************************************************************************/
 int
-xrdp_wm_key(struct xrdp_wm *self, int device_flags, int scan_code)
+xrdp_wm_key(struct xrdp_wm *self, int keyboard_flags, int key_code)
 {
     int msg;
     struct xrdp_key_info *ki;
 
-    /*g_printf("count %d\n", self->key_down_list->count);*/
-    scan_code = scan_code % 128;
+    LOG_DEVEL(LOG_LEVEL_DEBUG,
+              "xrdp_wm_key: RDP key_code:0x%04x, keyboard_flags: 0x%04x",
+              key_code, keyboard_flags);
+    int scancode = SCANCODE_FROM_KBD_EVENT(key_code, keyboard_flags);
+    int keyup = ((keyboard_flags & KBDFLAGS_RELEASE) != 0);
+
+    int sindex = scancode_to_index(scancode);
+    if (sindex < 0)
+    {
+        // The scancode doesn't map to an index, so we can't handle it here.
+        // Log this so we can investigate
+        LOG(LOG_LEVEL_WARNING, "Ignoring unusable scancode %x (%s)",
+            scancode, (keyup ? "up" : "down"));
+        return 0;
+    }
 
     if (self->popup_wnd != 0)
     {
@@ -1582,32 +1588,25 @@ xrdp_wm_key(struct xrdp_wm *self, int device_flags, int scan_code)
         return 0;
     }
 
-    // workaround odd shift behavior
-    // see https://github.com/neutrinolabs/xrdp/issues/397
-    if (scan_code == 42 && device_flags == (KBD_FLAG_UP | KBD_FLAG_EXT))
+    if (keyup)
     {
-        return 0;
-    }
-
-    if (device_flags & KBD_FLAG_UP) /* 0x8000 */
-    {
-        self->keys[scan_code] = 0;
+        self->keys[sindex] = 0;
         msg = WM_KEYUP;
     }
     else /* key down */
     {
-        self->keys[scan_code] = 1 | device_flags;
+        self->keys[sindex] = 1;
         msg = WM_KEYDOWN;
 
-        switch (scan_code)
+        switch (scancode)
         {
-            case 58:
+            case SCANCODE_CAPS_KEY:
                 self->caps_lock = !self->caps_lock;
                 break; /* caps lock */
-            case 69:
+            case SCANCODE_NUMLOCK_KEY:
                 self->num_lock = !self->num_lock;
                 break; /* num lock */
-            case 70:
+            case SCANCODE_SCROLL_KEY:
                 self->scroll_lock = !self->scroll_lock;
                 break; /* scroll lock */
         }
@@ -1615,24 +1614,28 @@ xrdp_wm_key(struct xrdp_wm *self, int device_flags, int scan_code)
 
     if (self->mm->mod != 0)
     {
+        // Backend module loaded...
         if (self->mm->mod->mod_event != 0)
         {
-            ki = get_key_info_from_scan_code
-                 (device_flags, scan_code, self->keys, self->caps_lock,
+            // ..and able to take events. Check the scancode maps to
+            // a real key in the currently loaded keymap
+            ki = get_key_info_from_kbd_event
+                 (keyboard_flags, key_code, self->keys, self->caps_lock,
                   self->num_lock, self->scroll_lock,
                   &(self->keymap));
 
             if (ki != 0)
             {
                 self->mm->mod->mod_event(self->mm->mod, msg, ki->chr, ki->sym,
-                                         scan_code, device_flags);
+                                         key_code, keyboard_flags);
             }
         }
     }
     else if (self->focused_window != 0)
     {
+        // Pass keypress on to a widget in the login window
         xrdp_bitmap_def_proc(self->focused_window,
-                             msg, scan_code, device_flags);
+                             msg, key_code, keyboard_flags);
     }
 
     return 0;
@@ -1662,90 +1665,185 @@ xrdp_wm_key_sync(struct xrdp_wm *self, int device_flags, int key_flags)
         self->caps_lock = 1;
     }
 
-    if (self->mm->mod != 0)
+    if (self->mm->mod != 0 && self->mm->mod->mod_event != 0)
     {
-        if (self->mm->mod->mod_event != 0)
-        {
-            self->mm->mod->mod_event(self->mm->mod, WM_KEYBRD_SYNC, key_flags,
-                                     device_flags, key_flags, device_flags);
-        }
+        self->mm->mod->mod_event(self->mm->mod, WM_KEYBRD_SYNC, key_flags,
+                                 device_flags, key_flags, device_flags);
+    }
+    else
+    {
+        // Save the event for when the module is loaded
+        self->mm->last_sync_saved = 1;
+        self->mm->last_sync_key_flags = key_flags;
+        self->mm->last_sync_device_flags = device_flags;
+
     }
 
     return 0;
 }
 
 /*****************************************************************************/
+/**
+ * Takes a stream of UTF-16 characters and  maps then to Unicode characters
+ */
+static char32_t
+get_unicode_character(struct xrdp_wm *self, int device_flags, char16_t c16)
+{
+    char32_t c32 = 0;
+    int *high_ptr;
+
+    if (device_flags & KBDFLAGS_RELEASE)
+    {
+        high_ptr = &self->last_high_surrogate_key_up;
+    }
+    else
+    {
+        high_ptr = &self->last_high_surrogate_key_down;
+    }
+
+    if (IS_HIGH_SURROGATE(c16))
+    {
+        // Record high surrogate for next time
+        *high_ptr = c16;
+    }
+    else if (IS_LOW_SURROGATE(c16))
+    {
+        // If last character was a high surrogate, we can use it
+        if (*high_ptr != 0)
+        {
+            c32 = C32_FROM_SURROGATE_PAIR(c16, *high_ptr);
+            *high_ptr = 0;
+        }
+    }
+    else
+    {
+        // Character maps straight across
+        c32 = c16;
+        *high_ptr = 0;
+    }
+
+    return c32;
+}
+
+/*****************************************************************************/
+/**
+ * Takes a scancode index and fakes a keyboard event to represent it
+ * @param self module pointer
+ * @param device_flags default flags to pass in for the keyboard event.
+ * @param index scancode index
+ *
+ * Some of the device_flags are overridden by the scancode derived from the
+ * scancode index
+ */
+static void
+fake_kbd_event_from_scancode_index(struct xrdp_wm *self, int device_flags,
+                                   int index)
+{
+    unsigned short scancode = scancode_from_index(index);
+    int key_code = SCANCODE_TO_KBD_EVENT_KEY_CODE(scancode);
+
+    device_flags &= ~(KBDFLAGS_EXTENDED | KBDFLAGS_EXTENDED1);
+    device_flags |= SCANCODE_TO_KBD_EVENT_KBD_FLAGS(scancode);
+
+    xrdp_wm_key(self, device_flags, key_code);
+}
+
+/*****************************************************************************/
 static int
-xrdp_wm_key_unicode(struct xrdp_wm *self, int device_flags, char32_t unicode)
+xrdp_wm_key_unicode(struct xrdp_wm *self, int device_flags, char32_t c16)
 {
     int index;
+    char32_t c32 = get_unicode_character(self, device_flags, c16);
 
-    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    if (c32 == 0)
     {
-        if (unicode == self->keymap.keys_noshift[index].chr)
+        return 0;
+    }
+
+    // See if we can find the character in the existing keymap,
+    // and if so, generate normal key event(s) for it
+    for (index = 0; index <= SCANCODE_MAX_INDEX; ++index)
+    {
+        if (c32 == self->keymap.keys_noshift[index].chr)
         {
-            xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+            fake_kbd_event_from_scancode_index(self, device_flags, index);
             return 0;
         }
     }
 
-    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    for (index = 0; index <= SCANCODE_MAX_INDEX; ++index)
     {
-        if (unicode == self->keymap.keys_shift[index].chr)
+        if (c32 == self->keymap.keys_shift[index].chr)
         {
-            if (device_flags & KBD_FLAG_UP)
+            if (device_flags & KBDFLAGS_RELEASE)
             {
-                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
-                xrdp_wm_key(self, KBD_FLAG_UP, XR_RDP_SCAN_LSHIFT);
+                fake_kbd_event_from_scancode_index(self, device_flags, index);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_LSHIFT_KEY);
             }
             else
             {
-                xrdp_wm_key(self, KBD_FLAG_DOWN, XR_RDP_SCAN_LSHIFT);
-                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
-            }
-            return 0;
-        }
-    }
-
-    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
-    {
-        if (unicode == self->keymap.keys_altgr[index].chr)
-        {
-            if (device_flags & KBD_FLAG_UP)
-            {
-                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
-                xrdp_wm_key(self, KBD_FLAG_UP | KBD_FLAG_EXT,
-                            XR_RDP_SCAN_ALT);
-            }
-            else
-            {
-                xrdp_wm_key(self, KBD_FLAG_DOWN | KBD_FLAG_EXT,
-                            XR_RDP_SCAN_ALT);
-                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_LSHIFT_KEY);
+                fake_kbd_event_from_scancode_index(self, device_flags, index);
             }
             return 0;
         }
     }
 
-    for (index = XR_MIN_KEY_CODE; index < XR_MAX_KEY_CODE; index++)
+    for (index = 0; index <= SCANCODE_MAX_INDEX; ++index)
     {
-        if (unicode == self->keymap.keys_shiftaltgr[index].chr)
+        if (c32 == self->keymap.keys_altgr[index].chr)
         {
-            if (device_flags & KBD_FLAG_UP)
+            if (device_flags & KBDFLAGS_RELEASE)
             {
-                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
-                xrdp_wm_key(self, KBD_FLAG_UP | KBD_FLAG_EXT, XR_RDP_SCAN_ALT);
-                xrdp_wm_key(self, KBD_FLAG_UP, XR_RDP_SCAN_LSHIFT);
+                fake_kbd_event_from_scancode_index(self, device_flags, index);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_RALT_KEY);
             }
             else
             {
-                xrdp_wm_key(self, KBD_FLAG_DOWN, XR_RDP_SCAN_LSHIFT);
-                xrdp_wm_key(self, KBD_FLAG_DOWN | KBD_FLAG_EXT,
-                            XR_RDP_SCAN_ALT);
-                xrdp_wm_key(self, device_flags, index - XR_MIN_KEY_CODE);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_RALT_KEY);
+                fake_kbd_event_from_scancode_index(self, device_flags, index);
             }
             return 0;
         }
+    }
+
+    for (index = 0; index <= SCANCODE_MAX_INDEX; ++index)
+    {
+        if (c32 == self->keymap.keys_shiftaltgr[index].chr)
+        {
+            if (device_flags & KBDFLAGS_RELEASE)
+            {
+                fake_kbd_event_from_scancode_index(self, device_flags, index);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_RALT_KEY);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_LSHIFT_KEY);
+            }
+            else
+            {
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_LSHIFT_KEY);
+                fake_kbd_event_from_scancode_index(self, device_flags,
+                                                   SCANCODE_INDEX_RALT_KEY);
+                fake_kbd_event_from_scancode_index(self, device_flags, index);
+            }
+            return 0;
+        }
+    }
+
+    // Send the character to chansrv if it's capable of doing something
+    // with it
+    if (self->mm->chan_trans != NULL &&
+            self->client_info->unicode_input_support == UIS_ACTIVE &&
+            self->mm->chan_trans->status == TRANS_STATUS_UP)
+    {
+        xrdp_mm_send_unicode_to_chansrv(self->mm,
+                                        !(device_flags & KBDFLAGS_RELEASE), c32);
+        return 0;
     }
 
     return 0;

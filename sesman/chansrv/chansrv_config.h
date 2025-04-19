@@ -23,8 +23,14 @@
 
 struct config_chansrv
 {
+    /** sesman listening port */
+    char *listen_port;
+
     /** Whether the FUSE mount is enabled or not */
     int enable_fuse_mount;
+
+    /** Whether to use direct I/O to FUSE filesystems */
+    int fuse_direct_io;
 
     /** RestrictOutboundClipboard setting from sesman.ini */
     int restrict_outbound_clipboard;
@@ -33,6 +39,8 @@ struct config_chansrv
 
     /** * FuseMountName from sesman.ini */
     char *fuse_mount_name;
+    /** * FuseMountNameColonCharReplacement from sesman.ini */
+    char fuse_mount_name_colon_char_replacement;
     /** FileUmask from sesman.ini */
     mode_t file_umask;
 
@@ -44,6 +52,9 @@ struct config_chansrv
     unsigned int num_silent_frames_mp3;
     /** Do net send sound data afer SNDC_CLOSE is sent. unit is millisecond, setting from sesman.ini */
     unsigned int msec_do_not_send;
+
+    /** LogFilePath from sesman.ini ([ChansrvLogging]) */
+    char *log_file_path;
 };
 
 

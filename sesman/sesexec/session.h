@@ -35,7 +35,7 @@
 #include "xrdp_constants.h"
 
 struct login_info;
-struct exit_status;
+struct proc_exit_status;
 
 /**
  * Information used to start a session
@@ -78,18 +78,18 @@ session_start(struct login_info *login_info,
               struct session_data **session_data);
 
 /**
- * Processes an exited child process
+ * Processes a SIGCHLD event
  *
- * The PID of the child process is removed from the session_data.
+ * Any pending SIGCHLD events are processed.
+ *
+ * The PID of a failed child process is removed from the session_data.
  *
  * @param sd session_data for this session
  * @param pid PID of exited process
  * @param e Exit status of the exited process
  */
 void
-session_process_child_exit(struct session_data *sd,
-                           int pid,
-                           const struct exit_status *e);
+session_process_sigchld_event(struct session_data *sd);
 
 /**
  * Returns a count of active processes in the session
@@ -103,17 +103,32 @@ session_active(const struct session_data *sd);
  * Returns the start time for an active session
  *
  * @param sd session_data for this session
+ * @return session start time
  */
 time_t
 session_get_start_time(const struct session_data *sd);
+
+/**
+ * Returns the parameters used to start the session
+ *
+ * @param sd session_data for this session
+ * @return Pointer to parameters
+ *
+ * The pointed-to data returned must not be modified in
+ * any way.
+ */
+const struct session_parameters *
+session_get_parameters(const struct session_data *sd);
 
 /***
  * Ask a session to terminate by signalling the window manager
  *
  * @param sd session_data for this session
+ * @param wait_for_all != 0 to wait for all processes in the session
+ *                     to terminate
  */
 void
-session_send_term(struct session_data *sd);
+session_send_term(struct session_data *sd, int wait_for_all);
 
 /**
  * Frees a session_data object

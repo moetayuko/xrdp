@@ -15,6 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * The strlcpy implementation is taken from OpenBSD and reformatted. The
+ * original has the following notice attached:-
+ * |
+ * |   Copyright (c) 1998, 2015 Todd C. Miller <millert@openbsd.org>
+ * |
+ * |   Permission to use, copy, modify, and distribute this software for any
+ * |   purpose with or without fee is hereby granted, provided that the above
+ * |   copyright notice and this permission notice appear in all copies.
+ * |
+ * |   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * |   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * |   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * |   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * |   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * |   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * |   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.*
+ *
  * generic string handling calls
  */
 
@@ -444,86 +461,73 @@ g_atoix(const char *str)
         str += 2;
         base = 16;
     }
+    //coverity[OVERRUN:FALSE]
     return strtol(str, NULL, base);
 }
 
 /*****************************************************************************/
-int
-g_htoi(char *str)
+#if !defined(HAVE_STRLCPY)
+size_t strlcpy(char *dst, const char *src, size_t dsize)
 {
-    int len;
-    int index;
-    int rv;
-    int val;
-    int shift;
+    const char *osrc = src;
+    size_t nleft = dsize;
 
-    rv = 0;
-    len = strlen(str);
-    index = len - 1;
-    shift = 0;
-
-    while (index >= 0)
+    /* Copy as many bytes as will fit. */
+    if (nleft != 0)
     {
-        val = 0;
-
-        switch (str[index])
+        while (--nleft != 0)
         {
-            case '1':
-                val = 1;
+            if ((*dst++ = *src++) == '\0')
+            {
                 break;
-            case '2':
-                val = 2;
-                break;
-            case '3':
-                val = 3;
-                break;
-            case '4':
-                val = 4;
-                break;
-            case '5':
-                val = 5;
-                break;
-            case '6':
-                val = 6;
-                break;
-            case '7':
-                val = 7;
-                break;
-            case '8':
-                val = 8;
-                break;
-            case '9':
-                val = 9;
-                break;
-            case 'a':
-            case 'A':
-                val = 10;
-                break;
-            case 'b':
-            case 'B':
-                val = 11;
-                break;
-            case 'c':
-            case 'C':
-                val = 12;
-                break;
-            case 'd':
-            case 'D':
-                val = 13;
-                break;
-            case 'e':
-            case 'E':
-                val = 14;
-                break;
-            case 'f':
-            case 'F':
-                val = 15;
-                break;
+            }
         }
+    }
 
-        rv = rv | (val << shift);
-        index--;
-        shift += 4;
+    /* Not enough room in dst, add NUL and traverse rest of src. */
+    if (nleft == 0)
+    {
+        if (dsize != 0)
+        {
+            *dst = '\0';        /* NUL-terminate dst */
+        }
+        while (*src++)
+        {
+            ;
+        }
+    }
+
+    return (src - osrc - 1);      /* count does not include NUL */
+}
+#endif
+
+/*****************************************************************************/
+unsigned int
+g_htoi(const char *str)
+{
+    unsigned int rv = 0;
+    while (*str != '\0')
+    {
+        char c = *str;
+        unsigned int val;
+        if (c >= '0' && c <= '9')
+        {
+            val = c - '0';
+        }
+        else if (c >= 'A' && c <= 'F')
+        {
+            val = (c - 'A' + 10);
+        }
+        else if (c >= 'a' && c <= 'f')
+        {
+            val = (c - 'a' + 10);
+        }
+        else
+        {
+            break; // Unrecognised character
+        }
+        rv = (rv << 4) | val;
+        ++str;
     }
 
     return rv;
@@ -1190,7 +1194,7 @@ utf8_get_next_char(const char **utf8str_ref, unsigned int *len_ref)
     /*
      * Macro used to parse a continuation character
      * @param cp Character Pointer (incremented on success)
-     * @param end One character past end of input string
+     * @param end One character past end of input string, or NULL
      * @param value The value we're constructing
      * @param finish_label Where to go in the event of an error */
 #define PARSE_CONTINUATION_CHARACTER(cp, end, value, finish_label) \
@@ -1209,7 +1213,7 @@ utf8_get_next_char(const char **utf8str_ref, unsigned int *len_ref)
 
     /* Easier to work with unsigned chars and no indirection */
     const unsigned char *cp = (const unsigned char *)*utf8str_ref;
-    const unsigned char *end = (len_ref != NULL) ? cp + *len_ref : cp + 6;
+    const unsigned char *end = (len_ref != NULL) ? cp + *len_ref : NULL;
 
     if (cp == end)
     {

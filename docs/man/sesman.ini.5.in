@@ -57,7 +57,7 @@ In this instance, the system administrator is responsible for ensuring
 the socket can only be created by a suitably privileged process.
 .PP
 If the parameter does not start with a '/', a name within
-@socketdir@ is used.
+@socketdir@/\fI<uid>\fR is used.
 .RE
 
 .TP
@@ -98,7 +98,33 @@ stdout. Use for debugging only\fR
 
 It is ignored in the [ChansrvLogging] section
 since the channel server creates one log file per display and instead uses the
-following log file naming convention \fIxrdp-chansrv.${DISPLAY}.log\fR
+following log file naming convention \fIxrdp-chansrv.${DISPLAY}.log\fR. For
+details of the chansrv log file location, see \fBLogFilePath\fR.
+
+.TP
+\fBLogFilePath\fR=\fIstring\fR
+Directory for storing the chansrv log file. This setting only applies to
+chansrv. The sesman log file is always created in \fI@localstatedir@/log\fR.
+
+Created if it doesn't exist.
+If first character is not a '/', this is relative to $HOME, where
+chansrv is normally started.
+
+.RS
+The following substitutions are made in this string:-
+    %U - Username
+    %u - Numeric UID
+    %% - Percent character
+
+This is most useful if you are using NFS-mounted home directories, and
+wish to move the chansrv log file to the local disk.
+
+If this parameter isn't specified, the log file is stored in one of
+the following locations :-
+    -   $CHANSRV_LOG_PATH
+    -   $XDG_DATA_HOME/xrdp
+    -   $HOME/.local/share/xrdp
+.RE
 
 .TP
 \fBLogLevel\fR=\fIlevel\fR
@@ -211,6 +237,16 @@ Note that the \fBU\fR and \fBB\fR criteria cannot be turned
 off. \fBDisplaySize\fR refers to the initial geometry of a connection,
 as actual display sizes can change dynamically.
 
+.TP
+\fBStartupWaitTime\fR=\fInumber\fR
+Milliseconds to wait to ensure the session has started. The default is 1500
+milli-seconds.
+.IP
+Making this larger does not increase the session startup time, but
+will increase the time for the first connection to a session.
+The value can be set to zero. If this is done, sessions which fail
+early will not be reported to the user.
+
 .SH "SECURITY"
 Following parameters can be used in the \fB[Security]\fR section.
 
@@ -226,6 +262,18 @@ to \fI0\fR, unlimited attempts are allowed. If not specified, defaults to
 \fI3\fR.
 
 .TP
+\fBXAuthorityInSystemDir\fR=\fI[no|yes]\fR
+If set to \fBno\fR (the default), \fBXAUTHORITY\fR will not be set for
+sessions, and the X11 authfile will be $HOME/.Xauthority.
+.br
+If set to \fByes\fR, xrdp will point \fBXAUTHORITY\fR to a file
+in a system directory private to the logged-in user (currently
+@socketdir@/\fI<uid>\fR/Xauthority).
+.br
+You may wish to use this if $HOME is NFS-mounted, or you are experiencing
+other applications overwriting the default file.
+
+.TP
 \fBTerminalServerUsers\fR=\fIgroup\fR
 Only the users belonging to the specified group are allowed to login on
 terminal server. If unset or set to an invalid or non\-existent group,
@@ -233,8 +281,9 @@ login for all users is enabled.
 
 .TP
 \fBTerminalServerAdmins\fR=\fIgroup\fR
-\fIThis option is currently ignored!\fR Only members of this group can
-have session management rights.
+Members of this group can use the \fBxrdp-sesadmin\fR command to
+administer sessions started by other users. The root user is always
+considered to be in this group.
 
 .TP
 \fBRestrictOutboundClipboard\fR=\fI[all|none|text|file|image]\fR
@@ -296,8 +345,16 @@ To keep compatibility, the following aliases are also available.
 
 .TP
 \fBAlwaysGroupCheck\fR=\fI[true|false]\fR
-If set to \fB1\fR, \fBtrue\fR or \fByes\fR, require group membership even
-if the group specified in \fBTerminalServerUsers\fR doesn't exist.
+If set to \fB1\fR, \fBtrue\fR or \fByes\fR:-
+.RS
+.HP 3
+- For normal logins, require group membership even if the group specified
+in \fBTerminalServerUsers\fR doesn't exist.
+.HP 3
+- An error message may be generated when any user authenticates
+if the group specified in \fBTerminalServerAdmins\fR doesn't exist. This is
+because the system is unable to check whether the user is an administrator.
+.RE
 
 .TP
 \fBAllowAlternateShell\fR=\fI[true|false]\fR
@@ -315,7 +372,8 @@ transitions between confinement domains.
 .TP
 \fBSessionSockdirGroup\fR=\fIgroup\fR
 Sets the group owner of the directories containing session sockets. This
-is normally the GID of the xrdp process so xrdp can connect to user sessions.
+MUST be the same as runtime_group in xrdp.ini, or xrdp will not
+be able to connect to any sessions.
 
 .SH "X11 SERVER"
 Following parameters can be used in the \fB[Xvnc]\fR and
@@ -352,6 +410,21 @@ the user).
 2) The desktop may not automatically display a link for the redirected
 drive. To fix this, consult the docs for your chosen desktop.
 .RE
+
+.TP
+\fBFuseMountNameColonCharReplacement\fR=\fIstring\fR
+Character to replace colon in redirected drive mount point names.
+If not specified no colon will not be replaced.
+If empty then colon will be replaced by null character.
+If longer than one character, only first character used.
+Only last colon replaced.
+.RE
+
+.TP
+\fBFuseDirectIO\fR=\fI[false|true]\fR
+Defaults to \fIfalse\fR. Set to \fItrue\fR to disable page caching in
+FUSE when opening files on a redirected drive. Direct I/O can impact
+the performance of file operations.
 
 .TP
 \fBFileUmask\fR=\fImode\fR
@@ -407,7 +480,7 @@ All entries in the \fB[SessionVariables]\fR section are set as
 environment variables in the user's session.
 
 .SH "FILES"
-@sysconfdir@/xrdp/sesman.ini
+@sysconfdir@/@sysconfsubdir@/sesman.ini
 
 .SH "SEE ALSO"
 .BR xrdp-sesman (8),

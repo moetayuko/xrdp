@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "libmem.h"
 #include "log.h"
+#include "os_calls.h"
 
 #define ALIGN_BY 32
 #define ALIGN_BY_M1 (ALIGN_BY - 1)
@@ -77,12 +79,12 @@ libmem_init(unsigned int addr, int bytes)
     struct mem_info *self;
     struct mem_item *mi;
 
-    self = (struct mem_info *)malloc(sizeof(struct mem_info));
+    self = (struct mem_info *)g_malloc_nofail(sizeof(struct mem_info));
     memset(self, 0, sizeof(struct mem_info));
     self->addr = addr;
     self->bytes = bytes;
     //self->flags = 1;
-    mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+    mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
     memset(mi, 0, sizeof(struct mem_item));
     mi->addr = addr;
     mi->bytes = bytes;
@@ -128,7 +130,7 @@ libmem_add_used_item(struct mem_info *self, unsigned int addr, int bytes)
     if (self->used_head == 0)
     {
         /* add first item */
-        new_mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+        new_mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
         memset(new_mi, 0, sizeof(struct mem_item));
         new_mi->addr = addr;
         new_mi->bytes = bytes;
@@ -143,7 +145,7 @@ libmem_add_used_item(struct mem_info *self, unsigned int addr, int bytes)
         if (mi->addr > addr)
         {
             /* add before */
-            new_mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+            new_mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
             memset(new_mi, 0, sizeof(struct mem_item));
             new_mi->addr = addr;
             new_mi->bytes = bytes;
@@ -166,7 +168,7 @@ libmem_add_used_item(struct mem_info *self, unsigned int addr, int bytes)
     if (!added)
     {
         /* add last */
-        new_mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+        new_mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
         memset(new_mi, 0, sizeof(struct mem_item));
         new_mi->addr = addr;
         new_mi->bytes = bytes;
@@ -192,7 +194,7 @@ libmem_add_free_item(struct mem_info *self, unsigned int addr, int bytes)
     if (self->free_head == 0)
     {
         /* add first item */
-        new_mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+        new_mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
         memset(new_mi, 0, sizeof(struct mem_item));
         new_mi->addr = addr;
         new_mi->bytes = bytes;
@@ -229,7 +231,7 @@ libmem_add_free_item(struct mem_info *self, unsigned int addr, int bytes)
                 return 0;
             }
             /* add before */
-            new_mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+            new_mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
             memset(new_mi, 0, sizeof(struct mem_item));
             new_mi->addr = addr;
             new_mi->bytes = bytes;
@@ -252,7 +254,7 @@ libmem_add_free_item(struct mem_info *self, unsigned int addr, int bytes)
     if (!added)
     {
         /* add last */
-        new_mi = (struct mem_item *)malloc(sizeof(struct mem_item));
+        new_mi = (struct mem_item *)g_malloc_nofail(sizeof(struct mem_item));
         memset(new_mi, 0, sizeof(struct mem_item));
         new_mi->addr = addr;
         new_mi->bytes = bytes;

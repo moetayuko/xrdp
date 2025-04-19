@@ -37,6 +37,7 @@
 #define ctid_t id_t
 #endif
 #include <unistd.h>
+#include <dirent.h>
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -138,6 +139,9 @@ union sock_info
 #endif
 };
 
+/******************************************************************************/
+static oom_type g_out_of_memory_handler;
+
 /*****************************************************************************/
 int
 g_rm_temp_dir(void)
@@ -153,6 +157,36 @@ g_init(const char *app_name)
     WSADATA wsadata;
 
     WSAStartup(2, &wsadata);
+#endif
+#if defined(XRDP_NVENC)
+    if (g_strcmp(app_name, "xrdp-sesman") == 0)
+    {
+        /* call cuInit() to initalize the nvidia drivers */
+        /* TODO create an issue on nvidia forums to figure out why we need to
+        *  do this */
+        if (g_fork() == 0)
+        {
+            typedef int (*cu_init_proc)(int flags);
+            cu_init_proc cu_init;
+            long lib;
+            char cuda_lib_name[] = "libcuda.so";
+            char cuda_func_name[] = "cuInit";
+
+            lib = g_load_library(cuda_lib_name);
+            if (lib != 0)
+            {
+                cu_init = (cu_init_proc)
+                          g_get_proc_address(lib, cuda_func_name);
+                if (cu_init != NULL)
+                {
+                    cu_init(0);
+                }
+            }
+            log_end();
+            g_deinit();
+            g_exit(0);
+        }
+    }
 #endif
 }
 
@@ -369,8 +403,6 @@ int
 g_tcp_socket(void)
 {
     int rv;
-    int option_value;
-    socklen_t option_len;
 
 #if defined(XRDP_ENABLE_IPV6)
     rv = (int)socket(AF_INET6, SOCK_STREAM, 0);
@@ -398,7 +430,8 @@ g_tcp_socket(void)
         return -1;
     }
 #if defined(XRDP_ENABLE_IPV6)
-    option_len = sizeof(option_value);
+    int option_value;
+    socklen_t option_len = sizeof(option_value);
     if (getsockopt(rv, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&option_value,
                    &option_len) == 0)
     {
@@ -418,22 +451,6 @@ g_tcp_socket(void)
         }
     }
 #endif
-    option_len = sizeof(option_value);
-    if (getsockopt(rv, SOL_SOCKET, SO_REUSEADDR, (char *)&option_value,
-                   &option_len) == 0)
-    {
-        if (option_value == 0)
-        {
-            option_value = 1;
-            option_len = sizeof(option_value);
-            if (setsockopt(rv, SOL_SOCKET, SO_REUSEADDR, (char *)&option_value,
-                           option_len) < 0)
-            {
-                LOG(LOG_LEVEL_ERROR, "g_tcp_socket: setsockopt() failed");
-            }
-        }
-    }
-
     return rv;
 }
 
@@ -509,6 +526,23 @@ g_sck_get_recv_buffer_bytes(int sck, int *bytes)
     }
     *bytes = option_value;
     return 0;
+}
+
+/*****************************************************************************/
+int
+g_sck_set_reuseaddr(int sck)
+{
+    int rv;
+    int option_value = 1;
+    socklen_t option_len = sizeof(option_value);
+
+    rv = setsockopt(sck, SOL_SOCKET, SO_REUSEADDR,
+                    (char *) &option_value, option_len);
+    if (rv < 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "g_sck_set_reuseaddr: %s", g_get_strerror());
+    }
+    return rv;
 }
 
 /*****************************************************************************/
@@ -1424,6 +1458,16 @@ g_sck_recv_fd_set(int sck, void *ptr, unsigned int len,
     if ((rv = recvmsg(sck, &msg, 0)) > 0)
     {
         struct cmsghdr *cmsg;
+
+        // Coverity: msg is 'tainted', so check msg.control and
+        // msg.msg_controllen are sane (i.e. recvmsg() hasn't done
+        // something odd)
+        msg.msg_control = control_un.control;
+        if (msg.msg_controllen > sizeof(control_un.control))
+        {
+            msg.msg_controllen = sizeof(control_un.control);
+        }
+
         if ((msg.msg_flags & MSG_CTRUNC) != 0)
         {
             LOG(LOG_LEVEL_WARNING, "Ancillary data on recvmsg() was truncated");
@@ -1528,6 +1572,39 @@ g_sck_send_fd_set(int sck, const void *ptr, unsigned int len,
 #endif /* !WIN32 */
 
     return rv;
+}
+
+/******************************************************************************/
+int
+g_alloc_shm_map_fd(void **addr, int *fd, size_t size)
+{
+    int lfd = -1;
+    void *laddr;
+    char name[128];
+    static unsigned int autoinc;
+
+    snprintf(name, 128, "/%8.8X%8.8X", getpid(), autoinc++);
+    lfd = shm_open(name, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (lfd == -1)
+    {
+        return 1;
+    }
+    shm_unlink(name);
+    if (ftruncate(lfd, size) == -1)
+    {
+        close(lfd);
+        return 2;
+    }
+    /* map fd to address space */
+    laddr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, lfd, 0);
+    if (laddr == MAP_FAILED)
+    {
+        close(lfd);
+        return 3;
+    }
+    *addr = laddr;
+    *fd = lfd;
+    return 0;
 }
 
 /*****************************************************************************/
@@ -1805,7 +1882,7 @@ g_set_wait_obj(tintptr obj)
         return 0;
     }
     fd = obj >> 16;
-    to_write = 4;
+    to_write = sizeof(buf);
     written = 0;
     while (written < to_write)
     {
@@ -1823,12 +1900,13 @@ g_set_wait_obj(tintptr obj)
                 return 1;
             }
         }
-        else if (error > 0)
+        else if (error > 0 && error <= (int)sizeof(buf))
         {
             written += error;
         }
         else
         {
+            // Shouldn't get here.
             return 1;
         }
     }
@@ -2045,18 +2123,6 @@ g_obj_wait(tintptr *read_objs, int rcount, tintptr *write_objs, int wcount,
 void
 g_random(char *data, int len)
 {
-#if defined(_WIN32)
-    int index;
-
-    srand(g_time1());
-
-    for (index = 0; index < len; index++)
-    {
-        data[index] = (char)rand(); /* rand returns a number between 0 and
-                                   RAND_MAX */
-    }
-
-#else
     int fd;
 
     memset(data, 0x44, len);
@@ -2075,8 +2141,6 @@ g_random(char *data, int len)
 
         close(fd);
     }
-
-#endif
 }
 
 /*****************************************************************************/
@@ -2311,15 +2375,27 @@ g_file_set_cloexec(int fd, int status)
 struct list *
 g_get_open_fds(int min, int max)
 {
+    if (min < 0)
+    {
+        min = 0;
+    }
+
     struct list *result = list_create();
 
     if (result != NULL)
     {
         if (max < 0)
         {
-            max = sysconf(_SC_OPEN_MAX);
+            // sysconf() returns a long. Limit it to a sane value
+#define SANE_MAX 100000
+            long sc_max = sysconf(_SC_OPEN_MAX);
+            max = (sc_max < 0) ? 0 :
+                  (sc_max > (long)SANE_MAX) ? SANE_MAX :
+                  sc_max;
+#undef SANE_MAX
         }
 
+        // max and min are now both guaranteed to be >= 0
         if (max > min)
         {
             struct pollfd *fds = g_new0(struct pollfd, max - min);
@@ -2344,6 +2420,7 @@ g_get_open_fds(int min, int max)
                         // Descriptor is open
                         if (!list_add_item(result, i))
                         {
+                            g_free(fds);
                             goto nomem;
                         }
                     }
@@ -2599,6 +2676,23 @@ int
 g_executable_exist(const char *exename)
 {
     return access(exename, R_OK | X_OK) == 0;
+}
+
+/*****************************************************************************/
+/* returns boolean, non zero if the socket exists */
+int
+g_socket_exist(const char *sockname)
+{
+    struct stat st;
+
+    if (stat(sockname, &st) == 0)
+    {
+        return S_ISSOCK(st.st_mode);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /*****************************************************************************/
@@ -3168,6 +3262,48 @@ g_setgid(int pid)
 }
 
 /*****************************************************************************/
+/* Used by daemonizing code */
+/* returns error, zero is success, non zero is error */
+int
+g_drop_privileges(const char *user, const char *group)
+{
+    int rv = 1;
+    int uid;
+    int gid;
+    if (g_getuser_info_by_name(user, &uid, NULL, NULL, NULL, NULL) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "Unable to get UID for user '%s' [%s]", user,
+            g_get_strerror());
+    }
+    else if (g_getgroup_info(group, &gid) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "Unable to get GID for group '%s' [%s]", group,
+            g_get_strerror());
+    }
+    else if (initgroups(user, gid) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "Unable to init groups for '%s' [%s]", user,
+            g_get_strerror());
+    }
+    else if (g_setgid(gid) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "Unable to set group to '%s' [%s]", group,
+            g_get_strerror());
+    }
+    else if (g_setuid(uid) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "Unable to set user to '%s' [%s]", user,
+            g_get_strerror());
+    }
+    else
+    {
+        rv = 0;
+    }
+
+    return rv;
+}
+
+/*****************************************************************************/
 /* returns error, zero is success, non zero is error */
 /* does not work in win32 */
 int
@@ -3286,10 +3422,10 @@ g_set_allusercontext(int uid)
 /*****************************************************************************/
 /* does not work in win32
    returns pid of process that exits or zero if signal occurred
-   an exit_status struct can optionally be passed in to get the
+   a proc_exit_status struct can optionally be passed in to get the
    exit status of the child */
 int
-g_waitchild(struct exit_status *e)
+g_waitchild(struct proc_exit_status *e)
 {
 #if defined(_WIN32)
     return 0;
@@ -3297,14 +3433,14 @@ g_waitchild(struct exit_status *e)
     int wstat;
     int rv;
 
-    struct exit_status dummy;
+    struct proc_exit_status dummy;
 
     if (e == NULL)
     {
         e = &dummy;  // Set this, then throw it away
     }
 
-    e->reason = E_XR_UNEXPECTED;
+    e->reason = E_PXR_UNEXPECTED;
     e->val = 0;
 
     rv = waitpid(-1, &wstat, WNOHANG);
@@ -3319,12 +3455,12 @@ g_waitchild(struct exit_status *e)
     }
     else if (WIFEXITED(wstat))
     {
-        e->reason = E_XR_STATUS_CODE;
+        e->reason = E_PXR_STATUS_CODE;
         e->val = WEXITSTATUS(wstat);
     }
     else if (WIFSIGNALED(wstat))
     {
-        e->reason = E_XR_SIGNAL;
+        e->reason = E_PXR_SIGNAL;
         e->val = WTERMSIG(wstat);
     }
 
@@ -3365,10 +3501,14 @@ g_waitpid(int pid)
 
    Note that signal handlers are established with BSD-style semantics,
    so this call is NOT interrupted by a signal  */
-struct exit_status
+struct proc_exit_status
 g_waitpid_status(int pid)
 {
-    struct exit_status exit_status = {.reason = E_XR_UNEXPECTED, .val = 0};
+    struct proc_exit_status exit_status =
+    {
+        .reason = E_PXR_UNEXPECTED,
+        .val = 0
+    };
 
 #if !defined(_WIN32)
     if (pid > 0)
@@ -3383,12 +3523,12 @@ g_waitpid_status(int pid)
         {
             if (WIFEXITED(status))
             {
-                exit_status.reason = E_XR_STATUS_CODE;
+                exit_status.reason = E_PXR_STATUS_CODE;
                 exit_status.val = WEXITSTATUS(status);
             }
             if (WIFSIGNALED(status))
             {
-                exit_status.reason = E_XR_SIGNAL;
+                exit_status.reason = E_PXR_SIGNAL;
                 exit_status.val = WTERMSIG(status);
             }
         }
@@ -3490,6 +3630,12 @@ g_sigterm(int pid)
 #else
     return kill(pid, SIGTERM);
 #endif
+}
+
+/*****************************************************************************/
+int g_pid_is_active(int pid)
+{
+    return (kill(pid, 0) == 0);
 }
 
 /*****************************************************************************/
@@ -3726,51 +3872,21 @@ g_check_user_in_group(const char *username, int gid, int *ok)
 #endif // HAVE_GETGROUPLIST
 
 /*****************************************************************************/
-/* returns the time since the Epoch (00:00:00 UTC, January 1, 1970),
-   measured in seconds.
-   for windows, returns the number of seconds since the machine was
-   started. */
-int
-g_time1(void)
+unsigned int
+g_get_elapsed_ms(void)
 {
-#if defined(_WIN32)
-    return GetTickCount() / 1000;
-#else
-    return time(0);
-#endif
-}
+    unsigned int result = 0;
+    struct timespec tp;
 
-/*****************************************************************************/
-/* returns the number of milliseconds since the machine was
-   started. */
-int
-g_time2(void)
-{
-#if defined(_WIN32)
-    return (int)GetTickCount();
-#else
-    struct tms tm;
-    clock_t num_ticks = 0;
-    g_memset(&tm, 0, sizeof(struct tms));
-    num_ticks = times(&tm);
-    return (int)(num_ticks * 10);
-#endif
-}
+    if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
+    {
+        result = (unsigned int)tp.tv_sec * 1000;
+        // POSIX 1003.1-2004 specifies that tv_nsec is a long (i.e. a
+        // signed type), but can only contain [0..999,999,999]
+        result += tp.tv_nsec / 1000000;
+    }
 
-/*****************************************************************************/
-/* returns time in milliseconds, uses gettimeofday
-   does not work in win32 */
-int
-g_time3(void)
-{
-#if defined(_WIN32)
-    return 0;
-#else
-    struct timeval tp;
-
-    gettimeofday(&tp, 0);
-    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000);
-#endif
+    return result;
 }
 
 /******************************************************************************/
@@ -3886,7 +4002,7 @@ g_save_to_bmp(const char *filename, char *data, int stride_bytes,
     data -= stride_bytes;
     if ((depth == 24) && (bits_per_pixel == 32))
     {
-        line = (char *) malloc(file_stride_bytes);
+        line = (char *) g_malloc_nofail(file_stride_bytes);
         memset(line, 0, file_stride_bytes);
         for (index = 0; index < height; index++)
         {
@@ -4024,30 +4140,7 @@ g_tcp4_socket(void)
 #if defined(XRDP_ENABLE_IPV6ONLY)
     return -1;
 #else
-    int rv;
-    int option_value;
-    socklen_t option_len;
-
-    rv = socket(AF_INET, SOCK_STREAM, 0);
-    if (rv < 0)
-    {
-        return -1;
-    }
-    option_len = sizeof(option_value);
-    if (getsockopt(rv, SOL_SOCKET, SO_REUSEADDR,
-                   (char *) &option_value, &option_len) == 0)
-    {
-        if (option_value == 0)
-        {
-            option_value = 1;
-            option_len = sizeof(option_value);
-            if (setsockopt(rv, SOL_SOCKET, SO_REUSEADDR,
-                           (char *) &option_value, option_len) < 0)
-            {
-            }
-        }
-    }
-    return rv;
+    return socket(AF_INET, SOCK_STREAM, 0);
 #endif
 }
 
@@ -4105,20 +4198,6 @@ g_tcp6_socket(void)
 #endif
             option_len = sizeof(option_value);
             if (setsockopt(rv, IPPROTO_IPV6, IPV6_V6ONLY,
-                           (char *) &option_value, option_len) < 0)
-            {
-            }
-        }
-    }
-    option_len = sizeof(option_value);
-    if (getsockopt(rv, SOL_SOCKET, SO_REUSEADDR,
-                   (char *) &option_value, &option_len) == 0)
-    {
-        if (option_value == 0)
-        {
-            option_value = 1;
-            option_len = sizeof(option_value);
-            if (setsockopt(rv, SOL_SOCKET, SO_REUSEADDR,
                            (char *) &option_value, option_len) < 0)
             {
             }
@@ -4184,10 +4263,145 @@ g_no_new_privs(void)
 #endif
 }
 
+
+/*****************************************************************************/
+int
+g_fips_mode_enabled(void)
+{
+    int rv = 0;
+#if defined (__linux)
+    char buff[16];
+    int fd = open("/proc/sys/crypto/fips_enabled", O_RDONLY);
+
+    if (fd >= 0)
+    {
+        ssize_t res = read(fd, buff, sizeof(buff));
+        if (res > 0 && (size_t)res < sizeof(buff))
+        {
+            rv = (buff[0] != '0');
+        }
+
+        close(fd);
+    }
+#endif
+    return rv;
+}
+
 /*****************************************************************************/
 void
 g_qsort(void *base, size_t nitems, size_t size,
         int (*compar)(const void *, const void *))
 {
     qsort(base, nitems, size, compar);
+}
+
+/*****************************************************************************/
+struct list *
+g_readdir(const char *dir)
+{
+    DIR *handle;
+    struct list *result = NULL;
+    struct dirent *dent;
+    int saved_errno;
+
+    errno = 0; // See readdir(3)
+    if ((handle = opendir(dir)) != NULL &&
+            (result = list_create()) != NULL)
+    {
+        result->auto_free = 1;
+        while (1)
+        {
+            errno = 0;
+            dent = readdir(handle);
+            if (dent == NULL)
+            {
+                break; // errno = 0 for end-of-dir, or != 0 for error
+            }
+
+            // Ignore '.' and '..'
+            if (dent->d_name[0] == '.' && dent->d_name[1] == '\0')
+            {
+                continue;
+            }
+            if (dent->d_name[0] == '.' && dent->d_name[1] == '.' &&
+                    dent->d_name[2] == '\0')
+            {
+                continue;
+            }
+
+            if (!list_add_strdup(result, dent->d_name))
+            {
+                // Memory allocation failure
+                errno = ENOMEM;
+                break;
+            }
+        }
+    }
+
+    saved_errno = errno;
+    if (errno != 0)
+    {
+        list_delete(result);
+        result = NULL;
+    }
+    if (handle != NULL)
+    {
+        closedir(handle);
+    }
+    errno = saved_errno;
+
+    return result;
+}
+
+/******************************************************************************/
+oom_type
+g_set_out_of_memory_handler(oom_type new_handler)
+{
+    oom_type old_handler = g_out_of_memory_handler;
+    g_out_of_memory_handler = new_handler;
+    return old_handler;
+}
+
+/******************************************************************************/
+static void
+out_of_memory(void)
+{
+    if (g_out_of_memory_handler != NULL)
+    {
+        g_out_of_memory_handler();
+        _exit(1);
+    }
+    else
+    {
+        abort();
+    }
+}
+
+/******************************************************************************/
+void *
+g_malloc_nofail(size_t size)
+{
+    void *res = malloc(size);
+    if (res == NULL)
+    {
+        LOG(LOG_LEVEL_ALWAYS, "g_malloc_nofail() can't allocate %zu bytes",
+            size);
+        out_of_memory();
+    }
+    return res;
+}
+
+/******************************************************************************/
+void *
+g_calloc_nofail(size_t nmemb, size_t size)
+{
+    void *res = calloc(nmemb, size);
+    if (res == NULL)
+    {
+        LOG(LOG_LEVEL_ALWAYS,
+            "g_calloc_nofail() can't allocate %zu * %zu bytes",
+            nmemb, size);
+        out_of_memory();
+    }
+    return res;
 }

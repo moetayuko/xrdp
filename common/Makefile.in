@@ -91,6 +91,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@XRDP_NVENC_TRUE@am__append_1 = -DXRDP_NVENC
 subdir = common
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
@@ -100,10 +101,10 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
 	$(top_srcdir)/m4/ax_gcc_func_attribute.m4 \
 	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/ax_type_socklen_t.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/pkg.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/axrdp.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(include_HEADERS) \
@@ -146,12 +147,13 @@ libcommon_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 am__libcommon_la_SOURCES_DIST = arch.h base64.h base64.c defines.h \
 	fifo.c fifo.h file.c file.h guid.c guid.h list.c list.h \
 	list16.c list16.h log.c log.h os_calls.c os_calls.h parse.c \
-	parse.h rail.h ssl_calls.c ssl_calls.h string_calls.c \
-	string_calls.h thread_calls.c thread_calls.h trans.c trans.h \
-	unicode_defines.h pixman-region16.c pixman-region.h
+	parse.h rail.h scancode.c scancode.h ssl_calls.c ssl_calls.h \
+	string_calls.c string_calls.h thread_calls.c thread_calls.h \
+	trans.c trans.h unicode_defines.h pixman-region16.c \
+	pixman-region.h
 @XRDP_PIXMAN_FALSE@am__objects_1 = pixman-region16.lo
 am_libcommon_la_OBJECTS = base64.lo fifo.lo file.lo guid.lo list.lo \
-	list16.lo log.lo os_calls.lo parse.lo ssl_calls.lo \
+	list16.lo log.lo os_calls.lo parse.lo scancode.lo ssl_calls.lo \
 	string_calls.lo thread_calls.lo trans.lo $(am__objects_1)
 libcommon_la_OBJECTS = $(am_libcommon_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -177,9 +179,9 @@ am__depfiles_remade = ./$(DEPDIR)/base64.Plo ./$(DEPDIR)/fifo.Plo \
 	./$(DEPDIR)/file.Plo ./$(DEPDIR)/guid.Plo ./$(DEPDIR)/list.Plo \
 	./$(DEPDIR)/list16.Plo ./$(DEPDIR)/log.Plo \
 	./$(DEPDIR)/os_calls.Plo ./$(DEPDIR)/parse.Plo \
-	./$(DEPDIR)/pixman-region16.Plo ./$(DEPDIR)/ssl_calls.Plo \
-	./$(DEPDIR)/string_calls.Plo ./$(DEPDIR)/thread_calls.Plo \
-	./$(DEPDIR)/trans.Plo
+	./$(DEPDIR)/pixman-region16.Plo ./$(DEPDIR)/scancode.Plo \
+	./$(DEPDIR)/ssl_calls.Plo ./$(DEPDIR)/string_calls.Plo \
+	./$(DEPDIR)/thread_calls.Plo ./$(DEPDIR)/trans.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -274,7 +276,11 @@ FREETYPE2_CFLAGS = @FREETYPE2_CFLAGS@
 FREETYPE2_LIBS = @FREETYPE2_LIBS@
 FUSE_CFLAGS = @FUSE_CFLAGS@
 FUSE_LIBS = @FUSE_LIBS@
+GLIB2_CFLAGS = @GLIB2_CFLAGS@
+GLIB2_LIBS = @GLIB2_LIBS@
 GREP = @GREP@
+IBUS_CFLAGS = @IBUS_CFLAGS@
+IBUS_LIBS = @IBUS_LIBS@
 IMLIB2_CFLAGS = @IMLIB2_CFLAGS@
 IMLIB2_LIBS = @IMLIB2_LIBS@
 INSTALL = @INSTALL@
@@ -326,6 +332,12 @@ TurboJpegIncDir = @TurboJpegIncDir@
 TurboJpegLibDir = @TurboJpegLibDir@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
+XRDP_NVENC_CFLAGS = @XRDP_NVENC_CFLAGS@
+XRDP_NVENC_LIBS = @XRDP_NVENC_LIBS@
+XRDP_OPENH264_CFLAGS = @XRDP_OPENH264_CFLAGS@
+XRDP_OPENH264_LIBS = @XRDP_OPENH264_LIBS@
+XRDP_X264_CFLAGS = @XRDP_X264_CFLAGS@
+XRDP_X264_LIBS = @XRDP_X264_LIBS@
 X_CFLAGS = @X_CFLAGS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
@@ -387,6 +399,7 @@ socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
+sysconfsubdir = @sysconfsubdir@
 systemdsystemunitdir = @systemdsystemunitdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -409,15 +422,14 @@ include_HEADERS = \
   xrdp_client_info.h \
   xrdp_constants.h \
   xrdp_rail.h \
+  xrdp_scancode_defs.h \
   xrdp_sockets.h
 
-AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
-  -DXRDP_SBIN_PATH=\"${sbindir}\" \
-  -DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
-  -DXRDP_PID_PATH=\"${localstatedir}/run\" \
-  -DXRDP_LOG_PATH=\"${localstatedir}/log\"
-
+AM_CPPFLAGS = -DXRDP_CFG_PATH=\"${sysconfdir}/${sysconfsubdir}\" \
+	-DXRDP_SBIN_PATH=\"${sbindir}\" \
+	-DXRDP_SHARE_PATH=\"${datadir}/xrdp\" \
+	-DXRDP_PID_PATH=\"${localstatedir}/run\" \
+	-DXRDP_LOG_PATH=\"${localstatedir}/log\" $(am__append_1)
 
 # -no-suppress is an automake-specific flag which is needed
 # to prevent us missing compiler errors in some circumstances
@@ -448,6 +460,8 @@ libcommon_la_SOURCES = \
   parse.c \
   parse.h \
   rail.h \
+  scancode.c \
+  scancode.h \
   ssl_calls.c \
   ssl_calls.h \
   string_calls.c \
@@ -550,6 +564,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/os_calls.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pixman-region16.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scancode.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ssl_calls.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_calls.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread_calls.Plo@am__quote@ # am--include-marker
@@ -746,6 +761,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/os_calls.Plo
 	-rm -f ./$(DEPDIR)/parse.Plo
 	-rm -f ./$(DEPDIR)/pixman-region16.Plo
+	-rm -f ./$(DEPDIR)/scancode.Plo
 	-rm -f ./$(DEPDIR)/ssl_calls.Plo
 	-rm -f ./$(DEPDIR)/string_calls.Plo
 	-rm -f ./$(DEPDIR)/thread_calls.Plo
@@ -805,6 +821,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/os_calls.Plo
 	-rm -f ./$(DEPDIR)/parse.Plo
 	-rm -f ./$(DEPDIR)/pixman-region16.Plo
+	-rm -f ./$(DEPDIR)/scancode.Plo
 	-rm -f ./$(DEPDIR)/ssl_calls.Plo
 	-rm -f ./$(DEPDIR)/string_calls.Plo
 	-rm -f ./$(DEPDIR)/thread_calls.Plo

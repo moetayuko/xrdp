@@ -29,7 +29,10 @@
 #include "log.h"
 #include "string_calls.h"
 
-
+// For a very few key functions, using the keysym is preferable to the
+// raw scancode. Here are defines to avoid pulling an X11 dependency
+// into the xrdp:-
+#define XK_BackSpace 0xff08
 
 
 static const unsigned int g_crc_table[256] =
@@ -1024,9 +1027,6 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
 {
     int n;
     int i;
-    int shift;
-    int ext;
-    int scan_code;
     struct xrdp_bitmap *b;
     struct xrdp_bitmap *focus_out_control;
 
@@ -1044,12 +1044,13 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
     {
         if (msg == WM_KEYDOWN)
         {
-            scan_code = param1 % 128;
+            int scan_code = SCANCODE_FROM_KBD_EVENT(param1, param2);
+            int shift = self->wm->keys[SCANCODE_INDEX_LSHIFT_KEY] ||
+                        self->wm->keys[SCANCODE_INDEX_RSHIFT_KEY];
 
-            if (scan_code == 15) /* tab */
+            if (scan_code == SCANCODE_TAB_KEY) /* tab */
             {
                 /* move to next tab stop */
-                shift = self->wm->keys[42] || self->wm->keys[54];
                 i = -1;
 
                 if (self->child_list != 0)
@@ -1114,7 +1115,8 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                     }
                 }
             }
-            else if (scan_code == 28) /* enter */
+            else if (scan_code == SCANCODE_ENTER_KEY ||
+                     scan_code == SCANCODE_KP_ENTER_KEY)
             {
                 if (self->default_button != 0)
                 {
@@ -1126,7 +1128,7 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                     }
                 }
             }
-            else if (scan_code == 1) /* esc */
+            else if (scan_code == SCANCODE_ESC_KEY)
             {
                 if (self->esc_button != 0)
                 {
@@ -1149,12 +1151,20 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
     {
         if (msg == WM_KEYDOWN)
         {
-            scan_code = param1 % 128;
-            ext = param2 & 0x0100;
+            int scan_code = SCANCODE_FROM_KBD_EVENT(param1, param2);
+            int num_lock = self->wm->num_lock;
+            /* We may need a keysym or a printable character for the key */
+            struct xrdp_key_info *ki = get_key_info_from_kbd_event
+                                       (param2, param1, self->wm->keys,
+                                        self->wm->caps_lock,
+                                        self->wm->num_lock, self->wm->scroll_lock,
+                                        &(self->wm->keymap));
 
             /* left or up arrow */
-            if ((scan_code == 75 || scan_code == 72) &&
-                    (ext || self->wm->num_lock == 0))
+            if ((scan_code == SCANCODE_LEFT_ARROW_KEY) ||
+                    (scan_code == SCANCODE_UP_ARROW_KEY) ||
+                    (!num_lock && (scan_code == SCANCODE_KP_4_KEY)) ||
+                    (!num_lock && (scan_code == SCANCODE_KP_8_KEY)))
             {
                 if (self->edit_pos > 0)
                 {
@@ -1163,8 +1173,10 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                 }
             }
             /* right or down arrow */
-            else if ((scan_code == 77 || scan_code == 80) &&
-                     (ext || self->wm->num_lock == 0))
+            else if ((scan_code == SCANCODE_RIGHT_ARROW_KEY) ||
+                     (scan_code == SCANCODE_DOWN_ARROW_KEY) ||
+                     (!num_lock && (scan_code == SCANCODE_KP_6_KEY)) ||
+                     (!num_lock && (scan_code == SCANCODE_KP_2_KEY)))
             {
                 if (self->edit_pos < (int)utf8_char_count(self->caption1))
                 {
@@ -1172,8 +1184,9 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                     xrdp_bitmap_invalidate(self, 0);
                 }
             }
-            /* backspace */
-            else if (scan_code == 14)
+            /* backspace. Test keysym rather than scan code, so keys
+             * other than SCANCODE_BACKSPACE_KEY can generate backspace */
+            else if (ki != NULL && ki->sym == XK_BackSpace)
             {
                 n = utf8_char_count(self->caption1);
 
@@ -1188,8 +1201,9 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                 }
             }
             /* delete */
-            else if (scan_code == 83  &&
-                     (ext || self->wm->num_lock == 0))
+            else if ((scan_code == SCANCODE_DEL_KEY)  ||
+                     (!num_lock && (scan_code == SCANCODE_KP_DEL_KEY)))
+
             {
                 n = utf8_char_count(self->caption1);
 
@@ -1203,8 +1217,8 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                 }
             }
             /* end */
-            else if (scan_code == 79  &&
-                     (ext || self->wm->num_lock == 0))
+            else if ((scan_code == SCANCODE_END_KEY) ||
+                     (!num_lock && (scan_code == SCANCODE_KP_1_KEY)))
             {
                 n = utf8_char_count(self->caption1);
 
@@ -1215,8 +1229,8 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                 }
             }
             /* home */
-            else if ((scan_code == 71)  &&
-                     (ext || (self->wm->num_lock == 0)))
+            else if ((scan_code == SCANCODE_HOME_KEY) ||
+                     (!num_lock && (scan_code == SCANCODE_KP_7_KEY)))
             {
                 if (self->edit_pos > 0)
                 {
@@ -1226,10 +1240,7 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
             }
             else
             {
-                char32_t c = get_char_from_scan_code
-                             (param2, scan_code, self->wm->keys, self->wm->caps_lock,
-                              self->wm->num_lock, self->wm->scroll_lock,
-                              &(self->wm->keymap));
+                char32_t c = (ki == NULL) ? 0 : ki->chr;
                 // Add a printing character to the string. If successful,
                 // bump the edit position and re-display the string
                 if (c >= ' ' &&
@@ -1245,12 +1256,14 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
     {
         if (msg == WM_KEYDOWN)
         {
-            scan_code = param1 % 128;
-            ext = param2 & 0x0100;
+            int scan_code = SCANCODE_FROM_KBD_EVENT(param1, param2);
+            int num_lock = self->wm->num_lock;
 
             /* left or up arrow */
-            if (((scan_code == 75) || (scan_code == 72)) &&
-                    (ext || (self->wm->num_lock == 0)))
+            if ((scan_code == SCANCODE_LEFT_ARROW_KEY) ||
+                    (scan_code == SCANCODE_UP_ARROW_KEY) ||
+                    (!num_lock && (scan_code == SCANCODE_KP_4_KEY)) ||
+                    (!num_lock && (scan_code == SCANCODE_KP_8_KEY)))
             {
                 if (self->item_index > 0)
                 {
@@ -1264,8 +1277,10 @@ xrdp_bitmap_def_proc(struct xrdp_bitmap *self, int msg,
                 }
             }
             /* right or down arrow */
-            else if ((scan_code == 77 || scan_code == 80) &&
-                     (ext || self->wm->num_lock == 0))
+            else if ((scan_code == SCANCODE_RIGHT_ARROW_KEY) ||
+                     (scan_code == SCANCODE_DOWN_ARROW_KEY) ||
+                     (!num_lock && (scan_code == SCANCODE_KP_6_KEY)) ||
+                     (!num_lock && (scan_code == SCANCODE_KP_2_KEY)))
             {
                 if ((self->item_index + 1) < self->string_list->count)
                 {

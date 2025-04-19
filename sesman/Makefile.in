@@ -102,14 +102,14 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
 	$(top_srcdir)/m4/ax_gcc_func_attribute.m4 \
 	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/ax_type_socklen_t.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/pkg.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/axrdp.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(dist_sesmansysconf_SCRIPTS) \
-	$(dist_sesmansysconf_DATA) $(am__DIST_COMMON)
+	$(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config_ac.h
 CONFIG_CLEAN_FILES =
@@ -121,7 +121,8 @@ PROGRAMS = $(sbin_PROGRAMS)
 am_xrdp_sesman_OBJECTS = eicp_process.$(OBJEXT) ercp_process.$(OBJEXT) \
 	lock_uds.$(OBJEXT) pre_session_list.$(OBJEXT) \
 	scp_process.$(OBJEXT) sesman.$(OBJEXT) \
-	sesexec_control.$(OBJEXT) session_list.$(OBJEXT) sig.$(OBJEXT)
+	sesexec_control.$(OBJEXT) session_list.$(OBJEXT) \
+	sesman_restart.$(OBJEXT) sig.$(OBJEXT)
 xrdp_sesman_OBJECTS = $(am_xrdp_sesman_OBJECTS)
 xrdp_sesman_DEPENDENCIES =  \
 	$(top_builddir)/sesman/libsesman/libsesman.la \
@@ -177,7 +178,8 @@ am__depfiles_remade = ./$(DEPDIR)/eicp_process.Po \
 	./$(DEPDIR)/ercp_process.Po ./$(DEPDIR)/lock_uds.Po \
 	./$(DEPDIR)/pre_session_list.Po ./$(DEPDIR)/scp_process.Po \
 	./$(DEPDIR)/sesexec_control.Po ./$(DEPDIR)/sesman.Po \
-	./$(DEPDIR)/session_list.Po ./$(DEPDIR)/sig.Po
+	./$(DEPDIR)/sesman_restart.Po ./$(DEPDIR)/session_list.Po \
+	./$(DEPDIR)/sig.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -212,7 +214,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(dist_sesmansysconf_DATA)
+DATA = $(nodist_sesmansysconf_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -314,7 +316,11 @@ FREETYPE2_CFLAGS = @FREETYPE2_CFLAGS@
 FREETYPE2_LIBS = @FREETYPE2_LIBS@
 FUSE_CFLAGS = @FUSE_CFLAGS@
 FUSE_LIBS = @FUSE_LIBS@
+GLIB2_CFLAGS = @GLIB2_CFLAGS@
+GLIB2_LIBS = @GLIB2_LIBS@
 GREP = @GREP@
+IBUS_CFLAGS = @IBUS_CFLAGS@
+IBUS_LIBS = @IBUS_LIBS@
 IMLIB2_CFLAGS = @IMLIB2_CFLAGS@
 IMLIB2_LIBS = @IMLIB2_LIBS@
 INSTALL = @INSTALL@
@@ -366,6 +372,12 @@ TurboJpegIncDir = @TurboJpegIncDir@
 TurboJpegLibDir = @TurboJpegLibDir@
 VERSION = @VERSION@
 XMKMF = @XMKMF@
+XRDP_NVENC_CFLAGS = @XRDP_NVENC_CFLAGS@
+XRDP_NVENC_LIBS = @XRDP_NVENC_LIBS@
+XRDP_OPENH264_CFLAGS = @XRDP_OPENH264_CFLAGS@
+XRDP_OPENH264_LIBS = @XRDP_OPENH264_LIBS@
+XRDP_X264_CFLAGS = @XRDP_X264_CFLAGS@
+XRDP_X264_LIBS = @XRDP_X264_LIBS@
 X_CFLAGS = @X_CFLAGS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_LIBS = @X_LIBS@
@@ -427,6 +439,7 @@ socketdir = @socketdir@
 srcdir = @srcdir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
+sysconfsubdir = @sysconfsubdir@
 systemdsystemunitdir = @systemdsystemunitdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -436,7 +449,7 @@ EXTRA_DIST = \
   Doxyfile
 
 AM_CPPFLAGS = \
-  -DXRDP_CFG_PATH=\"${sysconfdir}/xrdp\" \
+  -DXRDP_CFG_PATH=\"${sysconfdir}/${sysconfsubdir}\" \
   -DXRDP_SBIN_PATH=\"${sbindir}\" \
   -DXRDP_LIBEXEC_PATH=\"${libexecdir}/xrdp\" \
   -DXRDP_PID_PATH=\"${localstatedir}/run\" \
@@ -458,10 +471,13 @@ xrdp_sesman_SOURCES = \
   scp_process.h \
   sesman.c \
   sesman.h \
+  sesman.ini.in \
   sesexec_control.c \
   sesexec_control.h \
   session_list.c \
   session_list.h \
+  sesman_restart.c \
+  sesman_restart.h \
   sig.c \
   sig.h
 
@@ -470,7 +486,7 @@ xrdp_sesman_LDADD = \
   $(top_builddir)/libipm/libipm.la \
   $(top_builddir)/common/libcommon.la
 
-sesmansysconfdir = $(sysconfdir)/xrdp
+sesmansysconfdir = $(sysconfdir)/$(sysconfsubdir)
 SUBST_VARS = sed \
    -e 's|@sesmansysconfdir[@]|$(sesmansysconfdir)|g'
 
@@ -478,7 +494,7 @@ subst_verbose = $(subst_verbose_@AM_V@)
 subst_verbose_ = $(subst_verbose_@AM_DEFAULT_V@)
 subst_verbose_0 = @echo "  SUBST    $@";
 SUFFIXES = .in
-dist_sesmansysconf_DATA = \
+nodist_sesmansysconf_DATA = \
   sesman.ini
 
 dist_sesmansysconf_SCRIPTS = \
@@ -491,6 +507,7 @@ SUBDIRS = \
   tools \
   chansrv
 
+CLEANFILES = $(nodist_sesmansysconf_DATA)
 all: all-recursive
 
 .SUFFIXES:
@@ -621,6 +638,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scp_process.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sesexec_control.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sesman.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sesman_restart.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/session_list.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sig.Po@am__quote@ # am--include-marker
 
@@ -656,9 +674,9 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-dist_sesmansysconfDATA: $(dist_sesmansysconf_DATA)
+install-nodist_sesmansysconfDATA: $(nodist_sesmansysconf_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_sesmansysconf_DATA)'; test -n "$(sesmansysconfdir)" || list=; \
+	@list='$(nodist_sesmansysconf_DATA)'; test -n "$(sesmansysconfdir)" || list=; \
 	if test -n "$$list"; then \
 	  echo " $(MKDIR_P) '$(DESTDIR)$(sesmansysconfdir)'"; \
 	  $(MKDIR_P) "$(DESTDIR)$(sesmansysconfdir)" || exit 1; \
@@ -672,9 +690,9 @@ install-dist_sesmansysconfDATA: $(dist_sesmansysconf_DATA)
 	  $(INSTALL_DATA) $$files "$(DESTDIR)$(sesmansysconfdir)" || exit $$?; \
 	done
 
-uninstall-dist_sesmansysconfDATA:
+uninstall-nodist_sesmansysconfDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_sesmansysconf_DATA)'; test -n "$(sesmansysconfdir)" || list=; \
+	@list='$(nodist_sesmansysconf_DATA)'; test -n "$(sesmansysconfdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(sesmansysconfdir)'; $(am__uninstall_files_from_dir)
 
@@ -864,6 +882,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-$(am__rm_f) $(CLEANFILES)
 
 distclean-generic:
 	-$(am__rm_f) $(CONFIG_CLEAN_FILES)
@@ -885,6 +904,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/scp_process.Po
 	-rm -f ./$(DEPDIR)/sesexec_control.Po
 	-rm -f ./$(DEPDIR)/sesman.Po
+	-rm -f ./$(DEPDIR)/sesman_restart.Po
 	-rm -f ./$(DEPDIR)/session_list.Po
 	-rm -f ./$(DEPDIR)/sig.Po
 	-rm -f Makefile
@@ -903,8 +923,8 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_sesmansysconfDATA \
-	install-dist_sesmansysconfSCRIPTS
+install-data-am: install-dist_sesmansysconfSCRIPTS \
+	install-nodist_sesmansysconfDATA
 
 install-dvi: install-dvi-recursive
 
@@ -940,6 +960,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/scp_process.Po
 	-rm -f ./$(DEPDIR)/sesexec_control.Po
 	-rm -f ./$(DEPDIR)/sesman.Po
+	-rm -f ./$(DEPDIR)/sesman_restart.Po
 	-rm -f ./$(DEPDIR)/session_list.Po
 	-rm -f ./$(DEPDIR)/sig.Po
 	-rm -f Makefile
@@ -958,8 +979,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dist_sesmansysconfDATA \
-	uninstall-dist_sesmansysconfSCRIPTS uninstall-sbinPROGRAMS
+uninstall-am: uninstall-dist_sesmansysconfSCRIPTS \
+	uninstall-nodist_sesmansysconfDATA uninstall-sbinPROGRAMS
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -969,17 +990,17 @@ uninstall-am: uninstall-dist_sesmansysconfDATA \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
-	install-dist_sesmansysconfDATA \
 	install-dist_sesmansysconfSCRIPTS install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-sbinPROGRAMS \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-dist_sesmansysconfDATA \
-	uninstall-dist_sesmansysconfSCRIPTS uninstall-sbinPROGRAMS
+	install-info install-info-am install-man \
+	install-nodist_sesmansysconfDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-sbinPROGRAMS install-strip \
+	installcheck installcheck-am installdirs installdirs-am \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-dist_sesmansysconfSCRIPTS \
+	uninstall-nodist_sesmansysconfDATA uninstall-sbinPROGRAMS
 
 .PRECIOUS: Makefile
 

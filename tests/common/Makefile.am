@@ -16,6 +16,7 @@ test_common_SOURCES = \
     test_common_main.c \
     test_fifo_calls.c \
     test_list_calls.c \
+    test_list16_calls.c \
     test_parse.c \
     test_string_calls.c \
     test_string_calls_unicode.c \
@@ -23,7 +24,8 @@ test_common_SOURCES = \
     test_os_calls_signals.c \
     test_ssl_calls.c \
     test_base64.c \
-    test_guid.c
+    test_guid.c \
+    test_scancode.c
 
 test_common_CFLAGS = \
     @CHECK_CFLAGS@ \

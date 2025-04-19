@@ -21,6 +21,10 @@
 #include <config_ac.h>
 #endif
 
+#ifdef XRDP_IBUS
+#include "input.h"
+#endif
+
 #include "arch.h"
 #include "os_calls.h"
 #include "string_calls.h"
@@ -40,6 +44,9 @@
 #include "chansrv_config.h"
 #include "xrdp_sockets.h"
 #include "audin.h"
+
+#include "scp.h"
+#include "scp_sync.h"
 
 #include "ms-rdpbcgr.h"
 
@@ -125,7 +132,7 @@ add_timeout(int msoffset, void (*callback)(void *data), void *data)
     tui32 now;
 
     LOG_DEVEL(LOG_LEVEL_DEBUG, "add_timeout:");
-    now = g_time3();
+    now = g_get_elapsed_ms();
     tobj = g_new0(struct timeout_obj, 1);
     tobj->mstime = now + msoffset;
     tobj->callback = callback;
@@ -160,7 +167,7 @@ get_timeout(int *timeout)
     tobj = g_timeout_head;
     if (tobj != 0)
     {
-        now = g_time3();
+        now = g_get_elapsed_ms();
         while (tobj != 0)
         {
             LOG_DEVEL(LOG_LEVEL_DEBUG, "  now %u tobj->mstime %u", now, tobj->mstime);
@@ -208,7 +215,7 @@ check_timeout(void)
         while (tobj != 0)
         {
             count++;
-            now = g_time3();
+            now = g_get_elapsed_ms();
             if (now >= tobj->mstime)
             {
                 tobj->callback(tobj->data);
@@ -717,6 +724,26 @@ chansrv_drdynvc_open(const char *name, int flags,
     return error;
 }
 
+
+/*****************************************************************************/
+/* tell xrdp we can do Unicode input */
+static int
+chansrv_advertise_unicode_input(int status)
+{
+    struct stream *s = trans_get_out_s(g_con_trans, 8192);
+    if (s == NULL)
+    {
+        return 1;
+    }
+    out_uint32_le(s, 0); /* version */
+    out_uint32_le(s, 8 + 8 + 4);
+    out_uint32_le(s, 20); /* msg id */
+    out_uint32_le(s, 8 + 4);
+    out_uint32_le(s, status);
+    s_mark_end(s);
+    return trans_write_copy(g_con_trans);
+}
+
 /*****************************************************************************/
 /* close call from chansrv */
 int
@@ -823,6 +850,62 @@ chansrv_drdynvc_send_data(int chan_id, const char *data, int data_bytes)
     return 0;
 }
 
+#ifdef XRDP_IBUS
+/*****************************************************************************/
+static int
+process_message_unicode_data(struct stream *s)
+{
+    int rv = 0;
+    int key_down;
+    char32_t unicode;
+
+    LOG_DEVEL(LOG_LEVEL_DEBUG, "process_message_unicode_keypress:");
+    if (!s_check_rem(s, 8))
+    {
+        rv = 1;
+    }
+    else
+    {
+        in_uint32_le(s, key_down);
+        in_uint32_le(s, unicode);
+
+        LOG_DEVEL(LOG_LEVEL_DEBUG, "process_message_unicode_keypress: received unicode %i", unicode);
+
+        if (key_down)
+        {
+            xrdp_input_send_unicode(unicode);
+        }
+    }
+
+    return rv;
+}
+
+/*****************************************************************************/
+static int
+process_message_unicode_setup(struct stream *s)
+{
+    int rv = xrdp_input_unicode_init();
+    if (rv == 0)
+    {
+        // Tell xrdp we can support Unicode input
+        rv = chansrv_advertise_unicode_input(0);
+    }
+    else
+    {
+        // Tell xrdp there's a problem starting the framework
+        chansrv_advertise_unicode_input(2);
+    }
+    return rv;
+}
+
+/*****************************************************************************/
+static int
+process_message_unicode_shutdown(struct stream *s)
+{
+    return xrdp_input_unicode_destroy();
+}
+#endif
+
 /*****************************************************************************/
 /* returns error */
 static int
@@ -875,6 +958,25 @@ process_message(void)
             case 19: /* drdynvc data */
                 rv = process_message_drdynvc_data(s);
                 break;
+            case 21: /* unicode setup */
+#ifdef XRDP_IBUS
+                rv = process_message_unicode_setup(s);
+#else
+                // We don't support this.
+                rv = chansrv_advertise_unicode_input(1);
+#endif
+                break;
+            case 23: /* unicode key event */
+#ifdef XRDP_IBUS
+                rv = process_message_unicode_data(s);
+#endif
+                break;
+            case 25: /* unicode shut down */
+#ifdef XRDP_IBUS
+                rv = process_message_unicode_shutdown(s);
+#endif
+                break;
+
             default:
                 LOG_DEVEL(LOG_LEVEL_ERROR, "process_message: unknown msg %d", id);
                 break;
@@ -894,7 +996,7 @@ process_message(void)
 
 /*****************************************************************************/
 /* returns error */
-int
+static int
 my_trans_data_in(struct trans *trans)
 {
     struct stream *s = (struct stream *)NULL;
@@ -938,7 +1040,7 @@ my_trans_data_in(struct trans *trans)
 }
 
 /*****************************************************************************/
-struct trans *
+static struct trans *
 get_api_trans_from_chan_id(int chan_id)
 {
     return g_drdynvcs[chan_id].xrdp_api_trans;
@@ -1038,7 +1140,7 @@ my_api_data(int chan_id, char *data, int bytes)
  * called when WTSVirtualChannelWrite() is invoked in xrdpapi.c
  *
  ******************************************************************************/
-int
+static int
 my_api_trans_data_in(struct trans *trans)
 {
     struct stream *s;
@@ -1172,7 +1274,7 @@ my_api_trans_data_in(struct trans *trans)
 }
 
 /*****************************************************************************/
-int
+static int
 my_trans_conn_in(struct trans *trans, struct trans *new_trans)
 {
     if (trans == 0)
@@ -1209,7 +1311,7 @@ my_trans_conn_in(struct trans *trans, struct trans *new_trans)
  * called when WTSVirtualChannelOpenEx is invoked in xrdpapi.c
  *
  ******************************************************************************/
-int
+static int
 my_api_trans_conn_in(struct trans *trans, struct trans *new_trans)
 {
     struct xrdp_api_data *ad;
@@ -1377,7 +1479,7 @@ api_con_trans_list_remove_all(void)
 }
 
 /*****************************************************************************/
-THREAD_RV THREAD_CC
+static THREAD_RV THREAD_CC
 channel_thread_loop(void *in_val)
 {
     tbus objs[32];
@@ -1538,7 +1640,7 @@ child_signal_handler(void)
 }
 
 /*****************************************************************************/
-void
+static void
 segfault_signal_handler(int sig)
 {
     LOG_DEVEL(LOG_LEVEL_ERROR, "segfault_signal_handler: entered.......");
@@ -1592,20 +1694,32 @@ get_log_path(char *path, int bytes)
     int rv;
 
     rv = 1;
-    log_path = g_getenv("CHANSRV_LOG_PATH");
-    if (log_path == 0)
+    if (g_cfg->log_file_path != NULL && g_cfg->log_file_path[0] != '\0')
     {
-        log_path = g_getenv("XDG_DATA_HOME");
-        if (log_path != 0)
+        char uidstr[64];
+        char username[64];
+        const struct info_string_tag map[] =
         {
-            g_snprintf(path, bytes, "%s%s", log_path, "/xrdp");
-            if (g_directory_exist(path) || (g_mkdir(path) == 0))
-            {
-                rv = 0;
-            }
+            {'u', uidstr},
+            {'U', username},
+            INFO_STRING_END_OF_LIST
+        };
+
+        int uid = g_getuid();
+        g_snprintf(uidstr, sizeof(uidstr), "%d", uid);
+        if (g_getlogin(username, sizeof(username)) != 0)
+        {
+            /* Fall back to UID */
+            g_strncpy(username, uidstr, sizeof(username) - 1);
+        }
+
+        (void)g_format_info_string(path, bytes, g_cfg->log_file_path, map);
+        if (g_directory_exist(path) || (g_mkdir(path) == 0))
+        {
+            rv = 0;
         }
     }
-    else
+    else if ((log_path = g_getenv("CHANSRV_LOG_PATH")) != 0)
     {
         g_snprintf(path, bytes, "%s", log_path);
         if (g_directory_exist(path) || (g_mkdir(path) == 0))
@@ -1613,6 +1727,16 @@ get_log_path(char *path, int bytes)
             rv = 0;
         }
     }
+    else if ((log_path = g_getenv("XDG_DATA_HOME")) != 0)
+    {
+        g_snprintf(path, bytes, "%s%s", log_path, "/xrdp");
+        if (g_directory_exist(path) || (g_mkdir(path) == 0))
+        {
+            rv = 0;
+        }
+    }
+
+    // Always fall back to the home directory
     if (rv != 0)
     {
         log_path = g_getenv("HOME");
@@ -1665,6 +1789,54 @@ run_exec(void)
 }
 
 /*****************************************************************************/
+/**
+ * Make sure XRDP_SOCKET_PATH exists
+ *
+ * We can't do anything without XRDP_SOCKET_PATH existing.
+ *
+ * Normally this is done by sesman before chansrv starts. If we're running
+ * standalone however (i.e. with x11vnc) this won't be done. We don't have the
+ * privilege to create the directory, so we have to ask sesman to do it
+ * for us.
+ */
+static int
+chansrv_create_xrdp_socket_path(void)
+{
+    char xrdp_socket_path[XRDP_SOCKETS_MAXPATH];
+    int rv = 1;
+
+    /* Use our UID to qualify XRDP_SOCKET_PATH */
+    g_snprintf(xrdp_socket_path, sizeof(xrdp_socket_path),
+               XRDP_SOCKET_PATH, g_getuid());
+
+    if (g_directory_exist(xrdp_socket_path))
+    {
+        rv = 0;
+    }
+    else
+    {
+        LOG(LOG_LEVEL_INFO, "%s doesn't exist - asking sesman to create it",
+            xrdp_socket_path);
+
+        struct trans *t = NULL;
+
+        if (!(t = scp_connect(g_cfg->listen_port, "xrdp-chansrv", g_is_term)))
+        {
+            LOG(LOG_LEVEL_ERROR, "Can't connect to sesman");
+        }
+        else if (scp_sync_uds_login_request(t) == 0 &&
+                 scp_sync_create_sockdir_request(t) == 0)
+        {
+            rv = 0;
+            (void)scp_send_close_connection_request(t);
+        }
+        trans_delete(t);
+    }
+
+    return rv;
+}
+
+/*****************************************************************************/
 int
 main(int argc, char **argv)
 {
@@ -1679,14 +1851,6 @@ main(int argc, char **argv)
     struct log_config *logconfig;
     g_init("xrdp-chansrv"); /* os_calls */
     g_memset(g_drdynvcs, 0, sizeof(g_drdynvcs));
-
-    log_path[255] = 0;
-    if (get_log_path(log_path, 255) != 0)
-    {
-        g_writeln("error reading CHANSRV_LOG_PATH and HOME environment variable");
-        main_cleanup();
-        return 1;
-    }
 
     display_text = g_getenv("DISPLAY");
     if (display_text == NULL)
@@ -1713,6 +1877,13 @@ main(int argc, char **argv)
         return 1;
     }
     config_dump(g_cfg);
+
+    if (get_log_path(log_path, sizeof(log_path)) != 0)
+    {
+        g_writeln("error reading CHANSRV_LOG_PATH and HOME environment variable");
+        main_cleanup();
+        return 1;
+    }
 
     pid = g_getpid();
 
@@ -1756,7 +1927,20 @@ main(int argc, char **argv)
     }
 
     LOG_DEVEL(LOG_LEVEL_INFO, "main: app started pid %d(0x%8.8x)", pid, pid);
-    /*  set up signal handler  */
+
+    if (chansrv_create_xrdp_socket_path() != 0)
+    {
+        main_cleanup();
+        return 1;
+    }
+
+    /*  set up signal objects  */
+    g_snprintf(text, sizeof(text), "xrdp_chansrv_%8.8x_main_term", pid);
+    g_term_event = g_create_wait_obj(text);
+    g_snprintf(text, sizeof(text), "xrdp_chansrv_%8.8x_sigchld", pid);
+    g_sigchld_event = g_create_wait_obj(text);
+
+    /*  set up signal handlers */
     g_signal_terminate(term_signal_handler); /* SIGTERM */
     g_signal_user_interrupt(term_signal_handler); /* SIGINT */
     g_signal_pipe(nil_signal_handler); /* SIGPIPE */
@@ -1767,18 +1951,17 @@ main(int argc, char **argv)
     xcommon_set_x_server_fatal_handler(x_server_fatal_handler);
 
     LOG_DEVEL(LOG_LEVEL_INFO, "main: DISPLAY env var set to %s", display_text);
-
     LOG_DEVEL(LOG_LEVEL_INFO, "main: using DISPLAY %d", g_display_num);
-    g_snprintf(text, 255, "xrdp_chansrv_%8.8x_main_term", pid);
-    g_term_event = g_create_wait_obj(text);
-    g_snprintf(text, 255, "xrdp_chansrv_%8.8x_sigchld", pid);
-    g_sigchld_event = g_create_wait_obj(text);
-    g_snprintf(text, 255, "xrdp_chansrv_%8.8x_thread_done", pid);
-    g_thread_done_event = g_create_wait_obj(text);
-    g_snprintf(text, 255, "xrdp_chansrv_%8.8x_exec", pid);
+
+    /* Set up RAIL sync objects */
+    g_snprintf(text, sizeof(text), "xrdp_chansrv_%8.8x_exec", pid);
     g_exec_event = g_create_wait_obj(text);
     g_exec_mutex = tc_mutex_create();
     g_exec_sem = tc_sem_create(0);
+
+    /* Set up the channel thread */
+    g_snprintf(text, sizeof(text), "xrdp_chansrv_%8.8x_thread_done", pid);
+    g_thread_done_event = g_create_wait_obj(text);
     tc_thread_create(channel_thread_loop, 0);
 
     while (g_term_event > 0 && !g_is_wait_obj_set(g_term_event))

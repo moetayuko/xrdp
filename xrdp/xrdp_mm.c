@@ -21,6 +21,7 @@
 #if defined(HAVE_CONFIG_H)
 #include <config_ac.h>
 #endif
+#include "xrdp_mm.h"
 #include "xrdp.h"
 #include "log.h"
 #include "string_calls.h"
@@ -36,11 +37,38 @@
 #include "xrdp_channel.h"
 #include <limits.h>
 
+#if defined(XRDP_OPENH264)
+#include "xrdp_encoder_openh264.h"
+#endif
+
 /* Forward declarations */
 static int
 xrdp_mm_chansrv_connect(struct xrdp_mm *self, const char *port);
 static void
 xrdp_mm_connect_sm(struct xrdp_mm *self);
+
+static int
+xrdp_mm_send_unicode_shutdown(struct xrdp_mm *self, struct trans *trans);
+
+/*****************************************************************************/
+static void
+init_libh264_loaded(struct xrdp_mm *self)
+{
+#if defined(XRDP_OPENH264)
+    // Note that if this fails, and x264 is also configured, x264
+    // will not be considered as a fallback.
+    self->libh264_loaded = xrdp_encoder_openh264_install_ok();
+    if (!self->libh264_loaded)
+    {
+        LOG(LOG_LEVEL_ERROR, "OpenH264 Codec is not installed correctly. "
+            "H.264 will not be used");
+    }
+#elif defined (XRDP_H264)
+    self->libh264_loaded = 1;
+#else
+    self->libh264_loaded = 0;
+#endif
+}
 
 /*****************************************************************************/
 struct xrdp_mm *
@@ -57,6 +85,8 @@ xrdp_mm_create(struct xrdp_wm *owner)
 
     self->uid = -1; /* Never good to default UIDs to 0 */
 
+    init_libh264_loaded(self);
+
     LOG_DEVEL(LOG_LEVEL_INFO, "xrdp_mm_create: bpp %d mcs_connection_type %d "
               "jpeg_codec_id %d v3_codec_id %d rfx_codec_id %d "
               "h264_codec_id %d",
@@ -68,7 +98,7 @@ xrdp_mm_create(struct xrdp_wm *owner)
               self->wm->client_info->h264_codec_id);
 
     if ((self->wm->client_info->gfx == 0) &&
-            ((self->wm->client_info->h264_codec_id != 0) ||
+            ((self->wm->client_info->h264_codec_id != 0 && self->libh264_loaded) ||
              (self->wm->client_info->jpeg_codec_id != 0) ||
              (self->wm->client_info->rfx_codec_id != 0)))
     {
@@ -127,10 +157,15 @@ xrdp_mm_module_cleanup(struct xrdp_mm *self)
     self->mod = 0;
     self->mod_handle = 0;
 
-    if (self->wm->hide_log_window)
+    if (self->wm && self->wm->hide_log_window)
     {
-        /* make sure autologin is off */
-        self->wm->session->client_info->rdp_autologin = 0;
+        /* make sure autologin is off.
+         * Check pointers are valid in case we're ending the process */
+        if (self->wm->session != NULL &&
+                self->wm->session->client_info != NULL)
+        {
+            self->wm->session->client_info->rdp_autologin = 0;
+        }
         xrdp_wm_set_login_state(self->wm, WMLS_RESET); /* reset session */
     }
 
@@ -144,6 +179,9 @@ xrdp_mm_delete(struct xrdp_mm *self)
     {
         return;
     }
+
+    /* shutdown input method */
+    xrdp_mm_send_unicode_shutdown(self, self->chan_trans);
 
     /* free any module stuff */
     xrdp_mm_module_cleanup(self);
@@ -243,6 +281,10 @@ xrdp_mm_create_session(struct xrdp_mm *self)
     {
         case XVNC_SESSION_CODE:
             type = SCP_SESSION_TYPE_XVNC;
+            break;
+
+        case XVNC_UDS_SESSION_CODE:
+            type = SCP_SESSION_TYPE_XVNC_UDS;
             break;
 
         case  XORG_SESSION_CODE:
@@ -377,6 +419,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm *self)
             self->mod->server_end_update = server_end_update;
             self->mod->server_bell_trigger = server_bell_trigger;
             self->mod->server_chansrv_in_use = server_chansrv_in_use;
+            self->mod->server_init_xkb_layout = server_init_xkb_layout;
             self->mod->server_fill_rect = server_fill_rect;
             self->mod->server_screen_blt = server_screen_blt;
             self->mod->server_paint_rect = server_paint_rect;
@@ -423,6 +466,7 @@ xrdp_mm_setup_mod1(struct xrdp_mm *self)
             self->mod->server_egfx_cmd = server_egfx_cmd;
             self->mod->server_set_pointer_large = server_set_pointer_large;
             self->mod->server_paint_rects_ex = server_paint_rects_ex;
+            self->mod->server_set_pointer_system = server_set_pointer_system;
             self->mod->si = &(self->wm->session->si);
         }
     }
@@ -470,7 +514,8 @@ xrdp_mm_setup_mod2(struct xrdp_mm *self)
             {
                 g_snprintf(text, sizeof(text), "%d", 5900 + self->display);
             }
-            else if (self->code == XORG_SESSION_CODE)
+            else if (self->code == XORG_SESSION_CODE ||
+                     self->code == XVNC_UDS_SESSION_CODE)
             {
                 g_snprintf(text, sizeof(text), XRDP_X11RDP_STR,
                            self->uid, self->display);
@@ -518,6 +563,18 @@ xrdp_mm_setup_mod2(struct xrdp_mm *self)
         if (self->mod->mod_connect(self->mod) == 0)
         {
             rv = 0; /* connect success */
+
+            // If we've received a recent TS_SYNC_EVENT, pass it on to
+            // the module so (e.g.) NumLock starts in the right state.
+            if (self->last_sync_saved)
+            {
+                int key_flags = self->last_sync_key_flags;
+                int device_flags = self->last_sync_device_flags;
+                self->last_sync_saved = 0;
+                self->mod->mod_event(self->mod, WM_KEYBRD_SYNC, key_flags,
+                                     device_flags, key_flags, device_flags);
+
+            }
         }
         else
         {
@@ -654,6 +711,73 @@ xrdp_mm_trans_process_channel_data(struct xrdp_mm *self, struct stream *s)
     }
 
     return rv;
+}
+
+/*****************************************************************************/
+static int
+xrdp_mm_send_unicode_shutdown(struct xrdp_mm *self, struct trans *trans)
+{
+    struct stream *s = trans_get_out_s(self->chan_trans, 8192);
+    if (s == NULL)
+    {
+        return 1;
+    }
+
+    out_uint32_le(s, 0);     /* version */
+    out_uint32_le(s, 8 + 8); /* size */
+    out_uint32_le(s, 25);    /* msg id */
+    out_uint32_le(s, 8);     /* size */
+    s_mark_end(s);
+
+    return trans_write_copy(self->chan_trans);
+}
+
+/*****************************************************************************/
+static int
+xrdp_mm_send_unicode_setup(struct xrdp_mm *self, struct trans *trans)
+{
+    int rv = 0;
+
+    if (self->wm->client_info->unicode_input_support == UIS_SUPPORTED)
+    {
+        struct stream *s = trans_get_out_s(self->chan_trans, 8192);
+        if (s == NULL)
+        {
+            rv = 1;
+        }
+        else
+        {
+            out_uint32_le(s, 0); /* version */
+            out_uint32_le(s, 8 + 8); /* size */
+            out_uint32_le(s, 21); /* msg id */
+            out_uint32_le(s, 8); /* size */
+            s_mark_end(s);
+
+            rv = trans_write_copy(self->chan_trans);
+        }
+    }
+
+    return rv;
+}
+
+/******************************************************************************/
+int xrdp_mm_send_unicode_to_chansrv(struct xrdp_mm *self,
+                                    int key_down,
+                                    char32_t unicode)
+{
+    struct stream *s = trans_get_out_s(self->chan_trans, 8192);
+    if (s == NULL)
+    {
+        return 1;
+    }
+    out_uint32_le(s, 0);  /* version */
+    out_uint32_le(s, 24); /* size */
+    out_uint32_le(s, 23); /* msg id */
+    out_uint32_le(s, 16); /* size */
+    out_uint32_le(s, key_down);
+    out_uint32_le(s, unicode);
+    s_mark_end(s);
+    return trans_write_copy(self->chan_trans);
 }
 
 /*****************************************************************************/
@@ -1183,14 +1307,14 @@ advance_resize_state_machine(struct xrdp_mm *mm,
               "advance_resize_state_machine:"
               " Processing resize to: %d x %d."
               " Advancing state from %s to %s."
-              " Previous state took %d MS.",
+              " Previous state took %u MS.",
               description->description.session_width,
               description->description.session_height,
               XRDP_DISPLAY_RESIZE_STATE_TO_STR(description->state),
               XRDP_DISPLAY_RESIZE_STATE_TO_STR(new_state),
-              g_time3() - description->last_state_update_timestamp);
+              g_get_elapsed_ms() - description->last_state_update_timestamp);
     description->state = new_state;
-    description->last_state_update_timestamp = g_time3();
+    description->last_state_update_timestamp = g_get_elapsed_ms();
     g_set_wait_obj(mm->resize_ready);
     return 0;
 }
@@ -1270,13 +1394,16 @@ xrdp_mm_egfx_caps_advertise(void *user, int caps_count,
     struct xrdp_mm *self;
     struct xrdp_bitmap *screen;
     int index;
-    int best_index;
     int best_h264_index;
     int best_pro_index;
     int error;
     int version;
     int flags;
     struct ver_flags_t *ver_flags;
+
+#if !defined(XRDP_H264)
+    UNUSED_VAR(best_h264_index);
+#endif
 
     LOG(LOG_LEVEL_INFO, "xrdp_mm_egfx_caps_advertise:");
     self = (struct xrdp_mm *) user;
@@ -1298,7 +1425,6 @@ xrdp_mm_egfx_caps_advertise(void *user, int caps_count,
     }
     /* sort by version */
     g_qsort(ver_flags, caps_count, sizeof(struct ver_flags_t), cmpverfunc);
-    best_index = -1;
     best_h264_index = -1;
     best_pro_index = -1;
     for (index = 0; index < caps_count; index++)
@@ -1345,19 +1471,34 @@ xrdp_mm_egfx_caps_advertise(void *user, int caps_count,
                 break;
         }
     }
-    if (best_pro_index >= 0)
+
+    int best_index = -1;
+    struct xrdp_tconfig_gfx_codec_order *co = &self->wm->gfx_config->codec;
+    char cobuff[64];
+
+    LOG(LOG_LEVEL_INFO, "Codec search order is %s",
+        tconfig_codec_order_to_str(co, cobuff, sizeof(cobuff)));
+    for (index = 0 ; index < co->codec_count ; ++index)
     {
-        best_index = best_pro_index;
-        self->egfx_flags = XRDP_EGFX_RFX_PRO;
-    }
-    /* prefer h264, todo use setting in xrdp.ini for this */
-    if (best_h264_index >= 0)
-    {
-#if defined(XRDP_X264) || defined(XRDP_NVENC)
-        best_index = best_h264_index;
-        self->egfx_flags = XRDP_EGFX_H264;
+#if defined(XRDP_H264)
+        if (co->codecs[index] == XTC_H264 && best_h264_index >= 0)
+        {
+            LOG(LOG_LEVEL_INFO, "Matched H264 mode");
+            best_index = best_h264_index;
+            self->egfx_flags = XRDP_EGFX_H264;
+            break;
+        }
 #endif
+
+        if (co->codecs[index] == XTC_RFX && best_pro_index >= 0)
+        {
+            LOG(LOG_LEVEL_INFO, "Matched RFX mode");
+            best_index = best_pro_index;
+            self->egfx_flags = XRDP_EGFX_RFX_PRO;
+            break;
+        }
     }
+
     if (best_index >= 0)
     {
         LOG(LOG_LEVEL_INFO, "  replying version 0x%8.8x flags 0x%8.8x",
@@ -1425,7 +1566,11 @@ xrdp_mm_update_module_frame_ack(struct xrdp_mm *self)
             LOG_DEVEL(LOG_LEVEL_DEBUG, "xrdp_mm_update_module_ack: "
                       "frame_id_server %d", encoder->frame_id_server);
             encoder->frame_id_server_sent = encoder->frame_id_server;
-            self->mod->mod_frame_ack(self->mod, 0, encoder->frame_id_server);
+            if (self->mod != NULL)
+            {
+                self->mod->mod_frame_ack(self->mod, 0,
+                                         encoder->frame_id_server);
+            }
         }
     }
     return 0;
@@ -1489,7 +1634,7 @@ xrdp_mm_egfx_frame_ack(void *user, uint32_t queue_depth, int frame_id,
 }
 
 /******************************************************************************/
-int
+static int
 egfx_initialize(struct xrdp_mm *self)
 {
     LOG_DEVEL(LOG_LEVEL_TRACE, "egfx_initialize");
@@ -1720,7 +1865,7 @@ process_display_control_monitor_layout_data(struct xrdp_wm *wm)
             // ever is, advance the state machine!
             if (chan->drdynvcs[mm->egfx->channel_id].status
                     == XRDP_DRDYNVC_STATUS_CLOSED
-                    || (g_time3() - description->last_state_update_timestamp) > 100)
+                    || (g_get_elapsed_ms() - description->last_state_update_timestamp) > 100)
             {
                 advance_resize_state_machine(mm, WMRZ_EGFX_CONN_CLOSED);
                 break;
@@ -1936,7 +2081,7 @@ dynamic_monitor_process_queue(struct xrdp_mm *self)
                                 g_malloc(LAYOUT_DATA_SIZE, 1);
             g_memcpy(&(self->resize_data->description), queue_head,
                      sizeof(struct display_size_description));
-            const int time = g_time3();
+            const unsigned int time = g_get_elapsed_ms();
             self->resize_data->start_time = time;
             self->resize_data->last_state_update_timestamp = time;
             self->resize_data->using_egfx = (self->egfx != NULL);
@@ -1963,10 +2108,10 @@ dynamic_monitor_process_queue(struct xrdp_mm *self)
     if (self->resize_data->state == WMRZ_COMPLETE)
     {
         LOG(LOG_LEVEL_INFO, "dynamic_monitor_process_queue: Clearing"
-            " completed resize (w: %d x h: %d). It took %d milliseconds.",
+            " completed resize (w: %d x h: %d). It took %u milliseconds.",
             self->resize_data->description.session_width,
             self->resize_data->description.session_height,
-            g_time3() - self->resize_data->start_time);
+            g_get_elapsed_ms() - self->resize_data->start_time);
         g_set_wait_obj(self->resize_ready);
     }
     else if (self->resize_data->state == WMRZ_ERROR)
@@ -1988,7 +2133,7 @@ dynamic_monitor_process_queue(struct xrdp_mm *self)
 }
 
 /******************************************************************************/
-int
+static int
 dynamic_monitor_initialize(struct xrdp_mm *self)
 {
     struct xrdp_drdynvc_procs d_procs;
@@ -2395,6 +2540,45 @@ xrdp_mm_trans_process_drdynvc_data(struct xrdp_mm *self,
 }
 
 /*****************************************************************************/
+/* Acknowledgement from chansrv that Unicode input is supported
+ */
+static int
+xrdp_mm_trans_process_unicode_ack(struct xrdp_mm *self,
+                                  struct stream *s)
+{
+    int status;
+    if (!s_check_rem(s, 4))
+    {
+        return 1;
+    }
+    in_uint32_le(s, status);
+    switch (status)
+    {
+        case 0:
+            LOG(LOG_LEVEL_INFO, "Chansrv is handling Unicode input");
+            self->wm->client_info->unicode_input_support = UIS_ACTIVE;
+            break;
+
+        case 1:
+            LOG(LOG_LEVEL_INFO, "Chansrv does not support Unicode input");
+            break;
+
+        case 2:
+            LOG(LOG_LEVEL_INFO,
+                "Chansrv reported an error starting the Unicode input method");
+            break;
+
+        default:
+            LOG(LOG_LEVEL_INFO,
+                "Chansrv reported an unknown status %d"
+                " starting the Unicode input method", status);
+            break;
+    }
+
+    return 0;
+}
+
+/*****************************************************************************/
 /* returns error
    process a message for the channel handler */
 static int
@@ -2445,6 +2629,9 @@ xrdp_mm_chan_process_msg(struct xrdp_mm *self, struct trans *trans,
                 break;
             case 18:
                 rv = xrdp_mm_trans_process_drdynvc_data(self, s);
+                break;
+            case 20:
+                rv = xrdp_mm_trans_process_unicode_ack(self, s);
                 break;
             default:
                 LOG(LOG_LEVEL_ERROR, "xrdp_mm_chan_process_msg: unknown id %d", id);
@@ -2859,28 +3046,60 @@ static int
 parse_chansrvport(const char *value, char *dest, int dest_size, int uid)
 {
     int rv = 0;
+    int dnum = 0;
 
     if (g_strncmp(value, "DISPLAY(", 8) == 0)
     {
         const char *p = value + 8;
         const char *end = p;
 
-        /* Check next chars are digits followed by ')' */
+        /* Check next chars are digits */
         while (isdigit(*end))
         {
             ++end;
         }
 
-        if (end == p || *end != ')')
+        if (end == p)
         {
-            LOG(LOG_LEVEL_WARNING, "Ignoring invalid chansrvport string '%s'",
+            LOG(LOG_LEVEL_WARNING,
+                "Ignoring chansrvport string with bad display number '%s'",
                 value);
-            rv = -1;
+            return -1;
         }
-        else
+
+        dnum = g_atoi(p);
+
+        if (*end == ',')
         {
-            g_snprintf(dest, dest_size, XRDP_CHANSRV_STR, uid, g_atoi(p));
+            /* User has specified a UID override
+             * Check next chars are digits */
+            p = end + 1;
+            end = p;
+
+            while (isdigit(*end))
+            {
+                ++end;
+            }
+
+            if (end == p)
+            {
+                LOG(LOG_LEVEL_WARNING,
+                    "Ignoring chansrvport string with bad uid '%s'",
+                    value);
+                return -1;
+            }
+            uid = g_atoi(p);
         }
+
+        if (*end != ')')
+        {
+            LOG(LOG_LEVEL_WARNING,
+                "Ignoring badly-terminated chansrvport string '%s'",
+                value);
+            return -1;
+        }
+
+        g_snprintf(dest, dest_size, XRDP_CHANSRV_STR, uid, dnum);
     }
     else
     {
@@ -2971,6 +3190,13 @@ xrdp_mm_chansrv_connect(struct xrdp_mm *self, const char *port)
         trans_delete(self->chan_trans);
         self->chan_trans = NULL;
     }
+    else if (xrdp_mm_send_unicode_setup(self, self->chan_trans) != 0)
+    {
+        LOG(LOG_LEVEL_ERROR, "xrdp_mm_chansrv_connect: error in "
+            "xrdp_mm_send_unicode_setup");
+        trans_delete(self->chan_trans);
+        self->chan_trans = NULL;
+    }
     else
     {
         LOG(LOG_LEVEL_DEBUG, "xrdp_mm_chansrv_connect: chansrv "
@@ -3014,13 +3240,30 @@ xrdp_mm_user_session_connect(struct xrdp_mm *self)
 void
 xrdp_mm_connect(struct xrdp_mm *self)
 {
+    const char *p;
     const char *port = xrdp_mm_get_value(self, "port");
     const char *gw_username = xrdp_mm_get_value(self, "pamusername");
 
     /* make sure we start in correct state */
     cleanup_states(self);
 
-    self->code = xrdp_mm_get_value_int(self, "code", 0);
+    /*
+     * Standard VNC sessions cannot be supported in FIPS mode, so
+     * don't default to this session type */
+    if ((p = xrdp_mm_get_value(self, "code")) != NULL)
+    {
+        self->code = g_atoi(p);
+    }
+    else if (g_fips_mode_enabled())
+    {
+        LOG(LOG_LEVEL_INFO, "FIPS: defaulting to a VNC session over UDS");
+        self->code = XVNC_UDS_SESSION_CODE;
+    }
+    else
+    {
+        LOG(LOG_LEVEL_INFO, "non-FIPS: defaulting to a VNC session over TCP");
+        self->code = XVNC_SESSION_CODE;
+    }
 
     /* Look at our module parameters to decide if we need to connect
      * to sesman or not */
@@ -3030,11 +3273,11 @@ xrdp_mm_connect(struct xrdp_mm *self)
         self->use_sesman = 1;
         /* Connecting to a remote sesman is no longer supported. For purely
          * local session types, this setting could be removed.
-         * The 'ip' value is still used for Xvnc sessions, to find the TCP
-         * address that the X server is listening on */
+         * The 'ip' value is still used for non-UDS Xvnc sessions, to find
+         * the TCP address that the X server is listening on */
         if (xrdp_mm_get_value(self, "ip") != NULL)
         {
-            if (self->code == XORG_SESSION_CODE)
+            if (self->code != XVNC_SESSION_CODE)
             {
                 xrdp_wm_log_msg(self->wm,
                                 LOG_LEVEL_WARNING,
@@ -3152,13 +3395,14 @@ xrdp_mm_connect_sm(struct xrdp_mm *self)
             case MMCS_SESSION_LOGIN:
             {
                 // Finished with the gateway login
+                // Leave the UID set in case we need it for the chansrvport
+                // string
                 if (self->use_gw_login)
                 {
                     xrdp_wm_log_msg(self->wm, LOG_LEVEL_INFO,
                                     "access control check was successful");
                     // No reply needed for this one
                     status = scp_send_logout_request(self->sesman_trans);
-                    self->uid = -1;
                 }
 
                 if (status == 0 && self->use_sesman)
@@ -3232,12 +3476,12 @@ xrdp_mm_connect_sm(struct xrdp_mm *self)
                 {
                     char portbuff[XRDP_SOCKETS_MAXPATH];
 
-                    xrdp_wm_log_msg(self->wm, LOG_LEVEL_INFO,
-                                    "Connecting to chansrv");
                     if (self->use_sesman)
                     {
                         g_snprintf(portbuff, sizeof(portbuff),
                                    XRDP_CHANSRV_STR, self->uid, self->display);
+                        xrdp_wm_log_msg(self->wm, LOG_LEVEL_INFO,
+                                        "Connecting to chansrv");
                     }
                     else
                     {
@@ -3246,6 +3490,9 @@ xrdp_mm_connect_sm(struct xrdp_mm *self)
                         parse_chansrvport(cp, portbuff, sizeof(portbuff),
                                           self->uid);
 
+                        xrdp_wm_log_msg(self->wm, LOG_LEVEL_INFO,
+                                        "Connecting to chansrv on %s",
+                                        portbuff);
                     }
                     xrdp_mm_update_allowed_channels(self);
                     xrdp_mm_chansrv_connect(self, portbuff);
@@ -3338,9 +3585,10 @@ xrdp_mm_get_wait_objs(struct xrdp_mm *self,
     {
         if (xrdp_region_not_empty(self->wm->screen_dirty_region))
         {
-            int now = g_time3();
-            int next_screen_draw_time = self->wm->last_screen_draw_time +
-                                        MIN_MS_BETWEEN_FRAMES;
+            unsigned int now = g_get_elapsed_ms();
+            unsigned int next_screen_draw_time =
+                self->wm->last_screen_draw_time +
+                MIN_MS_BETWEEN_FRAMES;
             int diff = next_screen_draw_time - now;
             int ltimeout = *timeout;
             diff = MAX(diff, MIN_MS_TO_WAIT_FOR_MORE_UPDATES);
@@ -3516,7 +3764,7 @@ xrdp_mm_process_enc_done(struct xrdp_mm *self)
                     self->encoder->frame_id_server = enc_done->frame_id;
                     xrdp_mm_update_module_frame_ack(self);
                 }
-                else
+                else if (self->mod != NULL)
                 {
                     self->mod->mod_frame_ack(self->mod, 0,
                                              enc_done->frame_id);
@@ -3730,7 +3978,7 @@ xrdp_mm_check_wait_objs(struct xrdp_mm *self)
     {
         if (xrdp_region_not_empty(self->wm->screen_dirty_region))
         {
-            int now = g_time3();
+            unsigned int now = g_get_elapsed_ms();
             int diff = now - self->wm->last_screen_draw_time;
             LOG_DEVEL(LOG_LEVEL_TRACE, "xrdp_mm_check_wait_objs: not empty diff %d", diff);
             if ((diff < 0) || (diff >= 40))
@@ -3861,6 +4109,15 @@ server_chansrv_in_use(struct xrdp_mod *mod)
 
     wm = (struct xrdp_wm *)(mod->wm);
     return wm->mm->use_chansrv;
+}
+
+/*****************************************************************************/
+/* Init the XKB layout */
+void
+server_init_xkb_layout(struct xrdp_mod *mod,
+                       struct xrdp_client_info *client_info)
+{
+    xrdp_init_xkb_layout(client_info);
 }
 
 
@@ -4198,6 +4455,17 @@ server_egfx_cmd(struct xrdp_mod *mod,
     tc_mutex_unlock(mm->encoder->mutex);
     /* signal xrdp_encoder thread */
     g_set_wait_obj(mm->encoder->xrdp_encoder_event_to_proc);
+    return 0;
+}
+
+/*****************************************************************************/
+int
+server_set_pointer_system(struct xrdp_mod *mod, int pointer_type)
+{
+    struct xrdp_wm *wm;
+
+    wm = (struct xrdp_wm *)(mod->wm);
+    xrdp_wm_send_pointer_system(wm, pointer_type);
     return 0;
 }
 

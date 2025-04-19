@@ -47,6 +47,7 @@
 #include "login_info.h"
 #include "os_calls.h"
 #include "sesexec.h"
+#include "sessionrecord.h"
 #include "string_calls.h"
 #include "xauth.h"
 #include "xwait.h"
@@ -154,7 +155,7 @@ session_data_free(struct session_data *session_data)
  * @param len the allocated len for outstr
  * @return
  */
-char *
+static char *
 dumpItemsToString(struct list *self, char *outstr, int len)
 {
     int index;
@@ -387,10 +388,21 @@ prepare_xorg_xserver_params(const struct session_parameters *s,
 }
 
 /******************************************************************************/
+/**
+ * Prepare a list of parameters for the Xvnc X server
+ * @param s Session parameters
+ * @params authfile XAUTHORITY file
+ * @params passwd_file VNC password file, or NULL
+ * @params port UDS port to connect to, or NULL
+ * @return parameters list
+ *
+ * One of passwd_file and port must be set
+ */
 static struct list *
 prepare_xvnc_xserver_params(const struct session_parameters *s,
                             const char *authfile,
-                            const char *passwd_file)
+                            const char *passwd_file,
+                            const char *port)
 {
     char screen[32] = {0}; /* display number */
     char geometry[32] = {0};
@@ -419,8 +431,34 @@ prepare_xvnc_xserver_params(const struct session_parameters *s,
                               "-auth", authfile,
                               "-geometry", geometry,
                               "-depth", depth,
-                              "-rfbauth", passwd_file,
                               NULL);
+
+        if (passwd_file != NULL)
+        {
+            /* RFB authorization */
+            list_add_strdup_multi(params,
+                                  "-rfbauth", passwd_file,
+                                  NULL);
+        }
+        else if (port != NULL)
+        {
+            /* UDS connection. Authorization is handled by standard socket
+             * permissions, so we do not need to authorize within the
+             * VNC protocol exchange as well */
+            char sock_mode[16];
+
+            /* Convert a standard permissions mask into decimal
+             * for the -rfbunixmode switch argument
+             */
+            g_snprintf(sock_mode, sizeof(sock_mode),
+                       "%d", 0660); /* rw-rw---- */
+
+            list_add_strdup_multi(params,
+                                  "-rfbunixpath", port,
+                                  "-rfbunixmode", sock_mode,
+                                  "-SecurityTypes", "None",
+                                  NULL);
+        }
 
         /* additional parameters from sesman.ini file */
         //config_read_xserver_params(SCP_SESSION_TYPE_XVNC,
@@ -481,21 +519,27 @@ start_x_server(struct login_info *login_info,
     {
         switch (s->type)
         {
+                char port[256];
+
             case SCP_SESSION_TYPE_XORG:
                 xserver_params = prepare_xorg_xserver_params(s, authfile);
                 break;
 
             case SCP_SESSION_TYPE_XVNC:
                 xserver_params = prepare_xvnc_xserver_params(s, authfile,
-                                 passwd_file);
+                                 passwd_file, NULL);
+                break;
+
+            case SCP_SESSION_TYPE_XVNC_UDS:
+                g_snprintf(port, sizeof(port), XRDP_X11RDP_STR,
+                           login_info->uid, s->display);
+                xserver_params = prepare_xvnc_xserver_params(s, authfile,
+                                 NULL, port);
                 break;
 
             default:
                 unknown_session_type = 1;
         }
-
-        g_free(passwd_file);
-        passwd_file = NULL;
 
         if (xserver_params == NULL)
         {
@@ -519,6 +563,7 @@ start_x_server(struct login_info *login_info,
     }
 
     /* should not get here */
+    g_free(passwd_file);
     list_delete(xserver_params);
     LOG(LOG_LEVEL_ERROR, "A fatal error has occurred attempting "
         "to start the X server on display %u, aborting connection",
@@ -556,7 +601,66 @@ fork_child(
 }
 
 /******************************************************************************/
-enum scp_screate_status
+static int
+process_startup_wait_time(struct session_data *sd)
+{
+    int rv = 0;
+    int robjs_count;
+    intptr_t robjs[10];
+    unsigned int start = g_get_elapsed_ms();
+
+    LOG(LOG_LEVEL_INFO, "Waiting for %u ms for session to start",
+        g_cfg->sess.startup_wait_time);
+    while (1)
+    {
+        unsigned int elapsed = g_get_elapsed_ms() - start;
+        if (elapsed >= g_cfg->sess.startup_wait_time)
+        {
+            break;
+        }
+
+        robjs_count = 0;
+        robjs[robjs_count++] = g_term_event;
+        robjs[robjs_count++] = g_sigchld_event;
+
+        if (g_obj_wait(robjs, robjs_count, NULL, 0,
+                       g_cfg->sess.startup_wait_time - elapsed) != 0)
+        {
+            /* should not get here */
+            LOG(LOG_LEVEL_WARNING, "process_startup_wait_time: "
+                "Unexpected error from g_obj_wait()");
+            g_sleep(100);
+            continue;
+        }
+
+        if (g_is_wait_obj_set(g_term_event)) /* term */
+        {
+            // Simulate success for now, but leave g_term_event set. The
+            // main loop will also pick up the terminate event and the
+            // session will be closed normally
+            break;
+        }
+
+        if (g_is_wait_obj_set(g_sigchld_event)) /* SIGCHLD */
+        {
+            g_reset_wait_obj(g_sigchld_event);
+            session_process_sigchld_event(sd);
+            if (sd->win_mgr < 0)
+            {
+                // Session has failed in the StartupWaitTime
+                // Wait for the rest of the session to finish
+                rv = 1;
+                session_send_term(sd, 1);
+                break;
+            }
+        }
+    }
+
+    return rv;
+}
+
+/******************************************************************************/
+static enum scp_screate_status
 session_start_wrapped(struct login_info *login_info,
                       const struct session_parameters *s,
                       struct session_data *sd)
@@ -656,6 +760,7 @@ session_start_wrapped(struct login_info *login_info,
             }
             else
             {
+                utmp_login(window_manager_pid, s->display, login_info);
                 LOG(LOG_LEVEL_INFO,
                     "Starting the xrdp channel server for display :%d",
                     s->display);
@@ -663,17 +768,27 @@ session_start_wrapped(struct login_info *login_info,
                 chansrv_pid = fork_child(start_chansrv, login_info,
                                          s, display_pid);
 
-                // Tell the caller we've started
-                LOG(LOG_LEVEL_INFO,
-                    "Session in progress on display :%d. Waiting until the "
-                    "window manager (pid %d) exits to end the session",
-                    s->display, window_manager_pid);
-
                 sd->win_mgr = window_manager_pid;
                 sd->x_server = display_pid;
                 sd->chansrv = chansrv_pid;
-                sd->start_time = g_time1();
-                status = E_SCP_SCREATE_OK;
+                sd->start_time = time(NULL);
+
+                if (process_startup_wait_time(sd) == 0)
+                {
+                    // Tell the caller we've started
+                    LOG(LOG_LEVEL_INFO,
+                        "Session in progress on display :%d. Waiting until the "
+                        "window manager (pid %d) exits to end the session",
+                        s->display, window_manager_pid);
+
+                    status = E_SCP_SCREATE_OK;
+                }
+                else
+                {
+                    LOG(LOG_LEVEL_ERROR,
+                        "Session failed during startup wait time");
+                    status = E_SCP_SCREATE_SESSION_FAIL;
+                }
             }
         }
     }
@@ -807,11 +922,11 @@ cleanup_sockets(int uid, int display)
 
 /******************************************************************************/
 static void
-exit_status_to_str(const struct exit_status *e, char buff[], int bufflen)
+exit_status_to_str(const struct proc_exit_status *e, char buff[], int bufflen)
 {
     switch (e->reason)
     {
-        case E_XR_STATUS_CODE:
+        case E_PXR_STATUS_CODE:
             if (e->val == 0)
             {
                 g_snprintf(buff, bufflen, "exit code zero");
@@ -822,7 +937,7 @@ exit_status_to_str(const struct exit_status *e, char buff[], int bufflen)
             }
             break;
 
-        case E_XR_SIGNAL:
+        case E_PXR_SIGNAL:
         {
             char sigstr[MAXSTRSIGLEN];
             g_snprintf(buff, bufflen, "signal %s",
@@ -837,10 +952,19 @@ exit_status_to_str(const struct exit_status *e, char buff[], int bufflen)
 }
 
 /******************************************************************************/
-void
-session_process_child_exit(struct session_data *sd,
-                           int pid,
-                           const struct exit_status *e)
+/**
+ * Processes an exited child
+ *
+ * The PID of the child process is removed from the session_data.
+ *
+ * @param sd session_data for this session
+ * @param pid PID of exited process
+ * @param e Exit status of the exited process
+ */
+static void
+process_child_exit(struct session_data *sd,
+                   int pid,
+                   const struct proc_exit_status *e)
 {
     if (pid == sd->x_server)
     {
@@ -858,9 +982,9 @@ session_process_child_exit(struct session_data *sd,
     }
     else if (pid == sd->win_mgr)
     {
-        int wm_wait_time = g_time1() - sd->start_time;
+        int wm_wait_time = time(NULL) - sd->start_time;
 
-        if (e->reason == E_XR_STATUS_CODE && e->val == 0)
+        if (e->reason == E_PXR_STATUS_CODE && e->val == 0)
         {
             LOG(LOG_LEVEL_INFO,
                 "Window manager (pid %d, display %d) "
@@ -886,6 +1010,7 @@ session_process_child_exit(struct session_data *sd,
                 sd->win_mgr, sd->params.display, wm_wait_time);
         }
 
+        utmp_logout(sd->win_mgr, sd->params.display, e);
         sd->win_mgr = -1;
 
         if (sd->x_server > 0)
@@ -910,6 +1035,20 @@ session_process_child_exit(struct session_data *sd,
 }
 
 /******************************************************************************/
+void
+session_process_sigchld_event(struct session_data *sd)
+{
+    struct proc_exit_status e;
+    int pid;
+
+    // Check for any finished children
+    while ((pid = g_waitchild(&e)) > 0)
+    {
+        process_child_exit(sd, pid, &e);
+    }
+}
+
+/******************************************************************************/
 unsigned int
 session_active(const struct session_data *sd)
 {
@@ -927,12 +1066,42 @@ session_get_start_time(const struct session_data *sd)
 }
 
 /******************************************************************************/
-void
-session_send_term(struct session_data *sd)
+const struct session_parameters *
+session_get_parameters(const struct session_data *sd)
 {
-    if (sd != NULL && sd->win_mgr > 0)
+    return (sd == NULL) ? NULL : &sd->params;
+}
+
+/******************************************************************************/
+void
+session_send_term(struct session_data *sd, int wait_for_all)
+{
+    if (sd != NULL)
     {
-        g_sigterm(sd->win_mgr);
+        if (sd->win_mgr > 0)
+        {
+            // Killing the window manager only is appropriate here.
+            // When we process SIGCHLD for the window manager, we
+            // will kill other processes as appropriate
+            g_sigterm(sd->win_mgr);
+        }
+
+        while (session_active(sd))
+        {
+            /* Don't check SIGTERM - we shouldn't be here long */
+            if (g_obj_wait(&g_sigchld_event, 1, NULL, 0, -1) != 0)
+            {
+                /* should not get here */
+                LOG(LOG_LEVEL_WARNING, "session_send_term: "
+                    "Unexpected error from g_obj_wait()");
+                g_sleep(100);
+            }
+            else
+            {
+                g_reset_wait_obj(g_sigchld_event);
+                session_process_sigchld_event(sd);
+            }
+        }
     }
 }
 

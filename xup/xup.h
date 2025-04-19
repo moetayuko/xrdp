@@ -21,6 +21,17 @@
 #ifndef XUP_H
 #define XUP_H
 
+/**
+ * Enum for the states used to process a
+ * capabilities message from the Xorg module
+ */
+enum caps_processing_status
+{
+    E_CAPS_NOT_PROCESSED, ///< Capabilities mesage from module not processed
+    E_CAPS_OK,            ///< Capabilities are OK
+    E_CAPS_NOT_OK         ///< Capabilities are not OK
+};
+
 /* include other h files */
 #include "arch.h"
 #include "parse.h"
@@ -34,6 +45,7 @@
 #define CURRENT_MOD_VER 4
 
 struct source_info;
+struct xrdp_client_info;
 
 struct mod
 {
@@ -111,6 +123,8 @@ struct mod
                                   int total_data_len, int flags);
     int (*server_bell_trigger)(struct mod *v);
     int (*server_chansrv_in_use)(struct mod *v);
+    void (*server_init_xkb_layout)(struct mod *v,
+                                   struct xrdp_client_info *client_info);
     /* off screen bitmaps */
     int (*server_create_os_surface)(struct mod *v, int rdpindex,
                                     int width, int height);
@@ -176,7 +190,8 @@ struct mod
     int (*server_egfx_cmd)(struct mod *v,
                            char *cmd, int cmd_bytes,
                            char *data, int data_bytes);
-    tintptr server_dumby[100 - 50]; /* align, 100 minus the number of server
+    int (*server_set_pointer_system)(struct mod *v, int pointer_type);
+    tintptr server_dumby[100 - 52]; /* align, 100 minus the number of server
                                      functions above */
     /* common */
     tintptr handle; /* pointer to self as long */
@@ -198,6 +213,8 @@ struct mod
     int screen_shmem_id_mapped; /* boolean */
     char *screen_shmem_pixels;
     struct trans *trans;
+    char keycode_set[32];
+    enum caps_processing_status caps_processing_status;
 };
 
 #endif // XUP_H

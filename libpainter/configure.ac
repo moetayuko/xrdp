@@ -6,7 +6,6 @@ AC_CONFIG_HEADERS(config_ac.h:config_ac-h.in)
 AM_INIT_AUTOMAKE([1.6 foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CC
-AC_C_CONST
 LT_INIT
 PKG_INSTALLDIR
 
@@ -15,6 +14,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AX_CFLAGS_WARN_ALL
 AX_APPEND_COMPILE_FLAGS([-Wwrite-strings])
+AX_APPEND_COMPILE_FLAGS([-Wmissing-prototypes], ,[-Werror])
 
 AC_ARG_ENABLE(tests, AS_HELP_STRING([--enable-tests],
               [Build install tests (default: no)]),

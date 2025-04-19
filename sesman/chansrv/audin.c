@@ -32,6 +32,7 @@
 #include "log.h"
 #include "xrdp_constants.h"
 #include "fifo.h"
+#include "audin.h"
 
 #define MSG_SNDIN_VERSION       1
 #define MSG_SNDIN_FORMATS       2
@@ -101,7 +102,6 @@ audin_wave_format_tag_to_str(int tag)
         (tag == WAVE_FORMAT_PCM)        ? "WAVE_FORMAT_PCM" :
         (tag == WAVE_FORMAT_ADPCM)      ? "WAVE_FORMAT_ADPCM" :
         (tag == WAVE_FORMAT_ALAW)       ? "WAVE_FORMAT_ALAW" :
-        (tag == WAVE_FORMAT_MULAW)      ? "WAVE_FORMAT_MULAW" :
         (tag == WAVE_FORMAT_MULAW)      ? "WAVE_FORMAT_MULAW" :
         (tag == WAVE_FORMAT_MPEGLAYER3) ? "WAVE_FORMAT_MPEGLAYER3" :
         (tag == WAVE_FORMAT_OPUS)       ? "WAVE_FORMAT_OPUS" :

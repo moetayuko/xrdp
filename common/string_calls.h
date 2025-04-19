@@ -296,6 +296,11 @@ int      g_strcasecmp(const char *c1, const char *c2);
 int      g_strncasecmp(const char *c1, const char *c2, int len);
 int      g_atoi(const char *str);
 
+/* Non-standard but useful functions */
+#if !defined(HAVE_STRLCPY)
+size_t   strlcpy(char *dst, const char *src, size_t dsize);
+#endif
+
 /**
  * Extends g_atoi(), Converts decimal and hexadecimal number String to integer
  *
@@ -305,7 +310,15 @@ int      g_atoi(const char *str);
  * @return int Integer expression of a string
  */
 int      g_atoix(const char *str);
-int      g_htoi(char *str);
+/**
+ * Converts a hex string to an integer
+ * @param str pointer to Hex string containing only hex digits
+ * @return value, converted from hex
+ *
+ * This function is intended to be used as an analogue to the standard
+ * function atoi(). It performs no error checking of its own
+ */
+unsigned int g_htoi(const char *str);
 int      g_bytes_to_hexstr(const void *bytes, int num_bytes, char *out_str,
                            int bytes_out_str);
 int      g_pos(const char *str, const char *to_find);

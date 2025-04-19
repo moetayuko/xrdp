@@ -156,246 +156,6 @@ hex_str_to_bin(char *in, char *out, int out_len)
 }
 
 /*****************************************************************************/
-static void
-xrdp_load_keyboard_layout(struct xrdp_client_info *client_info)
-{
-    int fd;
-    int index = 0;
-    int bytes;
-    struct list *names = (struct list *)NULL;
-    struct list *items = (struct list *)NULL;
-    struct list *values = (struct list *)NULL;
-    char *item = (char *)NULL;
-    char *value = (char *)NULL;
-    char *q = (char *)NULL;
-    char keyboard_cfg_file[256] = { 0 };
-    char rdp_layout[256] = { 0 };
-
-    const struct xrdp_keyboard_overrides *ko =
-            &client_info->xrdp_keyboard_overrides;
-
-    LOG(LOG_LEVEL_INFO, "xrdp_load_keyboard_layout: Keyboard information sent"
-        " by the RDP client, keyboard_type:[0x%02X], keyboard_subtype:[0x%02X],"
-        " keylayout:[0x%08X]",
-        client_info->keyboard_type, client_info->keyboard_subtype,
-        client_info->keylayout);
-
-    if (ko->type != -1)
-    {
-        LOG(LOG_LEVEL_INFO, "overrode keyboard_type 0x%02X"
-            " with 0x%02X", client_info->keyboard_type, ko->type);
-        client_info->keyboard_type = ko->type;
-    }
-    if (ko->subtype != -1)
-    {
-        LOG(LOG_LEVEL_INFO, "overrode keyboard_subtype 0x%02X"
-            " with 0x%02X", client_info->keyboard_subtype,
-            ko->subtype);
-        client_info->keyboard_subtype = ko->subtype;
-    }
-    if (ko->layout != -1)
-    {
-        LOG(LOG_LEVEL_INFO, "overrode keylayout 0x%08X"
-            " with 0x%08X", client_info->keylayout, ko->layout);
-        client_info->keylayout = ko->layout;
-    }
-    /* infer model/variant */
-    /* TODO specify different X11 keyboard models/variants */
-    g_memset(client_info->model, 0, sizeof(client_info->model));
-    g_memset(client_info->variant, 0, sizeof(client_info->variant));
-    g_strncpy(client_info->layout, "us", sizeof(client_info->layout) - 1);
-    if (client_info->keyboard_subtype == 3)
-    {
-        /* macintosh keyboard */
-        bytes = sizeof(client_info->variant);
-        g_strncpy(client_info->variant, "mac", bytes - 1);
-    }
-    else if (client_info->keyboard_subtype == 0)
-    {
-        /* default - standard subtype */
-        client_info->keyboard_subtype = 1;
-    }
-
-    g_snprintf(keyboard_cfg_file, 255, "%s/xrdp_keyboard.ini", XRDP_CFG_PATH);
-    LOG(LOG_LEVEL_DEBUG, "keyboard_cfg_file %s", keyboard_cfg_file);
-
-    fd = g_file_open_ro(keyboard_cfg_file);
-
-    if (fd >= 0)
-    {
-        int section_found = -1;
-        char section_rdp_layouts[256] = { 0 };
-        char section_layouts_map[256] = { 0 };
-
-        names = list_create();
-        names->auto_free = 1;
-        items = list_create();
-        items->auto_free = 1;
-        values = list_create();
-        values->auto_free = 1;
-
-        file_read_sections(fd, names);
-        for (index = 0; index < names->count; index++)
-        {
-            q = (char *)list_get_item(names, index);
-            if (g_strncasecmp("default", q, 8) != 0)
-            {
-                int i;
-
-                file_read_section(fd, q, items, values);
-
-                for (i = 0; i < items->count; i++)
-                {
-                    item = (char *)list_get_item(items, i);
-                    value = (char *)list_get_item(values, i);
-                    LOG(LOG_LEVEL_DEBUG, "xrdp_load_keyboard_layout: item %s value %s",
-                        item, value);
-                    if (g_strcasecmp(item, "keyboard_type") == 0)
-                    {
-                        int v = g_atoi(value);
-                        if (v == client_info->keyboard_type)
-                        {
-                            section_found = index;
-                        }
-                    }
-                    else if (g_strcasecmp(item, "keyboard_subtype") == 0)
-                    {
-                        int v = g_atoi(value);
-                        if (v != client_info->keyboard_subtype &&
-                                section_found == index)
-                        {
-                            section_found = -1;
-                            break;
-                        }
-                    }
-                    else if (g_strcasecmp(item, "rdp_layouts") == 0)
-                    {
-                        if (section_found != -1 && section_found == index)
-                        {
-                            g_strncpy(section_rdp_layouts, value, 255);
-                        }
-                    }
-                    else if (g_strcasecmp(item, "layouts_map") == 0)
-                    {
-                        if (section_found != -1 && section_found == index)
-                        {
-                            g_strncpy(section_layouts_map, value, 255);
-                        }
-                    }
-                    else if (g_strcasecmp(item, "model") == 0)
-                    {
-                        if (section_found != -1 && section_found == index)
-                        {
-                            bytes = sizeof(client_info->model);
-                            g_memset(client_info->model, 0, bytes);
-                            g_strncpy(client_info->model, value, bytes - 1);
-                        }
-                    }
-                    else if (g_strcasecmp(item, "variant") == 0)
-                    {
-                        if (section_found != -1 && section_found == index)
-                        {
-                            bytes = sizeof(client_info->variant);
-                            g_memset(client_info->variant, 0, bytes);
-                            g_strncpy(client_info->variant, value, bytes - 1);
-                        }
-                    }
-                    else if (g_strcasecmp(item, "options") == 0)
-                    {
-                        if (section_found != -1 && section_found == index)
-                        {
-                            bytes = sizeof(client_info->options);
-                            g_memset(client_info->options, 0, bytes);
-                            g_strncpy(client_info->options, value, bytes - 1);
-                        }
-                    }
-                    else
-                    {
-                        /*
-                         * mixing items from different sections will result in
-                         * skipping over current section.
-                         */
-                        LOG(LOG_LEVEL_DEBUG, "xrdp_load_keyboard_layout: skipping "
-                            "configuration item - %s, continuing to next "
-                            "section", item);
-                        break;
-                    }
-                }
-
-                list_clear(items);
-                list_clear(values);
-            }
-        }
-
-        if (section_found == -1)
-        {
-            g_memset(section_rdp_layouts, 0, sizeof(char) * 256);
-            g_memset(section_layouts_map, 0, sizeof(char) * 256);
-            // read default section
-            file_read_section(fd, "default", items, values);
-            for (index = 0; index < items->count; index++)
-            {
-                item = (char *)list_get_item(items, index);
-                value = (char *)list_get_item(values, index);
-                if (g_strcasecmp(item, "rdp_layouts") == 0)
-                {
-                    g_strncpy(section_rdp_layouts, value, 255);
-                }
-                else if (g_strcasecmp(item, "layouts_map") == 0)
-                {
-                    g_strncpy(section_layouts_map, value, 255);
-                }
-            }
-            list_clear(items);
-            list_clear(values);
-        }
-
-        /* load the map */
-        file_read_section(fd, section_rdp_layouts, items, values);
-        for (index = 0; index < items->count; index++)
-        {
-            int rdp_layout_id;
-            item = (char *)list_get_item(items, index);
-            value = (char *)list_get_item(values, index);
-            rdp_layout_id = g_htoi(value);
-            if (rdp_layout_id == client_info->keylayout)
-            {
-                g_strncpy(rdp_layout, item, 255);
-                break;
-            }
-        }
-        list_clear(items);
-        list_clear(values);
-        file_read_section(fd, section_layouts_map, items, values);
-        for (index = 0; index < items->count; index++)
-        {
-            item = (char *)list_get_item(items, index);
-            value = (char *)list_get_item(values, index);
-            if (g_strcasecmp(item, rdp_layout) == 0)
-            {
-                bytes = sizeof(client_info->layout);
-                g_strncpy(client_info->layout, value, bytes - 1);
-                break;
-            }
-        }
-
-        list_delete(names);
-        list_delete(items);
-        list_delete(values);
-
-        LOG(LOG_LEVEL_INFO, "xrdp_load_keyboard_layout: model [%s] variant [%s] "
-            "layout [%s] options [%s]", client_info->model,
-            client_info->variant, client_info->layout, client_info->options);
-        g_file_close(fd);
-    }
-    else
-    {
-        LOG(LOG_LEVEL_ERROR, "xrdp_load_keyboard_layout: error opening %s",
-            keyboard_cfg_file);
-    }
-}
-
-/*****************************************************************************/
 struct xrdp_sec *
 xrdp_sec_create(struct xrdp_rdp *owner, struct trans *trans)
 {
@@ -1728,7 +1488,6 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
     int highColorDepth;
     int supportedColorDepths;
     int earlyCapabilityFlags;
-    char clientName[INFO_CLIENT_NAME_BYTES / 2] = { '\0' };
 
     UNUSED_VAR(version);
     struct xrdp_client_info *client_info = &self->rdp_layer->client_info;
@@ -1756,8 +1515,8 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
             break;
     }
     in_uint8s(s, 2); /* SASSequence */
-    in_uint8s(s, 4); /* keyboardLayout */
-    in_uint8s(s, 4); /* clientBuild */
+    in_uint32_le(s, client_info->keylayout);
+    in_uint32_le(s, client_info->build);
 
     /* clientName
      *
@@ -1765,26 +1524,33 @@ xrdp_sec_process_mcs_data_CS_CORE(struct xrdp_sec *self, struct stream *s)
      * isn't by ignoring the last two bytes and treating them as a
      * terminator anyway */
     in_utf16_le_fixed_as_utf8(s, (INFO_CLIENT_NAME_BYTES - 2) / 2,
-                              clientName, sizeof(clientName));
+                              client_info->hostname,
+                              sizeof(client_info->hostname));
     in_uint8s(s, 2); /* See above */
-    LOG(LOG_LEVEL_INFO, "Connected client computer name: %s", clientName);
-    in_uint8s(s, 4); /* keyboardType */
-    in_uint8s(s, 4); /* keyboardSubType */
+    LOG(LOG_LEVEL_INFO, "Connected client computer name: %s",
+        client_info->hostname);
+    in_uint32_le(s, client_info->keyboard_type); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardType */
+    in_uint32_le(s, client_info->keyboard_subtype); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardSubType */
     in_uint8s(s, 4); /* keyboardFunctionKey */
     in_uint8s(s, 64); /* imeFileName */
     LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] TS_UD_CS_CORE "
               "<Required fields> version %08x, desktopWidth %d, "
               "desktopHeight %d, colorDepth %s, SASSequence (ignored), "
-              "keyboardLayout (ignored), clientBuild (ignored), "
-              "clientName %s, keyboardType (ignored), "
-              "keyboardSubType (ignored), keyboardFunctionKey (ignored), "
+              "keyboardLayout 0x%8.8x, clientBuild %d, "
+              "clientName %s, keyboardType 0x%8.8x, "
+              "keyboardSubType 0x%8.8x, keyboardFunctionKey (ignored), "
               "imeFileName (ignored)",
               version,
               client_info->display_sizes.session_width,
               client_info->display_sizes.session_height,
-              (colorDepth == 0xca00 ? "RNS_UD_COLOR_4BPP" :
-               colorDepth == 0xca01 ? "RNS_UD_COLOR_8BPP" : "unknown"),
-              clientName);
+              (colorDepth == RNS_UD_COLOR_4BPP ? "RNS_UD_COLOR_4BPP" :
+               colorDepth == RNS_UD_COLOR_8BPP ? "RNS_UD_COLOR_8BPP" :
+               "unknown"),
+              client_info->keylayout,
+              client_info->build,
+              client_info->hostname,
+              client_info->keyboard_type,
+              client_info->keyboard_subtype);
 
     /* TS_UD_CS_CORE optional fields */
     if (!s_check_rem(s, 2))
@@ -2260,7 +2026,7 @@ xrdp_sec_process_mcs_data_monitors(struct xrdp_sec *self, struct stream *s)
 /*****************************************************************************/
 /* Process a [MS-RDPBCGR] TS_UD_CS_MONITOR_EX message.
    reads the client monitor's extended data */
-int
+static int
 xrdp_sec_process_mcs_data_monitors_ex(struct xrdp_sec *self, struct stream *s)
 {
     int flags;
@@ -2421,90 +2187,8 @@ xrdp_sec_process_mcs_data(struct xrdp_sec *self)
 }
 
 /*****************************************************************************/
-/* Process the mcs client data [ITU T.124] ConferenceCreateRequest userData field
-   as a [MS-RDPBCGR] TS_UD_CS_CORE struct */
-/* TODO: why does this method parse the strust from back to front (resetting
-   after each field) instead of from front to back like the rest of the parsing
-   code? */
-/* TODO: why does this method exist when the same struct is parsed in
-   xrdp_sec_process_mcs_data_CS_CORE and there does not seem to be any
-   dependencies preventing a call to that function. */
-/* TODO: this is a brittle function that assumes field offsets in the stream
-   instead of parsing the variable length fields of [ITU T.124] ConferenceCreateRequest */
-static int
-xrdp_sec_in_mcs_data(struct xrdp_sec *self)
-{
-    struct stream *s = (struct stream *)NULL;
-    struct xrdp_client_info *client_info = (struct xrdp_client_info *)NULL;
-
-    client_info = &(self->rdp_layer->client_info);
-    s = &(self->client_mcs_data);
-    /* get hostname, it's unicode */
-    s->p = s->data;
-    if (!s_check_rem_and_log(s, 47, "Parsing [ITU T.124] ConferenceCreateRequest"))
-    {
-        return 1;
-    }
-    in_uint8s(s, 47); /* skip [ITU T.124] ConferenceCreateRequest up to the
-                         userData field, and skip [MS-RDPBCGR] TS_UD_CS_CORE
-                         up to the clientName field */
-    if (!s_check_rem_and_log(s, INFO_CLIENT_NAME_BYTES,
-                             "Parsing [MS-RDPBCGR] TS_UD_CS_CORE clientName"))
-    {
-        return 1;
-    }
-    in_utf16_le_fixed_as_utf8(s, (INFO_CLIENT_NAME_BYTES - 2) / 2,
-                              client_info->hostname,
-                              sizeof(client_info->hostname));
-    in_uint8s(s, 2); /* Ignored - terminator for full-size clientName */
-
-    /* get build */
-    s->p = s->data;
-    if (!s_check_rem_and_log(s, 43 + 4, "Parsing [MS-RDPBCGR] TS_UD_CS_CORE clientBuild"))
-    {
-        return 1;
-    }
-    in_uint8s(s, 43);
-    in_uint32_le(s, client_info->build); /* [MS-RDPBCGR] TS_UD_CS_CORE clientBuild */
-    /* get keylayout */
-    s->p = s->data;
-    if (!s_check_rem_and_log(s, 39 + 4, "Parsing [MS-RDPBCGR] TS_UD_CS_CORE keyboardLayout"))
-    {
-        return 1;
-    }
-    in_uint8s(s, 39);
-    in_uint32_le(s, client_info->keylayout); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardLayout */
-    /* get keyboard type / subtype */
-    s->p = s->data;
-    if (!s_check_rem_and_log(s, 79 + 8, "Parsing [MS-RDPBCGR] TS_UD_CS_CORE keyboardType"))
-    {
-        return 1;
-    }
-    in_uint8s(s, 79);
-    in_uint32_le(s, client_info->keyboard_type); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardType */
-    in_uint32_le(s, client_info->keyboard_subtype); /* [MS-RDPBCGR] TS_UD_CS_CORE keyboardSubType */
-    LOG_DEVEL(LOG_LEVEL_TRACE, "Received [MS-RDPBCGR] TS_UD_CS_CORE "
-              "<Required fields> version (ignored), desktopWidth (ignored), "
-              "desktopHeight (ignored), colorDepth (ignored), SASSequence (ignored), "
-              "keyboardLayout 0x%8.8x, clientBuild %d, "
-              "clientName %s, keyboardType 0x%8.8x, "
-              "keyboardSubType 0x%8.8x, keyboardFunctionKey (ignored), "
-              "imeFileName (ignored)",
-              client_info->keylayout,
-              client_info->build,
-              client_info->hostname,
-              client_info->keyboard_type,
-              client_info->keyboard_subtype);
-
-    xrdp_load_keyboard_layout(client_info);
-    s->p = s->data;
-
-    return 0;
-}
-
-/*****************************************************************************/
 /* returns error */
-int
+static int
 xrdp_sec_init_rdp_security(struct xrdp_sec *self)
 {
     switch (self->rdp_layer->client_info.crypt_level)
@@ -2685,12 +2369,6 @@ xrdp_sec_incoming(struct xrdp_sec *self)
     LOG_DEVEL_HEXDUMP(LOG_LEVEL_TRACE, "server mcs data sent",
                       self->server_mcs_data.data,
                       (int)(self->server_mcs_data.end - self->server_mcs_data.data));
-
-    if (xrdp_sec_in_mcs_data(self) != 0)
-    {
-        LOG(LOG_LEVEL_ERROR, "xrdp_sec_incoming: xrdp_sec_in_mcs_data failed");
-        return 1;
-    }
 
     return 0;
 }
